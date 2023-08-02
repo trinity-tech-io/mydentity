@@ -5,6 +5,7 @@
 
 # Start the server for development
 
+- Clone `.env.sample` to `.env`
 - `npm run start:dev`
 
 # Prisma

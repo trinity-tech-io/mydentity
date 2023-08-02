@@ -1,8 +1,17 @@
-## Start the front end app
+# Setup
+
+- Clone `.env.sample` to `.env.local`
+- `npm i -D`
+# Start the front end app
 
 - `npm run dev`
 - Open browser at `http://localhost:4000`
 
-## Theme
+# Screens and routing
 
-- See original theme demo at `https://mosaic.cruip.com/`
+- Next creates navigation routes automatically using folders in the app/ folder, when a `page.tsx` file is found.
+- To create a new screen, just add a similar folder, no other configuration is needed.
+
+# Theme info
+
+- The current theme was copied from `https://mosaic.cruip.com/`
