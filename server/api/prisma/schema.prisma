@@ -1,0 +1,17 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Identity {
+  did String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  // TODO: link to user (owner of several identities)
+}
