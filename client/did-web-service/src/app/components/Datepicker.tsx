@@ -1,8 +1,7 @@
-import React, { FC } from 'react';
+import { FC } from 'react';
 import Flatpickr from 'react-flatpickr';
 
-const Datepicker: FC<{ align?: any }> = ({ align }) => {
-
+export const Datepicker: FC<{ align?: any }> = ({ align }) => {
   const options = {
     mode: 'range',
     static: true,
@@ -33,4 +32,3 @@ const Datepicker: FC<{ align?: any }> = ({ align }) => {
   );
 }
 
-export default Datepicker;

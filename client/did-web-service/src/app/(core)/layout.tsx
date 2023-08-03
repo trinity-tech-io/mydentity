@@ -3,11 +3,8 @@ import React, { useState } from 'react';
 import ThemeProvider from '../contexts/ThemeContext';
 
 import { initApp as initClientSide } from '@services/init.service';
-import Datepicker from '../components/Datepicker';
-import FilterButton from '../components/DropdownFilter';
 import { Header } from '../partials/Header';
 import Sidebar from '../partials/Sidebar';
-import { WelcomeBanner } from './WelcomeBanner';
 
 // This layout file is our very initial layout (the first thing that may use "use client") so we initialize the browser things from here for now.
 // BEWARE OF NEXTJS, as next has server side rendered pages and client side ones. We want to initialize browser side features for now.
@@ -40,29 +37,6 @@ export default function RootLayout({
 
           <main>
             <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto ">
-
-              {/* Welcome banner */}
-              <WelcomeBanner />
-
-              {/* Dashboard actions */}
-              <div className="sm:flex sm:justify-between sm:items-center mb-8">
-
-                {/* Right: Actions */}
-                <div className="grid grid-flow-col sm:auto-cols-max justify-start sm:justify-end gap-2">
-                  {/* Filter button */}
-                  <FilterButton align="left" />
-                  {/* Datepicker built with flatpickr */}
-                  <Datepicker />
-                  {/* Add view button */}
-                  <button className="btn bg-indigo-500 hover:bg-indigo-600 text-white">
-                    <svg className="w-4 h-4 fill-current opacity-50 shrink-0" viewBox="0 0 16 16">
-                      <path d="M15 7H9V1c0-.6-.4-1-1-1S7 .4 7 1v6H1c-.6 0-1 .4-1 1s.4 1 1 1h6v6c0 .6.4 1 1 1s1-.4 1-1V9h6c.6 0 1-.4 1-1s-.4-1-1-1z" />
-                    </svg>
-                    <span className="hidden xs:block ml-2">Add view</span>
-                  </button>
-                </div>
-
-              </div>
 
               {/* Main content */}
               <div className="grid grid-cols-12 gap-6">

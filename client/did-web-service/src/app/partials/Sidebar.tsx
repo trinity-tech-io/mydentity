@@ -148,7 +148,7 @@ const GroupElement: FC<{
           {
             links && <div className="lg:hidden lg:sidebar-expanded:block 2xl:block">
               <ul className={`pl-9 mt-1 ${!open && 'hidden'}`}>
-                {links.map(link => <LinkElement link={link} />)}
+                {links.map(link => <LinkElement key={link.title} link={link} />)}
               </ul>
             </div>
           }

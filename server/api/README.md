@@ -6,6 +6,7 @@
 # Start the server for development
 
 - Clone `.env.sample` to `.env`
+- Start docker dependencies (see Docker section below)
 - `npm run start:dev`
 
 # Prisma
@@ -25,12 +26,13 @@
 ## To view and edit the database
 
 - `npx prisma studio`
-- Open `http://localhost:5555/`
+- Open http://localhost:5555/
 
 # Docker
 
 Run docker containers to easily deploy the required services such as the local database:
 
+- From the api folder:
 - `docker compose up`
 
 # Other useful commands
@@ -41,4 +43,4 @@ Run docker containers to easily deploy the required services such as the local d
 
 ## Test graphql queries
 
-- Open `http://localhost:3000/graphql`
+- Open http://localhost:3000/graphql
