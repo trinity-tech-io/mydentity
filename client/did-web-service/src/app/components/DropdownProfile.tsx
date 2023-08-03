@@ -4,6 +4,7 @@ import Transition from './Transition';
 import UserAvatar from '@assets/images/user-avatar-32.png';
 import Image from 'next/image';
 import Link from 'next/link';
+import Notifications from '../components/DropdownNotifications';
 
 function DropdownProfile({
   align
@@ -90,6 +91,11 @@ function DropdownProfile({
               >
                 Sign Out
               </Link>
+            </li>
+            <li>
+              <div className='py-1 px-3'>
+                <Notifications align="right" />
+              </div>
             </li>
           </ul>
         </div>

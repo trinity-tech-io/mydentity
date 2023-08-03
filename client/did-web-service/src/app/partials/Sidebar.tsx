@@ -13,6 +13,7 @@ import Image, { StaticImageData } from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { FC, useEffect, useRef, useState } from 'react';
+import ThemeToggle from '../components/ThemeToggle';
 
 type LinkConfig = {
   title: string;
@@ -292,7 +293,8 @@ const Sidebar: FC<{
             }}
           />)}
         </div>
-
+        
+        
         {/* Expand / collapse button */}
         <div className="pt-3 hidden lg:inline-flex 2xl:hidden justify-end mt-auto">
           <div className="px-3 py-2">
@@ -305,6 +307,7 @@ const Sidebar: FC<{
             </button>
           </div>
         </div>
+        <div className='px-3 py-2'><ThemeToggle/></div>
       </div>
     </div>
   );

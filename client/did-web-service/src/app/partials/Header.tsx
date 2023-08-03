@@ -1,16 +1,15 @@
 import { FC, useState } from 'react';
 
-import Help from '../components/DropdownHelp';
-import Notifications from '../components/DropdownNotifications';
+// import Help from '../components/DropdownHelp';
+// import Notifications from '../components/DropdownNotifications';
 import UserMenu from '../components/DropdownProfile';
-import SearchModal from '../components/ModalSearch';
-import ThemeToggle from '../components/ThemeToggle';
+// import SearchModal from '../components/ModalSearch';
 
 export const Header: FC<{
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
 }> = ({ sidebarOpen, setSidebarOpen }) => {
-  const [searchModalOpen, setSearchModalOpen] = useState(false);
+  // const [searchModalOpen, setSearchModalOpen] = useState(false);
 
   return (
     <header className="sticky top-0 bg-white dark:bg-[#182235] border-b border-slate-200 dark:border-slate-700 z-30">
@@ -39,7 +38,7 @@ export const Header: FC<{
 
           {/* Header: Right side */}
           <div className="flex items-center space-x-3">
-            <div>
+            {/* <div>
               <button
                 className={`w-8 h-8 flex items-center justify-center bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600/80 rounded-full ml-3 ${searchModalOpen && 'bg-slate-200'
                   }`}
@@ -62,10 +61,10 @@ export const Header: FC<{
                 </svg>
               </button>
               <SearchModal id="search-modal" searchId="search" modalOpen={searchModalOpen} setModalOpen={setSearchModalOpen} />
-            </div>
-            <Notifications align="right" />
-            <Help align="right" />
-            <ThemeToggle />
+            </div> */}
+            {/* <Notifications align="right" /> */}
+            {/* <Help align="right" /> */}
+            {/* <ThemeToggle /> */}
             {/*  Divider */}
             <hr className="w-px h-6 bg-slate-200 dark:bg-slate-700 border-none" />
             <UserMenu align="right" />
