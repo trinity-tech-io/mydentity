@@ -23,3 +23,13 @@ This web app aims at helping users easily get a W3C DID and manage it. The app a
 
 - Setup the [React web app](/client/did-web-service/README.md)
 - Setup the [API server](/server/api/README.md)
+
+# VSCode plugins to use:
+
+- For Tailwind CSS rules: bradlc.vscode-tailwindcss
+- ESLint for better code quality: dbaeumer.vscode-eslint
+- Prisma: Prisma.prisma
+- GraphQL (syntax highlighting): GraphQL.vscode-graphql-syntax
+- Preview SVG pictures: SimonSiefke.svg-preview
+- Traling spaces (to remove useless spaces when saving): shardulm94.trailing-spaces
+- Markdown (for README preview): yzhang.markdown-all-in-one
