@@ -8,4 +8,4 @@ services:
     environment:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=123
-      - POSTGRES_DB=didservice
+      - POSTGRES_DB=didwebservice
