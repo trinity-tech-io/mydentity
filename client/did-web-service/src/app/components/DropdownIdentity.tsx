@@ -4,6 +4,8 @@ import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { authUser$ } from '@services/user/user.events';
 import { activeIdentity$ } from '@services/identity/identity.events';
 import { Identity } from '@model/identity/identity';
+import { identityService } from '@services/identity/identity.service';
+import ModalCreateIdentity from './ModalIdentity';
 
 function DropdownIdentity({
   align
@@ -16,14 +18,10 @@ function DropdownIdentity({
   const [authUser] = useBehaviorSubject(authUser$);
   let [identities] = useBehaviorSubject(authUser?.get("identity").identities$);
   let [currentIdentity] = useBehaviorSubject(activeIdentity$);
-
-  const createDIDTest = async () => {
-    await authUser.get("identity").createIdentity();
-    // alert("Identity successfully created");
-  }
+  const [createDidModalOpen, setCreateDidModalOpen] = useState(false);
 
   const setCurrentIdentity = (identity: Identity) => {
-    activeIdentity$.next(identity)
+    identityService.setActiveIdentity(identity);
   }
 
   // close on click outside
@@ -49,11 +47,15 @@ function DropdownIdentity({
 
   return (
     <div className="relative inline-flex">
+      <ModalCreateIdentity id="search-modal" modalOpen={createDidModalOpen} setModalOpen={setCreateDidModalOpen}/>
       <button
         ref={trigger}
         className="inline-flex justify-center items-center group"
         aria-haspopup="true"
-        onClick={() => setDropdownOpen(!dropdownOpen)}
+        onClick={() => {
+          setCreateDidModalOpen(false);
+          setDropdownOpen(!dropdownOpen);
+        }}
         aria-expanded={dropdownOpen}
       >
         {/* <Image className="w-8 h-8 rounded-full" src={IdentityAvatar} width="32" height="32" alt="User" /> */}
@@ -90,10 +92,10 @@ function DropdownIdentity({
       <Transition
         className={`origin-top-right z-10 absolute top-full min-w-44 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 py-1.5 rounded shadow-lg overflow-hidden mt-1 ${align === 'right' ? 'right-0' : 'left-0'}`}
         show={dropdownOpen}
-        enter="transition ease-out duration-200 transform"
+        enter="transition ease-out  transform"
         enterStart="opacity-0 -translate-y-2"
         enterEnd="opacity-100 translate-y-0"
-        leave="transition ease-out duration-200"
+        leave="transition ease-out "
         leaveStart="opacity-100"
         leaveEnd="opacity-0"
       >
@@ -103,32 +105,39 @@ function DropdownIdentity({
           onBlur={() => setDropdownOpen(false)}
         >
           <div className="py-3 px-3 w-full" >
-            <button className="btn w-full bg-indigo-500 hover:bg-indigo-600 text-white whitespace-nowrap" onClick={createDIDTest} >
+            <button className="btn w-full bg-indigo-500 hover:bg-indigo-600 text-white whitespace-nowrap" onClick={()=>{
+              setDropdownOpen(false);
+
+                setCreateDidModalOpen(true);
+
+              // setCreateDidModalOpen(true);
+            }}>
               <span className="hidden xs:block ml-2">Create New DID</span>
               <svg className="ml-2 w-4 h-4 fill-current opacity-50 shrink-0" viewBox="0 0 16 16">
                 <path d="M15 7H9V1c0-.6-.4-1-1-1S7 .4 7 1v6H1c-.6 0-1 .4-1 1s.4 1 1 1h6v6c0 .6.4 1 1 1s1-.4 1-1V9h6c.6 0 1-.4 1-1s-.4-1-1-1z" />
               </svg>
             </button>
+            
           </div>
                 {
-                  identities.length>0 ? 
+                  identities.length>0 ?
                     <div className="border-b border-slate-200 dark:border-slate-700 " ></div> : <span></span>
                 }
                 {
                     identities.map(identity => {
                       return (
-                        <tr key={identity.did}>
-                          <td className="font-medium text-sm text-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center py-3 px-3"
+                        <div key={identity.did}>
+                          <div className="font-medium text-sm text-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center py-3 px-3"
                               onClick={()=>{
                                 setCurrentIdentity(identity)
                                 setDropdownOpen(false)
                               }}>
                             <div className="text-left">{identity.did}</div>
-                          </td>
+                          </div>
                           {/* <td className="p-2 whitespace-nowrap">
                             <div className="text-left">{identity.createdAt.toLocaleDateString()}</div>
                           </td> */}
-                        </tr>
+                        </div>
                       )
                     })
                     // "I think that's more than just like it!"
