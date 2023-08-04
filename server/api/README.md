@@ -1,7 +1,10 @@
 # Setup
 
 - `npm i -g @nestjs/cli`
+- `cd server/api`
 - `npm i -D`
+- `npx prisma generate`
+- `npx prisma migrate deploy`
 
 # Start the server for development
 
