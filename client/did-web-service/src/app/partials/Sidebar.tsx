@@ -293,8 +293,6 @@ const Sidebar: FC<{
             }}
           />)}
         </div>
-        
-        
         {/* Expand / collapse button */}
         <div className="pt-3 hidden lg:inline-flex 2xl:hidden justify-end mt-auto">
           <div className="px-3 py-2">

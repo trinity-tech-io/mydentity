@@ -3,6 +3,7 @@ import { FC, useState } from 'react';
 // import Help from '../components/DropdownHelp';
 // import Notifications from '../components/DropdownNotifications';
 import UserMenu from '../components/DropdownProfile';
+import IdentityMenu from '../components/DropdownIdentity';
 // import SearchModal from '../components/ModalSearch';
 
 export const Header: FC<{
@@ -66,6 +67,7 @@ export const Header: FC<{
             {/* <Help align="right" /> */}
             {/* <ThemeToggle /> */}
             {/*  Divider */}
+            <IdentityMenu align="right" />
             <hr className="w-px h-6 bg-slate-200 dark:bg-slate-700 border-none" />
             <UserMenu align="right" />
           </div>
