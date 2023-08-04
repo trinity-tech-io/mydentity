@@ -1,3 +1,4 @@
+import { Credential } from "@model/credential/credential";
 import { Identity } from "@model/identity/identity";
 import { CustodialDIDProvider } from "./custodial/custodial-did.provider";
 import { IdentityProvider } from "./did.provider";
@@ -28,6 +29,13 @@ class IdentityService {
    */
   public listIdentities(): Promise<Identity[]> {
     return this.provider.listIdentities();
+  }
+
+  /**
+   * Returns the list of identities (DIDs) for the signed in user
+   */
+  public listCredentials(identityDid: string): Promise<Credential[]> {
+    return this.provider.listCredentials(identityDid);
   }
 }
 

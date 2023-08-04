@@ -1,3 +1,4 @@
+import { Credential } from "@model/credential/credential";
 import { Identity } from "@model/identity/identity";
 
 /**
@@ -8,4 +9,5 @@ import { Identity } from "@model/identity/identity";
 export interface IdentityProvider {
   createIdentity(): Promise<Identity>;
   listIdentities(): Promise<Identity[]>;
+  listCredentials(identityDid: string): Promise<Credential[]>;
 }

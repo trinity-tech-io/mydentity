@@ -1,5 +1,8 @@
 import { gql } from "@apollo/client";
+import { gqlCredentialFields } from "@graphql/credential.fields";
 import { gqlIdentityFields } from "@graphql/identity.fields";
+import { Credential } from "@model/credential/credential";
+import { CredentialDTO } from "@model/credential/credential.dto";
 import { Identity } from "@model/identity/identity";
 import { IdentityDTO } from "@model/identity/identity.dto";
 import { getApolloClient } from "@services/graphql.service";
@@ -46,6 +49,29 @@ export class CustodialDIDProvider implements IdentityProvider {
       const identities = await Promise.all(data!.identities.map(identity => Identity.fromJson(identity)));
       logger.log("custodial-provider", "Fetched identities:", identities);
       return identities;
+    }
+
+    return null;
+  }
+
+  async listCredentials(identityDid: string): Promise<Credential[]> {
+    const { data } = await getApolloClient().query<{ credentials: CredentialDTO[] }>({
+      query: gql`
+        query ListCredentials($identityDid: String!) {
+          credentials(identityDid: $identityDid) {
+            ${gqlCredentialFields}
+          }
+        }
+      `,
+      variables: {
+        identityDid
+      }
+    });
+
+    if (data && data.credentials) {
+      const credentials = await Promise.all(data!.credentials.map(credential => Credential.fromJson(credential)));
+      logger.log("custodial-provider", "Fetched credentials:", credentials);
+      return credentials;
     }
 
     return null;

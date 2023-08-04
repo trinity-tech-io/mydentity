@@ -1,15 +1,17 @@
 import { Module } from '@nestjs/common';
+import { CredentialsModule } from 'src/credentials/credentials.module';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { IdentityResolver } from './identity.resolver';
-import { DIDService } from './identity.service';
+import { IdentityService } from './identity.service';
 
 @Module({
   providers: [
     IdentityResolver,
-    DIDService
+    IdentityService
   ],
   imports: [
-    PrismaModule
+    PrismaModule,
+    CredentialsModule
   ]
 })
 export class IdentityModule { }

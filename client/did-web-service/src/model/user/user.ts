@@ -20,7 +20,6 @@ export class User {
   }
 
   public static async fromJson(json: UserDTO, useCache = true): Promise<User> {
-    const UserClass = this;
     return usersCache.get(json.id, {
       async create() {
         return new User();

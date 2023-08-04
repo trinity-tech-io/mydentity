@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "ESNext",
     "lib": [
       "dom",
       "dom.iterable",
@@ -58,7 +58,10 @@
       "@/*": [
         "./src/*"
       ],
-    }
+    },
+    "typeRoots": [
+      "@elastosfoundation/did-js-sdk"
+    ]
   },
   "include": [
     "next-env.d.ts",

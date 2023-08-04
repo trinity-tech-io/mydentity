@@ -12,6 +12,20 @@ model Identity {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
-
   // TODO: link to user (owner of several identities)
+
+  credentials Credential[]
+}
+
+// Metadata for Verifiable Credentials, with additional information
+model Credential {
+  id String @id @unique @default(uuid()) // This ID never changes so we can for example attach permanent UI properties to it
+
+  createdAt    DateTime @default(now())
+  identity     Identity @relation(fields: [identityDid], references: [did], onDelete: Restrict)
+  credentialId String // ID of the real credential, that changes when "updating" the data (actually, delete and create a new VC)
+
+  // TODO: save the full credential types for easy query by type later
+
+  identityDid String // Related identity
 }

@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.7.17",
+    "@elastosfoundation/did-js-sdk": "^2.2.12",
     "@tailwindcss/forms": "^0.5.4",
     "@types/node": "20.4.5",
     "@types/react": "18.2.18",
@@ -21,6 +22,7 @@
     "graphql": "^16.7.1",
     "moment": "^2.29.4",
     "next": "13.4.12",
+    "path-browserify": "^1.0.1",
     "postcss": "8.4.27",
     "promise-queue": "^2.2.5",
     "react": "18.2.0",

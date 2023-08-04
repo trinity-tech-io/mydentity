@@ -6,11 +6,11 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Notifications from '../components/DropdownNotifications';
 
-function DropdownProfile({
+function DropdownUserProfile({
   align
 }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const userName = "proctar@gmail.com";
+  const userName = "user@hotmail.com";
 
   const trigger = useRef(null);
   const dropdown = useRef(null);
@@ -77,10 +77,10 @@ function DropdownProfile({
             <li>
               <Link
                 className="font-medium text-sm text-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center py-1 px-3"
-                href="/settings"
+                href="/account/security"
                 onClick={() => setDropdownOpen(!dropdownOpen)}
               >
-                Settings
+                Security
               </Link>
             </li>
             <li>
@@ -104,4 +104,4 @@ function DropdownProfile({
   )
 }
 
-export default DropdownProfile;
+export default DropdownUserProfile;
