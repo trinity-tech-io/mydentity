@@ -14,6 +14,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { FC, useEffect, useRef, useState } from 'react';
 import ThemeToggle from '../components/ThemeToggle';
+import { activeIdentity$ } from '@services/identity/identity.events';
 
 type LinkConfig = {
   title: string;
@@ -170,7 +171,7 @@ const Sidebar: FC<{
   const sidebar = useRef<any>(null);
 
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
-
+  let [activeIdentity] = useBehaviorSubject(activeIdentity$);
   // close on click outside
   useEffect(() => {
     const clickHandler: EventListener = (e) => {
@@ -264,12 +265,12 @@ const Sidebar: FC<{
           </Link>
         </div>
 
-        <button className="btn bg-indigo-500 hover:bg-indigo-600 text-white mb-4" onClick={createDIDTest}>
+        {/* <button className="btn bg-indigo-500 hover:bg-indigo-600 text-white mb-4" onClick={createDIDTest}>
           <svg className="w-4 h-4 fill-current opacity-50 shrink-0" viewBox="0 0 16 16">
             <path d="M15 7H9V1c0-.6-.4-1-1-1S7 .4 7 1v6H1c-.6 0-1 .4-1 1s.4 1 1 1h6v6c0 .6.4 1 1 1s1-.4 1-1V9h6c.6 0 1-.4 1-1s-.4-1-1-1z" />
           </svg>
           <span className="hidden xs:block ml-2">Test New DID</span>
-        </button>
+        </button> */}
 
         <h3 className="text-xs uppercase text-slate-500 font-semibold pl-3">
           <span className="hidden lg:block lg:sidebar-expanded:hidden 2xl:hidden text-center w-6" aria-hidden="true">
@@ -277,7 +278,7 @@ const Sidebar: FC<{
           </span>
           <span className="lg:hidden lg:sidebar-expanded:block 2xl:block">ACTIVE IDENTITY</span>
         </h3>
-        <span className="lg:hidden lg:sidebar-expanded:block 2xl:block text-slate-200 mx-3" style={{ fontSize: 11 }}>did:elastos:abc...rst</span>
+        <span className="lg:hidden lg:sidebar-expanded:block 2xl:block text-slate-200 mx-3" style={{ fontSize: 11 }}>{activeIdentity?activeIdentity.did:""}</span>
 
 
         {/* Links */}
