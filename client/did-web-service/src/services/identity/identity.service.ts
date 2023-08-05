@@ -47,7 +47,6 @@ class IdentityService {
       if (!activeIdentity) return;
       this.setActiveIdentity(activeIdentity)
     } catch (error) {
-      console.error("Load active identity error, ", error);
     }
   }
 }

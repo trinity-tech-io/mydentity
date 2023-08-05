@@ -2,6 +2,8 @@ import { useEffect, useRef } from 'react';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import Transition from './Transition';
 import { authUser$ } from '@services/user/user.events';
+import { activeIdentity$ } from '@services/identity/identity.events';
+import { identityService } from '@services/identity/identity.service';
 
 function ModalCreateIdentity({
   id,
@@ -14,7 +16,9 @@ function ModalCreateIdentity({
   const [authUser] = useBehaviorSubject(authUser$);
 
   const createDIDTest = async () => {
-    await authUser.get("identity").createIdentity();
+    const identity = await authUser.get("identity").createIdentity();
+    if (!activeIdentity$.value)
+      identityService.setActiveIdentity(identity)
     // alert("Identity successfully created");
   }
 

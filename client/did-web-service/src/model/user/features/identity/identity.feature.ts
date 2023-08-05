@@ -13,11 +13,12 @@ export class IdentityFeature implements UserFeature {
   constructor(protected user: User) {
   }
 
-  public async createIdentity() {
+  public async createIdentity(): Promise<Identity> {
     logger.log("identities", "Creating a new identity");
 
     const identity = await identityService.createIdentity();
     this.identities$.next([identity, ...this.identities$.value]);
+    return identity;
   }
 
   private async fetchIdentities() {

@@ -107,10 +107,7 @@ function DropdownIdentity({
           <div className="py-3 px-3 w-full" >
             <button className="btn w-full bg-indigo-500 hover:bg-indigo-600 text-white whitespace-nowrap" onClick={()=>{
               setDropdownOpen(false);
-
-                setCreateDidModalOpen(true);
-
-              // setCreateDidModalOpen(true);
+              setCreateDidModalOpen(true);
             }}>
               <span className="hidden xs:block ml-2">Create New DID</span>
               <svg className="ml-2 w-4 h-4 fill-current opacity-50 shrink-0" viewBox="0 0 16 16">
