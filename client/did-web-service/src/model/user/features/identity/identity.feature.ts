@@ -26,8 +26,10 @@ export class IdentityFeature implements UserFeature {
     const identities = await identityService.listIdentities();
     this.identities$.next(identities);
 
-    // TEMPORARY - SET A DEFAULT IDENTITY FOR CONVENIENCE
+    // 1.load local cached active identity,
+    // 2.if not found cached data, set a default identity for convenience
+    if (activeIdentity$.value) return;
     if (identities.length > 0)
-      activeIdentity$.next(identities[0]);
+      identityService.setActiveIdentity(identities[0]);
   }
 }

@@ -2,6 +2,7 @@ import { configService } from "./config/config.service";
 import { graphQLService } from "./graphql.service";
 import { logger } from "./logger";
 import { userServiceInit } from "./user/user.service";
+import { identityService } from "./identity/identity.service";
 
 export const initApp = async () => {
   // Services initialization
@@ -11,6 +12,7 @@ export const initApp = async () => {
     backendUrl: process.env.NEXT_PUBLIC_BACKEND_URL,
   });
 
+  await identityService.loadActiveIdentity();
   await graphQLService.init();
   await userServiceInit();
 }

@@ -3,6 +3,7 @@ import { Identity } from "@model/identity/identity";
 import { CustodialDIDProvider } from "./custodial/custodial-did.provider";
 import { IdentityProvider } from "./did.provider";
 import { activeIdentity$ } from "./identity.events";
+import { IdentityDTO } from "@model/identity/identity.dto";
 
 class IdentityService {
   private provider: IdentityProvider = new CustodialDIDProvider(); // For now, only a custodial provider in use
@@ -20,8 +21,7 @@ class IdentityService {
    */
   public setActiveIdentity(identity: Identity) {
     activeIdentity$.next(identity);
-
-    // TODO: SAVE TO LOCAL STORAGE, AND RESTORE FROM LOCAL STORAGE WHEN RELOADING APP
+    localStorage.setItem("activeidentity", JSON.stringify(identity));
   }
 
   /**
@@ -36,6 +36,19 @@ class IdentityService {
    */
   public listCredentials(identityDid: string): Promise<Credential[]> {
     return this.provider.listCredentials(identityDid);
+  }
+
+  async loadActiveIdentity() {
+    try {
+      const activeIdentityString = localStorage.getItem("activeidentity")
+      if (!activeIdentityString) return;
+      const IdentityDTO: IdentityDTO = JSON.parse(activeIdentityString)
+      const activeIdentity = await Identity.fromJson(IdentityDTO);
+      if (!activeIdentity) return;
+      this.setActiveIdentity(activeIdentity)
+    } catch (error) {
+      console.error("Load active identity error, ", error);
+    }
   }
 }
 
