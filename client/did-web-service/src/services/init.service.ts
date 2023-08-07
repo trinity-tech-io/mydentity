@@ -12,7 +12,7 @@ export const initApp = async () => {
     backendUrl: process.env.NEXT_PUBLIC_BACKEND_URL,
   });
 
-  await identityService.loadActiveIdentity();
+  await identityService.init();
   await graphQLService.init();
   await userServiceInit();
 }

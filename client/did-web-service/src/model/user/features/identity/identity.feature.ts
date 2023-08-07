@@ -9,7 +9,6 @@ import { UserFeature } from "../user-feature";
 export class IdentityFeature implements UserFeature {
   private _identities$ = new LazyBehaviorSubjectWrapper<Identity[]>([], () => this.fetchIdentities());
   public get identities$() { return this._identities$.getSubject(); }
-
   constructor(protected user: User) {
   }
 
@@ -27,10 +26,6 @@ export class IdentityFeature implements UserFeature {
     const identities = await identityService.listIdentities();
     this.identities$.next(identities);
 
-    // 1.load local cached active identity,
-    // 2.if not found cached data, set a default identity for convenience
-    if (activeIdentity$.value) return;
-    if (identities.length > 0)
-      identityService.setActiveIdentity(identities[0]);
+    identityService.restoreActiveIdentity(identities);
   }
 }
