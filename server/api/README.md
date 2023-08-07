@@ -1,16 +1,18 @@
 # Setup
 
-- `npm i -g @nestjs/cli`
 - `cd server/api`
+- `npm i -g @nestjs/cli`
 - `npm i -D`
+- Clone `.env.sample` to `.env`
 - `npx prisma generate`
 - `npx prisma migrate deploy`
 
 # Start the server for development
 
-- Clone `.env.sample` to `.env`
-- Start docker dependencies (see Docker section below)
-- `npm run start:dev`
+- Start docker dependencies (see Docker section below):
+  - `docker compose up`
+- Start the API:
+  - `npm run start:dev`
 
 # Prisma
 
@@ -30,14 +32,6 @@
 
 - `npx prisma studio`
 - Open http://localhost:5555/
-
-# Docker
-
-Run docker containers to easily deploy the required services such as the local database:
-
-- From the api folder:
-- `docker compose up`
-
 # Other useful commands
 
 ## Add a new graphql api

@@ -7,6 +7,7 @@ import ManageIcon from '@assets/images/manage.svg';
 import MarketplaceIcon from '@assets/images/marketplace.svg';
 import SupportIcon from '@assets/images/support.svg';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
+import { activeIdentity$ } from '@services/identity/identity.events';
 import { authUser$ } from '@services/user/user.events';
 import clsx from 'clsx';
 import Image, { StaticImageData } from 'next/image';
@@ -14,7 +15,6 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { FC, useEffect, useRef, useState } from 'react';
 import ThemeToggle from '../components/ThemeToggle';
-import { activeIdentity$ } from '@services/identity/identity.events';
 
 type LinkConfig = {
   title: string;
@@ -44,7 +44,7 @@ const groups: GroupConfig[] = [
   },
   {
     icon: MarketplaceIcon,
-    title: "Marketplace",
+    title: "Hub",
     links: [
       { title: "Get more credentials", url: "/marketplace" }
     ]
@@ -278,7 +278,7 @@ const Sidebar: FC<{
           </span>
           <span className="lg:hidden lg:sidebar-expanded:block 2xl:block">ACTIVE IDENTITY</span>
         </h3>
-        <span className="lg:hidden lg:sidebar-expanded:block 2xl:block text-slate-200 mx-3" style={{ fontSize: 11 }}>{activeIdentity?activeIdentity.did:""}</span>
+        <span className="lg:hidden lg:sidebar-expanded:block 2xl:block text-slate-200 mx-3" style={{ fontSize: 11 }}>{activeIdentity ? activeIdentity.did : ""}</span>
 
 
         {/* Links */}
@@ -306,7 +306,7 @@ const Sidebar: FC<{
             </button>
           </div>
         </div>
-        <div className='px-3 py-2'><ThemeToggle/></div>
+        <div className='px-3 py-2'><ThemeToggle /></div>
       </div>
     </div>
   );
