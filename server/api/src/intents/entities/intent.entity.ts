@@ -16,6 +16,6 @@ export class IntentEntity {
   @Field(() => GraphQlJson)
   requestPayload: any;
 
-  @Field(() => GraphQlJson)
+  @Field(() => GraphQlJson, { nullable: true })
   responsePayload: any;
 }

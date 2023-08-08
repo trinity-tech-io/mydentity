@@ -1,12 +1,14 @@
 "use client"
 import { StyledButton } from "@components/StyledButton";
-import { DID as ConnDID } from "@elastosfoundation/elastos-connectivity-sdk-js";
-import { EssentialsConnector } from "@elastosfoundation/essentials-connector-client-browser";
+import { DID as ConnDID, connectivity } from "@elastosfoundation/elastos-connectivity-sdk-js";
+import { DIDWebConnector } from "@trinity-tech/did-web-connector";
 import { FC } from "react";
 
-const essentialsConnector = new EssentialsConnector();
-// TODO: REGISTER THE WEB AUTH CONNECTOR HERE INSTEAD OF ESSENTIALS
-// connectivity.registerConnector(essentialsConnector);
+const webConnector = new DIDWebConnector({
+  webServiceEndpoint: "http://localhost:4000",
+  webServiceAPIEndpoint: "http://localhost:3000",
+});
+connectivity.registerConnector(webConnector);
 const didAccess = new ConnDID.DIDAccess();
 
 const DIDWebAuthTests: FC = () => {
