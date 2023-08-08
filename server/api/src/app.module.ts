@@ -7,6 +7,9 @@ import { CredentialsModule } from './credentials/credentials.module';
 import { IdentityModule } from './identity/identity.module';
 import { IntentsModule } from './intents/intents.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { AuthModule } from './auth/auth.module';
+import { AuthProvidersModule } from './auth-providers/auth-providers.module';
+import { UserModule } from './user/user.module';
 import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
@@ -19,6 +22,9 @@ import { ScheduleModule } from '@nestjs/schedule';
       sortSchema: true,
       allowBatchedHttpRequests: true
     }),
+    AuthModule,
+    AuthProvidersModule,
+    UserModule,
     CredentialsModule,
     IntentsModule,
     ScheduleModule.forRoot()
@@ -26,8 +32,6 @@ import { ScheduleModule } from '@nestjs/schedule';
   controllers: [
     AppController
   ],
-  providers: [
-    AppService
-  ],
+  providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

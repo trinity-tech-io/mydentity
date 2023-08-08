@@ -46,3 +46,37 @@ model Intent {
   requestPayload  Json // Raw payload received by the requesting app
   responsePayload Json? // Raw response ready to return, or returned to the requesting app
 }
+
+enum UserType {
+  MICROSOFT
+}
+
+model User {
+  id String @id @unique @default(uuid())
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now())
+  lastSeenAt DateTime @default(now()) // Updated every time the user uses the app
+
+  type UserType
+
+  ProfileEntries ProfileEntry[]
+}
+
+model ProfileEntry {
+  id String @id @unique @default(uuid())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  user      User    @relation(fields: [userId], references: [id], onDelete: Restrict)
+  type      String // Firstname, lastname, avatar, location, company, emails, phone numbers, etc.
+  title     String?
+  value     String
+  visible   Boolean @default(false)
+  isPrimary Boolean @default(false) // Such as email, many email addresses, one can be set primary.
+
+  userId String
+
+  @@unique([userId, type, title])
+}
