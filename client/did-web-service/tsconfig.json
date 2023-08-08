@@ -60,8 +60,9 @@
       ],
     },
     "typeRoots": [
-      "@elastosfoundation/did-js-sdk"
-    ]
+      "@elastosfoundation/did-js-sdk",
+      "src/types"
+    ],
   },
   "include": [
     "next-env.d.ts",

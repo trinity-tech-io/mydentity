@@ -1,7 +1,7 @@
-import { useThemeProvider } from '../contexts/ThemeContext';
+import { useAppThemeProvider } from '../contexts/AppThemeContext';
 
 export default function ThemeToggle() {
-  const { currentTheme, changeCurrentTheme } = useThemeProvider();
+  const { currentTheme, changeCurrentTheme } = useAppThemeProvider();
 
   return (
     <div>

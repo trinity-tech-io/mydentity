@@ -29,3 +29,20 @@ model Credential {
 
   identityDid String // Related identity
 }
+
+enum IntentType {
+  REQUEST_CREDENTIALS
+  IMPORT_CREDENTIALS
+}
+
+// Request received from a third party app (through the did web connectivity sdk connector)
+// to interact with the identity wallet, for example, to request credentials, or import credentials.
+model Intent {
+  id String @id @unique @default(uuid())
+
+  createdAt DateTime   @default(now()) // Time of the initial intent request (creation)
+  type      IntentType
+
+  requestPayload  Json // Raw payload received by the requesting app
+  responsePayload Json? // Raw response ready to return, or returned to the requesting app
+}

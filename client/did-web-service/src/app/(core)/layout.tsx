@@ -1,10 +1,12 @@
 'use client'
 import React, { useState } from 'react';
-import ThemeProvider from '../contexts/ThemeContext';
+import AppThemeProvider from '../contexts/AppThemeContext';
 
+import { ThemeProvider } from '@emotion/react';
 import { initApp as initClientSide } from '@services/init.service';
 import { Header } from '../partials/Header';
 import Sidebar from '../partials/Sidebar';
+import { theme } from './material-ui.theme';
 
 // This layout file is our very initial layout (the first thing that may use "use client") so we initialize the browser things from here for now.
 // BEWARE OF NEXTJS, as next has server side rendered pages and client side ones. We want to initialize browser side features for now.
@@ -23,31 +25,33 @@ export default function RootLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <ThemeProvider>
-      <div className="flex h-screen overflow-hidden">
+    <ThemeProvider theme={theme}>
+      <AppThemeProvider>
+        <div className="flex h-screen overflow-hidden">
 
-        {/* Sidebar */}
-        <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+          {/* Sidebar */}
+          <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
-        {/* Content area */}
-        <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden bg-slate-100 dark:bg-slate-700">
+          {/* Content area */}
+          <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden bg-slate-100 dark:bg-slate-700">
 
-          {/*  Site header */}
-          <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+            {/*  Site header */}
+            <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
-          <main>
-            <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto ">
+            <main>
+              <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto ">
 
-              {/* Main content */}
-              <div className="grid grid-cols-12 gap-6">
-                {children}
+                {/* Main content */}
+                <div className="grid grid-cols-12 gap-6">
+                  {children}
+                </div>
+
               </div>
+            </main>
 
-            </div>
-          </main>
-
+          </div>
         </div>
-      </div>
+      </AppThemeProvider>
     </ThemeProvider>
   )
 }

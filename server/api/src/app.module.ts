@@ -3,9 +3,11 @@ import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { IdentityModule } from './identity/identity.module';
-import { PrismaModule } from './prisma/prisma.module';
 import { CredentialsModule } from './credentials/credentials.module';
+import { IdentityModule } from './identity/identity.module';
+import { IntentsModule } from './intents/intents.module';
+import { PrismaModule } from './prisma/prisma.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -18,6 +20,8 @@ import { CredentialsModule } from './credentials/credentials.module';
       allowBatchedHttpRequests: true
     }),
     CredentialsModule,
+    IntentsModule,
+    ScheduleModule.forRoot()
   ],
   controllers: [
     AppController
