@@ -1,3 +1,4 @@
+import { VerifiableCredential, VerifiablePresentation } from "@elastosfoundation/did-js-sdk";
 import { Credential } from "@model/credential/credential";
 import { Identity } from "@model/identity/identity";
 
@@ -10,4 +11,5 @@ export interface IdentityProvider {
   createIdentity(): Promise<Identity>;
   listIdentities(): Promise<Identity[]>;
   listCredentials(identityDid: string): Promise<Credential[]>;
+  createVerifiablePresentation(identityDid: string, credentials: VerifiableCredential[], realm: string, nonce: string): Promise<VerifiablePresentation>;
 }

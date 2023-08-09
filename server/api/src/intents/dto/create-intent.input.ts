@@ -7,6 +7,9 @@ export class CreateIntentInput {
   @Field(() => String)
   type: IntentType;
 
+  @Field()
+  redirectUrl: string;
+
   @Field(() => GraphQlJson)
   payload: any;
 }

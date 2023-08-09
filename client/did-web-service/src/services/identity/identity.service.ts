@@ -1,4 +1,3 @@
-import { Credential } from "@model/credential/credential";
 import { Identity } from "@model/identity/identity";
 import { CustodialDIDProvider } from "./custodial/custodial-did.provider";
 import { IdentityProvider } from "./did.provider";
@@ -35,20 +34,6 @@ class IdentityService {
     localStorage.setItem("activeIdentityId", this.activeIdentityId);
   }
 
-  /**
-   * Returns the list of identities (DIDs) for the signed in user
-   */
-  public listIdentities(): Promise<Identity[]> {
-    return this.provider.listIdentities();
-  }
-
-  /**
-   * Returns the list of identities (DIDs) for the signed in user
-   */
-  public listCredentials(identityDid: string): Promise<Credential[]> {
-    return this.provider.listCredentials(identityDid);
-  }
-
   private getActiveIdentityId(): string {
     if (!this.activeIdentityId)
       this.activeIdentityId = this.loadActiveIdentityId();
@@ -59,7 +44,7 @@ class IdentityService {
     return localStorage.getItem("activeIdentityId");
   }
 
-  restoreActiveIdentity(identities: Identity[]) {
+  private restoreActiveIdentity(identities: Identity[]) {
     // 1.load local cached active identity,
     // 2.if not found cached data, set a default identity for convenience
     if (activeIdentity$.value) return;
@@ -79,6 +64,18 @@ class IdentityService {
       return identity.did === did;
     });
     return result
+  }
+
+  /**
+   * Returns the list of identities (DIDs) for the signed in user
+   */
+  public async listIdentities(): Promise<Identity[]> {
+    const identities = await this.provider.listIdentities();
+
+    // Check if we have a local identity saved into local storage and restore it if we can
+    this.restoreActiveIdentity(identities);
+
+    return identities
   }
 }
 

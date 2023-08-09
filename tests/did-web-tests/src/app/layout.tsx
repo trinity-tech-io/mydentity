@@ -1,10 +1,12 @@
 "use client"
 // import { Inter } from 'next/font/google';
+import { ThemeProvider } from '@emotion/react';
 import { Header } from '@partials/Header';
 import Sidebar from '@partials/Sidebar';
 import React, { useState } from 'react';
-import ThemeProvider from './contexts/ThemeContext';
+import AppThemeProvider from './contexts/AppThemeContext';
 import './globals.css';
+import { theme } from './material-ui.theme';
 
 // const inter = Inter({ subsets: ['latin'] })
 
@@ -23,31 +25,33 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body /* className={inter.className} */>
-        <ThemeProvider>
-          <div className="flex h-screen overflow-hidden">
+        <ThemeProvider theme={theme}>
+          <AppThemeProvider>
+            <div className="flex h-screen overflow-hidden">
 
-            {/* Sidebar */}
-            <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+              {/* Sidebar */}
+              <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
-            {/* Content area */}
-            <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden bg-slate-100 dark:bg-slate-700">
+              {/* Content area */}
+              <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden bg-slate-100 dark:bg-slate-700">
 
-              {/*  Site header */}
-              <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+                {/*  Site header */}
+                <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
-              <main>
-                <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto ">
+                <main>
+                  <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto ">
 
-                  {/* Main content */}
-                  <div className="grid grid-cols-12 gap-6">
-                    {children}
+                    {/* Main content */}
+                    <div className="grid grid-cols-12 gap-6">
+                      {children}
+                    </div>
+
                   </div>
+                </main>
 
-                </div>
-              </main>
-
+              </div>
             </div>
-          </div>
+          </AppThemeProvider>
         </ThemeProvider>
       </body>
     </html>

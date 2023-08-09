@@ -1,4 +1,5 @@
 import { gql } from "@apollo/client";
+import { VerifiableCredential, VerifiablePresentation } from "@elastosfoundation/did-js-sdk";
 import { gqlCredentialFields } from "@graphql/credential.fields";
 import { gqlIdentityFields } from "@graphql/identity.fields";
 import { Credential } from "@model/credential/credential";
@@ -27,7 +28,7 @@ export class CustodialDIDProvider implements IdentityProvider {
     console.log(data)
 
     if (data?.createDID) {
-      return Identity.fromJson(data.createDID);
+      return Identity.fromJson(data.createDID, this);
     }
     else {
       throw new Error("Failed to create DID");
@@ -46,7 +47,7 @@ export class CustodialDIDProvider implements IdentityProvider {
     });
 
     if (data && data.identities) {
-      const identities = await Promise.all(data!.identities.map(identity => Identity.fromJson(identity)));
+      const identities = await Promise.all(data!.identities.map(identity => Identity.fromJson(identity, this)));
       logger.log("custodial-provider", "Fetched identities:", identities);
       return identities;
     }
@@ -74,6 +75,10 @@ export class CustodialDIDProvider implements IdentityProvider {
       return credentials;
     }
 
+    return null;
+  }
+
+  public async createVerifiablePresentation(identityDid: string, credentials: VerifiableCredential[], realm: string, nonce: string): Promise<VerifiablePresentation> {
     return null;
   }
 }

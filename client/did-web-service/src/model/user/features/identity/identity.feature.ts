@@ -1,5 +1,4 @@
 import { Identity } from "@model/identity/identity";
-import { activeIdentity$ } from "@services/identity/identity.events";
 import { identityService } from "@services/identity/identity.service";
 import { logger } from "@services/logger";
 import { LazyBehaviorSubjectWrapper } from "@utils/lazy-behavior-subject";
@@ -25,7 +24,5 @@ export class IdentityFeature implements UserFeature {
 
     const identities = await identityService.listIdentities();
     this.identities$.next(identities);
-
-    identityService.restoreActiveIdentity(identities);
   }
 }

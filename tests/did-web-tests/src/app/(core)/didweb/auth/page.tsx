@@ -1,32 +1,31 @@
 "use client"
-import { StyledButton } from "@components/StyledButton";
-import { DID as ConnDID, connectivity } from "@elastosfoundation/elastos-connectivity-sdk-js";
-import { DIDWebConnector } from "@trinity-tech/did-web-connector";
-import { FC } from "react";
+import { MainButton } from "@components/MainButton";
+import { DID as ConnDID } from "@elastosfoundation/elastos-connectivity-sdk-js";
+import { CircularProgress } from "@mui/material";
+import { FC, useState } from "react";
 
-const webConnector = new DIDWebConnector({
-  webServiceEndpoint: "http://localhost:4000",
-  webServiceAPIEndpoint: "http://localhost:3000",
-});
-connectivity.registerConnector(webConnector);
 const didAccess = new ConnDID.DIDAccess();
 
 const DIDWebAuthTests: FC = () => {
+  const [awaitingResult, setAwaitingResult] = useState(false);
 
   const didAuth = async () => {
+    setAwaitingResult(true);
     const credentials = await didAccess.requestCredentials({
       claims: [
         ConnDID.simpleTypeClaim("Your name", "NameCredential", false)
       ]
     });
+    setAwaitingResult(false);
     console.log("credentials", credentials)
   }
 
   return (
     <div className="col-span-full">
-      <StyledButton onClick={didAuth}>
-        Request name credential
-      </StyledButton>
+      <div className="flex flex-row items-center">
+        {awaitingResult && <CircularProgress size={20} className="mr-4" />}
+        <MainButton onClick={didAuth} title="Request name credential" disabled={awaitingResult} />
+      </div>
     </div>
   )
 }

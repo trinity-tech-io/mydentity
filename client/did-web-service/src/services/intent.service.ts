@@ -10,7 +10,7 @@ import { logger } from "./logger";
  * This normally happens when we are on an intent screen.
  * The intent must first have been created using a API call, from the DID web connector.
  */
-export const fetchIntent = async (intentId: string): Promise<Intent> => {
+export async function fetchIntent<IntentRequestPayloadType>(intentId: string): Promise<Intent<IntentRequestPayloadType>> {
   const { data } = await getApolloClient().query<{ intent: IntentDTO }>({
     query: gql`
       query GetIntentRequest($intentId: String!) {
@@ -25,7 +25,7 @@ export const fetchIntent = async (intentId: string): Promise<Intent> => {
   });
 
   if (data && data.intent) {
-    const intent = await Intent.fromJson(data.intent);
+    const intent = await Intent.fromJson<IntentRequestPayloadType>(data.intent);
     logger.log("intents", "Fetched intent:", intent);
     return intent;
   }
@@ -34,4 +34,30 @@ export const fetchIntent = async (intentId: string): Promise<Intent> => {
   }
 
   return null;
+}
+
+/**
+ * Gives a user response for a requested intent. The response is temporarily saved in the backend
+ * until the web connector grabs it, or if it expires.
+ */
+export async function fulfilIntentRequest(intentId: string, responsePayload: any): Promise<boolean> {
+  const { data } = await getApolloClient().mutate<{ intent: IntentDTO }>({
+    mutation: gql`
+      mutation FulfilIntentRequest($input: FulfilIntentInput!) {
+        fulfilIntent (input: $input)
+      }
+    `,
+    variables: {
+      input: { intentId, payload: responsePayload }
+    }
+  });
+
+  if (data && data.intent) {
+    logger.log("intents", `Successfully fulfilled intent id ${intentId}`);
+    return true;
+  }
+  else {
+    logger.warn("intents", `Failed to fulfil intent id ${intentId}`);
+    return false;
+  }
 }

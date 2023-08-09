@@ -1,11 +1,11 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 
-const ThemeContext = createContext({
+const AppThemeContext = createContext({
   currentTheme: 'light',
   changeCurrentTheme: (newTheme: string) => { },
 });
 
-export default function ThemeProvider({ children }) {
+export default function AppThemeProvider({ children }) {
   const persistedTheme = localStorage.getItem('theme');
   const [theme, setTheme] = useState(persistedTheme || 'light');
 
@@ -31,7 +31,7 @@ export default function ThemeProvider({ children }) {
     return () => clearTimeout(transitionTimeout);
   }, [theme]);
 
-  return <ThemeContext.Provider value={{ currentTheme: theme, changeCurrentTheme }}>{children}</ThemeContext.Provider>;
+  return <AppThemeContext.Provider value={{ currentTheme: theme, changeCurrentTheme }}>{children}</AppThemeContext.Provider>;
 }
 
-export const useThemeProvider = () => useContext(ThemeContext);
+export const useAppThemeProvider = () => useContext(AppThemeContext);
