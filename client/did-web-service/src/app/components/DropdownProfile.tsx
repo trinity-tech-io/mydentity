@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useRef, useState } from 'react';
 import Transition from './Transition';
 
@@ -5,12 +7,20 @@ import UserAvatar from '@assets/images/user-avatar-32.png';
 import Image from 'next/image';
 import Link from 'next/link';
 import Notifications from '../components/DropdownNotifications';
+import {useSearchParams} from "next/navigation";
+import SignIn from "@components/Signin";
 
 function DropdownUserProfile({
   align
 }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [signInOpen, setSignInOpen] = useState(false);
   const userName = "user@hotmail.com";
+
+  // get access token from url params.
+  const searchParams = useSearchParams();
+  const accessToken = searchParams.get('accessToken');
+  const isLogin = accessToken && accessToken !== '';
 
   const trigger = useRef(null);
   const dropdown = useRef(null);
@@ -25,6 +35,14 @@ function DropdownUserProfile({
     document.addEventListener('click', clickHandler);
     return () => document.removeEventListener('click', clickHandler);
   });
+
+  const onIconClick = () => {
+    if (!isLogin) {
+      setSignInOpen(!signInOpen);
+    } else {
+      setDropdownOpen(!dropdownOpen)
+    }
+  }
 
   // close if the esc key is pressed
   useEffect(() => {
@@ -42,17 +60,22 @@ function DropdownUserProfile({
         ref={trigger}
         className="inline-flex justify-center items-center group"
         aria-haspopup="true"
-        onClick={() => setDropdownOpen(!dropdownOpen)}
+        onClick={() => onIconClick()}
         aria-expanded={dropdownOpen}
       >
         <Image className="w-8 h-8 rounded-full" src={UserAvatar} width="32" height="32" alt="User" />
+
+        { isLogin && (
         <div className="flex items-center truncate">
           <span className="truncate ml-2 text-sm font-medium dark:text-slate-300 group-hover:text-slate-800 dark:group-hover:text-slate-200">{userName}</span>
           <svg className="w-3 h-3 shrink-0 ml-1 fill-current text-slate-400" viewBox="0 0 12 12">
             <path d="M5.9 11.4L.5 6l1.4-1.4 4 4 4-4L11.3 6z" />
           </svg>
         </div>
+        )}
       </button>
+
+      { isLogin && (
 
       <Transition
         className={`origin-top-right z-10 absolute top-full min-w-44 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 py-1.5 rounded shadow-lg overflow-hidden mt-1 ${align === 'right' ? 'right-0' : 'left-0'}`}
@@ -100,6 +123,11 @@ function DropdownUserProfile({
           </ul>
         </div>
       </Transition>
+
+          )}
+
+      {signInOpen && (<SignIn></SignIn>)}
+
     </div>
   )
 }
