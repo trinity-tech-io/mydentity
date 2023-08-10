@@ -5,7 +5,7 @@ import { ThirdPartyUser } from './dto/third-party-user';
 import { MicrosoftProfileService } from './microsoft-profile.service';
 import { ProfileTitle } from './profile-title';
 import { ProfileType } from './profile-type';
-import { User } from '@prisma/client';
+import { ProfileEntry, User } from '@prisma/client';
 
 // https://makinhs.medium.com/authentication-made-easy-with-nestjs-part-4-of-how-to-build-a-graphql-mongodb-d6057eae3fdf
 @Injectable()
@@ -115,5 +115,24 @@ export class UserService {
     );
 
     return this.authService.generateUserCredentials(user);
+  }
+
+  public async findPrivateProfile(userId: string, includeInternal = false): Promise<ProfileEntry[]> {
+    return this.prisma.profileEntry.findMany({
+      where: {
+        userId,
+        internal: false
+      }
+    });
+  }
+
+  public async findPublicProfile(userId: string): Promise<ProfileEntry[]> {
+    return this.prisma.profileEntry.findMany({
+      where: {
+        userId,
+        visible: true, // NOTE: For now, this just handles the global profile visibility. Later we also need to deal with active meeting visibilities
+        internal: false
+      }
+    });
   }
 }

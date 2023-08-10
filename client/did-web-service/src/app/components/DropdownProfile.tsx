@@ -9,24 +9,46 @@ import Link from 'next/link';
 import Notifications from '../components/DropdownNotifications';
 import {useSearchParams} from "next/navigation";
 import SignIn from "@components/Signin";
+import {fetchSelfUser, fetchUserProfile, getSelfUser} from "@services/user/user.service";
+import {ProfileEntry} from "@model/user/features/profile/profile-entry";
 
 function DropdownUserProfile({
   align
 }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [signInOpen, setSignInOpen] = useState(false);
-  const userName = "user@hotmail.com";
+  const [userName, setUserName] = useState('user@hotmail.com');
+  const [isLogin, setIsLogin] = useState(false);
 
   // get access token from url params.
   const searchParams = useSearchParams();
   const accessToken = searchParams.get('accessToken');
-  const isLogin = accessToken && accessToken !== '';
 
   const trigger = useRef(null);
   const dropdown = useRef(null);
 
   // close on click outside
   useEffect(() => {
+    const updateUserName = (userId) => {
+      fetchUserProfile(userId).then(profiles => {
+        setUserName(ProfileEntry.getEmailEntry(profiles).value);
+      })
+    }
+
+    if (accessToken && accessToken !== '') {
+      fetchSelfUser(accessToken).then(user => {
+        updateUserName(user.id);
+        setIsLogin(true);
+      });
+    } else {
+      getSelfUser().then(user => {
+        if (user) {
+          updateUserName(user.id);
+          setIsLogin(true);
+        }
+      });
+    }
+
     const clickHandler = ({ target }) => {
       if (!dropdown.current) return;
       if (!dropdownOpen || dropdown.current.contains(target) || trigger.current.contains(target)) return;

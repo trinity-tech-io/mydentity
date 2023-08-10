@@ -1,10 +1,13 @@
 import { UseGuards } from '@nestjs/common';
-import { Query, Resolver } from '@nestjs/graphql';
+import {Args, Query, Resolver} from '@nestjs/graphql';
 import { CurrentUser } from 'src/auth/currentuser.decorator';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import {JwtAuthGuard, OptionalJwtAuthGuard} from 'src/auth/jwt-auth.guard';
 import { AuthService } from '../auth/auth.service';
 import { UserEntity } from './entities/user.entity';
 import { UserService } from './user.service';
+import {logger} from "../logger";
+import {ProfileEntryEntity} from "./entities/profile-entry.entity";
+import {User} from "@prisma/client";
 
 @Resolver(() => UserEntity)
 export class UserResolver {
@@ -25,7 +28,19 @@ export class UserResolver {
     // Consider that every time a user tries to fetch his own profile, this means he is active / online, so we update this information.
     // Not very efficient CPU wise but can be improved later.
     // this.userService.saveLastSeenNow(user);
-
+    logger.log('enter getSelfUser');
     return user;
+  }
+
+  @UseGuards(OptionalJwtAuthGuard)
+  @Query(() => [ProfileEntryEntity])
+  async userProfile(@CurrentUser() user: User, @Args('userId') userId: string) {
+    // If the requested user if the current user, return his full private profile. Otherwise, return his public profile.
+    // TODO: MUCH IMPROVEMENT NEEDED FOR VISIBILITY FIELDS ACCORDING TO CONTEXT (MEETING)
+    if (user?.id === userId)
+      return this.userService.findPrivateProfile(userId);
+    else {
+      return this.userService.findPublicProfile(userId);
+    }
   }
 }

@@ -10,6 +10,9 @@ export class UserEntity {
   @Field(() => UserType)
   type: UserType;
 
+  @Field(() => Date)
+  createdAt: Date;
+
   @Field(() => [ProfileEntryEntity], { nullable: true })
   ProfileEntries?: ProfileEntryEntity[];
 }

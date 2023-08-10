@@ -75,6 +75,7 @@ model ProfileEntry {
   value     String
   visible   Boolean @default(false)
   isPrimary Boolean @default(false) // Such as email, many email addresses, one can be set primary.
+  internal  Boolean @default(false) // If true, the profile entry is never provided to the front end. For internal back end use only.
 
   userId String
 
