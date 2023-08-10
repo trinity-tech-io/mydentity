@@ -9,6 +9,7 @@ import {logger} from "../logger";
 import {ProfileEntryEntity} from "./entities/profile-entry.entity";
 import {User} from "@prisma/client";
 import {RequestEmailAuthenticationResult} from "./entities/request-email-authentication-result.entity";
+import {LoggedUserOutput} from "./dto/logged-user.output";
 
 @Resolver(() => UserEntity)
 export class UserResolver {
@@ -48,5 +49,10 @@ export class UserResolver {
   @Mutation(() => RequestEmailAuthenticationResult, { nullable: true })
   async requestEmailAuthentication(@Args('emailAddress') emailAddress: string) {
     return this.userService.requestEmailAuthentication(emailAddress);
+  }
+
+  @Mutation(() => LoggedUserOutput, { nullable: true })
+  async checkEmailAuthentication(@Args('authKey') authKey: string) {
+    return this.userService.checkEmailAuthentication(authKey);
   }
 }

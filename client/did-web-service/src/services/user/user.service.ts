@@ -132,3 +132,65 @@ export async function authenticateWithEmailAddress(emailAddress: string): Promis
     variables: { emailAddress }
   });
 }
+
+/**
+ * from email auth
+ */
+export function updateUserByToken(accessToken: string, refreshToken: string) {
+  const curAccessToken = localStorage.getItem('access_token');
+  const curRefreshToken = localStorage.getItem('refresh_token');
+  localStorage.setItem("access_token", accessToken);
+  localStorage.setItem("refresh_token", refreshToken);
+
+  try {
+    return fetchSelfUser(curAccessToken);
+  } catch (e) {
+    logger.error('userService', 'failed to fetch user info.: ', e);
+    localStorage.setItem("access_token", curAccessToken);
+    localStorage.setItem("refresh_token", curRefreshToken);
+  }
+}
+
+export function signOut() {
+  localStorage.removeItem("authenticated_user")
+  localStorage.removeItem("access_token");
+  localStorage.removeItem("refresh_token");
+  authUser$.next(null);
+}
+
+/**
+ * Checks the given temporary authentication key and signs the user in if successful
+ */
+export async function checkEmailAuthenticationKey(authKey: string): Promise<boolean> {
+  logger.log("user", "Checking temporary authentication key");
+
+  try {
+    const { data } = await getApolloClient().mutate<{
+      checkEmailAuthentication: {
+        accessToken: string;
+        refreshToken: string;
+      }
+    }>({
+      mutation: gql`
+      mutation CheckEmailAuthentication($authKey: String!) {
+        checkEmailAuthentication(authKey: $authKey) { accessToken refreshToken }
+      }
+    `,
+      variables: { authKey }
+    });
+
+    if (data && data.checkEmailAuthentication) {
+      const { accessToken, refreshToken } = data.checkEmailAuthentication;
+      await updateUserByToken(accessToken, refreshToken);
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+  catch (e) {
+    // Probably a 401 error
+    logger.warn("auth", "Exception while checking temporary auth key. Key expired?");
+    return null;
+  }
+}

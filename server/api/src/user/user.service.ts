@@ -1,17 +1,17 @@
-import {forwardRef, Inject, Injectable} from '@nestjs/common';
+import { forwardRef, HttpException, Inject, Injectable } from '@nestjs/common';
 import { AuthService } from 'src/auth/auth.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ThirdPartyUser } from './dto/third-party-user';
 import { MicrosoftProfileService } from './microsoft-profile.service';
 import { ProfileTitle } from './profile-title';
 import { ProfileType } from './profile-type';
-import { ProfileEntry, User } from '@prisma/client';
-import {randomUUID} from "crypto";
+import { ProfileEntry, User, UserType } from '@prisma/client';
+import { randomUUID } from "crypto";
 import * as moment from "moment";
-import {encode} from "slugid";
-import {generateRandomTempName} from "./name-generator";
-import {EmailTemplateType} from "../emailing/email-template-type";
-import {EmailingService} from "../emailing/emailing.service";
+import { encode } from "slugid";
+import { generateRandomTempName } from "./name-generator";
+import { EmailTemplateType } from "../emailing/email-template-type";
+import { EmailingService } from "../emailing/emailing.service";
 
 // https://makinhs.medium.com/authentication-made-easy-with-nestjs-part-4-of-how-to-build-a-graphql-mongodb-d6057eae3fdf
 @Injectable()
@@ -206,11 +206,73 @@ export class UserService {
     });
 
     // Send the authentication link by email.
-    const magicLink = `${process.env.FRONTEND_URL}/sign-in/check-key?key=${encode(temporaryEmailAuthKey)}`;
+    const magicLink = `${process.env.FRONTEND_URL}/checkauthkey?key=${encode(temporaryEmailAuthKey)}`;
     this.emailingService.sendEmail(EmailTemplateType.EMAIL_AUTHENTICATION, "Mingler <email-auth@mingler.io>", emailAddress, "Sign in with your magic link", {
       magicLink
     });
 
     return null;
+  }
+
+  public async findFirstProfileValueByType(userId: string, type: ProfileType): Promise<string> {
+    const profiles = await this.findPrivateProfile(userId);
+    const profile = profiles.find(p => p.type === type);
+    return profile ? profile.value : null;
+  }
+
+  /**
+   * Checks if the welcome email has been sent for the user and if not,
+   * sends it if we have a known email address.
+   */
+  private async maybeSendWelcomeEmail(user: User, emailAddress: string): Promise<boolean> {
+    if (user.welcomeEmailSentAt)
+      return false; // Already sent, skip
+
+    const firstName = await this.findFirstProfileValueByType(user.id, ProfileType.FIRSTNAME);
+    const loungeUrl = `${process.env.FRONTEND_URL}/lounge`;
+    this.emailingService.sendEmail(
+        EmailTemplateType.WELCOME,
+        "welcome@didservice.io",
+        emailAddress,
+        "Welcome to DidService.io",
+        {
+          user: {
+            // Use the name only if that's not a temporary name (real user signed in)
+            // name: (user.type !== UserType.TEMPORARY && user.type !== UserType.EMAIL) && firstName
+            name: user.type !== UserType.EMAIL && firstName
+          },
+          loungeUrl
+        }
+    );
+
+    // Remember we've sent the welcome email
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { welcomeEmailSentAt: new Date() }
+    });
+
+    return true;
+  }
+
+  /**
+   * Checks if there is a pending auth key that matches the given key.
+   * This auth key comes from a magic link received by users by email, after requesting
+   * to receive a magic link by email.
+   */
+  public async checkEmailAuthentication(temporaryEmailAuthKey: string) {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        temporaryEmailAuthExpiresAt: { gt: new Date() },
+        temporaryEmailAuthKey
+      }
+    });
+
+    if (!user)
+      return new HttpException("This temporary authentication key is expired or invalid", 401);
+
+    const emailAddress = await this.findFirstProfileValueByType(user.id, ProfileType.EMAIL);
+    await this.maybeSendWelcomeEmail(user, emailAddress);
+
+    return this.authService.generateUserCredentials(user);
   }
 }

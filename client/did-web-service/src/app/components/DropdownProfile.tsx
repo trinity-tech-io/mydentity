@@ -9,7 +9,7 @@ import Link from 'next/link';
 import Notifications from '../components/DropdownNotifications';
 import {useSearchParams} from "next/navigation";
 import SignIn from "@components/Signin";
-import {fetchSelfUser, fetchUserProfile, getSelfUser} from "@services/user/user.service";
+import {fetchSelfUser, fetchUserProfile, getSelfUser, signOut} from "@services/user/user.service";
 import {ProfileEntry} from "@model/user/features/profile/profile-entry";
 
 function DropdownUserProfile({
@@ -33,6 +33,8 @@ function DropdownUserProfile({
     const updateUserDesc = (user) => {
       if (user.type === 'MICROSOFT') {
         setUserTypeDesc('Microsoft');
+      } else if (user.type === 'EMAIL') {
+        setUserTypeDesc('Email');
       }
       fetchUserProfile(user.id).then(profiles => {
         setUserName(ProfileEntry.getEmailEntry(profiles).value);
@@ -68,6 +70,11 @@ function DropdownUserProfile({
     } else {
       setDropdownOpen(!dropdownOpen)
     }
+  }
+
+  const onSignOut = () => {
+    signOut();
+    window.location.replace('/dashboard')
   }
 
   // close if the esc key is pressed
@@ -136,7 +143,7 @@ function DropdownUserProfile({
               <Link
                 className="font-medium text-sm text-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center py-1 px-3"
                 href="/signin"
-                onClick={() => setDropdownOpen(!dropdownOpen)}
+                onClick={() => onSignOut()}
               >
                 Sign Out
               </Link>

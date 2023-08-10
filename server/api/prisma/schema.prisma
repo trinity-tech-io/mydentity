@@ -18,6 +18,7 @@ model User {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @default(now())
   lastSeenAt DateTime @default(now()) // Updated every time the user uses the app
+  welcomeEmailSentAt DateTime? // Date at which the welcome email was sent, if any
 
   type UserType
 
