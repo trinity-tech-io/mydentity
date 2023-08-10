@@ -7,12 +7,51 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserType {
+  MICROSOFT
+}
+
+model User {
+  id String @id @unique @default(uuid()) // Unique user ID. Also used as DID store ID to retrieve the DID store.
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now())
+  lastSeenAt DateTime @default(now()) // Updated every time the user uses the app
+
+  type UserType
+
+  ProfileEntries ProfileEntry[]
+  IdentityRoot   IdentityRoot[]
+  Identity       Identity[]
+  UserShadowKey  UserShadowKey[]
+}
+
+// Corresponds to a RootIdentity in the DID SDK, meaning one mnemonic.
+// We can choose to reuse existing IdentityRoots when creating new Identities, meaning
+// That the new Identity/DID is derived from the same mnemonic (more convenient to users).
+// Or we can create a new IdentityRoot, meaning the new identity is created with a new mnemonic (better separation, transferability).
+model IdentityRoot {
+  id String @id @unique @default(uuid())
+
+  createdAt              DateTime @default(now())
+  user                   User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+  didStoreRootIdentityId String // Unique id of the matching RootIdentity in the DID SDK, to retrieve the root mnemonic used to derive new DIDs
+
+  userId   String
+  Identity Identity[]
+}
+
 model Identity {
   did String @unique
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
-  // TODO: link to user (owner of several identities)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @default(now())
+  user            User         @relation(fields: [userId], references: [id], onDelete: Restrict)
+  identityRoot    IdentityRoot @relation(fields: [identityRootId], references: [id], onDelete: Restrict)
+  derivationIndex Int // Informative, for users: index of the DID derivation in the DID SDK
+
+  userId         String
+  identityRootId String
 
   credentials Credential[]
 }
@@ -47,22 +86,6 @@ model Intent {
   responsePayload Json? // Raw response ready to return, or returned to the requesting app
 }
 
-enum UserType {
-  MICROSOFT
-}
-
-model User {
-  id String @id @unique @default(uuid())
-
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @default(now())
-  lastSeenAt DateTime @default(now()) // Updated every time the user uses the app
-
-  type UserType
-
-  ProfileEntries ProfileEntry[]
-}
-
 model ProfileEntry {
   id String @id @unique @default(uuid())
 
@@ -80,4 +103,30 @@ model ProfileEntry {
   userId String
 
   @@unique([userId, type, title])
+}
+
+enum UserShadowKeyType {
+  PUBLICKEY
+  PASSWORD
+}
+
+// Encrypted versions of the main "user account key"s (one per user),
+// using keypairs specific to each user device. These are shadow copies
+// of the account key, this is why they are named UserShadowKeys.
+// For better adoption, users start by using a password, so a password mode is supported,
+// but this is less safe (users use similar password everywhere so the chances of leaks are high).
+// The UI will recommend to get rid of the basic passwords as user binds more devices, which is necessary to
+// recover the account key (no other way to restore if all device keypairs are lost).
+model UserShadowKey {
+  id String @id @unique @default(uuid())
+
+  createdAt           DateTime          @default(now())
+  user                User              @relation(fields: [userId], references: [id], onDelete: Restrict)
+  type                UserShadowKeyType
+  encryptedAccountKey String // Root account key encrypted by this shadow key
+  publicKey           String? // For publickey types, this is the keypair public key to know which shadow key entry we should try to use to decrypt.
+  passwordHash        String? // One way hash of the password, for password types only
+  // TODO: device identification such as user given name, user agent, etc?
+
+  userId String
 }
