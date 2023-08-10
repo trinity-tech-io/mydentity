@@ -18,6 +18,7 @@ function DropdownUserProfile({
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [signInOpen, setSignInOpen] = useState(false);
   const [userName, setUserName] = useState('user@hotmail.com');
+  const [userTypeDesc, setUserTypeDesc] = useState('UNKNOWN');
   const [isLogin, setIsLogin] = useState(false);
 
   // get access token from url params.
@@ -29,21 +30,24 @@ function DropdownUserProfile({
 
   // close on click outside
   useEffect(() => {
-    const updateUserName = (userId) => {
-      fetchUserProfile(userId).then(profiles => {
+    const updateUserDesc = (user) => {
+      if (user.type === 'MICROSOFT') {
+        setUserTypeDesc('Microsoft');
+      }
+      fetchUserProfile(user.id).then(profiles => {
         setUserName(ProfileEntry.getEmailEntry(profiles).value);
       })
     }
 
     if (accessToken && accessToken !== '') {
       fetchSelfUser(accessToken).then(user => {
-        updateUserName(user.id);
+        updateUserDesc(user);
         setIsLogin(true);
       });
     } else {
       getSelfUser().then(user => {
         if (user) {
-          updateUserName(user.id);
+          updateUserDesc(user);
           setIsLogin(true);
         }
       });
@@ -116,7 +120,7 @@ function DropdownUserProfile({
         >
           <div className="pt-0.5 pb-2 px-3 mb-1 border-b border-slate-200 dark:border-slate-700">
             <div className="font-medium text-slate-800 dark:text-slate-100">{userName}</div>
-            <div className="text-xs text-slate-500 dark:text-slate-400 italic">Signed in with Google</div>
+            <div className="text-xs text-slate-500 dark:text-slate-400 italic">Signed in with {userTypeDesc}</div>
           </div>
           <ul>
             <li>
