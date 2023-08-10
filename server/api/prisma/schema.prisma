@@ -9,6 +9,7 @@ datasource db {
 
 enum UserType {
   MICROSOFT
+  EMAIL
 }
 
 model User {
@@ -19,6 +20,10 @@ model User {
   lastSeenAt DateTime @default(now()) // Updated every time the user uses the app
 
   type UserType
+
+  // Auth process
+  temporaryEmailAuthKey       String? // Temporary authentication key generated for authentication by email address + magic "link"
+  temporaryEmailAuthExpiresAt DateTime? // Date at which temporaryEmailAuthKey becomes invalid and cannot be used to confirm email sign in by magic link.
 
   ProfileEntries ProfileEntry[]
   IdentityRoot   IdentityRoot[]

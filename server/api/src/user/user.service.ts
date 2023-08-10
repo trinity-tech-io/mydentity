@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import {forwardRef, Inject, Injectable} from '@nestjs/common';
 import { AuthService } from 'src/auth/auth.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ThirdPartyUser } from './dto/third-party-user';
@@ -6,6 +6,12 @@ import { MicrosoftProfileService } from './microsoft-profile.service';
 import { ProfileTitle } from './profile-title';
 import { ProfileType } from './profile-type';
 import { ProfileEntry, User } from '@prisma/client';
+import {randomUUID} from "crypto";
+import * as moment from "moment";
+import {encode} from "slugid";
+import {generateRandomTempName} from "./name-generator";
+import {EmailTemplateType} from "../emailing/email-template-type";
+import {EmailingService} from "../emailing/emailing.service";
 
 // https://makinhs.medium.com/authentication-made-easy-with-nestjs-part-4-of-how-to-build-a-graphql-mongodb-d6057eae3fdf
 @Injectable()
@@ -14,6 +20,7 @@ export class UserService {
     private prisma: PrismaService,
     private authService: AuthService,
     private readonly microsoftProfileService: MicrosoftProfileService,
+    @Inject(forwardRef(() => EmailingService)) private emailingService: EmailingService,
   ) {}
 
   /**
@@ -134,5 +141,76 @@ export class UserService {
         internal: false
       }
     });
+  }
+
+  /**
+   * When a user tries to get a magic authentication link by email,
+   * and this email doesn't exist yet, we create a temporary user.
+   * This doesn't mean that the email is valid yet.
+   */
+  private async createEmailAuthUser(emailAddress: string): Promise<User> {
+    const user = await this.prisma.user.create({
+      data: { type: "EMAIL" }
+    });
+
+    const profileEntries = [
+      { type: ProfileType.EMAIL, title: ProfileTitle.OTHER_EMAIL, value: emailAddress, visible: false, isPrimary: true },
+      { type: ProfileType.FIRSTNAME, title: ProfileTitle.FIRSTNAME, value: generateRandomTempName("firstname"), visible: true, isPrimary: true },
+      { type: ProfileType.LASTNAME, title: ProfileTitle.LASTNAME, value: generateRandomTempName("lastname"), visible: true, isPrimary: true },
+    ];
+
+    await this.prisma.profileEntry.createMany({
+      data: profileEntries.map((p) => ({
+        userId: user.id,
+        type: p.type,
+        title: p.title,
+        value: p.value,
+        visible: p.visible,
+        isPrimary: p.isPrimary,
+      }))
+    });
+
+    return user;
+  }
+
+  /**
+   * Initiates a new authentication by email, using a magic link.
+   */
+  public async requestEmailAuthentication(emailAddress: string) {
+    // Check if a user exists with this authentication mode and email already. If not, create a user.
+    let user = await this.prisma.user.findFirst({
+      where: {
+        ProfileEntries: {
+          some: {
+            type: ProfileType.EMAIL,
+            value: emailAddress
+          }
+        }
+      }
+    });
+
+    console.log("user", user, emailAddress)
+
+    if (!user) {
+      // No user, create one
+      user = await this.createEmailAuthUser(emailAddress);
+    }
+
+    // Generate a temporary auth token with short expiration date into the user object
+    const temporaryEmailAuthKey = randomUUID();
+    const temporaryEmailAuthExpiresAt = moment().add(10, 'minutes').toDate();
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { temporaryEmailAuthKey, temporaryEmailAuthExpiresAt }
+    });
+
+    // Send the authentication link by email.
+    const magicLink = `${process.env.FRONTEND_URL}/sign-in/check-key?key=${encode(temporaryEmailAuthKey)}`;
+    this.emailingService.sendEmail(EmailTemplateType.EMAIL_AUTHENTICATION, "Mingler <email-auth@mingler.io>", emailAddress, "Sign in with your magic link", {
+      magicLink
+    });
+
+    return null;
   }
 }

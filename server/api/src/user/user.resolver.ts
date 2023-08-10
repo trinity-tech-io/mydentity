@@ -1,5 +1,5 @@
 import { UseGuards } from '@nestjs/common';
-import {Args, Query, Resolver} from '@nestjs/graphql';
+import {Args, Mutation, Query, Resolver} from '@nestjs/graphql';
 import { CurrentUser } from 'src/auth/currentuser.decorator';
 import {JwtAuthGuard, OptionalJwtAuthGuard} from 'src/auth/jwt-auth.guard';
 import { AuthService } from '../auth/auth.service';
@@ -8,6 +8,7 @@ import { UserService } from './user.service';
 import {logger} from "../logger";
 import {ProfileEntryEntity} from "./entities/profile-entry.entity";
 import {User} from "@prisma/client";
+import {RequestEmailAuthenticationResult} from "./entities/request-email-authentication-result.entity";
 
 @Resolver(() => UserEntity)
 export class UserResolver {
@@ -42,5 +43,10 @@ export class UserResolver {
     else {
       return this.userService.findPublicProfile(userId);
     }
+  }
+
+  @Mutation(() => RequestEmailAuthenticationResult, { nullable: true })
+  async requestEmailAuthentication(@Args('emailAddress') emailAddress: string) {
+    return this.userService.requestEmailAuthentication(emailAddress);
   }
 }

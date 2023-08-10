@@ -5,6 +5,7 @@ import { Button, Card, createStyles, InputBase, makeStyles, Typography, useMedia
 import { useTheme } from '@material-ui/core/styles';
 import clsx from 'clsx';
 import { FC, FormEvent, useRef, useState } from 'react';
+import {authenticateWithEmailAddress} from "@services/user/user.service";
 
 const useStyles = makeStyles(theme => ({
   bgLightGray: {
@@ -43,6 +44,53 @@ const StyledButton = withStyles((theme) => createStyles({
     {...props}
   />
 ));
+
+const EmailSignIn: FC = () => {
+  const emailInputRef = useRef(null);
+  const [authEmailSent, setAuthEmailSent] = useState(false);
+  const emailForm = useRef(null);
+
+  const doEmailAuth = () => {
+    const emailAddress = emailInputRef.current.value;
+
+    if (emailAddress !== "") {
+      setAuthEmailSent(true);
+
+      void authenticateWithEmailAddress(emailAddress);
+    }
+  }
+
+  function onEmailSubmit(ev?: FormEvent) {
+    ev?.preventDefault();
+    emailInputRef.current.blur();
+
+    doEmailAuth();
+  }
+
+  return (
+      <div className="flex flex-col">
+        {!authEmailSent && <form onSubmit={onEmailSubmit} ref={emailForm}>
+          <InputBase
+              inputRef={emailInputRef}
+              placeholder="Input email address"
+              className="flex flex-1 px-16 py-4 my-8 bg-gray-200 rounded-8"
+              type='email'
+              name="email"
+          />
+        </form>}
+        {
+            !authEmailSent &&
+            <StyledButton
+                startIcon={<ReactIcon icon="material-symbols:key" />}
+                onClick={() => doEmailAuth()}
+            >
+              Send magic key to email
+            </StyledButton>
+        }
+        {authEmailSent && <div className='text-center mt-10'>Magic link sent, please check your mailbox.</div>}
+      </div>
+  )
+}
 
 const SignIn: FC = () => {
   const theme = useTheme();
@@ -86,12 +134,12 @@ const SignIn: FC = () => {
         {/*  onClick={signInWithLinkedIn}>*/}
         {/*  Sign in with LinkedIn*/}
         {/*</StyledButton>*/}
-        {/*<div className="relative">*/}
-        {/*  <Typography variant="subtitle1" className={clsx(classes.bgLightGray, "text-base font-bold my-12 bg")}>or sign in with your email</Typography>*/}
-        {/*  <div className={clsx(classes.separateBar, 'left')} />*/}
-        {/*  <div className={clsx(classes.separateBar, 'right')} />*/}
-        {/*</div>*/}
-        {/*<EmailSignIn />*/}
+        <div className="relative">
+          <Typography variant="subtitle1" className={clsx(classes.bgLightGray, "text-base font-bold my-12 bg")}>or sign in with your email</Typography>
+          <div className={clsx(classes.separateBar, 'left')} />
+          <div className={clsx(classes.separateBar, 'right')} />
+        </div>
+        <EmailSignIn />
       </div>
       <Typography variant="body1" color="textSecondary">
         Signing up for an account means you agree to the <br />

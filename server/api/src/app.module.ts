@@ -11,6 +11,7 @@ import { IdentityModule } from './identity/identity.module';
 import { IntentsModule } from './intents/intents.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { UserModule } from './user/user.module';
+import { CommonEmailingModule } from "./emailing/emailing.module";
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { UserModule } from './user/user.module';
     AuthModule,
     AuthProvidersModule,
     UserModule,
+    CommonEmailingModule,
     CredentialsModule,
     IntentsModule,
     ScheduleModule.forRoot()

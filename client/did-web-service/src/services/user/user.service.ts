@@ -115,3 +115,20 @@ export async function fetchUserProfile(userId: string): Promise<ProfileEntry[]> 
     }
   })
 }
+
+/**
+ * Initiates a user authentication by email address. This sends a magic auth link by email
+ * and user needs to click that link to finalize the authentication.
+ */
+export async function authenticateWithEmailAddress(emailAddress: string): Promise<void> {
+  logger.log("user", "Sending request to authentication by email");
+
+  await getApolloClient().mutate<{}>({
+    mutation: gql`
+      mutation RequestEmailAuthentication($emailAddress: String!) {
+        requestEmailAuthentication(emailAddress: $emailAddress) { success }
+      }
+    `,
+    variables: { emailAddress }
+  });
+}

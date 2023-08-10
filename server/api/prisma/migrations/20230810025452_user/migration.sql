@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "UserType" AS ENUM ('MICROSOFT');
+CREATE TYPE "UserType" AS ENUM ('MICROSOFT', 'EMAIL');
 
 -- CreateTable
 CREATE TABLE "User" (
@@ -8,6 +8,8 @@ CREATE TABLE "User" (
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "lastSeenAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "type" "UserType" NOT NULL,
+    "temporaryEmailAuthKey" TEXT,
+    "temporaryEmailAuthExpiresAt" TIMESTAMP(3),
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -22,6 +24,7 @@ CREATE TABLE "ProfileEntry" (
     "value" TEXT NOT NULL,
     "visible" BOOLEAN NOT NULL DEFAULT false,
     "isPrimary" BOOLEAN NOT NULL DEFAULT false,
+    "internal" BOOLEAN NOT NULL DEFAULT false,
     "userId" TEXT NOT NULL,
 
     CONSTRAINT "ProfileEntry_pkey" PRIMARY KEY ("id")
