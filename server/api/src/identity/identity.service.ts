@@ -16,14 +16,12 @@ export class IdentityService {
     console.log('IdentityService', 'create', user)
     let storePassword = '123456'; // TODO: use account key
 
-    // Create DID store
-    let didStore = await this.didService.openStore(user.id);
-
-    // Create DID SDK root identity
-    let rootIdentity = await this.didService.initPrivateIdentity(didStore, storePassword);
+    // Get rootIdentity
+    let rootIdentity = await this.didService.getRootIdentity(user.id, storePassword);
 
     // Create DID SDK DID
-    let didDocument: DIDDocument = await rootIdentity.newDid(storePassword);
+    let index = rootIdentity.getIndex();
+    let didDocument: DIDDocument = await rootIdentity.newDid(storePassword, index);
 
     const identityRoot = await this.prisma.identityRoot.create({
       data: {
@@ -36,7 +34,7 @@ export class IdentityService {
       data: {
         did: didDocument.getSubject().toString(),
         identityRoot: { connect: { id: identityRoot.id } },
-        derivationIndex: -1,
+        derivationIndex: index,
         user: { connect: { id: user.id } }
       }
     })

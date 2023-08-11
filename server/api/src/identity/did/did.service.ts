@@ -14,8 +14,29 @@ export class DidService {
     let didStoreDir = join(__dirname, "../..", "didstores", didStorePath);
     console.log('didStoreDir:', didStoreDir);
 
-    let store: DIDStore = await DIDStore.open(didStoreDir);
-    return store
+    return await DIDStore.open(didStoreDir);
+  }
+
+  /**
+   * Create rootIdentity if no exist, or use the exist rootIdenity.
+   * @param didStorePath
+   * @param storePassword
+   * @returns
+   */
+  async getRootIdentity(didStorePath: string, storePassword: string) {
+    let didStore = await this.openStore(didStorePath);
+
+    let rootIdentity: RootIdentity = null;
+    if (!didStore.containsRootIdentities()) {
+      // Create DID SDK root identity
+      console.log('not contains rootIdentities,create rootIdentity');
+      rootIdentity = this.initPrivateIdentity(didStore, storePassword);
+    } else {
+      console.log('contains rootIdentities, use the exist rootIdentity');
+      rootIdentity = await didStore.loadRootIdentity();
+    }
+
+    return rootIdentity;
   }
 
   initPrivateIdentity(didStore: DIDStore, storepass: string, language: string = Mnemonic.ENGLISH) {
