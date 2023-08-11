@@ -10,23 +10,11 @@ import fillPlaceholders from "string-placeholder";
 import { logger } from "../logger";
 import { EmailTemplateType } from './email-template-type';
 import { ISmtpService } from './ismtp.service';
-import { PostmarkService } from './smtp-services/postmark.service';
-import { ProtonMailService } from './smtp-services/protonmail.service';
-import { SendinblueService } from './smtp-services/sendinblue.service';
 import { Smtp4devService } from './smtp-services/smtp4dev.service';
 
 enum SmtpService {
-  //MAILHOG = "mailhog" // local mailhog docker smtp to simply debug emails without really sending them
   SMTP4DEV = "smtp4dev", // local smtp4dev docker smtp to simply debug emails without really sending them
-  SENDINBLUE = "sendinblue", // real smtp service
-  PROTONMAIL = "protonmail", // proton.me
-  POSTMARK = "postmark"
 }
-
-/* type SmtpConfig = {
-  host: string;
-  port: number;
-} */
 
 export type EmailContentReplacements = {
   [placeholder: string]: string; // placeholder -> real value pairs
@@ -38,9 +26,6 @@ export class EmailingService {
 
   constructor(
     private readonly smtp4devService: Smtp4devService,
-    private readonly sendinblueService: SendinblueService,
-    private readonly protonMailService: ProtonMailService,
-    private readonly postmarkService: PostmarkService
   ) {
     Handlebars.registerHelper('breaklines', function (text) {
       text = Handlebars.Utils.escapeExpression(text);
@@ -53,7 +38,7 @@ export class EmailingService {
   }
 
   private registerHandlebarsPartials() {
-    Handlebars.registerPartial('whatIsMingler', this.loadHandlebarsPart("what-is-mingler"));
+    Handlebars.registerPartial('whatIsDIDService', this.loadHandlebarsPart("what-is-didservice"));
     Handlebars.registerPartial('mainMeta', this.loadHandlebarsPart("main-meta"));
     Handlebars.registerPartial('mainStyle', this.loadHandlebarsPart("main-style"));
     Handlebars.registerPartial('header', this.loadHandlebarsPart("header"));
@@ -123,7 +108,8 @@ export class EmailingService {
     // Append generic data
     data = {
       ...data,
-      headerLogo: `${process.env.SERVER_URL}/images/logos/mingler-100.png`
+      // headerLogo: `${process.env.SERVER_URL}/images/logos/didservice-100.png`
+      headerLogo: `${process.env.FRONTEND_URL}/did-logo.png`
     }
 
     const htmlContent = this.templates[emailTemplate](data);
@@ -144,12 +130,6 @@ export class EmailingService {
     switch (service) {
       case SmtpService.SMTP4DEV:
         return this.smtp4devService;
-      case SmtpService.SENDINBLUE:
-        return this.sendinblueService;
-      case SmtpService.PROTONMAIL:
-        return this.protonMailService;
-      case SmtpService.POSTMARK:
-        return this.postmarkService;
       default:
         throw new Error(`Unknown STMP service ${service}`)
     }
