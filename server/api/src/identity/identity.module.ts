@@ -4,11 +4,13 @@ import { CredentialsModule } from 'src/credentials/credentials.module';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { IdentityResolver } from './identity.resolver';
 import { IdentityService } from './identity.service';
+import { DidService } from './did/did.service';
 
 @Module({
   providers: [
     IdentityResolver,
-    IdentityService
+    IdentityService,
+    DidService
   ],
   imports: [
     PrismaModule,
