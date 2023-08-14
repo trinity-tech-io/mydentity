@@ -39,3 +39,10 @@ package-lock.json
 
 .env*
 !.env.sample
+
+# Did store path
+/didstores
+/src/didstores/
+
+# Test
+src/did/*spec.ts

@@ -17,8 +17,9 @@ export class IdentityResolver {
     return this.didService.create(createDidInput, user);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Query(() => [IdentityEntity], { name: 'identities' })
-  findAll() {
-    return this.didService.findAll();
+  findAll(@CurrentUser() user: User) {
+    return this.didService.findAll(user);
   }
 }

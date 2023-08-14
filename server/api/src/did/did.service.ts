@@ -1,18 +1,19 @@
-import { DIDStore, Mnemonic, RootIdentity } from '@elastosfoundation/did-js-sdk';
+import { DIDBackend, DIDStore, DefaultDIDAdapter, Mnemonic, RootIdentity } from '@elastosfoundation/did-js-sdk';
 import { Injectable } from '@nestjs/common';
 import { join } from 'path';
 
 @Injectable()
 export class DidService {
+  private network = 'mainnet';
 
   generateMnemonic(language: string) {
-    let mnemonic = Mnemonic.getInstance(language);
-    return mnemonic.generate();
+    return Mnemonic.getInstance(language).generate();
   }
 
   async openStore(didStorePath: string) : Promise<DIDStore> {
-    let didStoreDir = join(__dirname, "../..", "didstores", didStorePath);
+    const didStoreDir = join(__dirname, "../..", "didstores", didStorePath);
     console.log('didStoreDir:', didStoreDir);
+    // Logger.setLevel(Logger.INFO)
 
     return await DIDStore.open(didStoreDir);
   }
@@ -24,12 +25,15 @@ export class DidService {
    * @returns
    */
   async getRootIdentity(didStorePath: string, storePassword: string) {
-    let didStore = await this.openStore(didStorePath);
+    const didStore = await this.openStore(didStorePath);
+
+    const didAdapter = new DefaultDIDAdapter(this.network);
+    DIDBackend.initialize(didAdapter);
 
     let rootIdentity: RootIdentity = null;
     if (!didStore.containsRootIdentities()) {
       // Create DID SDK root identity
-      console.log('not contains rootIdentities,create rootIdentity');
+      console.log('not contains rootIdentities, create rootIdentity');
       rootIdentity = this.initPrivateIdentity(didStore, storePassword);
     } else {
       console.log('contains rootIdentities, use the exist rootIdentity');
@@ -40,10 +44,9 @@ export class DidService {
   }
 
   initPrivateIdentity(didStore: DIDStore, storepass: string, language: string = Mnemonic.ENGLISH) {
-    let mnemonic = this.generateMnemonic(language);
-    let passphrase = ''; // Do not use passphrase
+    const mnemonic = this.generateMnemonic(language);
+    const passphrase = ''; // Do not use passphrase
 
-    let rootIdentity = RootIdentity.createFromMnemonic(mnemonic, passphrase, didStore, storepass, true);
-    return rootIdentity;
+    return RootIdentity.createFromMnemonic(mnemonic, passphrase, didStore, storepass, true);
   }
 }
