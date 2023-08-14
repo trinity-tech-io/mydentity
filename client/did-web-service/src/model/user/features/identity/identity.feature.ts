@@ -19,6 +19,13 @@ export class IdentityFeature implements UserFeature {
     return identity;
   }
 
+  public async deleteIdentity(didString: String): Promise<Boolean> {
+    logger.log("identities", "Deleting identity");
+
+    const identity = await identityService.deleteIdentity(didString);
+    return identity;
+  }
+
   private async fetchIdentities() {
     logger.log("identities", "Fetching identities");
 

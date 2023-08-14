@@ -18,6 +18,13 @@ class IdentityService {
   }
 
   /**
+   * Delete identity (DID) for the signed in user
+   */
+  public deleteIdentity(didString: String): Promise<Boolean> {
+    return this.provider.deleteIdentity(didString);
+  }
+
+  /**
    * Sets the newly active identity for the whole app. This identity is the one used
    * to list credentials, and do all DID related operations.
    */

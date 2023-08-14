@@ -9,6 +9,7 @@ import { Identity } from "@model/identity/identity";
  */
 export interface IdentityProvider {
   createIdentity(): Promise<Identity>;
+  deleteIdentity(didString: String): Promise<Boolean>;
   listIdentities(): Promise<Identity[]>;
   listCredentials(identityDid: string): Promise<Credential[]>;
   createVerifiablePresentation(identityDid: string, credentials: VerifiableCredential[], realm: string, nonce: string): Promise<VerifiablePresentation>;

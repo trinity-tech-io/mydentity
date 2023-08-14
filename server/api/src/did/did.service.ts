@@ -49,4 +49,12 @@ export class DidService {
 
     return RootIdentity.createFromMnemonic(mnemonic, passphrase, didStore, storepass, true);
   }
+
+  async deleteIdentity(didString: string, didStorePath: string) {
+    console.log('IdentityService', 'deleteIdentity didString:', didString);
+    const didStore = await this.openStore(didStorePath);
+    // TODO: Delete credentials
+    const ret = didStore.deleteDid(didString);
+    return ret;
+  }
 }

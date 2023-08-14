@@ -4,6 +4,7 @@ import Transition from './Transition';
 import { authUser$ } from '@services/user/user.events';
 import { activeIdentity$ } from '@services/identity/identity.events';
 import { identityService } from '@services/identity/identity.service';
+import { logger } from '@services/logger';
 
 function ModalCreateIdentity({
   id,
@@ -20,6 +21,15 @@ function ModalCreateIdentity({
     if (!activeIdentity$.value)
       identityService.setActiveIdentity(identity)
     // alert("Identity successfully created");
+  }
+
+  const deleteDIDTest = async () => {
+    // TODO: User select did
+    const didStringToDelete = 'did:elastos:icF3E1gqwH7usDLW5CUKiB39NVGWMREBhN';
+    const ret = await authUser.get("identity").deleteIdentity(didStringToDelete);
+    if (ret) {
+      // TODO: remove the did from UI
+    }
   }
 
   // close on click outside
@@ -51,6 +61,7 @@ function ModalCreateIdentity({
     // alert('A name was submitted: ' + nameInput.current.value);
     event.preventDefault();
     createDIDTest();
+    // deleteDIDTest();
     setModalOpen(false);
   }
 

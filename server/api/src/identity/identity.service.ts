@@ -2,8 +2,8 @@ import { DIDDocument } from '@elastosfoundation/did-js-sdk';
 import { Injectable } from '@nestjs/common';
 import { Identity, User } from '@prisma/client';
 import { CredentialsService } from 'src/credentials/credentials.service';
+import { DidService } from 'src/did/did.service';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { DidService } from '../did/did.service';
 import { CreateIdentityInput } from './dto/create-identity.input';
 
 @Injectable()
@@ -12,7 +12,7 @@ export class IdentityService {
     private credentialsService: CredentialsService,
     private didService: DidService) { }
 
-  async create(createDidInput: CreateIdentityInput, user: User): Promise<Identity> {
+  async create(createIdentityInput: CreateIdentityInput, user: User): Promise<Identity> {
     console.log('IdentityService', 'create', user);
     const storePassword = '123456'; // TODO: use account key
 
@@ -49,22 +49,24 @@ export class IdentityService {
     return identity;
   }
 
-  async deleteDID(didString: string, user: User) {
-    console.log('IdentityService', 'deleteDID didString:', didString);
-    const didStore = await this.didService.openStore(user.id);
-    const ret = didStore.deleteDid(didString);
+  async deleteIdentity(didString: string, user: User) {
+    console.log('IdentityService', 'deleteIdentity didString:', didString);
+    const ret = await this.didService.deleteIdentity(didString, user.id);
     if (ret) {
+      // TODO: Delete credentials
       await this.prisma.identity.delete({
         where: {
           did: didString
         }
       })
+    } else {
+      console.log('IdentityService', 'deleteIdentity error');
     }
     return ret;
   }
 
   findAll(user: User) {
-    console.log('IdentityService', 'findAll user', user);
+    console.log('IdentityService', 'findAll for user:', user);
     return this.prisma.identity.findMany({
       where: {
         userId: user.id

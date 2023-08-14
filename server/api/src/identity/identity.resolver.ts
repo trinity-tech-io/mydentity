@@ -13,8 +13,14 @@ export class IdentityResolver {
 
   @UseGuards(JwtAuthGuard)
   @Mutation(() => IdentityEntity)
-  createDID(@Args('input') createDidInput: CreateIdentityInput, @CurrentUser() user: User) {
-    return this.didService.create(createDidInput, user);
+  createIdentity(@Args('input') createIdentityInput: CreateIdentityInput, @CurrentUser() user: User) {
+    return this.didService.create(createIdentityInput, user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => Boolean)
+  deleteIdentity(@Args('didString') didString: string, @CurrentUser() user: User) {
+    return this.didService.deleteIdentity(didString, user);
   }
 
   @UseGuards(JwtAuthGuard)

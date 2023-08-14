@@ -12,10 +12,10 @@ import { IdentityProvider } from "../did.provider";
 
 export class CustodialDIDProvider implements IdentityProvider {
   async createIdentity(): Promise<Identity> {
-    const { data } = await getApolloClient().mutate<{ createDID: IdentityDTO }>({
+    const { data } = await getApolloClient().mutate<{ createIdentity: IdentityDTO }>({
       mutation: gql`
-        mutation createDID($name: String!) {
-          createDID(input: { name: $name }) {
+        mutation createIdentity($name: String!) {
+          createIdentity(input: { name: $name }) {
             ${gqlIdentityFields}
           }
         }
@@ -27,11 +27,33 @@ export class CustodialDIDProvider implements IdentityProvider {
 
     console.log(data)
 
-    if (data?.createDID) {
-      return Identity.fromJson(data.createDID, this);
+    if (data?.createIdentity) {
+      return Identity.fromJson(data.createIdentity, this);
     }
     else {
       throw new Error("Failed to create DID");
+    }
+  }
+
+  async deleteIdentity(didString: String): Promise<Boolean> {
+    const { data } = await getApolloClient().mutate<{ deleteIdentity: Boolean }>({
+      mutation: gql`
+        mutation deleteIdentity($didString: String!) {
+          deleteIdentity(didString: $didString)
+        }
+      `,
+      variables: {
+        didString
+      }
+    });
+
+    console.log(data)
+
+    if (data?.deleteIdentity) {
+      return true;
+    }
+    else {
+      throw new Error("Failed to delete DID");
     }
   }
 
