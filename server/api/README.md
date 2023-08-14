@@ -15,17 +15,15 @@
 - `npx prisma generate`
 - `npx prisma migrate deploy`
 - Start the API:
-  - `npm run start:dev`
+  - `npm run dev`
 
 # Setup when getting the latest git code
 
 - `git pull --rebase`
 - Compare .env.sample files with your .env file to check if something new was added.
-- `npm i -D`
-- `npx prisma generate`
-- `npx prisma migrate deploy`
+- `npm run update` (will deploy prisma migrations, generate prisma schema, install npm dependencies)
 - Start the API:
-  - `npm run start:dev`
+  - `npm run dev`
 
 # Prisma
 
