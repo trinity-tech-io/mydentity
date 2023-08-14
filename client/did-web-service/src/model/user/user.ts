@@ -1,4 +1,5 @@
 /* eslint-disable max-classes-per-file */
+import { DeviceFeature } from "./features/device/device.feature";
 import { IdentityFeature } from "./features/identity/identity.feature";
 import { ProfileFeature } from "./features/profile/profile.feature";
 import { UserFeature } from "./features/user-feature";
@@ -17,6 +18,7 @@ export class User {
   constructor() {
     this.addFeature("profile", new ProfileFeature(this));
     this.addFeature("identity", new IdentityFeature(this));
+    this.addFeature("device", new DeviceFeature(this));
   }
 
   public static async fromJson(json: UserDTO, useCache = true): Promise<User> {
@@ -41,7 +43,8 @@ export class User {
 
   public get(feature: "profile"): ProfileFeature;
   public get(feature: "identity"): IdentityFeature;
-  public get(feature: "profile" | "identity" | string): UserFeature {
+  public get(feature: "device"): DeviceFeature;
+  public get(feature: "profile" | "identity" | "device"): UserFeature {
     if (!this.features.has(feature)) {
       throw new Error(`Unhandled user feature '${feature}'`);
     }

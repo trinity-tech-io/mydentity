@@ -12,6 +12,7 @@ import { IntentsModule } from './intents/intents.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { UserModule } from './user/user.module';
 import { CommonEmailingModule } from "./emailing/emailing.module";
+import { DevicesModule } from './devices/devices.module';
 
 @Module({
   imports: [
@@ -29,7 +30,8 @@ import { CommonEmailingModule } from "./emailing/emailing.module";
     CommonEmailingModule,
     CredentialsModule,
     IntentsModule,
-    ScheduleModule.forRoot()
+    ScheduleModule.forRoot(),
+    DevicesModule
   ],
   controllers: [
     AppController

@@ -9,8 +9,8 @@ import { CreateIdentityInput } from './dto/create-identity.input';
 @Injectable()
 export class IdentityService {
   constructor(private prisma: PrismaService,
-              private credentialsService: CredentialsService,
-              private didService: DidService) {}
+    private credentialsService: CredentialsService,
+    private didService: DidService) { }
 
   async create(createDidInput: CreateIdentityInput, user: User): Promise<Identity> {
     console.log('IdentityService', 'create', user);

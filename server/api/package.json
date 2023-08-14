@@ -54,7 +54,8 @@
     "sib-api-v3-typescript": "^2.2.2",
     "slugid": "^4.0.0",
     "socks-proxy-agent": "^8.0.1",
-    "string-placeholder": "^1.0.2"
+    "string-placeholder": "^1.0.2",
+    "ua-parser-js": "^1.0.35"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",
@@ -69,6 +70,7 @@
     "@types/libsodium-wrappers": "^0.7.10",
     "@types/node": "^16.0.0",
     "@types/supertest": "^2.0.11",
+    "@types/ua-parser-js": "^0.7.36",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
     "eslint": "^8.0.1",
