@@ -31,6 +31,7 @@ model User {
   Identity       Identity[]
   UserShadowKey  UserShadowKey[]
   Device         Device[]
+  Activities     Activity[]
 }
 
 // Corresponds to a RootIdentity in the DID SDK, meaning one mnemonic.
@@ -150,4 +151,25 @@ model Device {
 
   userId        String
   UserShadowKey UserShadowKey[]
+}
+
+enum ActivityType {
+  VC_CREATED
+  VC_SHARED
+  VC_SIGNED_BY_THIRD_APP
+  DID_CREATED
+  DID_DELETED
+  SIGNED_IN
+}
+
+model Activity {
+  id String @id @unique @default(uuid())
+
+  user      User        @relation(fields: [userId], references: [id], onDelete: Restrict)
+  type      ActivityType
+
+  content   Json?       // Depends on the type of activity.
+  createdAt DateTime    @default(now())
+
+  userId    String
 }
