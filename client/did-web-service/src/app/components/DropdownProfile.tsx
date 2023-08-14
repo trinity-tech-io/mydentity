@@ -16,7 +16,6 @@ function DropdownUserProfile({
   align
 }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [signInOpen, setSignInOpen] = useState(false);
   const [userName, setUserName] = useState('user@hotmail.com');
   const [userTypeDesc, setUserTypeDesc] = useState('UNKNOWN');
   const [isLogin, setIsLogin] = useState(false);
@@ -66,7 +65,8 @@ function DropdownUserProfile({
 
   const onIconClick = () => {
     if (!isLogin) {
-      setSignInOpen(!signInOpen);
+      // setSignInOpen(!signInOpen);
+      window.location.href = '/signin';
     } else {
       setDropdownOpen(!dropdownOpen)
     }
@@ -158,8 +158,6 @@ function DropdownUserProfile({
       </Transition>
 
           )}
-
-      {signInOpen && (<SignIn></SignIn>)}
 
     </div>
   )

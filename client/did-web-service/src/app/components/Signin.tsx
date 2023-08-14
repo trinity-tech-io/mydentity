@@ -9,17 +9,17 @@ import {authenticateWithEmailAddress} from "@services/user/user.service";
 
 const useStyles = makeStyles(theme => ({
   bgLightGray: {
-    background: 'rgba(246, 246, 246, 0.7)',
-    position: "fixed",
-    top: '0',
-    left: '50%',
-    width: '300px',
-    height: '300px',
-    margin: '-150px 0 0 0'
+    // background: 'rgba(255, 246, 246, 1)',
+    // position: "fixed",
+    // top: '20%',
+    // left: '50%',
+    // width: '300px',
+    // height: '300px',
+    // margin: '-150px 0 0 0'
   },
   separateBar: {
     position: 'absolute',
-    top: 0,
+    top: '20%',
     width: 80,
     borderBottom: '1px solid #C4C4C4',
     height: 24,
@@ -135,7 +135,7 @@ const SignIn: FC = () => {
         {/*  Sign in with LinkedIn*/}
         {/*</StyledButton>*/}
         <div className="relative">
-          <Typography variant="subtitle1" className={clsx(classes.bgLightGray, "text-base font-bold my-12 bg")}>or sign in with your email</Typography>
+          <Typography variant="subtitle1" className={clsx(classes.bgLightGray, "text-base font-bold my-12 bg")}>sign in with your email</Typography>
           <div className={clsx(classes.separateBar, 'left')} />
           <div className={clsx(classes.separateBar, 'right')} />
         </div>
