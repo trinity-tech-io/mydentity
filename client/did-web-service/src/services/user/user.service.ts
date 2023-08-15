@@ -19,17 +19,9 @@ export async function userServiceInit() { }
 /**
  * Store the authenticated user to local storage, for future use
  */
-export async function saveAuthenticatedUser(json: UserDTO): Promise<void> {
+async function saveAuthenticatedUser(json: UserDTO): Promise<void> {
   localStorage.setItem("authenticated_user", JSON.stringify(json));
   authUser$.next(await User.fromJson(json) as User);
-}
-
-export async function getSelfUser() {
-  const userStr = localStorage.getItem("authenticated_user");
-  if (!userStr)
-    return null;
-
-  return await User.fromJson(JSON.parse(userStr)) as User;
 }
 
 /**

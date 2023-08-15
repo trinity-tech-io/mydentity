@@ -28,7 +28,7 @@ export class ProfileFeature implements UserFeature {
       if (this.profileFetched)
         return this.profile$.value;
 
-      logger.log("user", "Fetching user profile", this.user.id);
+      // logger.log("user", "Fetching user profile", this.user.id);
 
       const profile = await fetchUserProfile(this.user.id);
 
@@ -37,7 +37,7 @@ export class ProfileFeature implements UserFeature {
       // this for update user profiles on any pages.
       // this.user.contentChanged.next();
 
-      logger.log("user", "Fetched user profile", this.user.id);
+      // logger.log("user", "Fetched user profile", this.user.id);
 
       this.profileFetched = true;
 

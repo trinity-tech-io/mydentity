@@ -31,9 +31,14 @@ export class User {
       async fill(user: User) {
         user.fillFromJson(json);
         user.createdAt = new Date(json.createdAt);
-        void user.get("profile").fetchProfile();
+        // void user.get("profile").fetchProfile();
       },
     }, useCache);
+  }
+
+  public async fetchProfiles() {
+    void this.get("profile").fetchProfile();
+    return this;
   }
 
   public toJson(): UserDTO {

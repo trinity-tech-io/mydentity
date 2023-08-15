@@ -1,8 +1,18 @@
 // Separated from the service to reduce circular dependencies
 import { User } from "@model/user/user";
-import { BehaviorSubject } from "rxjs";
+import {LazyBehaviorSubjectWrapper} from "@utils/lazy-behavior-subject";
 
-export const authUser$ = new BehaviorSubject<User>(null);
+const _authUser$ = new LazyBehaviorSubjectWrapper<User>(null, async () => {
+  const userStr = localStorage.getItem("authenticated_user");
+  // console.log(`>>>>>> load active user: ${userStr}`);
+  if (!userStr)
+    return null;
+
+  const user = await User.fromJson(JSON.parse(userStr));
+  authUser$.next(user); // MUST do this.
+  return user;
+});
+export const authUser$ = _authUser$.getSubject();
 
 export function getActiveUser(): User {
   return authUser$.value;

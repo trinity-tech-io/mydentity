@@ -2,15 +2,14 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Transition from './Transition';
-
 import UserAvatar from '@assets/images/user-avatar-32.png';
 import Image from 'next/image';
 import Link from 'next/link';
 import Notifications from '../components/DropdownNotifications';
 import {useSearchParams} from "next/navigation";
-import SignIn from "@components/Signin";
-import {fetchSelfUser, fetchUserProfile, getSelfUser, signOut} from "@services/user/user.service";
+import {fetchSelfUser, fetchUserProfile, signOut} from "@services/user/user.service";
 import {ProfileEntry} from "@model/user/features/profile/profile-entry";
+import {getActiveUser} from "@services/user/user.events";
 
 function DropdownUserProfile({
   align
@@ -30,6 +29,7 @@ function DropdownUserProfile({
 
   // close on click outside
   useEffect(() => {
+    // console.log('>>>>>> enter useEffect')
     const updateUserDesc = (user) => {
       if (user.type === 'MICROSOFT') {
         setUserTypeDesc('Microsoft');
@@ -47,12 +47,14 @@ function DropdownUserProfile({
         setIsLogin(true);
       });
     } else {
-      getSelfUser().then(user => {
-        if (user) {
+      const user = getActiveUser();
+      // console.log('getActiveUser', user)
+      if (user) {
+        user.fetchProfiles().then(user => {
           updateUserDesc(user);
           setIsLogin(true);
-        }
-      });
+        });
+      }
     }
 
     const clickHandler = ({ target }) => {
@@ -62,7 +64,7 @@ function DropdownUserProfile({
     };
     document.addEventListener('click', clickHandler);
     return () => document.removeEventListener('click', clickHandler);
-  });
+  }, []);
 
   const onIconClick = () => {
     if (!isLogin) {
