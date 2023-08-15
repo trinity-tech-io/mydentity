@@ -21,7 +21,7 @@ export async function userServiceInit() { }
  */
 async function saveAuthenticatedUser(json: UserDTO): Promise<void> {
   localStorage.setItem("authenticated_user", JSON.stringify(json));
-  authUser$.next(await User.fromJson(json) as User);
+  authUser$().next(await User.fromJson(json) as User);
 }
 
 /**
@@ -150,7 +150,7 @@ export function signOut() {
   localStorage.removeItem("authenticated_user")
   localStorage.removeItem("access_token");
   localStorage.removeItem("refresh_token");
-  authUser$.next(null);
+  authUser$().next(null);
 }
 
 /**
@@ -221,7 +221,7 @@ export async function refreshToken(): Promise<string> {
     localStorage.setItem("access_token", accessToken);
 
     // Notify user access token changed, websocket will recreated.
-    authUser$.next(getActiveUser());
+    authUser$().next(getActiveUser());
 
     return accessToken;
   } else {

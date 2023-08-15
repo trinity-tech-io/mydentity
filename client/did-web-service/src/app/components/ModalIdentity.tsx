@@ -15,7 +15,7 @@ function ModalCreateIdentity({
   const modalContent = useRef(null);
   const nameInput = useRef(null);
 
-  const [authUser] = useBehaviorSubject(authUser$);
+  const [authUser] = useBehaviorSubject(authUser$());
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
 
   const createDIDTest = async (name) => {

@@ -15,7 +15,7 @@ function DropdownIdentity({
   const trigger = useRef(null);
   const dropdown = useRef(null);
 
-  const [authUser] = useBehaviorSubject(authUser$);
+  const [authUser] = useBehaviorSubject(authUser$());
   let [identities] = useBehaviorSubject(authUser?.get("identity").identities$);
   let [currentIdentity] = useBehaviorSubject(activeIdentity$);
   const [createDidModalOpen, setCreateDidModalOpen] = useState(false);

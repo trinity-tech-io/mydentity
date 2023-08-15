@@ -7,7 +7,7 @@ import { authUser$ } from "@services/user/user.events";
 import { FC, createRef } from "react";
 
 const Security: FC = () => {
-  const [authUser] = useBehaviorSubject(authUser$);
+  const [authUser] = useBehaviorSubject(authUser$());
   const securityFeature = authUser?.get("security");
   const [devices] = useBehaviorSubject(authUser?.get("device").devices$);
   const { showPasswordPrompt } = usePasswordPrompt();

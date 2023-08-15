@@ -8,7 +8,7 @@ import ComfirmDialog from '@components/ComfirmDialog';
 
 export const IdentityListWidget: FC = _ => {
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
-  const [authUser] = useBehaviorSubject(authUser$);
+  const [authUser] = useBehaviorSubject(authUser$());
   let [identities] = useBehaviorSubject(authUser?.get("identity").identities$);
   identities = identities?.slice(0, 5);
 

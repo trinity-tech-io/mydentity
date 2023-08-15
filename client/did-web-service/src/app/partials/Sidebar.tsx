@@ -165,7 +165,7 @@ const Sidebar: FC<{
   setSidebarOpen: (open: boolean) => void;
 }> = ({ sidebarOpen, setSidebarOpen }) => {
   const pathname = usePathname();
-  const [authUser] = useBehaviorSubject(authUser$);
+  const [authUser] = useBehaviorSubject(authUser$());
 
   const trigger = useRef<any>(null);
   const sidebar = useRef<any>(null);

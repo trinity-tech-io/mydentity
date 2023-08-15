@@ -9,11 +9,14 @@ const _authUser$ = new LazyBehaviorSubjectWrapper<User>(null, async () => {
     return null;
 
   const user = await User.fromJson(JSON.parse(userStr));
-  authUser$.next(user); // MUST do this.
+  authUser$().next(user); // MUST do this.
   return user;
 });
-export const authUser$ = _authUser$.getSubject();
+
+export function authUser$() {
+  return _authUser$.getSubject();
+}
 
 export function getActiveUser(): User {
-  return authUser$.value;
+  return authUser$().value;
 }
