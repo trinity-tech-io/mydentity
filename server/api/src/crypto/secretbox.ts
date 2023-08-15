@@ -26,7 +26,7 @@ export class SecretBox {
     }
 
     private static deriveKeyFromPassword(password: Uint8Array | string, nonce: Uint8Array): Uint8Array {
-        const salt = new Uint8Array(nonce, 0, crypto_pwhash_SALTBYTES);
+        const salt = nonce.slice(0, crypto_pwhash_SALTBYTES);
 
         return crypto_pwhash(SecretBox.KEY_BYTES, password, salt,
             crypto_pwhash_OPSLIMIT_INTERACTIVE, crypto_pwhash_MEMLIMIT_INTERACTIVE, crypto_pwhash_ALG_DEFAULT);
@@ -45,9 +45,9 @@ export class SecretBox {
     }
 
     public static decryptWithPassword(data: Uint8Array, password: Uint8Array | string): Uint8Array {
-        const nonce = new Uint8Array(data, 0, Nonce.BYTES);
+        const nonce = data.slice(0, Nonce.BYTES);
         const key = this.deriveKeyFromPassword(password, nonce);
-        const cipher = new Uint8Array(data, Nonce.BYTES);
+        const cipher = data.slice(Nonce.BYTES);
 
         return crypto_secretbox_open_easy(cipher, nonce, key);
     }

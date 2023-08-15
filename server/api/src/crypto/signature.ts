@@ -40,7 +40,7 @@ export class PrivateKey {
     }
 
     public getPublicKey(): PublicKey {
-        return new PublicKey(new Uint8Array(this.key, KeyPair.SEED_BYTES, PublicKey.BYTES))
+        return new PublicKey(this.key.slice(KeyPair.SEED_BYTES))
     }
 
     public toString(): string {

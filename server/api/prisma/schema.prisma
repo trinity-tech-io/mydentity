@@ -114,8 +114,8 @@ model ProfileEntry {
 }
 
 enum UserShadowKeyType {
-  PUBLICKEY
   PASSWORD
+  ED25519
 }
 
 // Encrypted versions of the main "user account key"s (one per user),
@@ -126,18 +126,20 @@ enum UserShadowKeyType {
 // The UI will recommend to get rid of the basic passwords as user binds more devices, which is necessary to
 // recover the account key (no other way to restore if all device keypairs are lost).
 model UserShadowKey {
-  id String @id @unique @default(uuid())
+  user                User              @relation(fields: [userId], references: [id], onDelete: Restrict)
+  userId              String
+
+  key                 String  // For publickey types, this is the keypair public key to decrypt the SecretKey; for password type, this is the hash of the password.
+  type                UserShadowKeyType
+  secretKey           String  // Root account SecretKey encrypted by this public key or password
+
+  device              Device?           @relation(fields: [deviceId], references: [id], onDelete: Restrict) // For publickey types, this is the related device entity for which this shadow key was generated
+  deviceId            String?
 
   createdAt           DateTime          @default(now())
-  user                User              @relation(fields: [userId], references: [id], onDelete: Restrict)
-  type                UserShadowKeyType
-  encryptedAccountKey String // Root account key encrypted by this shadow key
-  publicKey           String? // For publickey types, this is the keypair public key to know which shadow key entry we should try to use to decrypt.
-  passwordHash        String? // One way hash of the password, for password types only
-  device              Device?           @relation(fields: [deviceId], references: [id], onDelete: Restrict) // For publickey types, this is the related device entity for which this shadow key was generated
+  updatedAt           DateTime          @default(now())
 
-  userId   String
-  deviceId String
+  @@id([userId, key])
 }
 
 // Bound user device
