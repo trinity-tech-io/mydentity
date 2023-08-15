@@ -6,13 +6,18 @@ const AppThemeContext = createContext({
 });
 
 export default function AppThemeProvider({ children }) {
-  const persistedTheme = localStorage.getItem('theme');
-  const [theme, setTheme] = useState(persistedTheme || 'light');
+  const [theme, setTheme] = useState('light');
 
   const changeCurrentTheme = (newTheme) => {
     setTheme(newTheme);
     localStorage.setItem('theme', newTheme);
   };
+
+  useEffect(() => {
+    // NextJS: wait for page to be mounted to make sure localStorage is accessed from the client only
+    const persistedTheme = localStorage.getItem('theme');
+    setTheme(persistedTheme || 'light');
+  }, []);
 
   useEffect(() => {
     document.documentElement.classList.add('[&_*]:!transition-none');
