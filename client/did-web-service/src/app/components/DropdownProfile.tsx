@@ -23,6 +23,7 @@ function DropdownUserProfile({
   // get access token from url params.
   const searchParams = useSearchParams();
   const accessToken = searchParams.get('accessToken');
+  const refreshToken = searchParams.get('refreshToken');
 
   const trigger = useRef(null);
   const dropdown = useRef(null);
@@ -40,8 +41,8 @@ function DropdownUserProfile({
       })
     }
 
-    if (accessToken && accessToken !== '') {
-      fetchSelfUser(accessToken).then(user => {
+    if (accessToken && accessToken !== '' && refreshToken && refreshToken != '') {
+      fetchSelfUser(accessToken, refreshToken).then(user => {
         updateUserDesc(user);
         setIsLogin(true);
       });

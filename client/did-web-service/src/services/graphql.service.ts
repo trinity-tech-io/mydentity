@@ -8,6 +8,7 @@ import { BatchHttpLink } from '@apollo/client/link/batch-http';
 import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
 import { configService } from './config/config.service';
+import { refreshToken, onRefreshTokenFailed } from '@services/user/user.service';
 
 class GraphQLService {
   public apolloClient: ApolloClient<any>;
@@ -25,7 +26,7 @@ class GraphQLService {
       if (graphQLErrors) {
         console.error('graphQLErrors', graphQLErrors);
 
-        import("@services/user/user.service").then(({ refreshToken, onRefreshTokenFailed }) => { // circular deps
+        // import("@services/user/user.service").then(({ refreshToken, onRefreshTokenFailed }) => { // circular deps
           for (const err of graphQLErrors) {
             switch (err.extensions.code) {
               case 'UNAUTHENTICATED': // handle token expired.
@@ -50,7 +51,7 @@ class GraphQLService {
                 break;
             }
           }
-        })
+        // })
       }
 
       // To retry on network errors, we recommend the RetryLink

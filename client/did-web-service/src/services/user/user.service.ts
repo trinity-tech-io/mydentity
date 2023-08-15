@@ -1,5 +1,5 @@
 import { User } from "@model/user/user";
-import { authUser$ } from "./user.events";
+import {authUser$, getActiveUser} from "./user.events";
 import Queue from "promise-queue";
 import {logger} from "@services/logger";
 import {getApolloClient} from "@services/graphql.service";
@@ -43,8 +43,9 @@ export async function getSelfUser() {
  * updates the active user state.
  *
  * @param curToken current access token for user data transferring.
+ * @param curToken current refresh token.
  */
-export async function fetchSelfUser(curToken?: string): Promise<User> {
+export async function fetchSelfUser(curToken?: string, refreshToken?: string): Promise<User> {
   return fetchUserQueue.add(async () => {
     logger.log("users", "Fetching self user profile");
 
@@ -52,6 +53,8 @@ export async function fetchSelfUser(curToken?: string): Promise<User> {
       // update for apollo client
       localStorage.setItem("access_token", curToken);
     }
+    if (refreshToken)
+      localStorage.setItem("refresh_token", refreshToken);
 
     const { data } = await getApolloClient().query<{ getSelfUser: UserDTO }>({
       query: gql`
@@ -193,4 +196,47 @@ export async function checkEmailAuthenticationKey(authKey: string): Promise<bool
     logger.warn("auth", "Exception while checking temporary auth key. Key expired?");
     return null;
   }
+}
+
+export async function refreshToken(): Promise<string> {
+  const token = localStorage.getItem('refresh_token');
+  if (!token) {
+    onRefreshTokenFailed();
+    return;
+  }
+
+  const { data } = await getApolloClient().mutate({
+    mutation: gql`
+      mutation RefreshToken($token: String!) {
+        refreshToken(refreshTokenInput: { refreshToken: $token }) { accessToken }
+      }
+    `,
+    variables: {
+      token
+    }
+  });
+
+  if (data) {
+    logger.log("graphql", "Refresh token", data.refreshToken);
+
+    const { accessToken } = data.refreshToken;
+
+    // Only update active access token.
+    localStorage.setItem("access_token", accessToken);
+
+    // Notify user access token changed, websocket will recreated.
+    authUser$.next(getActiveUser());
+
+    return accessToken;
+  } else {
+    throw new Error('Can not get access token by refresh token.');
+  }
+}
+
+export function onRefreshTokenFailed() {
+  localStorage.removeItem("access_token");
+  localStorage.removeItem("refresh_token");
+  localStorage.removeItem("authenticated_user");
+  // TODO: go to sign-out page.
+  window.location.href = '/dashboard';
 }

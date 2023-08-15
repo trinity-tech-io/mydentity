@@ -10,6 +10,9 @@ import {ProfileEntryEntity} from "./entities/profile-entry.entity";
 import {User} from "@prisma/client";
 import {RequestEmailAuthenticationResult} from "./entities/request-email-authentication-result.entity";
 import {LoggedUserOutput} from "./dto/logged-user.output";
+import {RefreshTokenOutput} from "./dto/refresh-token.output";
+import {GraphQLError} from "graphql/error";
+import {RefreshTokenInput} from "./dto/refresh-token.input";
 
 @Resolver(() => UserEntity)
 export class UserResolver {
@@ -54,5 +57,28 @@ export class UserResolver {
   @Mutation(() => LoggedUserOutput, { nullable: true })
   async checkEmailAuthentication(@Args('authKey') authKey: string) {
     return this.userService.checkEmailAuthentication(authKey);
+  }
+
+  private async getUserByToken(token: string): Promise<User> {
+    const data = this.authService.getTokenPayload(token);
+    const user = await this.userService.findOne(data.sub);
+    if (!user)
+      throw new Error(`Can not find user by refresh token.`);
+
+    return user;
+  }
+
+  @Mutation(() => RefreshTokenOutput)
+  async refreshToken(@Args('refreshTokenInput') refreshTokenInput: RefreshTokenInput): Promise<RefreshTokenOutput> {
+    try {
+      const user = await this.getUserByToken(refreshTokenInput.refreshToken);
+      return this.userService.refreshAccessToken(user);
+    } catch (e) {
+      throw new GraphQLError("Can't refresh token", {
+        extensions: {
+          code: this.INVALID_REFRESH_TOKEN,
+        },
+      });
+    }
   }
 }

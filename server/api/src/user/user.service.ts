@@ -275,4 +275,14 @@ export class UserService {
 
     return this.authService.generateUserCredentials(user);
   }
+
+  findOne(id: string): Promise<User> {
+    return this.prisma.user.findFirst({
+      where: { id: id }
+    })
+  }
+
+  async refreshAccessToken(user: User) {
+    return this.authService.refreshAccessToken(user);
+  }
 }
