@@ -1,6 +1,7 @@
 import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { User } from '@prisma/client';
+import { CurrentClientID } from 'src/auth/currentclientid.decorator';
 import { CurrentUser } from 'src/auth/currentuser.decorator';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CreateIdentityInput } from './dto/create-identity.input';
@@ -25,7 +26,7 @@ export class IdentityResolver {
 
   @UseGuards(JwtAuthGuard)
   @Query(() => [IdentityEntity], { name: 'identities' })
-  findAll(@CurrentUser() user: User) {
+  findAll(@CurrentUser() user: User, @CurrentClientID() clientId: string) {
     return this.didService.findAll(user);
   }
 }

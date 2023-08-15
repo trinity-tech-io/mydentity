@@ -1,14 +1,13 @@
 'use client'
 import React, { FC, ReactNode, useEffect, useState } from 'react';
-import AppThemeProvider from '../contexts/AppThemeContext';
+import AppThemeProvider from '../theming/AppThemeContext';
 
-import { ThemeProvider } from '@emotion/react';
 import { onNewError$ } from '@services/error.service';
 import { initApp as initClientSide } from '@services/init.service';
 import { SnackbarProvider, useSnackbar } from 'notistack';
 import { Header } from '../partials/Header';
 import Sidebar from '../partials/Sidebar';
-import { theme } from './material-ui.theme';
+import ThemeRegistry from '../theming/ThemeRegistry';
 
 // This layout file is our very initial layout (the first thing that may use "use client") so we initialize the browser things from here for now.
 // BEWARE OF NEXTJS, as next has server side rendered pages and client side ones. We want to initialize browser side features for now.
@@ -67,13 +66,13 @@ export default function RootLayout({
 }) {
 
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeRegistry>
       <AppThemeProvider>
         <SnackbarProvider>
           <LayoutCore>{children}</LayoutCore>
         </SnackbarProvider>
       </AppThemeProvider>
-    </ThemeProvider>
+    </ThemeRegistry>
   )
 }
 

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserEntity } from 'src/user/entities/user.entity';
+import { uuid } from 'uuidv4';
 
 @Injectable()
 export class AuthService {
@@ -9,7 +10,7 @@ export class AuthService {
   constructor(
     //@Inject(forwardRef(() => UserService)) private usersService: UserService,
     private jwtTokenService: JwtService,
-  ) {}
+  ) { }
 
   /* async validateUser(email: string, password: string): Promise<any>   {
     const user = await this.usersService.findOneByEmail(email);
@@ -34,7 +35,7 @@ export class AuthService {
   }
 
   async generateUserCredentials(user: UserEntity) {
-    const payload = { sub: user.id };
+    const payload = { sub: user.id, clientId: uuid() };
 
     return {
       accessToken: this.jwtTokenService.sign(payload, {
@@ -45,7 +46,7 @@ export class AuthService {
   }
 
   async refreshAccessToken(user: UserEntity) {
-    const payload = { sub: user.id };
+    const payload = { sub: user.id, clientId: uuid() };
 
     return {
       accessToken: this.jwtTokenService.sign(payload, {

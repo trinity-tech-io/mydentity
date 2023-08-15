@@ -1,15 +1,15 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma, User, UserShadowKey, UserShadowKeyType } from '@prisma/client';
-import { SecretBox } from 'src/crypto/secretbox';
-import { KeyPair as SignatureKeyPair, PublicKey as SignaturePublicKey } from 'src/crypto/signature';
+import { CryptoBox, KeyPair as CryptoBoxKeyPair, Nonce as CryptoBoxNonce, PublicKey as CryptoBoxPublicKey } from 'src/crypto/cryptobox';
 import { PasswordHash } from 'src/crypto/passwordhash';
-import { CryptoBox, KeyPair as CryptoBoxKeyPair, PublicKey as CryptoBoxPublicKey, Nonce as CryptoBoxNonce } from 'src/crypto/cryptobox';
-import { BindKeyInput } from './dto/bind-key-input';
-import { RemoveKeyInput } from './dto/remove-key-input';
-import { GetMasterKeyInput } from './dto/get-master-key-input';
+import { SecretBox } from 'src/crypto/secretbox';
+import { KeyPair as SignatureKeyPair } from 'src/crypto/signature';
 import { AppException } from 'src/exceptions/app-exception';
 import { KeyRingExceptionCode } from 'src/exceptions/exception-codes';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { BindKeyInput } from './dto/bind-key-input';
+import { GetMasterKeyInput } from './dto/get-master-key-input';
+import { RemoveKeyInput } from './dto/remove-key-input';
 
 @Injectable()
 export class KeyRingService {

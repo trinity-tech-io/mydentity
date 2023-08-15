@@ -1,28 +1,28 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
-import { KeyRingService } from './key-ring.service';
-import { ShadowKeyEntity } from './entities/shadow-key.entity';
-import { BindKeyInput } from './dto/bind-key-input';
-import { CurrentUser } from 'src/auth/currentuser.decorator';
-import { RemoveKeyInput } from './dto/remove-key-input';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { User } from '@prisma/client';
+import { CurrentUser } from 'src/auth/currentuser.decorator';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { BindKeyInput } from './dto/bind-key-input';
 import { GetMasterKeyInput } from './dto/get-master-key-input';
+import { RemoveKeyInput } from './dto/remove-key-input';
+import { ShadowKeyEntity } from './entities/shadow-key.entity';
+import { KeyRingService } from './key-ring.service';
 
 @Resolver()
 export class KeyRingResolver {
-  constructor(private readonly keyRingService: KeyRingService) {}
+  constructor(private readonly keyRingService: KeyRingService) { }
 
   @UseGuards(JwtAuthGuard)
   @Mutation()
-  bindKey(@Args('bindKeyInput') bindKeyInput: BindKeyInput, @CurrentUser() user: User) {
-      this.keyRingService.bindKey(bindKeyInput, user);
+  bindKey(@Args('input') input: BindKeyInput, @CurrentUser() user: User) {
+    this.keyRingService.bindKey(input, user);
   }
 
   @UseGuards(JwtAuthGuard)
   @Mutation()
-  removeKey(@Args('removeKeyInput') removeKeyInput: RemoveKeyInput, @CurrentUser() user: User) {
-    this.keyRingService.removeKey(removeKeyInput, user);
+  removeKey(@Args('input') input: RemoveKeyInput, @CurrentUser() user: User) {
+    this.keyRingService.removeKey(input, user);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -33,7 +33,7 @@ export class KeyRingResolver {
 
   @UseGuards(JwtAuthGuard)
   @Query(() => Uint8Array, { name: 'secretKey' })
-  getMasterKey(@Args('getMasterKeyInput') getMasterKeyInput: GetMasterKeyInput, @CurrentUser() user: User) {
-    return this.keyRingService.getMasterKey(getMasterKeyInput, user);
+  getMasterKey(@Args('input') input: GetMasterKeyInput, @CurrentUser() user: User) {
+    return this.keyRingService.getMasterKey(input, user);
   }
 }

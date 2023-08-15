@@ -6,6 +6,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 
 type JWTPayload = {
   sub: string;
+  clientId: string;
 };
 
 @Injectable()
@@ -24,6 +25,9 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   async validate(payload: JWTPayload) {
     // Fetch authenticated user object based on access token user id.
     // JWT signature validity has been checked earlier by passport-jwt
-    return this.prisma.user.findFirst({ where: { id: payload.sub } });
+    return {
+      user: this.prisma.user.findFirst({ where: { id: payload.sub } }),
+      clientId: payload.clientId
+    };
   }
 }
