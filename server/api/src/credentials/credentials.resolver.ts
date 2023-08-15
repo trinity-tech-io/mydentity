@@ -17,10 +17,11 @@ export class CredentialsResolver {
     return this.credentialsService.create(createCredentialInput, user);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Query(() => [CredentialEntity], { name: 'credentials' })
-  findAll(@Args('identityDid') identityDid: string) {
+  findAll(@Args('identityDid') identityDid: string, @CurrentUser() user: User) {
     // TODO: Ensure this identity belongs to the authenticated user
-    return this.credentialsService.findAll(identityDid);
+    return this.credentialsService.findAll(identityDid, user);
   }
 
   @UseGuards(JwtAuthGuard)

@@ -82,6 +82,11 @@ export class DidService {
     return vc;
   }
 
+  async loadCredential(didStorePath: string, credentialId: string) {
+    const didStore = await this.openStore(didStorePath);
+    return await didStore.loadCredential(credentialId);
+  }
+
   async deleteCredential(didStorePath: string, credentialId: string) {
     const didStore = await this.openStore(didStorePath);
     console.log('deleteCredential credentialId', credentialId)

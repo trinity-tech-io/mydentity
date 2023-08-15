@@ -49,17 +49,17 @@ export class CredentialsService {
     });
   }
 
-  async findAll(identityDid: string): Promise<Credential[]> {
+  async findAll(identityDid: string, user: User): Promise<Credential[]> {
+    console.log('CredentialsService findAll identityDid', identityDid)
     const credentials = await this.prisma.credential.findMany({
       where: { identityDid },
     });
 
     // TODO: for each DB credential, load the real VC from the DID Store and decrypt it.
-
-    return credentials.map((c) => ({
+    return Promise.all(credentials.map(async (c) => ({
       ...c,
-      verifiableCredential: JSON.stringify(fakeCrendentialDeleteMe),
-    }));
+      verifiableCredential: (await this.didService.loadCredential(user.id, c.credentialId)).toString(),
+    })));
   }
 
   async remove(credentialId: string, user: User) {
