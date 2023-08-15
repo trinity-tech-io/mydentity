@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from 'src/auth/auth.module';
-import { CredentialsModule } from 'src/credentials/credentials.module';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { DidService } from '../did/did.service';
 
@@ -10,7 +9,6 @@ import { DidService } from '../did/did.service';
   ],
   imports: [
     PrismaModule,
-    CredentialsModule,
     AuthModule
   ],
   exports: [

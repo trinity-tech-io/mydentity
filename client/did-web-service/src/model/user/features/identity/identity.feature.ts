@@ -11,15 +11,15 @@ export class IdentityFeature implements UserFeature {
   constructor(protected user: User) {
   }
 
-  public async createIdentity(): Promise<Identity> {
-    logger.log("identities", "Creating a new identity");
+  public async createIdentity(name: string): Promise<Identity> {
+    logger.log("identities", "Creating a new identity", name);
 
-    const identity = await identityService.createIdentity();
+    const identity = await identityService.createIdentity(name);
     this.identities$.next([identity, ...this.identities$.value]);
     return identity;
   }
 
-  public async deleteIdentity(didString: String): Promise<boolean> {
+  public async deleteIdentity(didString: string): Promise<boolean> {
     logger.log("identities", "Deleting identity");
 
     const identity = await identityService.deleteIdentity(didString);

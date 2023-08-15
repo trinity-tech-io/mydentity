@@ -5,6 +5,7 @@ import { authUser$ } from '@services/user/user.events';
 import { activeIdentity$ } from '@services/identity/identity.events';
 import { identityService } from '@services/identity/identity.service';
 import { logger } from '@services/logger';
+import { CredentialsFeature } from '@model/identity/features/credentials/credentials.feature';
 
 function ModalCreateIdentity({
   id,
@@ -15,9 +16,10 @@ function ModalCreateIdentity({
   const nameInput = useRef(null);
 
   const [authUser] = useBehaviorSubject(authUser$);
+  const [activeIdentity] = useBehaviorSubject(activeIdentity$);
 
-  const createDIDTest = async () => {
-    const identity = await authUser.get("identity").createIdentity();
+  const createDIDTest = async (name) => {
+    const identity = await authUser.get("identity").createIdentity(name);
     if (!activeIdentity$.value)
       identityService.setActiveIdentity(identity)
     // alert("Identity successfully created");
@@ -25,12 +27,22 @@ function ModalCreateIdentity({
 
   const deleteDIDTest = async () => {
     // TODO: User select did
-    const didStringToDelete = 'did:elastos:icF3E1gqwH7usDLW5CUKiB39NVGWMREBhN';
+    const didStringToDelete = 'did:elastos:iokyuJYsWprwBPg8EkL5QqyQWGsx159Z8B';
     const ret = await authUser.get("identity").deleteIdentity(didStringToDelete);
     if (ret) {
       // TODO: remove the did from UI
     }
   }
+
+  // const deleteCredentialTest = async () => {
+  //   logger.log('modalIdentity', 'deleteCredentialTest');
+  //   const credentialProver: CredentialsFeature = activeIdentity.get("credentials");
+  //   logger.log('modalIdentity', 'credentialProver', credentialProver);
+  //   const ret = await credentialProver.deleteCredential('did:elastos:iqgyGD7FhqnKw2P3ZEDJRxUia1nyg2GNm1#name');
+  //   if (ret) {
+  //     // TODO: remove the did from UI
+  //   }
+  // }
 
   // close on click outside
   useEffect(() => {
@@ -60,8 +72,9 @@ function ModalCreateIdentity({
   const handleSubmit = (event) => {
     // alert('A name was submitted: ' + nameInput.current.value);
     event.preventDefault();
-    createDIDTest();
+    createDIDTest(nameInput.current.value);
     // deleteDIDTest();
+    // deleteCredentialTest()
     setModalOpen(false);
   }
 

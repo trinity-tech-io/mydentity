@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { Credential } from '@prisma/client';
+import { Credential, User } from '@prisma/client';
+import { DidService } from 'src/did/did.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCredentialInput } from './dto/create-credential.input';
 
@@ -30,14 +31,20 @@ const fakeCrendentialDeleteMe = {
 
 @Injectable()
 export class CredentialsService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService, private didService: DidService) { }
 
-  create(input: CreateCredentialInput) {
+  async create(input: CreateCredentialInput, user: User) {
     console.log('CredentialsService', "create")
+    const storePassword = '123456'; // TODO: use account key
+
+    const vc = await this.didService.createCredential(user.id, input.identityDid, input.credentialId,
+          input.types, input.expirationDate, input.properties, storePassword);
+    console.log('CredentialsService', "vc:", vc)
+
     return this.prisma.credential.create({
       data: {
         identityDid: input.identityDid,
-        credentialId: `${Math.random()}`,
+        credentialId: vc.id.toString(),
       },
     });
   }
@@ -55,20 +62,25 @@ export class CredentialsService {
     }));
   }
 
-  async remove(id: string) {
-    return await this.prisma.credential.delete({
-      where: {
-        id
-      }
-    })
+  async remove(id: string, user: User) {
+    const successfulDeletion = this.didService.deleteCredential(user.id, id);
+    if (successfulDeletion) {
+      return await this.prisma.credential.delete({
+        where: {
+          id
+        }
+      })
+    }
+
+    return successfulDeletion;
   }
 
-  async deleteCredentialsByIdentity(identityDid: string) {
+  async deleteCredentialsByIdentity(identityDid: string, user: User) {
     console.log('deleteCredentialsByIdentity', 'identityDid:', identityDid);
     const credentials = await this.prisma.credential.findMany({
       where: { identityDid },
     });
 
-    return Promise.all(credentials.map((c) => (this.remove(c.id))));
+    return Promise.all(credentials.map((c) => (this.remove(c.id, user))));
   }
 }

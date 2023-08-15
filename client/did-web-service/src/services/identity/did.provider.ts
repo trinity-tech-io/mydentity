@@ -8,9 +8,10 @@ import { Identity } from "@model/identity/identity";
  * In non custodial mode, this is served by the front end (browser storage).
  */
 export interface IdentityProvider {
-  createIdentity(): Promise<Identity>;
+  createIdentity(name: string): Promise<Identity>;
   deleteIdentity(didString: String): Promise<boolean>;
   listIdentities(): Promise<Identity[]>;
   listCredentials(identityDid: string): Promise<Credential[]>;
+  deleteCredential(credentialId): Promise<boolean>;
   createVerifiablePresentation(identityDid: string, credentials: VerifiableCredential[], realm: string, nonce: string): Promise<VerifiablePresentation>;
 }

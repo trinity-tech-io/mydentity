@@ -6,6 +6,9 @@ import { DidService } from 'src/did/did.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateIdentityInput } from './dto/create-identity.input';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const moment = require('moment');
+
 @Injectable()
 export class IdentityService {
   constructor(private prisma: PrismaService,
@@ -42,7 +45,16 @@ export class IdentityService {
     })
 
     // TEMPORARY: create some fake credentials to list on the UI during initial development
-    await this.credentialsService.create({ identityDid: identity.did });
+    const createCredentialInput = {
+      identityDid: identity.did,
+      credentialId: '#name',
+      types: ["https://ns.elastos.org/credentials/v1#SelfProclaimedCredential", "https://ns.elastos.org/credentials/profile/name/v1#NameCredential"],
+      expirationDate: moment().add(5, 'year').toDate(),
+      properties: {
+        "name": createIdentityInput.name
+      }
+    }
+    await this.credentialsService.create(createCredentialInput, user);
     console.log('IdentityService', 'create identity:', identity)
     return identity;
   }
@@ -51,7 +63,7 @@ export class IdentityService {
     console.log('IdentityService', 'deleteIdentity didString:', didString);
     const successfulDeletion = await this.didService.deleteIdentity(didString, user.id);
     if (successfulDeletion) {
-      await this.credentialsService.deleteCredentialsByIdentity(didString);
+      await this.credentialsService.deleteCredentialsByIdentity(didString, user);
 
       await this.prisma.identity.delete({
         where: {

@@ -1,4 +1,6 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { User } from '@prisma/client';
+import { CurrentUser } from 'src/auth/currentuser.decorator';
 import { CredentialsService } from './credentials.service';
 import { CreateCredentialInput } from './dto/create-credential.input';
 import { CredentialEntity } from './entities/credential.entity';
@@ -8,8 +10,8 @@ export class CredentialsResolver {
   constructor(private readonly credentialsService: CredentialsService) { }
 
   @Mutation(() => CredentialEntity)
-  createCredential(@Args('createCredentialInput') createCredentialInput: CreateCredentialInput) {
-    return this.credentialsService.create(createCredentialInput);
+  createCredential(@Args('createCredentialInput') createCredentialInput: CreateCredentialInput, @CurrentUser() user: User) {
+    return this.credentialsService.create(createCredentialInput, user);
   }
 
   @Query(() => [CredentialEntity], { name: 'credentials' })
@@ -18,8 +20,8 @@ export class CredentialsResolver {
     return this.credentialsService.findAll(identityDid);
   }
 
-  @Mutation(() => CredentialEntity)
-  removeCredential(@Args('id') id: string) {
-    return this.credentialsService.remove(id);
+  @Mutation(() => Boolean)
+  deleteCredential(@Args('id') id: string, @CurrentUser() user: User) {
+    return this.credentialsService.remove(id, user);
   }
 }

@@ -48,10 +48,17 @@ export class Identity {
   }
 
   /**
-   * Returns the list of identities (DIDs) for the signed in user
+   * Returns the list of credentials for the signed in user
    */
   public listCredentials(): Promise<Credential[]> {
     return this.provider.listCredentials(this.did);
+  }
+
+  /**
+   * Returns the list of credential for the signed in user
+   */
+  public deleteCredential(credentialId: string): Promise<boolean> {
+    return this.provider.deleteCredential(credentialId);
   }
 
   /**

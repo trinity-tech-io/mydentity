@@ -1,4 +1,4 @@
-import { DIDBackend, DIDStore, DefaultDIDAdapter, Mnemonic, RootIdentity } from '@elastosfoundation/did-js-sdk';
+import { DIDBackend, DIDStore, DefaultDIDAdapter, Issuer, Mnemonic, RootIdentity } from '@elastosfoundation/did-js-sdk';
 import { Injectable } from '@nestjs/common';
 import { join } from 'path';
 
@@ -68,5 +68,21 @@ export class DidService {
     })
 
     return didStore.deleteDid(didString);
+  }
+
+  async createCredential(didStorePath: string, didString: string, credentialId: string, types: string[], expirationDate: Date, properties, storepass: string) {
+    const didStore = await this.openStore(didStorePath);
+    const didDocument = await didStore.loadDid(didString);
+    const issuer = new Issuer(didDocument);
+    const vcBuilder = issuer.issueFor(didString);
+    const vc = vcBuilder.id(credentialId).types(...types).expirationDate(expirationDate).properties(properties).seal(storepass);
+    // save to did store
+    didStore.storeDid(didDocument);
+    return vc;
+  }
+
+  async deleteCredential(didStorePath: string, credentialId: string) {
+    const didStore = await this.openStore(didStorePath);
+    return didStore.deleteCredential(credentialId);
   }
 }

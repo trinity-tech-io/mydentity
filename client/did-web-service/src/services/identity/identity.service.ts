@@ -13,14 +13,14 @@ class IdentityService {
   /**
    * Creates a new identity (DID) for the signed in user
    */
-  public createIdentity(): Promise<Identity> {
-    return this.provider.createIdentity();
+  public createIdentity(name): Promise<Identity> {
+    return this.provider.createIdentity(name);
   }
 
   /**
    * Delete identity (DID) for the signed in user
    */
-  public deleteIdentity(didString: String): Promise<boolean> {
+  public deleteIdentity(didString: string): Promise<boolean> {
     return this.provider.deleteIdentity(didString);
   }
 

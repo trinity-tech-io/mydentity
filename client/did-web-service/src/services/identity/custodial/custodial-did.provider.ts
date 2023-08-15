@@ -12,7 +12,7 @@ import { logger } from "@services/logger";
 import { IdentityProvider } from "../did.provider";
 
 export class CustodialDIDProvider implements IdentityProvider {
-  async createIdentity(): Promise<Identity> {
+  async createIdentity(name: string): Promise<Identity> {
     const { data } = await withCaughtAppException(() => {
       return getApolloClient().mutate<{ createIdentity: IdentityDTO }>({
         mutation: gql`
@@ -23,7 +23,7 @@ export class CustodialDIDProvider implements IdentityProvider {
         }
       `,
         variables: {
-          name: "Ben"
+          name
         }
       });
     });
@@ -38,7 +38,7 @@ export class CustodialDIDProvider implements IdentityProvider {
     }
   }
 
-  async deleteIdentity(didString: String): Promise<boolean> {
+  async deleteIdentity(didString: string): Promise<boolean> {
     const { data } = await withCaughtAppException(() => {
       return getApolloClient().mutate<{ deleteIdentity: boolean }>({
         mutation: gql`
@@ -107,6 +107,31 @@ export class CustodialDIDProvider implements IdentityProvider {
     }
 
     return null;
+  }
+
+  async deleteCredential(credentialId: string): Promise<boolean> {
+    logger.log("custodial-provider", "deleteCredential:", credentialId);
+    const { data } = await withCaughtAppException(() => {
+      return getApolloClient().mutate<{ deleteCredential: boolean }>({
+        mutation: gql`
+        mutation deleteCredential($credentialId: String!) {
+          deleteCredential(credentialId: $credentialId)
+        }
+      `,
+        variables: {
+          credentialId
+        }
+      });
+    });
+
+    console.log(data)
+
+    if (data?.deleteCredential) {
+      return true;
+    }
+    else {
+      throw new Error("Failed to remove Credential");
+    }
   }
 
   public async createVerifiablePresentation(identityDid: string, credentials: VerifiableCredential[], realm: string, nonce: string): Promise<VerifiablePresentation> {
