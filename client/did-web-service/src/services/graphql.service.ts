@@ -7,8 +7,8 @@ import {
 import { BatchHttpLink } from '@apollo/client/link/batch-http';
 import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
+import { onRefreshTokenFailed, refreshToken } from '@services/user/user.service';
 import { configService } from './config/config.service';
-import { refreshToken, onRefreshTokenFailed } from '@services/user/user.service';
 
 class GraphQLService {
   public apolloClient: ApolloClient<any>;
@@ -24,7 +24,7 @@ class GraphQLService {
     // TODO: Only log the error. This can work with withClientState()
     const errLink = onError(({ graphQLErrors, networkError, operation, forward }) => {
       if (graphQLErrors) {
-        console.error('graphQLErrors', graphQLErrors);
+        //console.error('graphQLErrors', graphQLErrors);
 
         // skip when no local token.
         if (!localStorage.getItem('access_token')) {
@@ -32,30 +32,30 @@ class GraphQLService {
         }
 
         // import("@services/user/user.service").then(({ refreshToken, onRefreshTokenFailed }) => { // circular deps
-          for (const err of graphQLErrors) {
-            switch (err.extensions.code) {
-              case 'UNAUTHENTICATED': // handle token expired.
-                return fromPromise(
-                  refreshToken().catch((error) => {
-                    return;
-                  }))
-                  .filter((value) => Boolean(value))
-                  .flatMap((accessToken) => {
-                    const oldHeaders = operation.getContext().headers;
-                    operation.setContext({
-                      headers: {
-                        ...oldHeaders,
-                        authorization: `Bearer ${accessToken}`,
-                      },
-                    });
-                    // Retry the request, returning the new observable
-                    return forward(operation);
+        for (const err of graphQLErrors) {
+          switch (err.extensions.code) {
+            case 'UNAUTHENTICATED': // handle token expired.
+              return fromPromise(
+                refreshToken().catch((error) => {
+                  return;
+                }))
+                .filter((value) => Boolean(value))
+                .flatMap((accessToken) => {
+                  const oldHeaders = operation.getContext().headers;
+                  operation.setContext({
+                    headers: {
+                      ...oldHeaders,
+                      authorization: `Bearer ${accessToken}`,
+                    },
                   });
-              case 'INVALID_REFRESH_TOKEN':
-                onRefreshTokenFailed();
-                break;
-            }
+                  // Retry the request, returning the new observable
+                  return forward(operation);
+                });
+            case 'INVALID_REFRESH_TOKEN':
+              onRefreshTokenFailed();
+              break;
           }
+        }
         // })
       }
 

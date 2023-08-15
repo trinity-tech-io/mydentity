@@ -2,6 +2,7 @@ import { gql } from "@apollo/client";
 import { gqlIntentFields } from "@graphql/intent.fields";
 import { Intent } from "@model/intent/intent";
 import { IntentDTO } from "@model/intent/intent.dto";
+import { withCaughtAppException } from "./error.service";
 import { getApolloClient } from "./graphql.service";
 import { logger } from "./logger";
 
@@ -11,17 +12,19 @@ import { logger } from "./logger";
  * The intent must first have been created using a API call, from the DID web connector.
  */
 export async function fetchIntent<IntentRequestPayloadType>(intentId: string): Promise<Intent<IntentRequestPayloadType>> {
-  const { data } = await getApolloClient().query<{ intent: IntentDTO }>({
-    query: gql`
+  const { data } = await withCaughtAppException(() => {
+    return getApolloClient().query<{ intent: IntentDTO }>({
+      query: gql`
       query GetIntentRequest($intentId: String!) {
         intent (id: $intentId) {
           ${gqlIntentFields}
         }
       }
     `,
-    variables: {
-      intentId
-    }
+      variables: {
+        intentId
+      }
+    });
   });
 
   if (data && data.intent) {
@@ -41,15 +44,17 @@ export async function fetchIntent<IntentRequestPayloadType>(intentId: string): P
  * until the web connector grabs it, or if it expires.
  */
 export async function fulfilIntentRequest(intentId: string, responsePayload: any): Promise<boolean> {
-  const { data } = await getApolloClient().mutate<{ intent: IntentDTO }>({
-    mutation: gql`
+  const { data } = await withCaughtAppException(() => {
+    return getApolloClient().mutate<{ intent: IntentDTO }>({
+      mutation: gql`
       mutation FulfilIntentRequest($input: FulfilIntentInput!) {
         fulfilIntent (input: $input)
       }
     `,
-    variables: {
-      input: { intentId, payload: responsePayload }
-    }
+      variables: {
+        input: { intentId, payload: responsePayload }
+      }
+    });
   });
 
   if (data && data.intent) {

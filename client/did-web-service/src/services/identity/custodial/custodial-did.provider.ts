@@ -13,17 +13,19 @@ import { IdentityProvider } from "../did.provider";
 
 export class CustodialDIDProvider implements IdentityProvider {
   async createIdentity(): Promise<Identity> {
-    const { data } = await getApolloClient().mutate<{ createIdentity: IdentityDTO }>({
-      mutation: gql`
+    const { data } = await withCaughtAppException(() => {
+      return getApolloClient().mutate<{ createIdentity: IdentityDTO }>({
+        mutation: gql`
         mutation createIdentity($name: String!) {
           createIdentity(input: { name: $name }) {
             ${gqlIdentityFields}
           }
         }
       `,
-      variables: {
-        name: "Ben"
-      }
+        variables: {
+          name: "Ben"
+        }
+      });
     });
 
     console.log(data)
@@ -37,15 +39,17 @@ export class CustodialDIDProvider implements IdentityProvider {
   }
 
   async deleteIdentity(didString: String): Promise<boolean> {
-    const { data } = await getApolloClient().mutate<{ deleteIdentity: boolean }>({
-      mutation: gql`
+    const { data } = await withCaughtAppException(() => {
+      return getApolloClient().mutate<{ deleteIdentity: boolean }>({
+        mutation: gql`
         mutation deleteIdentity($didString: String!) {
           deleteIdentity(didString: $didString)
         }
       `,
-      variables: {
-        didString
-      }
+        variables: {
+          didString
+        }
+      });
     });
 
     console.log(data)
@@ -81,17 +85,19 @@ export class CustodialDIDProvider implements IdentityProvider {
   }
 
   async listCredentials(identityDid: string): Promise<Credential[]> {
-    const { data } = await getApolloClient().query<{ credentials: CredentialDTO[] }>({
-      query: gql`
+    const { data } = await withCaughtAppException(() => {
+      return getApolloClient().query<{ credentials: CredentialDTO[] }>({
+        query: gql`
         query ListCredentials($identityDid: String!) {
           credentials(identityDid: $identityDid) {
             ${gqlCredentialFields}
           }
         }
       `,
-      variables: {
-        identityDid
-      }
+        variables: {
+          identityDid
+        }
+      });
     });
 
     if (data && data.credentials) {

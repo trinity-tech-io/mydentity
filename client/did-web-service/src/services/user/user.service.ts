@@ -6,6 +6,7 @@ import { ProfileEntryDto } from "@model/user/features/profile/profile-entry.dto"
 import { User } from "@model/user/user";
 import { UserDTO } from "@model/user/user.dto";
 import { activityService } from "@services/activity/activity.service";
+import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { logger } from "@services/logger";
 import Queue from "promise-queue";
@@ -49,12 +50,14 @@ export async function fetchSelfUser(curToken?: string, refreshToken?: string): P
     if (refreshToken)
       localStorage.setItem("refresh_token", refreshToken);
 
-    const { data } = await getApolloClient().query<{ getSelfUser: UserDTO }>({
-      query: gql`
+    const { data } = await withCaughtAppException(() => {
+      return getApolloClient().query<{ getSelfUser: UserDTO }>({
+        query: gql`
         query GetSelfUser {
           getSelfUser { ${graphQLPublicUserFields} }
         }
       `
+      });
     });
 
     if (data) {
@@ -92,17 +95,19 @@ export async function fetchSelfUser(curToken?: string, refreshToken?: string): P
 
 export async function fetchUserProfile(userId: string): Promise<ProfileEntry[]> {
   return activityService.runActivity(async () => {
-    const { data } = await getApolloClient().query<{ userProfile: ProfileEntryDto[] }>({
-      query: gql`
+    const { data } = await withCaughtAppException(() => {
+      return getApolloClient().query<{ userProfile: ProfileEntryDto[] }>({
+        query: gql`
       query FetchUserProfile ($userId: String!) {
         userProfile (userId: $userId) {
           ${graphQLProfileFields}
         }
       }
     `,
-      variables: {
-        userId
-      }
+        variables: {
+          userId
+        }
+      });
     });
 
     if (data && data.userProfile) {
@@ -119,13 +124,15 @@ export async function fetchUserProfile(userId: string): Promise<ProfileEntry[]> 
 export async function authenticateWithEmailAddress(emailAddress: string): Promise<void> {
   logger.log("user", "Sending request to authentication by email");
 
-  await getApolloClient().mutate<{}>({
-    mutation: gql`
+  await withCaughtAppException(() => {
+    return getApolloClient().mutate<{}>({
+      mutation: gql`
       mutation RequestEmailAuthentication($emailAddress: String!) {
         requestEmailAuthentication(emailAddress: $emailAddress) { success }
       }
     `,
-    variables: { emailAddress }
+      variables: { emailAddress }
+    });
   });
 }
 
@@ -161,18 +168,20 @@ export async function checkEmailAuthenticationKey(authKey: string): Promise<bool
   logger.log("user", "Checking temporary authentication key");
 
   try {
-    const { data } = await getApolloClient().mutate<{
-      checkEmailAuthentication: {
-        accessToken: string;
-        refreshToken: string;
-      }
-    }>({
-      mutation: gql`
+    const { data } = await withCaughtAppException(() => {
+      return getApolloClient().mutate<{
+        checkEmailAuthentication: {
+          accessToken: string;
+          refreshToken: string;
+        }
+      }>({
+        mutation: gql`
         mutation CheckEmailAuthentication($authKey: String!) {
           checkEmailAuthentication(authKey: $authKey) { accessToken refreshToken }
         }
       `,
-      variables: { authKey }
+        variables: { authKey }
+      });
     });
 
     if (data && data.checkEmailAuthentication) {
@@ -198,15 +207,17 @@ export async function refreshToken(): Promise<string> {
     return;
   }
 
-  const { data } = await getApolloClient().mutate({
-    mutation: gql`
+  const { data } = await withCaughtAppException(() => {
+    return getApolloClient().mutate({
+      mutation: gql`
       mutation RefreshToken($token: String!) {
         refreshToken(refreshTokenInput: { refreshToken: $token }) { accessToken }
       }
     `,
-    variables: {
-      token
-    }
+      variables: {
+        token
+      }
+    });
   });
 
   if (data) {
