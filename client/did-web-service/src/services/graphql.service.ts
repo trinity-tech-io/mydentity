@@ -26,6 +26,11 @@ class GraphQLService {
       if (graphQLErrors) {
         console.error('graphQLErrors', graphQLErrors);
 
+        // skip when no local token.
+        if (!localStorage.getItem('access_token')) {
+          return;
+        }
+
         // import("@services/user/user.service").then(({ refreshToken, onRefreshTokenFailed }) => { // circular deps
           for (const err of graphQLErrors) {
             switch (err.extensions.code) {

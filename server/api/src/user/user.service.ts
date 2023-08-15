@@ -229,7 +229,7 @@ export class UserService {
       return false; // Already sent, skip
 
     const firstName = await this.findFirstProfileValueByType(user.id, ProfileType.FIRSTNAME);
-    const loungeUrl = `${process.env.FRONTEND_URL}/lounge`;
+    const loungeUrl = `${process.env.FRONTEND_URL}/dashboard`;
     this.emailingService.sendEmail(
         EmailTemplateType.WELCOME,
         "welcome@didservice.io",
