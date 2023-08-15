@@ -175,3 +175,14 @@ model Activity {
 
   userId    String
 }
+
+// No need setup the relations with the user
+model Challenge {
+  userId          String
+  clientId        String
+
+  content         String
+  createdAt       DateTime @default(now())
+
+  @@id([userId, clientId])
+}

@@ -73,6 +73,9 @@ export class PublicKey {
     }
 
     public verify(sig: Uint8Array, data: Uint8Array | string): boolean {
+        if (sig.length != Signature.BYTES)
+            return false;
+
         return crypto_sign_verify_detached(sig, data, this.key);
     }
 

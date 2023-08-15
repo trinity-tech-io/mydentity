@@ -3,16 +3,19 @@ import { Prisma, User, UserShadowKey, UserShadowKeyType } from '@prisma/client';
 import { CryptoBox, KeyPair as CryptoBoxKeyPair, Nonce as CryptoBoxNonce, PublicKey as CryptoBoxPublicKey } from 'src/crypto/cryptobox';
 import { PasswordHash } from 'src/crypto/passwordhash';
 import { SecretBox } from 'src/crypto/secretbox';
-import { KeyPair as SignatureKeyPair } from 'src/crypto/signature';
+import { KeyPair as SignatureKeyPair, PublicKey as SignauturePublicKey } from 'src/crypto/signature';
 import { AppException } from 'src/exceptions/app-exception';
 import { KeyRingExceptionCode } from 'src/exceptions/exception-codes';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { BindKeyInput } from './dto/bind-key-input';
 import { GetMasterKeyInput } from './dto/get-master-key-input';
 import { RemoveKeyInput } from './dto/remove-key-input';
+import { randombytes_buf } from 'libsodium-wrappers';
 
 @Injectable()
 export class KeyRingService {
+  private static CHALLENGE_EXPIRATION = 5 * 60 * 1000;
+
   private serverKeyPair: SignatureKeyPair;
   private encryptionKeyPair: CryptoBoxKeyPair;
 
@@ -27,7 +30,36 @@ export class KeyRingService {
     }
   }
 
-  private async _addShadowKey(userId: string, key: string, type: UserShadowKeyType, secretKey: Uint8Array): Promise<void> {
+  private async verifySignature(sig: string, key: string, userId: string, clientId: string) {
+    if (!sig)
+      throw new AppException(KeyRingExceptionCode.NoSignature, "Missing the signature for challenge", HttpStatus.BAD_REQUEST);
+
+    const challenge = await this.prisma.challenge.findUnique({
+      where: {
+        userId_clientId: {
+          userId: userId,
+          clientId: clientId
+        }
+      }
+    });
+
+    if (!challenge)
+      throw new AppException(KeyRingExceptionCode.NoChallenge, "No challenge or expired", HttpStatus.BAD_REQUEST);
+
+    let success = false;
+    try {
+      const binSig = Buffer.from(sig, "hex");
+      const pk = new SignauturePublicKey(Buffer.from(key, "hex"));
+      success = pk.verify(binSig, challenge.content);
+    } catch (e) {
+      throw new AppException(KeyRingExceptionCode.InvalidPublicKey, "Invalid public key: " + e, HttpStatus.BAD_REQUEST);
+    }
+
+    if (!success)
+      throw new AppException(KeyRingExceptionCode.InvalidSignature, "Invalid signature", HttpStatus.BAD_REQUEST);
+  }
+
+  private async addShadowKey(userId: string, key: string, type: UserShadowKeyType, secretKey: Uint8Array): Promise<void> {
     let authKey: string;
     let encryptedSecretKey: Uint8Array;
 
@@ -57,7 +89,7 @@ export class KeyRingService {
     });
   }
 
-  private async _removeShadowKey(userId: string, key: string, type: UserShadowKeyType): Promise<void> {
+  private async removeShadowKey(userId: string, key: string, type: UserShadowKeyType): Promise<void> {
     const authKey = type == UserShadowKeyType.PASSWORD ? PasswordHash.hash(key) : key;
 
     try {
@@ -78,7 +110,7 @@ export class KeyRingService {
     }
   }
 
-  private async _getMasterKey(userId: string, key: string, type: UserShadowKeyType): Promise<Uint8Array> {
+  private async getSecretKey(userId: string, key: string, type: UserShadowKeyType): Promise<Uint8Array> {
     const authKey = type == UserShadowKeyType.PASSWORD ? PasswordHash.hash(key) : key;
     const shadow = await this.prisma.userShadowKey.findFirst({
       where: {
@@ -104,19 +136,25 @@ export class KeyRingService {
     return secretKey;
   }
 
-  async bindKey(input: BindKeyInput, user: User): Promise<void> {
+  async bindKey(input: BindKeyInput, user: User, clientId: string): Promise<boolean> {
     const key = await this.prisma.userShadowKey.findFirst({
       where: {
         userId: user.id
       }
     })
 
+    if (input.type == UserShadowKeyType.ED25519)
+      this.verifySignature(input.sig, input.key, user.id, clientId);
+
     let secretKey: Uint8Array;
     if (key) {
       if (!input.authorizationKey)
         throw new AppException(KeyRingExceptionCode.NoAuthenticationKey, "No authentication key to bind new key", HttpStatus.FORBIDDEN);
 
-      secretKey = await this._getMasterKey(user.id, input.authorizationKey, input.authorizationType);
+      if (input.authorizationType != UserShadowKeyType.PASSWORD)
+        throw new AppException(KeyRingExceptionCode.UnsupportedAuthenticationKey, "Invalid authentication key to bind new key", HttpStatus.BAD_REQUEST);
+
+      secretKey = await this.getSecretKey(user.id, input.authorizationKey, input.authorizationType);
     } else {
       if (input.authorizationKey)
         throw new AppException(KeyRingExceptionCode.KeyRingNotExists, "No keyring exists for user", HttpStatus.NOT_FOUND);
@@ -126,10 +164,11 @@ export class KeyRingService {
       secretKey = secretBox._bytes();
     }
 
-    await this._addShadowKey(user.id, input.key, input.type, secretKey);
+    await this.addShadowKey(user.id, input.key, input.type, secretKey);
+    return true;
   }
 
-  async removeKey(input: RemoveKeyInput, user: User): Promise<void> {
+  async removeKey(input: RemoveKeyInput, user: User): Promise<boolean> {
     const count = await this.prisma.userShadowKey.count({
       where: {
         userId: user.id
@@ -139,7 +178,8 @@ export class KeyRingService {
     if (count <= 2)
       throw new AppException(KeyRingExceptionCode.CanNotUnbindKey, "Can not remove the last 2 keys", HttpStatus.FORBIDDEN);
 
-    await this._removeShadowKey(user.id, input.key, input.type);
+    await this.removeShadowKey(user.id, input.key, input.type);
+    return true;
   }
 
   async getAllKeys(user: User): Promise<UserShadowKey[]> {
@@ -159,8 +199,45 @@ export class KeyRingService {
     return keys;
   }
 
-  async getMasterKey(input: GetMasterKeyInput, user: User): Promise<Uint8Array> {
-    return await this._getMasterKey(user.id, input.key, input.type);
+  async getMasterKey(input: GetMasterKeyInput, user: User, clientId: string): Promise<Uint8Array> {
+    if (input.type == UserShadowKeyType.ED25519) {
+      this.verifySignature(input.sig, input.key, user.id, clientId);
+    }
+
+    return await this.getSecretKey(user.id, input.key, input.type);
+  }
+
+  async generateChallenge(user: User, clientId: string): Promise<string> {
+    const text = randombytes_buf(128, "hex");
+
+    // remove the expired entries
+    await this.prisma.challenge.deleteMany({
+      where: {
+        createdAt: {
+          lt: new Date(Date.now() - KeyRingService.CHALLENGE_EXPIRATION)
+        }
+      }
+    });
+
+    const challenge = await this.prisma.challenge.upsert({
+      where: {
+        userId_clientId: {
+          userId: user.id,
+          clientId: clientId
+        }
+      },
+      update: {
+        content: text,
+        createdAt: new Date(),
+      },
+      create: {
+        userId: user.id,
+        clientId: clientId,
+        content: text
+      }
+    });
+
+    return challenge.content
   }
 }
 

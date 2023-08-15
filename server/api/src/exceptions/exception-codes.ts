@@ -15,7 +15,11 @@ export enum KeyRingExceptionCode {
   InvalidPublicKey = 10204,
   KeyNotExists = 10205,
   NoAuthenticationKey = 10206,
-  CanNotUnbindKey = 10207
+  CanNotUnbindKey = 10207,
+  NoSignature = 10208,
+  InvalidSignature = 10209,
+  NoChallenge = 10210,
+  UnsupportedAuthenticationKey = 10211
 }
 
 export type AppExceptionCode = KeyringExceptionCode | AuthExceptionCode | KeyRingExceptionCode;

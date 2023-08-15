@@ -8,4 +8,7 @@ export class GetMasterKeyInput {
 
   @Field(() => UserShadowKeyType, { description: 'The key type' })
   type: UserShadowKeyType
+
+  @Field(() => String, { description: 'The signature', nullable: true})
+  sig?: string
 }
