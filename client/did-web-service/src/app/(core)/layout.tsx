@@ -2,6 +2,7 @@
 import React, { FC, ReactNode, useEffect, useState } from 'react';
 import AppThemeProvider from '../theming/AppThemeContext';
 
+import { PasswordPromptContextProvider } from '@components/PasswordPrompt';
 import { onNewError$ } from '@services/error.service';
 import { initApp as initClientSide } from '@services/init.service';
 import { SnackbarProvider, useSnackbar } from 'notistack';
@@ -69,7 +70,9 @@ export default function RootLayout({
     <ThemeRegistry>
       <AppThemeProvider>
         <SnackbarProvider>
-          <LayoutCore>{children}</LayoutCore>
+          <PasswordPromptContextProvider>
+            <LayoutCore>{children}</LayoutCore>
+          </PasswordPromptContextProvider>
         </SnackbarProvider>
       </AppThemeProvider>
     </ThemeRegistry>

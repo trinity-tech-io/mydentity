@@ -10,6 +10,9 @@ export class SecurityFeature implements UserFeature {
   constructor(protected user: User) {
   }
 
+  // TODO: method to force request auth (ie: for export mnemonic or bind device)
+  // TODO: method to save default auth method (password or passkey)
+
   /**
    * Requests a challenge from the API for passkey signature. This challenge will be signed
    * using passkey and the signature+challenge id returned during security flows
@@ -64,7 +67,7 @@ export class SecurityFeature implements UserFeature {
       //return Identity.fromJson(data.createIdentity, this);
     }
     else {
-      throw new Error("Failed to create DID");
+      throw new Error("Failed to bind device");
     }
   }
 

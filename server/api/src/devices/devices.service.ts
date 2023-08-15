@@ -8,7 +8,7 @@ export class DevicesService {
   constructor(private prisma: PrismaService) { }
 
   /**
-   * Creqtes q new user bound devices and give it a default name.
+   * Creqtes a new user bound devices and give it a default name.
    */
   public create(user: User, userAgent: string): Promise<Device> {
     const deviceName = this.generateDeviceNameFromUserAgent(userAgent);
