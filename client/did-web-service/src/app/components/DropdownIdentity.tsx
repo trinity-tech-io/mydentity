@@ -117,11 +117,11 @@ function DropdownIdentity({
 
           </div>
                 {
-                  identities.length>0 ?
+                  (identities && identities.length>0) ?
                     <div className="border-b border-slate-200 dark:border-slate-700 " ></div> : <span></span>
                 }
                 {
-                    identities.map(identity => {
+                    (identities && identities.length>0) && identities.map(identity => {
                       return (
                         <div key={identity.did}>
                           <div className="font-medium text-sm text-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center py-3 px-3"

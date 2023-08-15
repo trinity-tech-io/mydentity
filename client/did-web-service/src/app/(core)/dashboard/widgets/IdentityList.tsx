@@ -33,7 +33,7 @@ export const IdentityListWidget: FC = _ => {
             {/* Table body */}
             <tbody className="text-sm divide-y divide-slate-100 dark:divide-slate-700">
               {
-                identities.map(identity => {
+                  (identities && identities.length>0) && identities.map(identity => {
                   return (
                     <tr key={identity.did}>
                       <td className="p-2 whitespace-nowrap">

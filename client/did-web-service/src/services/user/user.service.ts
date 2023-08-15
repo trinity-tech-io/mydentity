@@ -13,14 +13,7 @@ import {ProfileEntryDto} from "@model/user/features/profile/profile-entry.dto";
 
 const fetchUserQueue = new Queue(1); // Execute user retrieval from the backend one by one to avoid duplicates
 
-export async function userServiceInit() {
-  // TEMPORARY BEFORE REAL USER AUTH IMPLEMENTATION
-  const fakeUser = await User.fromJson({
-    id: "abcd",
-    createdAt: "2000-10-31T01:30:00.000-05:00"
-  });
-  authUser$.next(fakeUser);
-}
+export async function userServiceInit() {}
 
 /**
  * Store the authenticated user to local storage, for future use
