@@ -75,14 +75,17 @@ export class DidService {
     const didDocument = await didStore.loadDid(didString);
     const issuer = new Issuer(didDocument);
     const vcBuilder = issuer.issueFor(didString);
-    const vc = vcBuilder.id(credentialId).types(...types).expirationDate(expirationDate).properties(properties).seal(storepass);
+    const vc = await vcBuilder.id(credentialId).types(...types).expirationDate(expirationDate).properties(properties).seal(storepass);
     // save to did store
-    didStore.storeDid(didDocument);
+    await didStore.storeCredential(vc);
+    // didStore.storeDid(didDocument);
     return vc;
   }
 
   async deleteCredential(didStorePath: string, credentialId: string) {
     const didStore = await this.openStore(didStorePath);
+    console.log('deleteCredential credentialId', credentialId)
     return didStore.deleteCredential(credentialId);
+
   }
 }

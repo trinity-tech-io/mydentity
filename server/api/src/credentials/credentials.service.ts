@@ -62,12 +62,12 @@ export class CredentialsService {
     }));
   }
 
-  async remove(id: string, user: User) {
-    const successfulDeletion = this.didService.deleteCredential(user.id, id);
+  async remove(credentialId: string, user: User) {
+    const successfulDeletion = await this.didService.deleteCredential(user.id, credentialId);
     if (successfulDeletion) {
-      return await this.prisma.credential.delete({
+      await this.prisma.credential.deleteMany({
         where: {
-          id
+          credentialId: credentialId,
         }
       })
     }
