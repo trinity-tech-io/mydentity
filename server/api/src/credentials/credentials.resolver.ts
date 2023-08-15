@@ -1,4 +1,4 @@
-import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CredentialsService } from './credentials.service';
 import { CreateCredentialInput } from './dto/create-credential.input';
 import { CredentialEntity } from './entities/credential.entity';
@@ -19,7 +19,7 @@ export class CredentialsResolver {
   }
 
   @Mutation(() => CredentialEntity)
-  removeCredential(@Args('id', { type: () => Int }) id: number) {
+  removeCredential(@Args('id') id: string) {
     return this.credentialsService.remove(id);
   }
 }

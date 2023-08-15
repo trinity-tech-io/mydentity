@@ -35,8 +35,8 @@ export class CustodialDIDProvider implements IdentityProvider {
     }
   }
 
-  async deleteIdentity(didString: String): Promise<Boolean> {
-    const { data } = await getApolloClient().mutate<{ deleteIdentity: Boolean }>({
+  async deleteIdentity(didString: String): Promise<boolean> {
+    const { data } = await getApolloClient().mutate<{ deleteIdentity: boolean }>({
       mutation: gql`
         mutation deleteIdentity($didString: String!) {
           deleteIdentity(didString: $didString)

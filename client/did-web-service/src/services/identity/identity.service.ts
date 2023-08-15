@@ -20,7 +20,7 @@ class IdentityService {
   /**
    * Delete identity (DID) for the signed in user
    */
-  public deleteIdentity(didString: String): Promise<Boolean> {
+  public deleteIdentity(didString: String): Promise<boolean> {
     return this.provider.deleteIdentity(didString);
   }
 

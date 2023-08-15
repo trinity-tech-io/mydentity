@@ -18,7 +18,6 @@ export class IdentityService {
 
     // Get rootIdentity to new did.
     const rootIdentity = await this.didService.getRootIdentity(user.id, storePassword);
-    console.log('IdentityService', 'rootIdentity', rootIdentity);
 
     const didDocument: DIDDocument = await rootIdentity.newDid(storePassword);
 
@@ -43,17 +42,17 @@ export class IdentityService {
     })
 
     // TEMPORARY: create some fake credentials to list on the UI during initial development
-    // await this.credentialsService.create({ identityDid: identity.did });
-    // await this.credentialsService.create({ identityDid: identity.did });
+    await this.credentialsService.create({ identityDid: identity.did });
     console.log('IdentityService', 'create identity:', identity)
     return identity;
   }
 
   async deleteIdentity(didString: string, user: User) {
     console.log('IdentityService', 'deleteIdentity didString:', didString);
-    const ret = await this.didService.deleteIdentity(didString, user.id);
-    if (ret) {
-      // TODO: Delete credentials
+    const successfulDeletion = await this.didService.deleteIdentity(didString, user.id);
+    if (successfulDeletion) {
+      await this.credentialsService.deleteCredentialsByIdentity(didString);
+
       await this.prisma.identity.delete({
         where: {
           did: didString
@@ -62,7 +61,7 @@ export class IdentityService {
     } else {
       console.log('IdentityService', 'deleteIdentity error');
     }
-    return ret;
+    return successfulDeletion;
   }
 
   findAll(user: User) {

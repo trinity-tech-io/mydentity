@@ -33,6 +33,7 @@ export class CredentialsService {
   constructor(private prisma: PrismaService) { }
 
   create(input: CreateCredentialInput) {
+    console.log('CredentialsService', "create")
     return this.prisma.credential.create({
       data: {
         identityDid: input.identityDid,
@@ -54,7 +55,20 @@ export class CredentialsService {
     }));
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} credential`;
+  async remove(id: string) {
+    return await this.prisma.credential.delete({
+      where: {
+        id
+      }
+    })
+  }
+
+  async deleteCredentialsByIdentity(identityDid: string) {
+    console.log('deleteCredentialsByIdentity', 'identityDid:', identityDid);
+    const credentials = await this.prisma.credential.findMany({
+      where: { identityDid },
+    });
+
+    return Promise.all(credentials.map((c) => (this.remove(c.id))));
   }
 }

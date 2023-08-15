@@ -5,17 +5,23 @@ import { join } from 'path';
 @Injectable()
 export class DidService {
   private network = 'mainnet';
+  private didStoreCache: { [didStorePath: string]: DIDStore } = {};
 
   generateMnemonic(language: string) {
     return Mnemonic.getInstance(language).generate();
   }
 
   async openStore(didStorePath: string) : Promise<DIDStore> {
+    if (didStorePath in this.didStoreCache)
+      return this.didStoreCache[didStorePath];
+
     const didStoreDir = join(__dirname, "../..", "didstores", didStorePath);
     console.log('didStoreDir:', didStoreDir);
     // Logger.setLevel(Logger.INFO)
 
-    return await DIDStore.open(didStoreDir);
+    const didStore = await DIDStore.open(didStoreDir);
+    this.didStoreCache[didStorePath] = didStore;
+    return didStore;
   }
 
   /**
@@ -50,11 +56,17 @@ export class DidService {
     return RootIdentity.createFromMnemonic(mnemonic, passphrase, didStore, storepass, true);
   }
 
+  //  DIDStore
   async deleteIdentity(didString: string, didStorePath: string) {
     console.log('IdentityService', 'deleteIdentity didString:', didString);
     const didStore = await this.openStore(didStorePath);
-    // TODO: Delete credentials
-    const ret = didStore.deleteDid(didString);
-    return ret;
+
+    // Delete all credentials belonging to this did
+    const credentials = await didStore.listCredentials(didString);
+    credentials.forEach( c => {
+      didStore.deleteCredential(c);
+    })
+
+    return didStore.deleteDid(didString);
   }
 }
