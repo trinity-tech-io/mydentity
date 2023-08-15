@@ -1,7 +1,9 @@
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ScheduleModule } from '@nestjs/schedule';
+import { ActivityModule } from './activity/activity.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthProvidersModule } from './auth-providers/auth-providers.module';
@@ -10,11 +12,11 @@ import { CredentialsModule } from './credentials/credentials.module';
 import { DevicesModule } from './devices/devices.module';
 import { DIDModule } from './did/did.module';
 import { CommonEmailingModule } from "./emailing/emailing.module";
+import { AppExceptionGraphQLInterceptor } from './exceptions/app-exception-gql-interceptor';
 import { IdentityModule } from './identity/identity.module';
 import { IntentsModule } from './intents/intents.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { UserModule } from './user/user.module';
-import { ActivityModule } from './activity/activity.module';
 
 @Module({
   imports: [
@@ -41,7 +43,11 @@ import { ActivityModule } from './activity/activity.module';
     AppController
   ],
   providers: [
-    AppService
+    AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: AppExceptionGraphQLInterceptor,
+    },
   ],
 })
 export class AppModule { }

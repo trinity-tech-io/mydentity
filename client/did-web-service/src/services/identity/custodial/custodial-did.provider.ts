@@ -6,6 +6,7 @@ import { Credential } from "@model/credential/credential";
 import { CredentialDTO } from "@model/credential/credential.dto";
 import { Identity } from "@model/identity/identity";
 import { IdentityDTO } from "@model/identity/identity.dto";
+import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { logger } from "@services/logger";
 import { IdentityProvider } from "../did.provider";
@@ -58,14 +59,16 @@ export class CustodialDIDProvider implements IdentityProvider {
   }
 
   async listIdentities(): Promise<Identity[]> {
-    const { data } = await getApolloClient().query<{ identities: IdentityDTO[] }>({
-      query: gql`
+    const { data } = await withCaughtAppException(() => {
+      return getApolloClient().query<{ identities: IdentityDTO[] }>({
+        query: gql`
         query ListIdentities {
           identities {
             ${gqlIdentityFields}
           }
         }
       `
+      });
     });
 
     if (data && data.identities) {

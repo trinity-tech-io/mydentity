@@ -1,19 +1,19 @@
+import { gql } from "@apollo/client";
+import { graphQLProfileFields } from "@graphql/profile.fields";
+import { graphQLPublicUserFields } from "@graphql/user.fields";
+import { ProfileEntry } from "@model/user/features/profile/profile-entry";
+import { ProfileEntryDto } from "@model/user/features/profile/profile-entry.dto";
 import { User } from "@model/user/user";
-import {authUser$, getActiveUser} from "./user.events";
+import { UserDTO } from "@model/user/user.dto";
+import { activityService } from "@services/activity/activity.service";
+import { getApolloClient } from "@services/graphql.service";
+import { logger } from "@services/logger";
 import Queue from "promise-queue";
-import {logger} from "@services/logger";
-import {getApolloClient} from "@services/graphql.service";
-import {UserDTO} from "@model/user/user.dto";
-import {gql} from "@apollo/client";
-import {graphQLPublicUserFields} from "@graphql/user.fields";
-import {ProfileEntry} from "@model/user/features/profile/profile-entry";
-import {activityService} from "@services/activity/activity.service";
-import {graphQLProfileFields} from "@graphql/profile.fields";
-import {ProfileEntryDto} from "@model/user/features/profile/profile-entry.dto";
+import { authUser$, getActiveUser } from "./user.events";
 
 const fetchUserQueue = new Queue(1); // Execute user retrieval from the backend one by one to avoid duplicates
 
-export async function userServiceInit() {}
+export async function userServiceInit() { }
 
 /**
  * Store the authenticated user to local storage, for future use
@@ -168,10 +168,10 @@ export async function checkEmailAuthenticationKey(authKey: string): Promise<bool
       }
     }>({
       mutation: gql`
-      mutation CheckEmailAuthentication($authKey: String!) {
-        checkEmailAuthentication(authKey: $authKey) { accessToken refreshToken }
-      }
-    `,
+        mutation CheckEmailAuthentication($authKey: String!) {
+          checkEmailAuthentication(authKey: $authKey) { accessToken refreshToken }
+        }
+      `,
       variables: { authKey }
     });
 
