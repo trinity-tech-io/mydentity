@@ -3,6 +3,8 @@ import { Injectable } from '@nestjs/common';
 import { Identity, User } from '@prisma/client';
 import { CredentialsService } from 'src/credentials/credentials.service';
 import { DidService } from 'src/did/did.service';
+import { AppException } from 'src/exceptions/app-exception';
+import { KeyringExceptionCode } from 'src/exceptions/exception-codes';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateIdentityInput } from './dto/create-identity.input';
 
@@ -65,6 +67,7 @@ export class IdentityService {
   }
 
   findAll(user: User) {
+    throw new AppException(KeyringExceptionCode.DuplicateKey, "aazaezae", 401)
     return this.prisma.identity.findMany({
       where: {
         userId: user.id

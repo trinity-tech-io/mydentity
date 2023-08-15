@@ -6,7 +6,7 @@ import { GraphQLError, GraphQLErrorExtensions } from "graphql";
 import { Subject } from "rxjs";
 import { logger } from "./logger";
 
-const onNewError$ = new Subject<AppException>(); // For now, just a string - We can improve this by passing CustomException objects instead, with custom UI feedback
+export const onNewError$ = new Subject<AppException>(); // For now, just a string - We can improve this by passing CustomException objects instead, with custom UI feedback
 
 function emitGlobalError(error: AppException) {
   onNewError$.next(error);

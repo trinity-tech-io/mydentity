@@ -210,10 +210,10 @@ export async function refreshToken(): Promise<string> {
   const { data } = await withCaughtAppException(() => {
     return getApolloClient().mutate({
       mutation: gql`
-      mutation RefreshToken($token: String!) {
-        refreshToken(refreshTokenInput: { refreshToken: $token }) { accessToken }
-      }
-    `,
+        mutation RefreshToken($token: String!) {
+          refreshToken(refreshTokenInput: { refreshToken: $token }) { accessToken }
+        }
+      `,
       variables: {
         token
       }
