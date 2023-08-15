@@ -39,6 +39,9 @@ export class KeyRingService {
         userId_clientId: {
           userId: userId,
           clientId: clientId
+        },
+        createdAt: {
+          gte: new Date(Date.now() - KeyRingService.CHALLENGE_EXPIRATION)
         }
       }
     });
