@@ -1,13 +1,30 @@
-
 'use client';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { authUser$ } from '@services/user/user.events';
-import { FC } from 'react';
+import { FC, useState } from 'react';
+import DeleteIcon from '@mui/icons-material/Delete';
+import IconButton from '@mui/material/IconButton';
+import ComfirmDialog from '@components/ComfirmDialog';
 
 export const IdentityListWidget: FC = _ => {
+  const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [authUser] = useBehaviorSubject(authUser$);
   let [identities] = useBehaviorSubject(authUser?.get("identity").identities$);
   identities = identities?.slice(0, 5);
+
+  const handleCloseDialog = (isAgree: boolean) => {
+    setOpenConfirmDialog(false);
+    if (isAgree){
+      //TODO delete identity
+      // try {
+      //   const ret = await authUser.get("identity").deleteIdentity(identity.did);
+      //   console.log("click delete ====>", identity.did);
+      // } catch (error) {
+      //   console.log("delete error ====>", error);
+      // }
+      return;
+    }
+  };
 
   return (
     <div className="col-span-full xl:col-span-6 bg-white dark:bg-slate-800 shadow-lg rounded-sm border border-slate-200 dark:border-slate-700">
@@ -42,15 +59,23 @@ export const IdentityListWidget: FC = _ => {
                       <td className="p-2 whitespace-nowrap">
                         <div className="text-left">{identity.createdAt.toLocaleDateString()}</div>
                       </td>
+
+                      <IconButton aria-label="delete" onClick={()=>{setOpenConfirmDialog(true);}}>
+                        <DeleteIcon />
+                      </IconButton>
+                      <ComfirmDialog
+                        title='Delete this identity?'
+                        content='Do you want to delete this Identity?'
+                        open={openConfirmDialog}
+                        onClose={(isAgree: boolean)=>handleCloseDialog(isAgree)}
+                      />
                     </tr>
                   )
                 })
               }
             </tbody>
           </table>
-
         </div>
-
       </div>
     </div>
   );
