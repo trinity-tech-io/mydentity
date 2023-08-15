@@ -2,6 +2,7 @@ import { crypto_sign_BYTES, crypto_sign_SECRETKEYBYTES, crypto_sign_PUBLICKEYBYT
 import { KeyType, StateAddress } from "libsodium-wrappers";
 import { crypto_sign_keypair, crypto_sign_seed_keypair, crypto_sign_detached, crypto_sign_verify_detached, crypto_sign_init, crypto_sign_update, crypto_sign_final_create, crypto_sign_final_verify } from "libsodium-wrappers";
 import { to_hex } from "libsodium-wrappers";
+import { InvalidArgumentException } from "./exceptions";
 
 export class Signature {
     public static BYTES: number = crypto_sign_BYTES;
@@ -34,7 +35,7 @@ export class PrivateKey {
 
     public constructor(key: Uint8Array) {
         if (key.length != PrivateKey.BYTES)
-            throw new Error("Invalid key length");
+            throw new InvalidArgumentException("Invalid key length");
 
         this.key = key;
     }
@@ -62,7 +63,7 @@ export class PublicKey {
 
     public constructor(key: Uint8Array) {
         if (key.length != PublicKey.BYTES)
-            throw new Error("Invalid key length");
+            throw new InvalidArgumentException("Invalid key length");
 
         this.key = key;
     }
@@ -100,13 +101,16 @@ export class KeyPair {
 
     public static fromSeed(seed: Uint8Array): KeyPair {
         if (seed.length != KeyPair.SEED_BYTES)
-            throw new Error("Invalid seed length");
+            throw new InvalidArgumentException("Invalid seed length");
 
         const kp = crypto_sign_seed_keypair(seed);
         return new KeyPair(kp.keyType, new PrivateKey(kp.privateKey), new PublicKey(kp.publicKey));
     }
 
     public static fromPrivateKey(key: Uint8Array | PrivateKey): KeyPair {
+        if (key instanceof Uint8Array && key.length != PrivateKey.BYTES)
+            throw new InvalidArgumentException("Invalid private key length");
+
         const sk = key instanceof Uint8Array ? new PrivateKey(key) : key;
         const pk = sk.getPublicKey();
 

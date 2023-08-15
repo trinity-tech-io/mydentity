@@ -2,6 +2,7 @@ import { crypto_secretbox_KEYBYTES, crypto_secretbox_MACBYTES, crypto_secretbox_
 import { crypto_secretbox_keygen, crypto_secretbox_easy, crypto_secretbox_open_easy } from "libsodium-wrappers";
 import { crypto_pwhash, crypto_pwhash_ALG_DEFAULT, crypto_pwhash_MEMLIMIT_INTERACTIVE, crypto_pwhash_OPSLIMIT_INTERACTIVE, crypto_pwhash_SALTBYTES } from "libsodium-wrappers";
 import { increment, memzero, randombytes_buf, to_hex } from "libsodium-wrappers";
+import { InvalidArgumentException } from "./exceptions";
 
 export class SecretBox {
     public static MAC_BYTES: number = crypto_secretbox_MACBYTES;
@@ -10,7 +11,7 @@ export class SecretBox {
 
     public constructor(key: Uint8Array) {
         if (key.length != SecretBox.KEY_BYTES)
-        throw new Error("Invalid key length");
+        throw new InvalidArgumentException("Invalid key length");
     }
 
     public static random(): SecretBox {
@@ -67,7 +68,7 @@ export class Nonce {
 
     public constructor(bytes: Uint8Array) {
         if (bytes.length != Nonce.BYTES)
-            throw new Error("Invalid nonce length");
+            throw new InvalidArgumentException("Invalid nonce length");
 
         this.bytes = bytes;
     }

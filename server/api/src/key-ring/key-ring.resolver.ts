@@ -2,7 +2,6 @@ import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { KeyRingService } from './key-ring.service';
 import { ShadowKeyEntity } from './entities/shadow-key.entity';
-import { HttpException, HttpStatus } from '@nestjs/common';
 import { BindKeyInput } from './dto/bind-key-input';
 import { CurrentUser } from 'src/auth/currentuser.decorator';
 import { RemoveKeyInput } from './dto/remove-key-input';
@@ -17,12 +16,7 @@ export class KeyRingResolver {
   @UseGuards(JwtAuthGuard)
   @Mutation()
   bindKey(@Args('bindKeyInput') bindKeyInput: BindKeyInput, @CurrentUser() user: User) {
-    try {
       this.keyRingService.bindKey(bindKeyInput, user);
-    } catch (e) {
-      // TODO:
-      throw new HttpException(e, HttpStatus.BAD_REQUEST)
-    }
   }
 
   @UseGuards(JwtAuthGuard)

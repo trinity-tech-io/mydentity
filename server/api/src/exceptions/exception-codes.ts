@@ -8,4 +8,14 @@ export enum AuthExceptionCode {
   Unspecific = 10199
 }
 
-export type AppExceptionCode = KeyringExceptionCode | AuthExceptionCode;
+export enum KeyRingExceptionCode {
+  DBInternalError = 10201,
+  KeyRingNotExists = 10202,
+  InvalidPrivateKey = 10203,
+  InvalidPublicKey = 10204,
+  KeyNotExists = 10205,
+  NoAuthenticationKey = 10206,
+  CanNotUnbindKey = 10207
+}
+
+export type AppExceptionCode = KeyringExceptionCode | AuthExceptionCode | KeyRingExceptionCode;

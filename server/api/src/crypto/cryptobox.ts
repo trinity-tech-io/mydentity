@@ -4,6 +4,7 @@ import { crypto_box_keypair, crypto_box_seed_keypair, crypto_scalarmult_base, cr
 import { crypto_box_beforenm, crypto_box_easy_afternm, crypto_box_open_easy_afternm, crypto_box_easy, crypto_box_open_easy, crypto_box_seal, crypto_box_seal_open } from "libsodium-wrappers";
 import { increment, memzero, randombytes_buf, to_hex } from "libsodium-wrappers";
 import { PrivateKey as SignPrivateKey, PublicKey as SignPublicKey, KeyPair as SignKeyPair } from "./signature"
+import { InvalidArgumentException } from "./exceptions";
 
 export class CryptoBox {
     public static MAC_BYTES: number = crypto_box_MACBYTES;
@@ -44,14 +45,14 @@ export class PrivateKey {
 
     public constructor(key: Uint8Array) {
         if (key.length != PrivateKey.BYTES)
-            throw new Error("Invalid key length");
+            throw new InvalidArgumentException("Invalid key length");
 
         this.key = key;
     }
 
     public static fromSignatureKey(key: Uint8Array | SignPrivateKey): PrivateKey {
         if (key instanceof Uint8Array && key.length != SignPrivateKey.BYTES)
-            throw new Error("Invalid key length")
+            throw new InvalidArgumentException("Invalid key length")
 
         const sk = crypto_sign_ed25519_sk_to_curve25519(key instanceof Uint8Array ? key : key._bytes());
         return new PrivateKey(sk);
@@ -77,14 +78,14 @@ export class PublicKey {
 
     public constructor(key: Uint8Array) {
         if (key.length != PublicKey.BYTES)
-            throw new Error("Invalid key length");
+            throw new InvalidArgumentException("Invalid key length");
 
         this.key = key;
     }
 
     public static fromSignatureKey(key: Uint8Array | SignPublicKey): PublicKey {
         if (key instanceof Uint8Array && key.length != SignPublicKey.BYTES)
-            throw new Error("Invalid key length")
+            throw new InvalidArgumentException("Invalid key length")
 
         const pk = crypto_sign_ed25519_pk_to_curve25519(key instanceof Uint8Array ? key : key._bytes());
         return new PublicKey(pk);
@@ -119,7 +120,7 @@ export class KeyPair {
 
     public static fromSeed(seed: Uint8Array): KeyPair {
         if (seed.length != KeyPair.SEED_BYTES)
-            throw new Error("Invalid seed length");
+            throw new InvalidArgumentException("Invalid seed length");
 
         const kp = crypto_box_seed_keypair(seed);
         return new KeyPair(kp.keyType, new PrivateKey(kp.privateKey), new PublicKey(kp.publicKey));
@@ -154,7 +155,7 @@ export class Nonce {
 
     public constructor(bytes: Uint8Array) {
         if (bytes.length != Nonce.BYTES)
-            throw new Error("Invalid nonce length");
+            throw new InvalidArgumentException("Invalid nonce length");
 
         this.bytes = bytes;
     }

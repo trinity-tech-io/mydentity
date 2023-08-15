@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { User, UserShadowKey, UserShadowKeyType } from '@prisma/client';
+import { Prisma, User, UserShadowKey, UserShadowKeyType } from '@prisma/client';
 import { SecretBox } from 'src/crypto/secretbox';
 import { KeyPair as SignatureKeyPair, PublicKey as SignaturePublicKey } from 'src/crypto/signature';
 import { PasswordHash } from 'src/crypto/passwordhash';
@@ -8,6 +8,8 @@ import { CryptoBox, KeyPair as CryptoBoxKeyPair, PublicKey as CryptoBoxPublicKey
 import { BindKeyInput } from './dto/bind-key-input';
 import { RemoveKeyInput } from './dto/remove-key-input';
 import { GetMasterKeyInput } from './dto/get-master-key-input';
+import { AppException } from 'src/exceptions/app-exception';
+import { KeyRingExceptionCode } from 'src/exceptions/exception-codes';
 
 @Injectable()
 export class KeyRingService {
@@ -16,8 +18,13 @@ export class KeyRingService {
 
   constructor(private prisma: PrismaService) {
     const sk = Buffer.from(`${process.env.SERVER_PRIVATEKEY}`, 'hex');
-    this.serverKeyPair = SignatureKeyPair.fromPrivateKey(sk);
-    this.encryptionKeyPair = CryptoBoxKeyPair.fromSignatureKeyPair(this.serverKeyPair);
+    try {
+      this.serverKeyPair = SignatureKeyPair.fromPrivateKey(sk);
+      this.encryptionKeyPair = CryptoBoxKeyPair.fromSignatureKeyPair(this.serverKeyPair);
+    } catch (e) {
+      throw new AppException(KeyRingExceptionCode.InvalidPrivateKey,
+        "Invalid server private key from the env file: " + e, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   private async _addShadowKey(userId: string, key: string, type: UserShadowKeyType, secretKey: Uint8Array): Promise<void> {
@@ -31,9 +38,13 @@ export class KeyRingService {
     } else if (type == UserShadowKeyType.ED25519) {
       // Create the device passkey encrypted shadow key
       authKey = key;
-      const devicePk = CryptoBoxPublicKey.fromSignatureKey(Buffer.from(key, 'hex'));
-      const nonce = new CryptoBoxNonce(PasswordHash.derive(CryptoBoxNonce.BYTES, devicePk._bytes()));
-      encryptedSecretKey = CryptoBox.encryptEasy(secretKey, nonce, devicePk, this.encryptionKeyPair.privateKey());
+      try {
+        const devicePk = CryptoBoxPublicKey.fromSignatureKey(Buffer.from(key, 'hex'));
+        const nonce = new CryptoBoxNonce(PasswordHash.derive(CryptoBoxNonce.BYTES, devicePk._bytes()));
+        encryptedSecretKey = CryptoBox.encryptEasy(secretKey, nonce, devicePk, this.encryptionKeyPair.privateKey());
+      } catch (e) {
+        throw new AppException(KeyRingExceptionCode.InvalidPublicKey, "Invalid public key: " + e, HttpStatus.BAD_REQUEST);
+      }
     }
 
     await this.prisma.userShadowKey.create({
@@ -48,14 +59,23 @@ export class KeyRingService {
 
   private async _removeShadowKey(userId: string, key: string, type: UserShadowKeyType): Promise<void> {
     const authKey = type == UserShadowKeyType.PASSWORD ? PasswordHash.hash(key) : key;
-    await this.prisma.userShadowKey.delete({
-      where: {
-        userId_key: {
-          userId: userId,
-          key: authKey,
+
+    try {
+      await this.prisma.userShadowKey.delete({
+        where: {
+          userId_key: {
+            userId: userId,
+            key: authKey,
+          }
         }
+      });
+    } catch (e) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2025") {
+        throw new AppException(KeyRingExceptionCode.KeyNotExists, "Key not exists", HttpStatus.NOT_FOUND);
+      } else {
+        throw new AppException(KeyRingExceptionCode.DBInternalError, e.message, HttpStatus.INTERNAL_SERVER_ERROR);
       }
-    })
+    }
   }
 
   private async _getMasterKey(userId: string, key: string, type: UserShadowKeyType): Promise<Uint8Array> {
@@ -69,7 +89,7 @@ export class KeyRingService {
     })
 
     if (!shadow)
-      throw new Error("Invalid authentication key");
+      throw new AppException(KeyRingExceptionCode.KeyNotExists, "Key not exists", HttpStatus.NOT_FOUND);
 
     let secretKey: Uint8Array;
     const encryptedSecretKey = Buffer.from(shadow.secretKey, 'hex');
@@ -94,12 +114,12 @@ export class KeyRingService {
     let secretKey: Uint8Array;
     if (key) {
       if (!input.authorizationKey)
-        throw new Error("No authorization key to bind new key");
+        throw new AppException(KeyRingExceptionCode.NoAuthenticationKey, "No authentication key to bind new key", HttpStatus.FORBIDDEN);
 
       secretKey = await this._getMasterKey(user.id, input.authorizationKey, input.authorizationType);
     } else {
       if (input.authorizationKey)
-        throw new Error("No keyring for user");
+        throw new AppException(KeyRingExceptionCode.KeyRingNotExists, "No keyring exists for user", HttpStatus.NOT_FOUND);
 
       // New secret key for the new key ring
       const secretBox = SecretBox.random();
@@ -117,7 +137,7 @@ export class KeyRingService {
     });
 
     if (count <= 2)
-      throw new Error("Can not unbind the last two keys");
+      throw new AppException(KeyRingExceptionCode.CanNotUnbindKey, "Can not remove the last 2 keys", HttpStatus.FORBIDDEN);
 
     await this._removeShadowKey(user.id, input.key, input.type);
   }
@@ -128,6 +148,9 @@ export class KeyRingService {
         userId: user.id
       }
     });
+
+    if (!keys)
+      throw new AppException(KeyRingExceptionCode.KeyRingNotExists, "No keyring exists for user", HttpStatus.NOT_FOUND);
 
     // clear the secret key, should not touch it out of the keyring scope
     for (const key of keys)
