@@ -1,0 +1,1 @@
+export const graphQLActivityFields = `id type content createdAt`;
