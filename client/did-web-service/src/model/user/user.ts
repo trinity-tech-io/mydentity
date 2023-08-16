@@ -10,8 +10,8 @@ export type FeatureExtensionRegistrationCb = (user: User) => UserFeature;
 
 export class User {
   id: string;
-  name: string;
-  email: string;
+  name?: string;
+  email?: string;
   createdAt: Date;
 
   // Features

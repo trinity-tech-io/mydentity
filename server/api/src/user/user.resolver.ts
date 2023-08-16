@@ -38,7 +38,7 @@ export class UserResolver {
     // Consider that every time a user tries to fetch his own profile, this means he is active / online, so we update this information.
     // Not very efficient CPU wise but can be improved later.
     // this.userService.saveLastSeenNow(user);
-    logger.log('enter getSelfUser');
+    logger.log(`enter getSelfUser`, user);
     return user;
   }
 

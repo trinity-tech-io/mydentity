@@ -139,7 +139,7 @@ export function updateUserByToken(accessToken: string, refreshToken: string) {
   localStorage.setItem("refresh_token", refreshToken);
 
   try {
-    return fetchSelfUser(curAccessToken);
+    return fetchSelfUser(accessToken);
   } catch (e) {
     logger.error('userService', 'failed to fetch user info.: ', e);
     localStorage.setItem("access_token", curAccessToken);

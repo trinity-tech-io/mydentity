@@ -26,7 +26,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     // Fetch authenticated user object based on access token user id.
     // JWT signature validity has been checked earlier by passport-jwt
     return {
-      user: this.prisma.user.findFirst({ where: { id: payload.sub } }),
+      user: await this.prisma.user.findFirst({ where: { id: payload.sub } }),
       clientId: payload.clientId
     };
   }

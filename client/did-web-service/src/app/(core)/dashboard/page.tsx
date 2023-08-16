@@ -3,8 +3,23 @@ import { FC } from "react";
 import { WelcomeBanner } from "./WelcomeBanner";
 import { IdentityListWidget } from "./widgets/IdentityList";
 import { RecentActivityWidget } from "./widgets/RecentActivity";
+import {useSearchParams} from "next/navigation";
+import {fetchSelfUser} from "@services/user/user.service";
 
 const Dashboard: FC = () => {
+  console.log('enter dashboard')
+
+  // get access token from url params.
+  const searchParams = useSearchParams();
+  const accessToken = searchParams.get('accessToken');
+  const refreshToken = searchParams.get('refreshToken');
+
+  if (accessToken && accessToken !== '' && refreshToken && refreshToken != '') {
+    fetchSelfUser(accessToken, refreshToken).then(user => {
+      window.location.replace('/dashboard');
+    });
+  }
+
   return (<>
 
     {/* Top part */}
