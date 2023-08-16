@@ -51,7 +51,7 @@ const Security: FC = () => {
         </>
       }
       <br /><br />
-      <MainButton onClick={bindDevice} >Secure with this browser biometrics</MainButton>
+      <MainButton onClick={bindDevice} >Bind device</MainButton>
 
       <div className="flex flex-row mt-4 gap-2">
         <TextField
@@ -60,7 +60,7 @@ const Security: FC = () => {
           variant="outlined"
           size="small"
         />
-        <MainButton onClick={bindPassword} >Secure with email & password</MainButton>
+        <MainButton onClick={bindPassword} >Bind password</MainButton>
       </div>
     </>}
   </div>)
