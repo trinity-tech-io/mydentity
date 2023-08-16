@@ -5,23 +5,24 @@ import { FC, useState } from 'react';
 import DeleteIcon from '@mui/icons-material/Delete';
 import IconButton from '@mui/material/IconButton';
 import ComfirmDialog from '@components/ComfirmDialog';
+import { logger } from '@services/logger';
 
 export const IdentityListWidget: FC = _ => {
+  const TAG = "IdentityList";
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
+  const [prepareDeleteDid, setPrepareDeleteDid] = useState('');
   const [authUser] = useBehaviorSubject(authUser$());
   let [identities] = useBehaviorSubject(authUser?.get("identity").identities$);
   identities = identities?.slice(0, 5);
 
-  const handleCloseDialog = (isAgree: boolean) => {
+  const handleCloseDialog = async (isAgree: boolean) => {
     setOpenConfirmDialog(false);
-    if (isAgree){
-      //TODO delete identity
-      // try {
-      //   const ret = await authUser.get("identity").deleteIdentity(identity.did);
-      //   console.log("click delete ====>", identity.did);
-      // } catch (error) {
-      //   console.log("delete error ====>", error);
-      // }
+    if (isAgree){ 
+      try {
+        await authUser.get("identity").deleteIdentity(prepareDeleteDid);
+      } catch (error) {
+        logger.error(TAG, error);
+      }
       return;
     }
   };
@@ -32,7 +33,12 @@ export const IdentityListWidget: FC = _ => {
         <h2 className="font-semibold text-slate-800 dark:text-slate-100">My Identities</h2>
       </header>
       <div className="p-3">
-
+      <ComfirmDialog
+        title='Delete this identity?'
+        content='Do you want to delete this Identity?'
+        open={openConfirmDialog}
+        onClose={(isAgree: boolean)=>handleCloseDialog(isAgree)}
+      />
         {/* Table */}
         <div className="overflow-x-auto">
           <table className="table-auto w-full">
@@ -60,15 +66,10 @@ export const IdentityListWidget: FC = _ => {
                         <div className="text-left">{identity.createdAt.toLocaleDateString()}</div>
                       </td>
 
-                      <IconButton aria-label="delete" onClick={()=>{setOpenConfirmDialog(true);}}>
+                      <IconButton aria-label="delete" onClick={()=>{setOpenConfirmDialog(true); setPrepareDeleteDid(identity.did)}}>
                         <DeleteIcon />
                       </IconButton>
-                      <ComfirmDialog
-                        title='Delete this identity?'
-                        content='Do you want to delete this Identity?'
-                        open={openConfirmDialog}
-                        onClose={(isAgree: boolean)=>handleCloseDialog(isAgree)}
-                      />
+
                     </tr>
                   )
                 })
