@@ -26,7 +26,6 @@ export class Identity {
     identity.createdAt = new Date(json.createdAt);
 
     identity.provider = provider;
-
     return identity;
   }
 
@@ -45,6 +44,13 @@ export class Identity {
     this.features.set(name, feature);
 
     return feature;
+  }
+
+  /**
+   * Returns the list of credentials for the signed in user
+   */
+  public createCredential(credentialId: string, types: string[], expirationDate: Date, prop: any): Promise<Credential> {
+    return this.provider.createCredential(this.did, credentialId, types, expirationDate, prop);
   }
 
   /**

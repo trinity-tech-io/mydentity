@@ -1,4 +1,5 @@
 import { Field, InputType } from '@nestjs/graphql';
+import { GraphQlJson } from 'src/utils/graphql/json.types';
 
 @InputType()
 export class CreateCredentialInput {
@@ -8,12 +9,12 @@ export class CreateCredentialInput {
   @Field(() => String)
   credentialId: string;
 
-  @Field(() => String)
-  types: string[];
+  @Field(() => GraphQlJson, {nullable: true})
+  types: any;
 
-  @Field(() => Date)
+  @Field(() => String)
   expirationDate: Date;
 
-  @Field(() => String)
+  @Field(() => GraphQlJson, {nullable: true})
   properties: any;
 }

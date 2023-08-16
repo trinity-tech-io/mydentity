@@ -45,7 +45,7 @@ export class DidService {
       console.log('contains rootIdentities, use the exist rootIdentity');
       rootIdentity = await didStore.loadRootIdentity();
     }
-
+    console.log('rootIdentities :', rootIdentity)
     return rootIdentity;
   }
 
@@ -58,7 +58,7 @@ export class DidService {
 
   //  DIDStore
   async deleteIdentity(didString: string, didStorePath: string) {
-    console.log('IdentityService', 'deleteIdentity didString:', didString);
+    console.log('DidService', 'deleteIdentity didString:', didString);
     const didStore = await this.openStore(didStorePath);
 
     // Delete all credentials belonging to this did
@@ -67,7 +67,14 @@ export class DidService {
       didStore.deleteCredential(c);
     })
 
-    return didStore.deleteDid(didString);
+    const successfulDeletion = didStore.deleteDid(didString);
+    if (!successfulDeletion) {
+      const didExist = await didStore.loadDid(didString);
+      //the did is deleted before.
+      if (!didExist) return true;
+    }
+
+    return successfulDeletion;
   }
 
   async createCredential(didStorePath: string, didString: string, credentialId: string, types: string[], expirationDate: Date, properties, storepass: string) {

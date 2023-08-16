@@ -23,6 +23,7 @@ export class IdentityFeature implements UserFeature {
     logger.log("identities", "Deleting identity");
 
     const identity = await identityService.deleteIdentity(didString);
+    this.identities$.next(this.identities$.value.filter( i => i.did != didString));
     return identity;
   }
 

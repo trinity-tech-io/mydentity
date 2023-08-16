@@ -11,6 +11,7 @@ export interface IdentityProvider {
   createIdentity(name: string): Promise<Identity>;
   deleteIdentity(didString: String): Promise<boolean>;
   listIdentities(): Promise<Identity[]>;
+  createCredential(identityDid: string, credentialId: string, types: string[], expirationDate: Date, prop: any): Promise<Credential>;
   listCredentials(identityDid: string): Promise<Credential[]>;
   deleteCredential(credentialId): Promise<boolean>;
   createVerifiablePresentation(identityDid: string, credentials: VerifiableCredential[], realm: string, nonce: string): Promise<VerifiablePresentation>;

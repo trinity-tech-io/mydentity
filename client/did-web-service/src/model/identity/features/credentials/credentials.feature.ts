@@ -11,6 +11,14 @@ export class CredentialsFeature implements IdentityFeature {
   constructor(protected identity: Identity) {
   }
 
+  public async createCredential(credentialId: string, types: string[], expirationDate: Date, prop: any): Promise<Credential> {
+    logger.log("credentials", "Creating credential", credentialId, types, expirationDate, prop);
+
+    const credential = await this.identity.createCredential(credentialId, types, expirationDate, prop);
+    this.credentials$.next([credential, ...this.credentials$.value]);
+    return credential;
+  }
+
   private async fetchCredentials() {
     logger.log("credentials", "Fetching credentials");
 
@@ -21,7 +29,9 @@ export class CredentialsFeature implements IdentityFeature {
   public async deleteCredential(credentialId: string): Promise<boolean> {
     logger.log("credentials", "Deleting credential");
 
-    return await this.identity.deleteCredential(credentialId);
+    const successfulDeletion = await this.identity.deleteCredential(credentialId);
+    this.credentials$.next(this.credentials$.value.filter( c => c.verifiableCredential.getId().toString() != credentialId));
+    return successfulDeletion;
   }
 
 }

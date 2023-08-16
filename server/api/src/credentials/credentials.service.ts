@@ -41,12 +41,16 @@ export class CredentialsService {
           input.types, input.expirationDate, input.properties, storePassword);
     console.log('CredentialsService', "vc:", vc)
 
-    return this.prisma.credential.create({
+    const credentials= await this.prisma.credential.create({
       data: {
         identityDid: input.identityDid,
         credentialId: vc.id.toString(),
       },
     });
+    return {
+      ...credentials,
+      verifiableCredential: vc.toString(),
+    };
   }
 
   async findAll(identityDid: string, user: User): Promise<Credential[]> {
@@ -76,11 +80,16 @@ export class CredentialsService {
   }
 
   async deleteCredentialsByIdentity(identityDid: string, user: User) {
-    console.log('deleteCredentialsByIdentity', 'identityDid:', identityDid);
+    console.log('CredentialsService', 'deleteCredentialsByIdentity identityDid:', identityDid);
     const credentials = await this.prisma.credential.findMany({
       where: { identityDid },
     });
 
-    return Promise.all(credentials.map((c) => (this.remove(c.id, user))));
+    return Promise.all(credentials.map(async (c) => (
+      await this.prisma.credential.deleteMany({
+      where: {
+        credentialId: c.credentialId,
+      }
+    }))));
   }
 }
