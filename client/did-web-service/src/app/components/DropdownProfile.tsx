@@ -5,16 +5,16 @@ import { getActiveUser } from "@services/user/user.events";
 import { fetchSelfUser, signOut } from "@services/user/user.service";
 import Image from 'next/image';
 import Link from 'next/link';
-import { useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState } from 'react';
 import Notifications from '../components/DropdownNotifications';
-import Transition from './Transition';
+import {useSearchParams} from "next/navigation";
+import {useEffect, useRef, useState} from "react";
+import Transition from "@components/Transition";
 
 export function DropdownUserProfile({
   align
 }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  //const [userName, setUserName] = useState('user@hotmail.com');
+  // const [userName, setUserName] = useState('user@hotmail.com');
   const [userTypeDesc, setUserTypeDesc] = useState('UNKNOWN');
   const [isLogin, setIsLogin] = useState(false);
 
@@ -35,9 +35,7 @@ export function DropdownUserProfile({
       } else if (user.type === 'EMAIL') {
         setUserTypeDesc('Email');
       }
-      /* fetchUserProfile(user.id).then(profiles => {
-        setUserName(ProfileEntry.getEmailEntry(profiles).value);
-      }) */
+      // setUserName(user.email);
     }
 
     if (accessToken && accessToken !== '' && refreshToken && refreshToken != '') {
@@ -51,10 +49,6 @@ export function DropdownUserProfile({
       if (user) {
         updateUserDesc(user);
         setIsLogin(true);
-        /* user.fetchProfiles().then(user => {
-          updateUserDesc(user);
-          setIsLogin(true);
-        }); */
       }
     }
 

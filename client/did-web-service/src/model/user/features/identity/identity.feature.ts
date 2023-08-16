@@ -4,9 +4,13 @@ import { logger } from "@services/logger";
 import { LazyBehaviorSubjectWrapper } from "@utils/lazy-behavior-subject";
 import { User } from "../../user";
 import { UserFeature } from "../user-feature";
+import {getActiveUser} from "@services/user/user.events";
 
 export class IdentityFeature implements UserFeature {
-  private _identities$ = new LazyBehaviorSubjectWrapper<Identity[]>([], () => this.fetchIdentities());
+  private _identities$ = new LazyBehaviorSubjectWrapper<Identity[]>([], async () => {
+    if (getActiveUser())
+      return await this.fetchIdentities()
+  });
   public get identities$() { return this._identities$.getSubject(); }
   constructor(protected user: User) {
   }

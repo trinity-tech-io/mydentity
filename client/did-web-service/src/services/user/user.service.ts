@@ -1,11 +1,7 @@
 import { gql } from "@apollo/client";
-import { graphQLProfileFields } from "@graphql/profile.fields";
 import { graphQLPublicUserFields } from "@graphql/user.fields";
-import { ProfileEntry } from "@model/user/features/profile/profile-entry";
-import { ProfileEntryDto } from "@model/user/features/profile/profile-entry.dto";
 import { User } from "@model/user/user";
 import { UserDTO } from "@model/user/user.dto";
-import { activityService } from "@services/activity/activity.service";
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { logger } from "@services/logger";
@@ -112,30 +108,6 @@ export async function fetchSelfUser(curToken?: string, refreshToken?: string): P
 
     throw new Error('no data got from getSelfUser()');
   });
-}
-
-export async function fetchUserProfile(userId: string): Promise<ProfileEntry[]> {
-  return activityService.runActivity(async () => {
-    const { data } = await withCaughtAppException(() => {
-      return getApolloClient().query<{ userProfile: ProfileEntryDto[] }>({
-        query: gql`
-      query FetchUserProfile ($userId: String!) {
-        userProfile (userId: $userId) {
-          ${graphQLProfileFields}
-        }
-      }
-    `,
-        variables: {
-          userId
-        }
-      });
-    });
-
-    if (data && data.userProfile) {
-      const profile = data.userProfile.map(n => ProfileEntry.fromJson(n));
-      return profile;
-    }
-  })
 }
 
 /**

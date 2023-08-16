@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { UserType } from '@prisma/client';
 import { Strategy, VerifyCallback } from 'passport-microsoft';
-import { ProfileTitle } from 'src/user/profile-title';
+import {ThirdPartyUser} from "../user/dto/third-party-user";
 
 @Injectable()
 export class MicrosoftStrategy extends PassportStrategy(Strategy, 'microsoft') {
@@ -20,11 +20,16 @@ export class MicrosoftStrategy extends PassportStrategy(Strategy, 'microsoft') {
     });
   }
 
-  private getUserByProfile(profile: any, accessToken: string) {
+  /**
+   * Return server side profile from microsoft profile.
+   * @param profile microsoft side profile
+   * @param accessToken access token for microsoft api
+   * @private server side user profile.
+   */
+  private getUserByProfile(profile: any, accessToken: string): ThirdPartyUser {
     const { name, emails, photos } = profile;
     return {
       userType: UserType.MICROSOFT,
-      userProfileTitle: ProfileTitle.MICROSOFT,
       email: emails[0].value,
       firstName: name.givenName,
       lastName: name.familyName,

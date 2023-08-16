@@ -1,6 +1,5 @@
 import { Field, Int, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { UserType } from '@prisma/client';
-import { ProfileEntryEntity } from './profile-entry.entity';
 
 @ObjectType()
 export class UserEntity {
@@ -10,11 +9,17 @@ export class UserEntity {
   @Field(() => UserType)
   type: UserType;
 
+  @Field()
+  name: string;
+
+  @Field()
+  email: string;
+
+  @Field()
+  fullName: string;
+
   @Field(() => Date)
   createdAt: Date;
-
-  @Field(() => [ProfileEntryEntity], { nullable: true })
-  ProfileEntries?: ProfileEntryEntity[];
 }
 
 registerEnumType(UserType, {

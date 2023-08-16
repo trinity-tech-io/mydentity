@@ -3,16 +3,15 @@ import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { User } from "@prisma/client";
 import { GraphQLError } from "graphql/error";
 import { CurrentUser } from 'src/auth/currentuser.decorator';
-import { JwtAuthGuard, OptionalJwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import {JwtAuthGuard} from 'src/auth/jwt-auth.guard';
 import { AuthService } from '../auth/auth.service';
-import { logger } from "../logger";
-import { LoggedUserOutput } from "./dto/logged-user.output";
-import { RefreshTokenInput } from "./dto/refresh-token.input";
-import { RefreshTokenOutput } from "./dto/refresh-token.output";
-import { ProfileEntryEntity } from "./entities/profile-entry.entity";
-import { RequestEmailAuthenticationResult } from "./entities/request-email-authentication-result.entity";
 import { UserEntity } from './entities/user.entity';
 import { UserService } from './user.service';
+import {logger} from "../logger";
+import {RequestEmailAuthenticationResult} from "./entities/request-email-authentication-result.entity";
+import {LoggedUserOutput} from "./dto/logged-user.output";
+import {RefreshTokenOutput} from "./dto/refresh-token.output";
+import {RefreshTokenInput} from "./dto/refresh-token.input";
 import { SignUpInput } from './dto/sign-up.input';
 
 @Resolver(() => UserEntity)
@@ -41,18 +40,6 @@ export class UserResolver {
     // this.userService.saveLastSeenNow(user);
     logger.log('enter getSelfUser');
     return user;
-  }
-
-  @UseGuards(OptionalJwtAuthGuard)
-  @Query(() => [ProfileEntryEntity])
-  async userProfile(@CurrentUser() user: User, @Args('userId') userId: string) {
-    // If the requested user if the current user, return his full private profile. Otherwise, return his public profile.
-    // TODO: MUCH IMPROVEMENT NEEDED FOR VISIBILITY FIELDS ACCORDING TO CONTEXT (MEETING)
-    if (user?.id === userId)
-      return this.userService.findPrivateProfile(userId);
-    else {
-      return this.userService.findPublicProfile(userId);
-    }
   }
 
   @Mutation(() => RequestEmailAuthenticationResult, { nullable: true })

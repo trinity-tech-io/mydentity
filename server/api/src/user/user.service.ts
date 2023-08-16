@@ -1,18 +1,15 @@
 import { forwardRef, HttpException, Inject, Injectable } from '@nestjs/common';
-import { ProfileEntry, User, UserType } from '@prisma/client';
+import { AuthService } from 'src/auth/auth.service';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { ThirdPartyUser } from './dto/third-party-user';
+import { MicrosoftProfileService } from './microsoft-profile.service';
+import { User, UserType } from '@prisma/client';
 import { randomUUID } from "crypto";
 import * as moment from "moment";
 import { encode } from "slugid";
-import { AuthService } from 'src/auth/auth.service';
-import { PrismaService } from 'src/prisma/prisma.service';
 import { EmailTemplateType } from "../emailing/email-template-type";
 import { EmailingService } from "../emailing/emailing.service";
 import { SignUpInput } from './dto/sign-up.input';
-import { ThirdPartyUser } from './dto/third-party-user';
-import { MicrosoftProfileService } from './microsoft-profile.service';
-import { generateRandomTempName } from "./name-generator";
-import { ProfileTitle } from './profile-title';
-import { ProfileType } from './profile-type';
 
 // https://makinhs.medium.com/authentication-made-easy-with-nestjs-part-4-of-how-to-build-a-graphql-mongodb-d6057eae3fdf
 @Injectable()
@@ -34,128 +31,40 @@ export class UserService {
       data: {
         type: UserType.EMAIL // TODO: THIS IS WRONG, should not need to have a user "type" that depends on the auth method
       }
-    })
+    });
     return this.authService.generateUserCredentials(user);
   }
 
   /**
-   * Update the profiles of the google/linkedin user etc.
+   * Update the profiles of the microsoft/google/linkedin user etc.
    * 1. email as a key to fetch user.
    * 2. upsert all information to profile table.
    *
    * @param thirdPartyUser
    */
   async signInByThirdPartyAuth(thirdPartyUser: ThirdPartyUser) {
-    let user: User = null;
-    const emailProfile = await this.prisma.profileEntry.findFirst({
+    let user: User = await this.prisma.user.findFirst({
       where: {
-        type: ProfileType.EMAIL,
-        title: thirdPartyUser.userProfileTitle,
-        value: thirdPartyUser.email,
-      },
-      include: { user: true },
+        email: thirdPartyUser.email
+      }
     });
-    if (!emailProfile) {
-      // UserEntity not found.
+    if (!user) {
       user = await this.prisma.user.create({
         data: {
-          type: thirdPartyUser.userType,
-        },
-      });
-    } else {
-      // Got an existing user.
-      user = emailProfile.user;
+          name: '',
+          email: thirdPartyUser.email,
+          type: UserType.MICROSOFT,
+          fullName: `${thirdPartyUser.firstName}, ${thirdPartyUser.lastName}`,
+        }
+      })
     }
 
     await this.microsoftProfileService.retrieveAvatarPicture(
-      thirdPartyUser,
-      user,
-    );
-
-    const profiles = [
-      {
-        type: ProfileType.EMAIL,
-        title: thirdPartyUser.userProfileTitle,
-        value: thirdPartyUser.email,
-        visible: true,
-        isPrimary: true,
-      },
-      {
-        type: ProfileType.FIRSTNAME,
-        title: ProfileTitle.FIRSTNAME,
-        value: thirdPartyUser.firstName,
-        visible: true,
-        isPrimary: true,
-      },
-      {
-        type: ProfileType.LASTNAME,
-        title: ProfileTitle.LASTNAME,
-        value: thirdPartyUser.lastName,
-        visible: true,
-        isPrimary: true,
-      },
-      {
-        type: ProfileType.AVATAR_URL,
-        title: ProfileTitle.AVATAR_URL,
-        value: thirdPartyUser.picture,
-        visible: true,
-        isPrimary: true,
-      },
-      {
-        type: ProfileType.TOKEN,
-        title: thirdPartyUser.userProfileTitle,
-        value: thirdPartyUser.accessToken,
-        visible: false,
-        isPrimary: true,
-      },
-    ];
-    await Promise.all(
-      profiles.map(async (p) => {
-        if (!p.value) return;
-
-        await this.prisma.profileEntry.upsert({
-          where: {
-            userId_type_title: {
-              userId: user.id,
-              type: p.type,
-              title: p.title,
-            },
-          },
-          create: {
-            user: { connect: { id: user.id } },
-            type: p.type,
-            title: p.title,
-            value: p.value,
-            visible: p.visible,
-            isPrimary: p.isPrimary,
-          },
-          update: {
-            // value: p.value, // Do not update exist value.
-          },
-        });
-      }),
+        thirdPartyUser,
+        user,
     );
 
     return this.authService.generateUserCredentials(user);
-  }
-
-  public async findPrivateProfile(userId: string, includeInternal = false): Promise<ProfileEntry[]> {
-    return this.prisma.profileEntry.findMany({
-      where: {
-        userId,
-        internal: false
-      }
-    });
-  }
-
-  public async findPublicProfile(userId: string): Promise<ProfileEntry[]> {
-    return this.prisma.profileEntry.findMany({
-      where: {
-        userId,
-        visible: true, // NOTE: For now, this just handles the global profile visibility. Later we also need to deal with active meeting visibilities
-        internal: false
-      }
-    });
   }
 
   /**
@@ -164,28 +73,14 @@ export class UserService {
    * This doesn't mean that the email is valid yet.
    */
   private async createEmailAuthUser(emailAddress: string): Promise<User> {
-    const user = await this.prisma.user.create({
-      data: { type: "EMAIL" }
+    return await this.prisma.user.create({
+      data: {
+        name: '',
+        type: UserType.EMAIL,
+        email: emailAddress,
+        fullName: '',
+      }
     });
-
-    const profileEntries = [
-      { type: ProfileType.EMAIL, title: ProfileTitle.OTHER_EMAIL, value: emailAddress, visible: false, isPrimary: true },
-      { type: ProfileType.FIRSTNAME, title: ProfileTitle.FIRSTNAME, value: generateRandomTempName("firstname"), visible: true, isPrimary: true },
-      { type: ProfileType.LASTNAME, title: ProfileTitle.LASTNAME, value: generateRandomTempName("lastname"), visible: true, isPrimary: true },
-    ];
-
-    await this.prisma.profileEntry.createMany({
-      data: profileEntries.map((p) => ({
-        userId: user.id,
-        type: p.type,
-        title: p.title,
-        value: p.value,
-        visible: p.visible,
-        isPrimary: p.isPrimary,
-      }))
-    });
-
-    return user;
   }
 
   /**
@@ -193,16 +88,11 @@ export class UserService {
    */
   public async requestEmailAuthentication(emailAddress: string) {
     // Check if a user exists with this authentication mode and email already. If not, create a user.
-    let user = await this.prisma.user.findFirst({
+    let user: User = await this.prisma.user.findFirst({
       where: {
-        ProfileEntries: {
-          some: {
-            type: ProfileType.EMAIL,
-            value: emailAddress
-          }
-        }
+        email: emailAddress
       }
-    });
+    })
 
     console.log("user", user, emailAddress)
 
@@ -229,12 +119,6 @@ export class UserService {
     return null;
   }
 
-  public async findFirstProfileValueByType(userId: string, type: ProfileType): Promise<string> {
-    const profiles = await this.findPrivateProfile(userId);
-    const profile = profiles.find(p => p.type === type);
-    return profile ? profile.value : null;
-  }
-
   /**
    * Checks if the welcome email has been sent for the user and if not,
    * sends it if we have a known email address.
@@ -243,21 +127,19 @@ export class UserService {
     if (user.welcomeEmailSentAt)
       return false; // Already sent, skip
 
-    const firstName = await this.findFirstProfileValueByType(user.id, ProfileType.FIRSTNAME);
     const loungeUrl = `${process.env.FRONTEND_URL}/dashboard`;
     this.emailingService.sendEmail(
-      EmailTemplateType.WELCOME,
-      "welcome@didservice.io",
-      emailAddress,
-      "Welcome to DidService.io",
-      {
-        user: {
-          // Use the name only if that's not a temporary name (real user signed in)
-          // name: (user.type !== UserType.TEMPORARY && user.type !== UserType.EMAIL) && firstName
-          name: user.type !== UserType.EMAIL && firstName
-        },
-        loungeUrl
-      }
+        EmailTemplateType.WELCOME,
+        "welcome@didservice.io",
+        emailAddress,
+        "Welcome to DidService.io",
+        {
+          user: {
+            // Use the name only if that's not a temporary name (real user signed in)
+            name: user.type !== UserType.EMAIL && user.fullName
+          },
+          loungeUrl
+        }
     );
 
     // Remember we've sent the welcome email
@@ -285,8 +167,7 @@ export class UserService {
     if (!user)
       return new HttpException("This temporary authentication key is expired or invalid", 401);
 
-    const emailAddress = await this.findFirstProfileValueByType(user.id, ProfileType.EMAIL);
-    await this.maybeSendWelcomeEmail(user, emailAddress);
+    await this.maybeSendWelcomeEmail(user, user.email);
 
     return this.authService.generateUserCredentials(user);
   }

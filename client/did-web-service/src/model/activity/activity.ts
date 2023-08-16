@@ -6,7 +6,7 @@ export class Activity {
     private content: any;
     private createdAt: Date;
 
-    public static async fromJson(json: ActivityDto) {
+    public static fromJson(json: ActivityDto) {
         const activity: Activity = new Activity();
         return Object.assign(activity, json);
     }

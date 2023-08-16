@@ -1,7 +1,6 @@
 /* eslint-disable max-classes-per-file */
 import { DeviceFeature } from "./features/device/device.feature";
 import { IdentityFeature } from "./features/identity/identity.feature";
-import { ProfileFeature } from "./features/profile/profile.feature";
 import { SecurityFeature } from "./features/security/security.feature";
 import { UserFeature } from "./features/user-feature";
 import { usersCache } from "./user.cache";
@@ -11,13 +10,14 @@ export type FeatureExtensionRegistrationCb = (user: User) => UserFeature;
 
 export class User {
   id: string;
+  name: string;
+  email: string;
   createdAt: Date;
 
   // Features
   private features = new Map<string, UserFeature>();
 
   constructor() {
-    this.addFeature("profile", new ProfileFeature(this));
     this.addFeature("identity", new IdentityFeature(this));
     this.addFeature("device", new DeviceFeature(this));
     this.addFeature("security", new SecurityFeature(this));
@@ -31,28 +31,23 @@ export class User {
       async fill(user: User) {
         user.fillFromJson(json);
         user.createdAt = new Date(json.createdAt);
-        // void user.get("profile").fetchProfile();
       },
     }, useCache);
-  }
-
-  public async fetchProfiles() {
-    void this.get("profile").fetchProfile();
-    return this;
   }
 
   public toJson(): UserDTO {
     return {
       id: this.id,
+      name: this.name,
+      email: this.email,
       createdAt: this.createdAt.toISOString()
     }
   }
 
-  public get(feature: "profile"): ProfileFeature;
   public get(feature: "identity"): IdentityFeature;
   public get(feature: "device"): DeviceFeature;
   public get(feature: "security"): SecurityFeature;
-  public get(feature: "profile" | "identity" | "device" | "security"): UserFeature {
+  public get(feature: "identity" | "device" | "security"): UserFeature {
     if (!this.features.has(feature)) {
       throw new Error(`Unhandled user feature '${feature}'`);
     }

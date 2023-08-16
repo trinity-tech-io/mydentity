@@ -11,6 +11,11 @@ import { ThirdPartyUser } from './dto/third-party-user';
 export class MicrosoftProfileService {
   // constructor(private readonly filesService: FilesService) {}
 
+  /**
+   * Retrieve user avatar picture from microsoft account.
+   * @param thirdPartyUser user profiles from microsoft
+   * @param user user info. from server side.
+   */
   public async retrieveAvatarPicture(
     thirdPartyUser: ThirdPartyUser,
     user: User,
