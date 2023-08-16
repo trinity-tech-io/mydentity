@@ -10,11 +10,40 @@ import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { logger } from "@services/logger";
 import Queue from "promise-queue";
+import { LoggedUserOutput } from "./logged-user.output";
+import { SignUpInput } from "./sign-up.input";
 import { authUser$, getActiveUser } from "./user.events";
 
 const fetchUserQueue = new Queue(1); // Execute user retrieval from the backend one by one to avoid duplicates
 
 export async function userServiceInit() { }
+
+export async function signUp(name: string): Promise<boolean> {
+  logger.log("user", "Sign up user, creating new user entry");
+
+  const input: SignUpInput = { name };
+
+  const response = await withCaughtAppException(() => {
+    return getApolloClient().mutate<{ signUp: LoggedUserOutput }>({
+      mutation: gql`
+        mutation SignUp($input: SignUpInput!) {
+          signUp(input: $input) { accessToken refreshToken }
+        }
+      `,
+      variables: { input }
+    });
+  });
+
+  if (response?.data && response.data.signUp) {
+    const { accessToken, refreshToken } = response.data.signUp;
+    void updateUserByToken(accessToken, refreshToken);
+    return true;
+  }
+  else {
+    // TODO: print error
+    return false;
+  }
+}
 
 /**
  * Store the authenticated user to local storage, for future use

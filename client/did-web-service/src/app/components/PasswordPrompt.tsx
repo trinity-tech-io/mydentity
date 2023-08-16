@@ -88,7 +88,7 @@ const UserPicker: FC = () => {
             variant="outlined"
             size='small'
           />
-          <MainButton title="Continue" onClick={onConfirm} />
+          <MainButton onClick={onConfirm} >Continue</MainButton>
         </div>
       </div>
     </Dialog>

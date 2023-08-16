@@ -1,17 +1,18 @@
 import { forwardRef, HttpException, Inject, Injectable } from '@nestjs/common';
-import { AuthService } from 'src/auth/auth.service';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { ThirdPartyUser } from './dto/third-party-user';
-import { MicrosoftProfileService } from './microsoft-profile.service';
-import { ProfileTitle } from './profile-title';
-import { ProfileType } from './profile-type';
 import { ProfileEntry, User, UserType } from '@prisma/client';
 import { randomUUID } from "crypto";
 import * as moment from "moment";
 import { encode } from "slugid";
-import { generateRandomTempName } from "./name-generator";
+import { AuthService } from 'src/auth/auth.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { EmailTemplateType } from "../emailing/email-template-type";
 import { EmailingService } from "../emailing/emailing.service";
+import { SignUpInput } from './dto/sign-up.input';
+import { ThirdPartyUser } from './dto/third-party-user';
+import { MicrosoftProfileService } from './microsoft-profile.service';
+import { generateRandomTempName } from "./name-generator";
+import { ProfileTitle } from './profile-title';
+import { ProfileType } from './profile-type';
 
 // https://makinhs.medium.com/authentication-made-easy-with-nestjs-part-4-of-how-to-build-a-graphql-mongodb-d6057eae3fdf
 @Injectable()
@@ -21,7 +22,21 @@ export class UserService {
     private authService: AuthService,
     private readonly microsoftProfileService: MicrosoftProfileService,
     @Inject(forwardRef(() => EmailingService)) private emailingService: EmailingService,
-  ) {}
+  ) { }
+
+  /**
+   * Creates a user with only a single name (optional).
+   */
+  public async signUp(input: SignUpInput) {
+    // TODO: save name from the input - but cannot generate a VC, this is ok, this is the account profile, not identity profile
+
+    const user = await this.prisma.user.create({
+      data: {
+        type: UserType.EMAIL // TODO: THIS IS WRONG, should not need to have a user "type" that depends on the auth method
+      }
+    })
+    return this.authService.generateUserCredentials(user);
+  }
 
   /**
    * Update the profiles of the google/linkedin user etc.
@@ -30,7 +45,7 @@ export class UserService {
    *
    * @param thirdPartyUser
    */
-  async singInByThirdPartyAuth(thirdPartyUser: ThirdPartyUser) {
+  async signInByThirdPartyAuth(thirdPartyUser: ThirdPartyUser) {
     let user: User = null;
     const emailProfile = await this.prisma.profileEntry.findFirst({
       where: {
@@ -231,18 +246,18 @@ export class UserService {
     const firstName = await this.findFirstProfileValueByType(user.id, ProfileType.FIRSTNAME);
     const loungeUrl = `${process.env.FRONTEND_URL}/dashboard`;
     this.emailingService.sendEmail(
-        EmailTemplateType.WELCOME,
-        "welcome@didservice.io",
-        emailAddress,
-        "Welcome to DidService.io",
-        {
-          user: {
-            // Use the name only if that's not a temporary name (real user signed in)
-            // name: (user.type !== UserType.TEMPORARY && user.type !== UserType.EMAIL) && firstName
-            name: user.type !== UserType.EMAIL && firstName
-          },
-          loungeUrl
-        }
+      EmailTemplateType.WELCOME,
+      "welcome@didservice.io",
+      emailAddress,
+      "Welcome to DidService.io",
+      {
+        user: {
+          // Use the name only if that's not a temporary name (real user signed in)
+          // name: (user.type !== UserType.TEMPORARY && user.type !== UserType.EMAIL) && firstName
+          name: user.type !== UserType.EMAIL && firstName
+        },
+        loungeUrl
+      }
     );
 
     // Remember we've sent the welcome email

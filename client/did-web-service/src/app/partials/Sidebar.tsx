@@ -202,7 +202,7 @@ const Sidebar: FC<{
   }, [sidebarExpanded]);
 
   const createDIDTest = async () => {
-    await authUser.get("identity").createIdentity();
+    await authUser.get("identity").createIdentity("Someone");
     alert("Identity successfully created");
   }
 

@@ -1,0 +1,52 @@
+import { MainButton } from '@components/MainButton';
+import { Icon as ReactIcon } from '@iconify/react';
+import { InputBase } from '@material-ui/core';
+import { authenticateWithEmailAddress } from "@services/user/user.service";
+import { FC, FormEvent, useRef, useState } from "react";
+
+export const EmailSignIn: FC = () => {
+  const emailInputRef = useRef(null);
+  const [authEmailSent, setAuthEmailSent] = useState(false);
+  const emailForm = useRef(null);
+
+  const doEmailAuth = () => {
+    const emailAddress = emailInputRef.current.value;
+
+    if (emailAddress !== "") {
+      setAuthEmailSent(true);
+
+      void authenticateWithEmailAddress(emailAddress);
+    }
+  }
+
+  function onEmailSubmit(ev?: FormEvent) {
+    ev?.preventDefault();
+    emailInputRef.current.blur();
+
+    doEmailAuth();
+  }
+
+  return (
+    <div className="flex flex-col">
+      {!authEmailSent && <form onSubmit={onEmailSubmit} ref={emailForm}>
+        <InputBase
+          inputRef={emailInputRef}
+          placeholder="Input email address"
+          className="flex flex-1 px-16 py-4 my-8 bg-gray-200 rounded-8"
+          type='email'
+          name="email"
+        />
+      </form>}
+      {
+        !authEmailSent &&
+        <MainButton
+          leftIcon={<ReactIcon icon="material-symbols:key" />}
+          onClick={() => doEmailAuth()}
+        >
+          Send magic key to email
+        </MainButton>
+      }
+      {authEmailSent && <div className='text-center mt-10'>Magic link sent, please check your mailbox.</div>}
+    </div>
+  )
+}

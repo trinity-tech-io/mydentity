@@ -51,7 +51,7 @@ const RequestDetails: FC<{
     <br /><br />
     List of credentials
     <br /><br />
-    <MainButton title="Approve" onClick={approveRequest} />
+    <MainButton onClick={approveRequest} >Approve</MainButton>
   </>
 }
 

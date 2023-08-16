@@ -1,16 +1,33 @@
-import { FC, useState } from 'react';
-
+"use client";
+import { FC } from 'react';
 // import Help from '../components/DropdownHelp';
 // import Notifications from '../components/DropdownNotifications';
-import UserMenu from '../components/DropdownProfile';
-import IdentityMenu from '../components/DropdownIdentity';
+import { DropdownIdentity } from '@components/DropdownIdentity';
+import { DropdownUserProfile } from '@components/DropdownProfile';
+import { MainButton } from '@components/MainButton';
+import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
+import { useMounted } from '@hooks/useMounted';
+import { authUser$ } from '@services/user/user.events';
+import { useRouter } from 'next/navigation';
 // import SearchModal from '../components/ModalSearch';
 
 export const Header: FC<{
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
 }> = ({ sidebarOpen, setSidebarOpen }) => {
+  const { mounted } = useMounted();
+  const [authUser] = useBehaviorSubject(authUser$());
+  const router = useRouter()
+
   // const [searchModalOpen, setSearchModalOpen] = useState(false);
+
+  const signUp = () => {
+    router.push("/signup")
+  }
+
+  const signIn = () => {
+    router.push("/signin")
+  }
 
   return (
     <header className="sticky top-0 bg-white dark:bg-[#182235] border-b border-slate-200 dark:border-slate-700 z-30">
@@ -39,7 +56,27 @@ export const Header: FC<{
 
           {/* Header: Right side */}
           <div className="flex items-center space-x-3">
-            {/* <div>
+            {/* User is not signed in */}
+            {mounted && !authUser && <>
+              <MainButton onClick={signUp} >Sign up</MainButton>
+              <MainButton onClick={signIn} >Sign in</MainButton>
+            </>}
+
+            {/* User is signed in */}
+            {mounted && authUser && <>
+              <DropdownIdentity align="right" />
+              <hr className="w-px h-6 bg-slate-200 dark:bg-slate-700 border-none" />
+              <DropdownUserProfile align="right" />
+            </>}
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+
+{/* <div>
               <button
                 className={`w-8 h-8 flex items-center justify-center bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600/80 rounded-full ml-3 ${searchModalOpen && 'bg-slate-200'
                   }`}
@@ -63,16 +100,7 @@ export const Header: FC<{
               </button>
               <SearchModal id="search-modal" searchId="search" modalOpen={searchModalOpen} setModalOpen={setSearchModalOpen} />
             </div> */}
-            {/* <Notifications align="right" /> */}
-            {/* <Help align="right" /> */}
-            {/* <ThemeToggle /> */}
-            {/*  Divider */}
-            <IdentityMenu align="right" />
-            <hr className="w-px h-6 bg-slate-200 dark:bg-slate-700 border-none" />
-            <UserMenu align="right" />
-          </div>
-        </div>
-      </div>
-    </header>
-  );
-}
+{/* <Notifications align="right" /> */ }
+{/* <Help align="right" /> */ }
+{/* <ThemeToggle /> */ }
+{/*  Divider */ }

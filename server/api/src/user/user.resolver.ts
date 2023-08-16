@@ -1,18 +1,19 @@
 import { UseGuards } from '@nestjs/common';
-import {Args, Mutation, Query, Resolver} from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { User } from "@prisma/client";
+import { GraphQLError } from "graphql/error";
 import { CurrentUser } from 'src/auth/currentuser.decorator';
-import {JwtAuthGuard, OptionalJwtAuthGuard} from 'src/auth/jwt-auth.guard';
+import { JwtAuthGuard, OptionalJwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { AuthService } from '../auth/auth.service';
+import { logger } from "../logger";
+import { LoggedUserOutput } from "./dto/logged-user.output";
+import { RefreshTokenInput } from "./dto/refresh-token.input";
+import { RefreshTokenOutput } from "./dto/refresh-token.output";
+import { ProfileEntryEntity } from "./entities/profile-entry.entity";
+import { RequestEmailAuthenticationResult } from "./entities/request-email-authentication-result.entity";
 import { UserEntity } from './entities/user.entity';
 import { UserService } from './user.service';
-import {logger} from "../logger";
-import {ProfileEntryEntity} from "./entities/profile-entry.entity";
-import {User} from "@prisma/client";
-import {RequestEmailAuthenticationResult} from "./entities/request-email-authentication-result.entity";
-import {LoggedUserOutput} from "./dto/logged-user.output";
-import {RefreshTokenOutput} from "./dto/refresh-token.output";
-import {GraphQLError} from "graphql/error";
-import {RefreshTokenInput} from "./dto/refresh-token.input";
+import { SignUpInput } from './dto/sign-up.input';
 
 @Resolver(() => UserEntity)
 export class UserResolver {
@@ -22,6 +23,11 @@ export class UserResolver {
     private readonly userService: UserService,
     private readonly authService: AuthService
   ) { }
+
+  @Mutation(() => LoggedUserOutput, { nullable: true })
+  async signUp(@Args('input') input: SignUpInput) {
+    return this.userService.signUp(input);
+  }
 
   /**
    * Returns authenticated user's personal profile, including information that

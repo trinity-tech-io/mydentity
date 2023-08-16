@@ -1,21 +1,20 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import Transition from './Transition';
 import UserAvatar from '@assets/images/user-avatar-32.png';
+import { getActiveUser } from "@services/user/user.events";
+import { fetchSelfUser, signOut } from "@services/user/user.service";
 import Image from 'next/image';
 import Link from 'next/link';
+import { useSearchParams } from "next/navigation";
+import { useEffect, useRef, useState } from 'react';
 import Notifications from '../components/DropdownNotifications';
-import {useSearchParams} from "next/navigation";
-import {fetchSelfUser, fetchUserProfile, signOut} from "@services/user/user.service";
-import {ProfileEntry} from "@model/user/features/profile/profile-entry";
-import {getActiveUser} from "@services/user/user.events";
+import Transition from './Transition';
 
-function DropdownUserProfile({
+export function DropdownUserProfile({
   align
 }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [userName, setUserName] = useState('user@hotmail.com');
+  //const [userName, setUserName] = useState('user@hotmail.com');
   const [userTypeDesc, setUserTypeDesc] = useState('UNKNOWN');
   const [isLogin, setIsLogin] = useState(false);
 
@@ -36,9 +35,9 @@ function DropdownUserProfile({
       } else if (user.type === 'EMAIL') {
         setUserTypeDesc('Email');
       }
-      fetchUserProfile(user.id).then(profiles => {
+      /* fetchUserProfile(user.id).then(profiles => {
         setUserName(ProfileEntry.getEmailEntry(profiles).value);
-      })
+      }) */
     }
 
     if (accessToken && accessToken !== '' && refreshToken && refreshToken != '') {
@@ -50,10 +49,12 @@ function DropdownUserProfile({
       const user = getActiveUser();
       // console.log('getActiveUser', user)
       if (user) {
-        user.fetchProfiles().then(user => {
+        updateUserDesc(user);
+        setIsLogin(true);
+        /* user.fetchProfiles().then(user => {
           updateUserDesc(user);
           setIsLogin(true);
-        });
+        }); */
       }
     }
 
@@ -64,7 +65,7 @@ function DropdownUserProfile({
     };
     document.addEventListener('click', clickHandler);
     return () => document.removeEventListener('click', clickHandler);
-  }, []);
+  }, [accessToken, dropdownOpen, refreshToken]);
 
   const onIconClick = () => {
     if (!isLogin) {
@@ -101,69 +102,67 @@ function DropdownUserProfile({
       >
         <Image className="w-8 h-8 rounded-full" src={UserAvatar} width="32" height="32" alt="User" />
 
-        { isLogin && (
-        <div className="flex items-center truncate">
-          <span className="truncate ml-2 text-sm font-medium dark:text-slate-300 group-hover:text-slate-800 dark:group-hover:text-slate-200">{userName}</span>
-          <svg className="w-3 h-3 shrink-0 ml-1 fill-current text-slate-400" viewBox="0 0 12 12">
-            <path d="M5.9 11.4L.5 6l1.4-1.4 4 4 4-4L11.3 6z" />
-          </svg>
-        </div>
+        {isLogin && (
+          <div className="flex items-center truncate">
+            <span className="truncate ml-2 text-sm font-medium dark:text-slate-300 group-hover:text-slate-800 dark:group-hover:text-slate-200">Signed in</span>
+            <svg className="w-3 h-3 shrink-0 ml-1 fill-current text-slate-400" viewBox="0 0 12 12">
+              <path d="M5.9 11.4L.5 6l1.4-1.4 4 4 4-4L11.3 6z" />
+            </svg>
+          </div>
         )}
       </button>
 
-      { isLogin && (
+      {isLogin && (
 
-      <Transition
-        className={`origin-top-right z-10 absolute top-full min-w-44 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 py-1.5 rounded shadow-lg overflow-hidden mt-1 ${align === 'right' ? 'right-0' : 'left-0'}`}
-        show={dropdownOpen}
-        enter="transition ease-out duration-200 transform"
-        enterStart="opacity-0 -translate-y-2"
-        enterEnd="opacity-100 translate-y-0"
-        leave="transition ease-out duration-200"
-        leaveStart="opacity-100"
-        leaveEnd="opacity-0"
-      >
-        <div
-          ref={dropdown}
-          onFocus={() => setDropdownOpen(true)}
-          onBlur={() => setDropdownOpen(false)}
+        <Transition
+          className={`origin-top-right z-10 absolute top-full min-w-44 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 py-1.5 rounded shadow-lg overflow-hidden mt-1 ${align === 'right' ? 'right-0' : 'left-0'}`}
+          show={dropdownOpen}
+          enter="transition ease-out duration-200 transform"
+          enterStart="opacity-0 -translate-y-2"
+          enterEnd="opacity-100 translate-y-0"
+          leave="transition ease-out duration-200"
+          leaveStart="opacity-100"
+          leaveEnd="opacity-0"
         >
-          <div className="pt-0.5 pb-2 px-3 mb-1 border-b border-slate-200 dark:border-slate-700">
-            <div className="font-medium text-slate-800 dark:text-slate-100">{userName}</div>
-            <div className="text-xs text-slate-500 dark:text-slate-400 italic">Signed in with {userTypeDesc}</div>
+          <div
+            ref={dropdown}
+            onFocus={() => setDropdownOpen(true)}
+            onBlur={() => setDropdownOpen(false)}
+          >
+            <div className="pt-0.5 pb-2 px-3 mb-1 border-b border-slate-200 dark:border-slate-700">
+              <div className="font-medium text-slate-800 dark:text-slate-100">Signed In</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400 italic">{userTypeDesc} user</div>
+            </div>
+            <ul>
+              <li>
+                <Link
+                  className="font-medium text-sm text-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center py-1 px-3"
+                  href="/account/security"
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                >
+                  Security
+                </Link>
+              </li>
+              <li>
+                <Link
+                  className="font-medium text-sm text-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center py-1 px-3"
+                  href="/dashboard"
+                  onClick={() => onSignOut()}
+                >
+                  Sign Out
+                </Link>
+              </li>
+              <li>
+                <div className='py-1 px-3'>
+                  <Notifications align="right" />
+                </div>
+              </li>
+            </ul>
           </div>
-          <ul>
-            <li>
-              <Link
-                className="font-medium text-sm text-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center py-1 px-3"
-                href="/account/security"
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-              >
-                Security
-              </Link>
-            </li>
-            <li>
-              <Link
-                className="font-medium text-sm text-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center py-1 px-3"
-                href="/dashboard"
-                onClick={() => onSignOut()}
-              >
-                Sign Out
-              </Link>
-            </li>
-            <li>
-              <div className='py-1 px-3'>
-                <Notifications align="right" />
-              </div>
-            </li>
-          </ul>
-        </div>
-      </Transition>
+        </Transition>
 
-          )}
+      )}
 
     </div>
   )
 }
-
-export default DropdownUserProfile;

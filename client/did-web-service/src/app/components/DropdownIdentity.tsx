@@ -1,16 +1,19 @@
+"use client";
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
+import { useMounted } from '@hooks/useMounted';
 import { Identity } from '@model/identity/identity';
 import { activeIdentity$ } from '@services/identity/identity.events';
 import { identityService } from '@services/identity/identity.service';
 import { authUser$ } from '@services/user/user.events';
-import { useEffect, useRef, useState } from 'react';
+import { FC, useEffect, useRef, useState } from 'react';
 import ModalCreateIdentity from './ModalIdentity';
 import Transition from './Transition';
 
-function DropdownIdentity({
-  align
-}) {
+export const DropdownIdentity: FC<{
+  align?: any;
+}> = ({ align }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const { mounted } = useMounted();
 
   const trigger = useRef(null);
   const dropdown = useRef(null);
@@ -44,6 +47,9 @@ function DropdownIdentity({
     document.addEventListener('keydown', keyHandler);
     return () => document.removeEventListener('keydown', keyHandler);
   });
+
+  if (!mounted)
+    return <></>
 
   return (
     <div className="relative inline-flex">
@@ -117,32 +123,25 @@ function DropdownIdentity({
 
           </div>
           {
-            (identities && identities.length > 0) ?
-              <div className="border-b border-slate-200 dark:border-slate-700 " ></div> : <span></span>
-          }
-          {
-            (identities && identities.length > 0) && identities.map(identity => {
-              return (
-                <div key={identity.did}>
-                  <div className="font-medium text-sm text-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center py-3 px-3"
-                    onClick={() => {
-                      setCurrentIdentity(identity)
-                      setDropdownOpen(false)
-                    }}>
-                    <div className="text-left cursor-pointer">{identity.did}</div>
+            (identities && identities.length > 0) &&
+            <div className="border-b border-slate-200 dark:border-slate-700 " >
+              {identities.map(identity => {
+                return (
+                  <div key={identity.did}>
+                    <div className="font-medium text-sm text-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center py-3 px-3"
+                      onClick={() => {
+                        setCurrentIdentity(identity)
+                        setDropdownOpen(false)
+                      }}>
+                      <div className="text-left cursor-pointer">{identity.did}</div>
+                    </div>
                   </div>
-                  {/* <td className="p-2 whitespace-nowrap">
-                            <div className="text-left">{identity.createdAt.toLocaleDateString()}</div>
-                          </td> */}
-                </div>
-              )
-            })
-            // "I think that's more than just like it!"
+                )
+              })}
+            </div>
           }
         </div>
       </Transition>
     </div>
   )
 }
-
-export default DropdownIdentity;

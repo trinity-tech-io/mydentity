@@ -2,19 +2,19 @@
 import { MainButton } from "@components/MainButton";
 import { usePasswordPrompt } from "@components/PasswordPrompt";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
+import { useMounted } from "@hooks/useMounted";
 import { TextField, Typography } from "@mui/material";
 import { authUser$ } from "@services/user/user.events";
 import { FC, createRef } from "react";
 
 const Security: FC = () => {
+  const { mounted } = useMounted();
   const [authUser] = useBehaviorSubject(authUser$());
   const securityFeature = authUser?.get("security");
   const [devices] = useBehaviorSubject(authUser?.get("device").devices$);
   const { showPasswordPrompt } = usePasswordPrompt();
 
   const newPasswordRef = createRef<HTMLInputElement>()
-
-  console.log("authUser", authUser)
 
   const bindDevice = () => {
     securityFeature.bindDevice();
@@ -42,25 +42,27 @@ const Security: FC = () => {
       as this is your only way to recover your account later in case one of the devices is lost. <b>We cannot do that for you</b>.
     </p>
     <br /><br />
-    <Typography variant="h5">My devices</Typography>
-    {devices?.length == 0 && "You haven't bound any device yet. Start binding this browser now to secure your account."}
-    {
-      devices && <>
-        {devices.map(device => <div key={device.id}>{device.name}</div>)}
-      </>
-    }
-    <br /><br />
-    <MainButton title="Bind device" onClick={bindDevice} />
+    {mounted && <>
+      <Typography variant="h5">My devices</Typography>
+      {devices?.length == 0 && "You haven't bound any device yet. Start binding this browser now to secure your account."}
+      {
+        devices && <>
+          {devices.map(device => <div key={device.id}>{device.name}</div>)}
+        </>
+      }
+      <br /><br />
+      <MainButton onClick={bindDevice} >Bind device</MainButton>
 
-    <div className="flex flex-row mt-4 gap-2">
-      <TextField
-        label="New password"
-        inputRef={newPasswordRef}
-        variant="outlined"
-        size="small"
-      />
-      <MainButton title="Bind password" onClick={bindPassword} />
-    </div>
+      <div className="flex flex-row mt-4 gap-2">
+        <TextField
+          label="New password"
+          inputRef={newPasswordRef}
+          variant="outlined"
+          size="small"
+        />
+        <MainButton onClick={bindPassword} >Bind password</MainButton>
+      </div>
+    </>}
   </div>)
 }
 

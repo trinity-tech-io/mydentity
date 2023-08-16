@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import React, { FC, ReactNode, useEffect, useState } from 'react';
 import AppThemeProvider from '../theming/AppThemeContext';
 
