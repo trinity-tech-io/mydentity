@@ -2,12 +2,13 @@
 
 import { Typography } from '@material-ui/core';
 import { decode } from '@utils/slugid';
-import queryString from 'query-string';
 import { FC, useEffect, useState } from 'react';
 import { checkEmailAuthenticationKey } from "@services/user/user.service";
+import {useSearchParams} from "next/navigation";
 
 const CheckAuthKey: FC = () => {
-  const { key: encodedAuthKey } = queryString.parse(location.search);
+  const searchParams = useSearchParams();
+  const encodedAuthKey = searchParams.get('key');
   const authKey = encodedAuthKey ? decode(encodedAuthKey as string) : null;
   const [authError, setAuthError] = useState(false);
 
