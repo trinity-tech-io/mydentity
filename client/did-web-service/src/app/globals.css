@@ -39,3 +39,8 @@ body {
     )
     rgb(var(--background-start-rgb));
 }
+
+.info {
+  font-size: 12px;
+  font-style: italic;
+}

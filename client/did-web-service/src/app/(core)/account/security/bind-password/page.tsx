@@ -7,7 +7,7 @@ import { TextField, Typography } from "@mui/material";
 import { authUser$ } from "@services/user/user.events";
 import { FC, createRef } from "react";
 
-const Security: FC = () => {
+const BindPassword: FC = () => {
   const { mounted } = useMounted();
   const [authUser] = useBehaviorSubject(authUser$());
   const securityFeature = authUser?.get("security");
@@ -32,14 +32,9 @@ const Security: FC = () => {
   }
 
   return (<div className="col-span-full">
-    <Typography variant="h4">Security center</Typography>
+    <Typography variant="h4">Secure with password</Typography>
     <p>
-      Your identity is a Web3 identity, <b>protected by cryptographic keys</b>. Many Web3 applications require you to
-      save those keys by yourself, and you will sometimes do that in unsafe ways. On the contrary, this service
-      partially stores the complex cryptographic keys
-      for you so you don&apos;t have to do it. Your keys are protected by your own devices or passwords
-      and <b>this app cannot do anything without your consent</b>. For this reason, you need to bind multiple devices and browsers,
-      as this is your only way to recover your account later in case one of the devices is lost. <b>We cannot do that for you</b>.
+      In order to secure your account with a password, you need to first
     </p>
     <br /><br />
     {mounted && <>
@@ -66,4 +61,4 @@ const Security: FC = () => {
   </div>)
 }
 
-export default Security;
+export default BindPassword;
