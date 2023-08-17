@@ -7,6 +7,7 @@ import { Typography } from "@mui/material";
 import { authUser$ } from "@services/user/user.events";
 import { useRouter } from "next/navigation";
 import { FC, createRef } from "react";
+import { authenticateWithEmailAddress } from "@services/user/user.service";
 
 const Security: FC = () => {
   const { mounted } = useMounted();
@@ -24,6 +25,16 @@ const Security: FC = () => {
 
   const bindPassword = () => {
     router.push("/account/security/bind-password");
+  }
+
+  const bindEmailWithOauth = () => {
+    window.location.replace(`${process.env.NEXT_PUBLIC_BACKEND_URL}/microsoft`);
+  };
+
+  const bindEmailDirectly = () => {
+    // TODO:
+    void authenticateWithEmailAddress('fred@didservice.com');
+    alert('please go to email box to verify.');
   }
 
   return (<div className="col-span-full">
@@ -46,6 +57,9 @@ const Security: FC = () => {
         </>
       }
       <br /><br />
+
+      <MainButton onClick={bindEmailWithOauth} >Bind email with oauth</MainButton>
+      <MainButton onClick={bindEmailDirectly} >Bind email directly</MainButton>
 
       <div className="flex flex-col mb-4">
         <MainButton onClick={bindDevice} >Verify your email address</MainButton>

@@ -237,3 +237,32 @@ export function onRefreshTokenFailed() {
   // TODO: go to sign-out page.
   window.location.href = '/dashboard';
 }
+
+export async function bindOauthEmail(email: string) {
+  logger.log("user", "Bind oauth email address");
+
+  try {
+    const { data } = await withCaughtAppException(() => {
+      return getApolloClient().mutate<{
+        bindOauthEmail: boolean
+      }>({
+        mutation: gql`
+        mutation BindOauthEmail($email: String!) {
+          bindOauthEmail(authKey: $authKey)
+        }
+      `,
+        variables: { email }
+      });
+    });
+
+    if (data && data.bindOauthEmail) {
+      return true;
+    } else {
+      return false;
+    }
+  } catch (e) {
+    // Probably a 401 error
+    logger.warn("auth", "Exception while checking temporary auth key. Key expired?");
+    return null;
+  }
+}

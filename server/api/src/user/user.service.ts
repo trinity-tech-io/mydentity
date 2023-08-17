@@ -10,6 +10,8 @@ import { encode } from "slugid";
 import { EmailTemplateType } from "../emailing/email-template-type";
 import { EmailingService } from "../emailing/emailing.service";
 import { SignUpInput } from './dto/sign-up.input';
+import {AppException} from "../exceptions/app-exception";
+import {AuthExceptionCode} from "../exceptions/exception-codes";
 
 // https://makinhs.medium.com/authentication-made-easy-with-nestjs-part-4-of-how-to-build-a-graphql-mongodb-d6057eae3fdf
 @Injectable()
@@ -43,28 +45,30 @@ export class UserService {
    * @param thirdPartyUser
    */
   async signInByThirdPartyAuth(thirdPartyUser: ThirdPartyUser) {
-    let user: User = await this.prisma.user.findFirst({
+    const retValue = {
+      email: thirdPartyUser.email,
+      accessToken: null,
+      refreshToken: null,
+    }
+
+    // if there is a user with email.
+    const user: User = await this.prisma.user.findFirst({
       where: {
         email: thirdPartyUser.email
       }
     });
-    if (!user) {
-      user = await this.prisma.user.create({
-        data: {
-          name: '',
-          email: thirdPartyUser.email,
-          type: UserType.MICROSOFT,
-          fullName: `${thirdPartyUser.firstName}, ${thirdPartyUser.lastName}`,
-        }
-      })
+    if (user) {
+      const result = await this.authService.generateUserCredentials(user);
+      retValue.accessToken = result.accessToken;
+      retValue.refreshToken = result.refreshToken;
     }
 
-    await this.microsoftProfileService.retrieveAvatarPicture(
-        thirdPartyUser,
-        user,
-    );
+    // await this.microsoftProfileService.retrieveAvatarPicture(
+    //     thirdPartyUser,
+    //     user,
+    // );
 
-    return this.authService.generateUserCredentials(user);
+    return retValue;
   }
 
   /**
@@ -189,5 +193,28 @@ export class UserService {
       throw new Error(`Can not find user by refresh token.`);
 
     return user;
+  }
+
+  async bindOauthEmail(user, email: string) {
+    const existingUser: User = await this.prisma.user.findFirst({
+      where: {
+        email
+      }
+    });
+    if (existingUser) {
+      if (existingUser.id !== user.id) {
+        throw new AppException(AuthExceptionCode.AuthError, `Email ${email} already belongs to other user.`, 401);
+      } else {
+        return;
+      }
+    }
+    return this.prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        email
+      }
+    })
   }
 }

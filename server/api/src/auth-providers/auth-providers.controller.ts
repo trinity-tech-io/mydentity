@@ -32,7 +32,7 @@ export class AuthProvidersController {
     return {
       url: `${this.configService.get<string>(redirect_key)}/?accessToken=${
         result.accessToken
-      }&refreshToken=${result.refreshToken}`,
+      }&refreshToken=${result.refreshToken}&email=${result.email}`,
     };
   }
 }

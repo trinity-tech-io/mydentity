@@ -64,4 +64,10 @@ export class UserResolver {
       });
     }
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => Boolean, { nullable: true })
+  async bindOauthEmail(@CurrentUser() user: UserEntity, @Args('email') email: string) {
+    return this.userService.bindOauthEmail(user, email);
+  }
 }
