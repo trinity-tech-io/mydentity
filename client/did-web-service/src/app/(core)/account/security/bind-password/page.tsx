@@ -38,15 +38,7 @@ const BindPassword: FC = () => {
     </p>
     <br /><br />
     {mounted && <>
-      <Typography variant="h5">My devices</Typography>
-      {devices?.length == 0 && "You haven't bound any device yet. Start binding this browser now to secure your account."}
-      {
-        devices && <>
-          {devices.map(device => <div key={device.id}>{device.name}</div>)}
-        </>
-      }
-      <br /><br />
-      <MainButton onClick={bindDevice} >Bind device</MainButton>
+      <Typography variant="h5">Bind a master password</Typography>
 
       <div className="flex flex-row mt-4 gap-2">
         <TextField

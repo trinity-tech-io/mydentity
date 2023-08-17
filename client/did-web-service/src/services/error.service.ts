@@ -12,17 +12,21 @@ function emitGlobalError(error: AppException) {
   onNewError$.next(error);
 }
 
-function handleApolloClientError(error: Error) {
+function handleApolloClientError(error: Error): AppException {
   logger.error("apollo", "Client error", error);
-  emitGlobalError(AppException.newClientError(ClientError.OtherApolloError, error.message));
+  const appException = AppException.newClientError(ClientError.OtherApolloError, error.message);
+  emitGlobalError(appException);
+  return appException;
 }
 
 function handleApolloProtocolError(error: { message: string, extensions?: GraphQLErrorExtensions[] }) {
   logger.error("apollo", "Protocol error", error);
-  emitGlobalError(AppException.newClientError(ClientError.OtherApolloError, error.message));
+  const appException = AppException.newClientError(ClientError.OtherApolloError, error.message);
+  emitGlobalError(appException);
+  return appException;
 }
 
-function handleApolloGraphQLError(error: GraphQLError) {
+function handleGraphQLError(error: GraphQLError) {
   const originalMethod = error.path;
 
   // Try to extract an AppException from the graphql error
@@ -30,15 +34,34 @@ function handleApolloGraphQLError(error: GraphQLError) {
   const appException = AppException.fromJson(originalError);
   if (appException) {
     // Graphql call failed because of a custom exception of our API
-    logger.error("apollo", "Custom API exception when calling GraphQL method:", originalMethod, originalError);
+    logger.error("graphql", "Custom API exception when calling GraphQL method:", originalMethod, originalError);
     emitGlobalError(appException);
+    return appException;
   }
   else {
     // Graphql failed because of pure graphql issuers (gql type errors...)
-    logger.error("apollo", "GraphQL error when calling GraphQL method:", originalMethod);
+    logger.error("graphql", "GraphQL error when calling GraphQL method:", originalMethod, error);
     emitGlobalError(AppException.newClientError(ClientError.OtherApolloError, error.message));
+    return null;
   }
+}
 
+function handleApolloError(e: ApolloError) {
+  e.clientErrors.forEach(handleApolloClientError);
+  e.graphQLErrors.forEach(handleGraphQLError);
+  e.protocolErrors.forEach(handleApolloProtocolError);
+}
+
+function handlAxiosError(e: AxiosError) {
+  // API error - extract relevant info
+  const customException = AppException.fromJson(e.response.data);
+  if (customException) {
+    logger.error("axios", "Axios app exception", customException);
+    emitGlobalError(customException);
+  }
+  else {
+    logger.error("Unhandled axios error:", e);
+  }
 }
 
 /**
@@ -53,18 +76,20 @@ export async function withCaughtAppException<T>(call: () => Promise<T>, errorRet
     return response;
   }
   catch (e) {
-    // There can be multiple apollo sub-errors inside one apollo error
+    // There can be multiple apollo sub-errors inside one apollo error.
+    // NOTE: we can receive GraphQL errors inside apollo errors (server side) or
+    // directly as GraphQLError here (client side, such as syntax error)
     if (e instanceof ApolloError) {
-      e.clientErrors.forEach(handleApolloClientError);
-      e.graphQLErrors.forEach(handleApolloGraphQLError);
-      e.protocolErrors.forEach(handleApolloProtocolError);
+      handleApolloError(e);
+    }
+    else if (e instanceof GraphQLError) {
+      handleGraphQLError(e);
     }
     else if (e instanceof AxiosError) {
-      // API error - extract relevant info
-      const customException = AppException.fromJson(e.response.data);
-      if (customException) {
-        emitGlobalError(customException);
-      }
+      handlAxiosError(e);
+    }
+    else {
+      logger.error("Unhandled error:", e);
     }
 
     return errorReturnValue || null;

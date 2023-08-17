@@ -7,8 +7,8 @@
 # Initial setup
 
 - `cd server/api`
-- `npm i -g @nestjs/cli`
-- `npm i -D`
+- `npm i -g @nestjs/cli --legacy-peer-deps`
+- `npm i -D --legacy-peer-deps`
 - Clone `.env.sample` to `.env`
 - Start docker dependencies (see Docker section below):
   - `docker compose up`

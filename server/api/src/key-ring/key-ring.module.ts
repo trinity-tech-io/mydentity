@@ -1,8 +1,11 @@
 import { Module } from '@nestjs/common';
-import { KeyRingService } from './key-ring.service';
 import { KeyRingResolver } from './key-ring.resolver';
+import { KeyRingService } from './key-ring.service';
 
 @Module({
-  providers: [KeyRingResolver, KeyRingService]
+  providers: [
+    KeyRingResolver,
+    KeyRingService
+  ]
 })
-export class KeyRingModule {}
+export class KeyRingModule { }
