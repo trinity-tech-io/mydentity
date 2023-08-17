@@ -6,6 +6,13 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import IconButton from '@mui/material/IconButton';
 import ComfirmDialog from '@components/ComfirmDialog';
 import { logger } from '@services/logger';
+import Paper from '@mui/material/Paper';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
 
 export const IdentityListWidget: FC = _ => {
   const TAG = "IdentityList";
@@ -32,7 +39,6 @@ export const IdentityListWidget: FC = _ => {
       <header className="px-5 py-4 border-b border-slate-100 dark:border-slate-700">
         <h2 className="font-semibold text-slate-800 dark:text-slate-100">My Identities</h2>
       </header>
-      <div className="p-3">
       <ComfirmDialog
         title='Delete this identity?'
         content='Do you want to delete this Identity?'
@@ -40,43 +46,34 @@ export const IdentityListWidget: FC = _ => {
         onClose={(isAgree: boolean)=>handleCloseDialog(isAgree)}
       />
         {/* Table */}
-        <div className="overflow-x-auto">
-          <table className="table-auto w-full">
-            {/* Table header */}
-            <thead className="text-xs font-semibold uppercase text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-700 dark:bg-opacity-50">
-              <tr>
-                <th className="p-2 whitespace-nowrap">
-                  <div className="font-semibold text-left">DID</div>
-                </th>
-                <th className="p-2 whitespace-nowrap">
-                  <div className="font-semibold text-left">Creation date</div>
-                </th>
-              </tr>
-            </thead>
-            {/* Table body */}
-            <tbody className="text-sm divide-y divide-slate-100 dark:divide-slate-700">
+      <div className="overflow-x-auto">
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 650 }} aria-label="caption table">
+            <TableHead>
+              <TableRow>
+                <TableCell>DID</TableCell>
+                <TableCell align="right">Creation date</TableCell>
+                <TableCell align="right">Action</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
               {
-                  (identities && identities.length>0) && identities.map(identity => {
-                  return (
-                    <tr key={identity.did}>
-                      <td className="p-2 whitespace-nowrap">
-                        <div className="text-left">{identity.did}</div>
-                      </td>
-                      <td className="p-2 whitespace-nowrap">
-                        <div className="text-left">{identity.createdAt.toLocaleDateString()}</div>
-                      </td>
-
-                      <IconButton aria-label="delete" onClick={()=>{setOpenConfirmDialog(true); setPrepareDeleteDid(identity.did)}}>
-                        <DeleteIcon />
-                      </IconButton>
-
-                    </tr>
-                  )
-                })
-              }
-            </tbody>
-          </table>
-        </div>
+                (identities && identities.length>0) && identities.map(identity => {
+                return (
+                  <TableRow key={identity.did}>
+                    <TableCell component="th" scope="row">{identity.did}</TableCell>
+                    <TableCell align="right">{identity.createdAt.toLocaleDateString()}</TableCell>
+                    <TableCell align="right">
+                        <IconButton aria-label="delete" onClick={()=>{setOpenConfirmDialog(true); setPrepareDeleteDid(identity.did)}}>
+                          <DeleteIcon />
+                        </IconButton>
+                    </TableCell>
+                  </TableRow>
+                )}
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </div>
     </div>
   );
