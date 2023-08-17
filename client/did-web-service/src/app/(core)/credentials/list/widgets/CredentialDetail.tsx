@@ -10,6 +10,8 @@ export const CredentialDetailWidget: FC = () => {
   useEffect(() => {
     if(activeCredential){
       setIsShowDetail(true);
+
+      
     }
   },[activeCredential]);
 
@@ -36,7 +38,7 @@ export const CredentialDetailWidget: FC = () => {
                   </Grid>
                   <Grid item xs={6}>
                     <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-                      {activeCredential.verifiableCredential.expirationDate.toLocaleDateString()}
+                      {activeCredential.verifiableCredential.issuanceDate.toLocaleDateString()}
                     </Typography>
                   </Grid>
 
