@@ -33,12 +33,6 @@ export class KeyRingResolver {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Query(() => Uint8Array, { name: 'secretKey' })
-  getMasterKey(@Args('input') input: GetMasterKeyInput, @CurrentUser() user: User, @CurrentClientID() clientId: string) {
-    return this.keyRingService.getMasterKey(input, user, clientId);
-  }
-
-  @UseGuards(JwtAuthGuard)
   @Query(() => String, { name: 'challenge' })
   generateChallenge(@CurrentUser() user: User, @CurrentClientID() clientId: string) {
     return this.keyRingService.generateChallenge(user, clientId);

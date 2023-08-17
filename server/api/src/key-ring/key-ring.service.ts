@@ -28,7 +28,7 @@ export class KeyRingService {
   }
 
   constructor(private prisma: PrismaService) {
-    const sk = Buffer.from(`${process.env.SERVER_PRIVATEKEY}`, 'hex');
+    const sk = Buffer.from(`${process.env.KEY_RING_PRIVATEKEY}`, 'hex');
     try {
       this.serverKeyPair = SignatureKeyPair.fromPrivateKey(sk);
       this.encryptionKeyPair = CryptoBoxKeyPair.fromSignatureKeyPair(this.serverKeyPair);
