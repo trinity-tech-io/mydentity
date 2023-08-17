@@ -1,6 +1,5 @@
 import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { User } from "@prisma/client";
 import { GraphQLError } from "graphql/error";
 import { CurrentUser } from 'src/auth/currentuser.decorator';
 import {JwtAuthGuard} from 'src/auth/jwt-auth.guard';
@@ -52,19 +51,10 @@ export class UserResolver {
     return this.userService.checkEmailAuthentication(authKey);
   }
 
-  private async getUserByToken(token: string): Promise<User> {
-    const data = this.authService.getTokenPayload(token);
-    const user = await this.userService.findOne(data.sub);
-    if (!user)
-      throw new Error(`Can not find user by refresh token.`);
-
-    return user;
-  }
-
   @Mutation(() => RefreshTokenOutput)
   async refreshToken(@Args('refreshTokenInput') refreshTokenInput: RefreshTokenInput): Promise<RefreshTokenOutput> {
     try {
-      const user = await this.getUserByToken(refreshTokenInput.refreshToken);
+      const user = await this.userService.getUserByToken(refreshTokenInput.refreshToken);
       return this.userService.refreshAccessToken(user);
     } catch (e) {
       throw new GraphQLError("Can't refresh token", {

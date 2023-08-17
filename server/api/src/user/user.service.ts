@@ -181,4 +181,13 @@ export class UserService {
   async refreshAccessToken(user: User) {
     return this.authService.refreshAccessToken(user);
   }
+
+  async getUserByToken(token: string): Promise<User> {
+    const data = this.authService.getTokenPayload(token);
+    const user = await this.findOne(data.sub);
+    if (!user)
+      throw new Error(`Can not find user by refresh token.`);
+
+    return user;
+  }
 }
