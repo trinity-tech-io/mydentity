@@ -1,7 +1,12 @@
+import { ready } from "libsodium-wrappers";
 import { crypto_pwhash, crypto_pwhash_str, crypto_pwhash_str_verify } from "libsodium-wrappers";
 import { crypto_pwhash_SALTBYTES, crypto_pwhash_OPSLIMIT_INTERACTIVE, crypto_pwhash_MEMLIMIT_INTERACTIVE, crypto_pwhash_ALG_DEFAULT } from "libsodium-wrappers"
 
 export class PasswordHash {
+    public static async init(): Promise<void> {
+        await ready;
+    }
+
     public static hash(password: Uint8Array | string): string {
         return crypto_pwhash_str(password,
             crypto_pwhash_OPSLIMIT_INTERACTIVE,

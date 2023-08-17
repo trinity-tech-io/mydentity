@@ -1,17 +1,23 @@
-import { crypto_secretbox_KEYBYTES, crypto_secretbox_MACBYTES, crypto_secretbox_NONCEBYTES } from "libsodium-wrappers";
+import { ready } from "libsodium-wrappers";
 import { crypto_secretbox_keygen, crypto_secretbox_easy, crypto_secretbox_open_easy } from "libsodium-wrappers";
 import { crypto_pwhash, crypto_pwhash_ALG_DEFAULT, crypto_pwhash_MEMLIMIT_INTERACTIVE, crypto_pwhash_OPSLIMIT_INTERACTIVE, crypto_pwhash_SALTBYTES } from "libsodium-wrappers";
 import { increment, memzero, randombytes_buf, to_hex } from "libsodium-wrappers";
 import { InvalidArgumentException } from "./exceptions";
 
 export class SecretBox {
-    public static MAC_BYTES: number = crypto_secretbox_MACBYTES;
-    public static KEY_BYTES: number = crypto_secretbox_KEYBYTES;
+    public static MAC_BYTES = 16; // crypto_secretbox_MACBYTES;
+    public static KEY_BYTES = 32; // crypto_secretbox_KEYBYTES;
     private key: Uint8Array;
+
+    public static async init(): Promise<void> {
+        await ready;
+    }
 
     public constructor(key: Uint8Array) {
         if (key.length != SecretBox.KEY_BYTES)
-        throw new InvalidArgumentException("Invalid key length");
+            throw new InvalidArgumentException("Invalid key length");
+
+        this.key = key
     }
 
     public static random(): SecretBox {
@@ -63,7 +69,7 @@ export class SecretBox {
 }
 
 export class Nonce {
-    public static BYTES: number = crypto_secretbox_NONCEBYTES;
+    public static BYTES = 24; // crypto_secretbox_NONCEBYTES;
     private bytes: Uint8Array;
 
     public constructor(bytes: Uint8Array) {

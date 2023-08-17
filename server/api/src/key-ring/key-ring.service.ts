@@ -3,14 +3,14 @@ import { Prisma, User, UserShadowKey, UserShadowKeyType } from '@prisma/client';
 import { CryptoBox, KeyPair as CryptoBoxKeyPair, Nonce as CryptoBoxNonce, PublicKey as CryptoBoxPublicKey } from 'src/crypto/cryptobox';
 import { PasswordHash } from 'src/crypto/passwordhash';
 import { SecretBox } from 'src/crypto/secretbox';
-import { KeyPair as SignatureKeyPair, PublicKey as SignauturePublicKey } from 'src/crypto/signature';
+import { KeyPair as SignatureKeyPair, PublicKey as SignauturePublicKey, Signature } from 'src/crypto/signature';
 import { AppException } from 'src/exceptions/app-exception';
 import { KeyRingExceptionCode } from 'src/exceptions/exception-codes';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { BindKeyInput } from './dto/bind-key-input';
 import { GetMasterKeyInput } from './dto/get-master-key-input';
 import { RemoveKeyInput } from './dto/remove-key-input';
-import { randombytes_buf } from 'libsodium-wrappers';
+import { ready, randombytes_buf } from 'libsodium-wrappers';
 
 @Injectable()
 export class KeyRingService {
@@ -18,6 +18,14 @@ export class KeyRingService {
 
   private serverKeyPair: SignatureKeyPair;
   private encryptionKeyPair: CryptoBoxKeyPair;
+
+  public static async init(): Promise<void> {
+    await ready;
+    await Signature.init();
+    await CryptoBox.init();
+    await SecretBox.init();
+    await PasswordHash.init();
+  }
 
   constructor(private prisma: PrismaService) {
     const sk = Buffer.from(`${process.env.SERVER_PRIVATEKEY}`, 'hex');

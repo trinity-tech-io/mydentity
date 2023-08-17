@@ -1,12 +1,16 @@
-import { crypto_sign_BYTES, crypto_sign_SECRETKEYBYTES, crypto_sign_PUBLICKEYBYTES, crypto_sign_SEEDBYTES } from "libsodium-wrappers";
+import { ready } from "libsodium-wrappers";
 import { KeyType, StateAddress } from "libsodium-wrappers";
 import { crypto_sign_keypair, crypto_sign_seed_keypair, crypto_sign_detached, crypto_sign_verify_detached, crypto_sign_init, crypto_sign_update, crypto_sign_final_create, crypto_sign_final_verify } from "libsodium-wrappers";
 import { to_hex } from "libsodium-wrappers";
 import { InvalidArgumentException } from "./exceptions";
 
 export class Signature {
-    public static BYTES: number = crypto_sign_BYTES;
+    public static BYTES = 64; // crypto_sign_BYTES;
     private state: StateAddress;
+
+    public static async init(): Promise<void> {
+        await ready;
+    }
 
     public constructor() {
         this.reset();
@@ -30,7 +34,7 @@ export class Signature {
 }
 
 export class PrivateKey {
-    public static BYTES: number = crypto_sign_SECRETKEYBYTES;
+    public static BYTES = 64; // crypto_sign_SECRETKEYBYTES;
     private key: Uint8Array;
 
     public constructor(key: Uint8Array) {
@@ -58,7 +62,7 @@ export class PrivateKey {
 }
 
 export class PublicKey {
-    public static BYTES: number = crypto_sign_PUBLICKEYBYTES;
+    public static BYTES = 32; // crypto_sign_PUBLICKEYBYTES;
     private key: Uint8Array;
 
     public constructor(key: Uint8Array) {
@@ -85,7 +89,7 @@ export class PublicKey {
 }
 
 export class KeyPair {
-    public static SEED_BYTES: number = crypto_sign_SEEDBYTES;
+    public static SEED_BYTES = 32; // crypto_sign_SEEDBYTES;
 
     private keyType: KeyType;
     private sk: PrivateKey;
