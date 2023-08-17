@@ -1,5 +1,5 @@
 "use client";
-import { FC } from "react";
+import {FC, useEffect} from "react";
 import HeaderSignIn from './widgets/HeaderSignIn'
 import MicrosoftSignIn from './widgets/MicrosoftSignIn'
 import SeparateLine from './widgets/SeparateLine'
@@ -8,6 +8,9 @@ import { Card } from '@material-ui/core';
 import clsx from 'clsx';
 
 const SignIn: FC = () => {
+    useEffect(() => {
+        const item = localStorage.getItem('access_token');
+    }, []);
 
   return (
     <div className="col-span-full" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>

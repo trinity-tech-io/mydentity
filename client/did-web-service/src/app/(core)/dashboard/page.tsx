@@ -1,5 +1,5 @@
 'use client'
-import { FC } from "react";
+import {FC, useEffect} from "react";
 import { WelcomeBanner } from "./WelcomeBanner";
 import { IdentityListWidget } from "./widgets/IdentityList";
 import { RecentActivityWidget } from "./widgets/RecentActivity";
@@ -14,11 +14,13 @@ const Dashboard: FC = () => {
   const accessToken = searchParams.get('accessToken');
   const refreshToken = searchParams.get('refreshToken');
 
-  if (accessToken && accessToken !== '' && refreshToken && refreshToken != '') {
-    fetchSelfUser(accessToken, refreshToken).then(user => {
-      window.location.replace('/dashboard');
-    });
-  }
+  useEffect(() => {
+    if (accessToken && accessToken !== '' && refreshToken && refreshToken != '') {
+      fetchSelfUser(accessToken, refreshToken).then(user => {
+        window.location.replace('/dashboard');
+      });
+    }
+  }, []);
 
   return (<>
 

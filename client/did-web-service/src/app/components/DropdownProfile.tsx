@@ -2,7 +2,7 @@
 
 import UserAvatar from '@assets/images/user-avatar-32.png';
 import { getActiveUser } from "@services/user/user.events";
-import { fetchSelfUser, signOut } from "@services/user/user.service";
+import { signOut } from "@services/user/user.service";
 import Image from 'next/image';
 import Link from 'next/link';
 import Notifications from '../components/DropdownNotifications';
@@ -38,18 +38,10 @@ export function DropdownUserProfile({
       // setUserName(user.email);
     }
 
-    if (accessToken && accessToken !== '' && refreshToken && refreshToken != '') {
-      fetchSelfUser(accessToken, refreshToken).then(user => {
-        updateUserDesc(user);
-        setIsLogin(true);
-      });
-    } else {
-      const user = getActiveUser();
-      // console.log('getActiveUser', user)
-      if (user) {
-        updateUserDesc(user);
-        setIsLogin(true);
-      }
+    const user = getActiveUser();
+    if (user) {
+      updateUserDesc(user);
+      setIsLogin(true);
     }
 
     const clickHandler = ({ target }) => {

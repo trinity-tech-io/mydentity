@@ -1,6 +1,6 @@
 'use client';
 
-import { FC } from "react";
+import {FC, useEffect} from "react";
 import {authUser$, getActiveUser} from "@services/user/user.events";
 import {useSearchParams} from "next/navigation";
 import {bindOauthEmail} from "@services/user/user.service";
@@ -11,17 +11,22 @@ const BindOauth: FC = () => {
   const email = searchParams.get('email');
   const accessToken = searchParams.get('accessToken');
   const refreshToken = searchParams.get('refreshToken');
-  const existingAccessToken = localStorage.getItem('access_token')
-  if (existingAccessToken && existingAccessToken !== '') {
-    if (email) {
-      // bindOauthEmail(email).then(() => {
-      //   window.location.replace('/account/security');
-      // });
-      window.location.replace('/account/security');
+
+  useEffect(() => {
+    const existingAccessToken = localStorage.getItem('access_token')
+    console.log(`BindOauth`, existingAccessToken);
+    if (existingAccessToken && existingAccessToken !== '') {
+      if (email) {
+        // TODO:
+        // bindOauthEmail(email).then(() => {
+        //   window.location.replace('/account/security');
+        // });
+        window.location.replace('/account/security');
+      }
+    } else {
+      window.location.replace(`/dashboard?accessToken=${accessToken}&refreshToken=${refreshToken}`);
     }
-  } else {
-    window.location.replace(`/dashboard?accessToken=${accessToken}&refreshToken=${refreshToken}`);
-  }
+  }, [])
 
   return (<div className="col-span-full">
     Here is the active identity profile. Only information for the active DID is shown. A profile is a user friendly way of displaying a few base credentials such as name, birth date, nationality. Only for VCs with known type.
