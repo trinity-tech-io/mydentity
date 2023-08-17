@@ -60,8 +60,9 @@ export class KeyRingService {
     let success = false;
     try {
       const binSig = Buffer.from(sig, "hex");
+      const binChallenge = Buffer.from(challenge.content, "hex");
       const pk = new SignauturePublicKey(Buffer.from(key, "hex"));
-      success = pk.verify(binSig, challenge.content);
+      success = pk.verify(binSig, binChallenge);
     } catch (e) {
       throw new AppException(KeyRingExceptionCode.InvalidPublicKey, "Invalid public key: " + e, HttpStatus.BAD_REQUEST);
     }
