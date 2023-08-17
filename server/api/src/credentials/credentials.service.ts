@@ -1,8 +1,10 @@
+import { VerifiableCredential } from '@elastosfoundation/did-js-sdk';
 import { Injectable } from '@nestjs/common';
 import { Credential, User } from '@prisma/client';
 import { DidService } from 'src/did/did.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCredentialInput } from './dto/create-credential.input';
+import { CreateVerifiablePresentationInput } from './dto/create-verifiablePresentation.input';
 
 const fakeCrendentialDeleteMe = {
   '@context': [
@@ -79,7 +81,7 @@ export class CredentialsService {
     return successfulDeletion;
   }
 
-  async deleteCredentialsByIdentity(identityDid: string, user: User) {
+  async deleteCredentialsByIdentity(identityDid: string) {
     console.log('CredentialsService', 'deleteCredentialsByIdentity identityDid:', identityDid);
     const credentials = await this.prisma.credential.findMany({
       where: { identityDid },
@@ -91,5 +93,20 @@ export class CredentialsService {
         credentialId: c.credentialId,
       }
     }))));
+  }
+
+  async createVerifiablePresentation(input: CreateVerifiablePresentationInput, user: User) {
+    console.log('CredentialsService', "createVerifiablePresentation", input)
+    const storePassword = '123456'; // TODO: use account key
+
+    const credentials = [];
+    input.credentials.forEach( c => {
+      credentials.push(VerifiableCredential.parse(c))
+    })
+    const vp = await this.didService.createVerifiablePresentationFromCredentials(user.id, input.identityDid, credentials,
+          input.nonce, input.realm, storePassword);
+    return {
+      verifiablePresentation: vp.toString(),
+    }
   }
 }

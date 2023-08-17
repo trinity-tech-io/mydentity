@@ -1,4 +1,4 @@
-import { DIDBackend, DIDStore, DefaultDIDAdapter, Issuer, Mnemonic, RootIdentity } from '@elastosfoundation/did-js-sdk';
+import { DIDBackend, DIDStore, DefaultDIDAdapter, Issuer, Mnemonic, RootIdentity, VerifiableCredential, VerifiablePresentation } from '@elastosfoundation/did-js-sdk';
 import { Injectable } from '@nestjs/common';
 import { join } from 'path';
 
@@ -98,6 +98,13 @@ export class DidService {
     const didStore = await this.openStore(didStorePath);
     console.log('deleteCredential credentialId', credentialId)
     return didStore.deleteCredential(credentialId);
+  }
 
+  async createVerifiablePresentationFromCredentials(didStorePath: string, didString: string,
+        vc: VerifiableCredential[], nonce: string, realm: string, storepass: string) {
+    const didStore = await this.openStore(didStorePath);
+
+    const vpBuilder = await VerifiablePresentation.createFor(didString, null, didStore);
+    return vpBuilder.credentials(...vc).nonce(nonce).realm(realm).seal(storepass);
   }
 }

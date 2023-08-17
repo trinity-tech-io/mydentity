@@ -5,7 +5,9 @@ import { CurrentUser } from 'src/auth/currentuser.decorator';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CredentialsService } from './credentials.service';
 import { CreateCredentialInput } from './dto/create-credential.input';
+import { CreateVerifiablePresentationInput } from './dto/create-verifiablePresentation.input';
 import { CredentialEntity } from './entities/credential.entity';
+import { VerifiablePresentionEntity } from './entities/verifiablePresention.entity';
 
 @Resolver(() => CredentialEntity)
 export class CredentialsResolver {
@@ -13,7 +15,7 @@ export class CredentialsResolver {
 
   @UseGuards(JwtAuthGuard)
   @Mutation(() => CredentialEntity)
-  createCredential(@Args('createCredentialInput') createCredentialInput: CreateCredentialInput, @CurrentUser() user: User) {
+  createCredential(@Args('input') createCredentialInput: CreateCredentialInput, @CurrentUser() user: User) {
     return this.credentialsService.create(createCredentialInput, user);
   }
 
@@ -27,6 +29,14 @@ export class CredentialsResolver {
   @UseGuards(JwtAuthGuard)
   @Mutation(() => Boolean)
   deleteCredential(@Args('credentialId') credentialId: string, @CurrentUser() user: User) {
+    console.log('CredentialsResolver deleteCredential', credentialId);
     return this.credentialsService.remove(credentialId, user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => VerifiablePresentionEntity)
+  createVerifiablePresentation(@Args('input') createVerifiablePresentationInput: CreateVerifiablePresentationInput, @CurrentUser() user: User) {
+    console.log('CredentialsResolver createVerifiablePresentation', createVerifiablePresentationInput)
+    return this.credentialsService.createVerifiablePresentation(createVerifiablePresentationInput, user);
   }
 }

@@ -2,10 +2,12 @@ import { gql } from "@apollo/client";
 import { VerifiableCredential, VerifiablePresentation } from "@elastosfoundation/did-js-sdk";
 import { gqlCredentialFields } from "@graphql/credential.fields";
 import { gqlIdentityFields } from "@graphql/identity.fields";
+import { gqlPresentationFields } from "@graphql/presentation.fields";
 import { Credential } from "@model/credential/credential";
 import { CredentialDTO } from "@model/credential/credential.dto";
 import { Identity } from "@model/identity/identity";
 import { IdentityDTO } from "@model/identity/identity.dto";
+import { PresentationDTO } from "@model/presentation/presenttation.dto";
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { logger } from "@services/logger";
@@ -90,7 +92,7 @@ export class CustodialDIDProvider implements IdentityProvider {
       return getApolloClient().mutate<{ createCredential: CredentialDTO }>({
         mutation: gql`
         mutation createCredential($identityDid: String!, $credentialId: String!, $types: Json!, $expirationDate: String!, $properties: Json!) {
-          createCredential(createCredentialInput: { identityDid: $identityDid, credentialId: $credentialId, types: $types, expirationDate: $expirationDate, properties: $properties}) {
+          createCredential(input: { identityDid: $identityDid, credentialId: $credentialId, types: $types, expirationDate: $expirationDate, properties: $properties}) {
             ${gqlCredentialFields}
           }
         }
@@ -150,8 +152,6 @@ export class CustodialDIDProvider implements IdentityProvider {
       });
     });
 
-    console.log(data)
-
     if (data?.deleteCredential) {
       return true;
     }
@@ -160,7 +160,33 @@ export class CustodialDIDProvider implements IdentityProvider {
     }
   }
 
-  public async createVerifiablePresentation(identityDid: string, credentials: VerifiableCredential[], realm: string, nonce: string): Promise<VerifiablePresentation> {
+  public async createVerifiablePresentation(identityDid: string, credentialsArg: VerifiableCredential[], realm: string, nonce: string): Promise<VerifiablePresentation> {
+    let credentials = [];
+    credentialsArg.forEach( c => {
+      credentials.push(c.toJSON())
+    })
+
+    const { data } = await withCaughtAppException(() => {
+      return getApolloClient().mutate<{ createVerifiablePresentation: PresentationDTO }>({
+        mutation: gql`
+        mutation createVerifiablePresentation($identityDid: String!, $credentials: Json!, $realm: String!, $nonce: String!) {
+          createVerifiablePresentation(input: { identityDid: $identityDid, credentials: $credentials, realm: $realm, nonce: $nonce}) {
+            ${gqlPresentationFields}
+          }
+        }
+      `,
+        variables: {
+          identityDid,
+          credentials,
+          realm,
+          nonce
+        }
+      });
+    });
+
+    if (data && data.createVerifiablePresentation) {
+      return VerifiablePresentation.parse(data!.createVerifiablePresentation.verifiablePresentation);
+    }
     return null;
   }
 }
