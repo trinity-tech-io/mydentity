@@ -33,7 +33,7 @@ export class KeyRingResolver {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Query(() => String, { name: 'challenge' })
+  @Query(() => String)
   generateChallenge(@CurrentUser() user: User, @CurrentClientID() clientId: string) {
     return this.keyRingService.generateChallenge(user, clientId);
   }
