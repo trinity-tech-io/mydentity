@@ -26,7 +26,7 @@ const EssentialsAuthTests: FC = () => {
     <>
       <div className="col-span-6">
         {awaitingResult && <CircularProgress size={20} className="mr-4" />}
-        <MainButton onClick={didAuth} title="Request name credential" disabled={awaitingResult} />
+        <MainButton onClick={didAuth} busy={awaitingResult} >Request name credential</MainButton>
       </div>
       <div className="col-span-6">
         Credential received? {creds ? "YES" : "NO"}

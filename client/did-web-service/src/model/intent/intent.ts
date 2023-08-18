@@ -7,6 +7,7 @@ export class Intent<RequestType> {
   id: string;
   createdAt: Date;
   type: IntentType;
+  redirectUrl: string;
   requestPayload: IntentRequestPayload<RequestType>;
   responsePayload: JSONObject;
 

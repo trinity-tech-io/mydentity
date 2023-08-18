@@ -13,27 +13,27 @@ enum UserType {
 }
 
 model User {
-  id                 String @id @unique @default(uuid()) // Unique user ID. Also used as DID store ID to retrieve the DID store.
-  name               String?
-  email              String?
-  fullName           String? // '${firstname}, ${lastname}'
+  id       String  @id @unique @default(uuid()) // Unique user ID. Also used as DID store ID to retrieve the DID store.
+  name     String?
+  email    String?
+  fullName String? // '${firstname}, ${lastname}'
 
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @default(now())
   lastSeenAt         DateTime  @default(now()) // Updated every time the user uses the app
   welcomeEmailSentAt DateTime? // Date at which the welcome email was sent, if any
 
-  type               UserType
+  type UserType
 
   // Auth process
   temporaryEmailAuthKey       String? // Temporary authentication key generated for authentication by email address + magic "link"
   temporaryEmailAuthExpiresAt DateTime? // Date at which temporaryEmailAuthKey becomes invalid and cannot be used to confirm email sign in by magic link.
 
-  IdentityRoot   IdentityRoot[]
-  Identity       Identity[]
-  UserShadowKey  UserShadowKey[]
-  Device         Device[]
-  Activities     Activity[]
+  IdentityRoot  IdentityRoot[]
+  Identity      Identity[]
+  UserShadowKey UserShadowKey[]
+  Device        Device[]
+  Activities    Activity[]
 }
 
 // Corresponds to a RootIdentity in the DID SDK, meaning one mnemonic.
@@ -92,6 +92,7 @@ model Intent {
   createdAt DateTime   @default(now()) // Time of the initial intent request (creation)
   type      IntentType
 
+  redirectUrl     String // URL (original dapp) where we to redirect user after getting a response from the web service.
   requestPayload  Json // Raw payload received by the requesting app
   responsePayload Json? // Raw response ready to return, or returned to the requesting app
 }
@@ -109,18 +110,18 @@ enum UserShadowKeyType {
 // The UI will recommend to get rid of the basic passwords as user binds more devices, which is necessary to
 // recover the account key (no other way to restore if all device keypairs are lost).
 model UserShadowKey {
-  user                User              @relation(fields: [userId], references: [id], onDelete: Restrict)
-  userId              String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Restrict)
+  userId String
 
-  key                 String  // For publickey types, this is the keypair public key to decrypt the SecretKey; for password type, this is the hash of the password.
-  type                UserShadowKeyType
-  secretKey           String  // Root account SecretKey encrypted by this public key or password
+  key       String // For publickey types, this is the keypair public key to decrypt the SecretKey; for password type, this is the hash of the password.
+  type      UserShadowKeyType
+  secretKey String // Root account SecretKey encrypted by this public key or password
 
-  device              Device?           @relation(fields: [deviceId], references: [id], onDelete: Restrict) // For publickey types, this is the related device entity for which this shadow key was generated
-  deviceId            String?
+  device   Device? @relation(fields: [deviceId], references: [id], onDelete: Restrict) // For publickey types, this is the related device entity for which this shadow key was generated
+  deviceId String?
 
-  createdAt           DateTime          @default(now())
-  updatedAt           DateTime          @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
 
   @@id([userId, key])
 }
@@ -150,22 +151,22 @@ enum ActivityType {
 model Activity {
   id String @id @unique @default(uuid())
 
-  user      User        @relation(fields: [userId], references: [id], onDelete: Restrict)
-  type      ActivityType
+  user User         @relation(fields: [userId], references: [id], onDelete: Restrict)
+  type ActivityType
 
-  content   Json?       // Depends on the type of activity.
-  createdAt DateTime    @default(now())
+  content   Json? // Depends on the type of activity.
+  createdAt DateTime @default(now())
 
-  userId    String
+  userId String
 }
 
 // No need setup the relations with the user
 model Challenge {
-  userId          String
-  clientId        String
+  userId   String
+  clientId String
 
-  content         String
-  createdAt       DateTime @default(now())
+  content   String
+  createdAt DateTime @default(now())
 
   @@id([userId, clientId])
 }

@@ -2,7 +2,7 @@
 import { unregisterAllConnectors } from '@/app/utils/connectivity-sdk';
 // import { Inter } from 'next/font/google';
 import { connectivity } from '@elastosfoundation/elastos-connectivity-sdk-js';
-import { DIDWebConnector } from '@trinity-tech/did-web-connector';
+import { DIDWebConnector } from '@trinitytech/did-web-connector-client-browser';
 import React, { FC, useEffect } from 'react';
 
 const DIDWebLayout: FC<{

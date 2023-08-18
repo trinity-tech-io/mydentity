@@ -13,6 +13,9 @@ export class IntentEntity {
   @Field(() => String)
   type: IntentType;
 
+  @Field(() => String)
+  redirectUrl: string;
+
   @Field(() => GraphQlJson)
   requestPayload: any;
 

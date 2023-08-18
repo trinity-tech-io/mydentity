@@ -17,7 +17,8 @@ export class IntentsService {
     return this.prisma.intent.create({
       data: {
         type: input.type,
-        requestPayload: input.payload
+        requestPayload: input.payload,
+        redirectUrl: input.redirectUrl
       }
     });
   }
@@ -36,7 +37,7 @@ export class IntentsService {
   }
 
   /**
-   * Serves a previously fulfiled intent's response, in theory to the connector SDK that requested this intent initially.
+   * Serves a previously fulfilled intent's response, in theory to the connector SDK that requested this intent initially.
    * - The intent must exist
    * - The response payload must have been created (filled by the UI)
    * - After calling this method, the intent is deleted from our side
@@ -44,6 +45,7 @@ export class IntentsService {
    */
   async serveIntentResponse(id: string): Promise<Intent> {
     const intent = await this.findOne(id);
+
     if (!intent)
       return null;
 

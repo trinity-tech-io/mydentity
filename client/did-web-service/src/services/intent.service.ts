@@ -45,7 +45,7 @@ export async function fetchIntent<IntentRequestPayloadType>(intentId: string): P
  */
 export async function fulfilIntentRequest(intentId: string, responsePayload: any): Promise<boolean> {
   const { data } = await withCaughtAppException(() => {
-    return getApolloClient().mutate<{ intent: IntentDTO }>({
+    return getApolloClient().mutate<{ fulfilIntent: boolean }>({
       mutation: gql`
       mutation FulfilIntentRequest($input: FulfilIntentInput!) {
         fulfilIntent (input: $input)
@@ -57,7 +57,7 @@ export async function fulfilIntentRequest(intentId: string, responsePayload: any
     });
   });
 
-  if (data && data.intent) {
+  if (data && data.fulfilIntent) {
     logger.log("intents", `Successfully fulfilled intent id ${intentId}`);
     return true;
   }
