@@ -13,6 +13,8 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
+import { activeIdentity$ } from '@services/identity/identity.events';
+import { identityService } from '@services/identity/identity.service';
 
 export const IdentityListWidget: FC = _ => {
   const TAG = "IdentityList";
@@ -20,18 +22,21 @@ export const IdentityListWidget: FC = _ => {
   const [prepareDeleteDid, setPrepareDeleteDid] = useState('');
   const [authUser] = useBehaviorSubject(authUser$());
   let [identities] = useBehaviorSubject(authUser?.get("identity").identities$);
+  const [activeIdentity] = useBehaviorSubject(activeIdentity$);
+
   identities = identities?.slice(0, 5);
 
   const handleCloseDialog = async (isAgree: boolean) => {
     setOpenConfirmDialog(false);
-    if (isAgree){ 
-      try {
-        await authUser.get("identity").deleteIdentity(prepareDeleteDid);
-      } catch (error) {
-        logger.error(TAG, error);
-      }
-      return;
+    if (!isAgree) return;
+    try {
+      await authUser.get("identity").deleteIdentity(prepareDeleteDid);
+      if (activeIdentity.did == prepareDeleteDid)
+        identityService.setActiveIdentity(null);
+    } catch (error) {
+      logger.error(TAG, error);
     }
+    return;
   };
 
   return (
