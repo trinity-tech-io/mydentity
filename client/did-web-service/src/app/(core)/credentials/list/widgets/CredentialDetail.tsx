@@ -1,33 +1,24 @@
-import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
+import { Credential } from '@model/credential/credential';
 import { Avatar, Box, Grid, Stack, Typography } from '@mui/material';
-import { activeCredential$ } from '@services/credential/credential.events';
-import { FC, useEffect, useState } from 'react';
-
-export const CredentialDetailWidget: FC = () => {
-  const [activeCredential] = useBehaviorSubject(activeCredential$);
-  const [isShowDtail, setIsShowDetail] = useState(false);
-
-  useEffect(() => {
-    if(activeCredential){
-      setIsShowDetail(true);
-
-      
-    }
-  },[activeCredential]);
+interface Props {
+  selectedCredential: Credential
+}
+export const CredentialDetailWidget = (props: Props) => {
+  const { selectedCredential } = props
 
   return (
     <div className="col-span-full xl:col-span-7 bg-white dark:bg-slate-800 shadow-lg rounded-sm border border-slate-200 dark:border-slate-700">
-    { isShowDtail && 
+    { selectedCredential && 
       ( <Box sx={{ px: 2.5, pb: 3 }}>
           <Stack alignItems="center" spacing={3} sx={{ pt: 5, borderRadius: 2, position: 'relative' }}>
             <Avatar  src="/assets/images/account.svg" sx={{ ml:2, width: 120, height: 120 }}/>
             <Box sx={{ textAlign: 'left', width:'50%' }}>
               <Typography gutterBottom variant="h6">
-                {activeCredential.verifiableCredential.getId().getFragment()}
+                {selectedCredential.verifiableCredential.getId().getFragment()}
               </Typography>
 
               <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-                {activeCredential.verifiableCredential.getSubject().getProperty(activeCredential.verifiableCredential.getId().getFragment())}
+                {selectedCredential.verifiableCredential.getSubject().getProperty(selectedCredential.verifiableCredential.getId().getFragment())}
               </Typography>
 
                 <Grid container spacing={2} sx={{mt:1}}>
@@ -38,7 +29,7 @@ export const CredentialDetailWidget: FC = () => {
                   </Grid>
                   <Grid item xs={6}>
                     <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-                      {activeCredential.verifiableCredential.issuanceDate.toLocaleDateString()}
+                      {selectedCredential.verifiableCredential.issuanceDate.toLocaleDateString()}
                     </Typography>
                   </Grid>
 
@@ -49,7 +40,7 @@ export const CredentialDetailWidget: FC = () => {
                   </Grid>
                   <Grid item xs={6}>
                     <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-                      {activeCredential.verifiableCredential.expirationDate.toLocaleDateString()}
+                      {selectedCredential.verifiableCredential.expirationDate.toLocaleDateString()}
                     </Typography>
                   </Grid>
                 </Grid>
