@@ -248,21 +248,20 @@ export async function bindOauthEmail(email: string) {
       }>({
         mutation: gql`
         mutation BindOauthEmail($email: String!) {
-          bindOauthEmail(authKey: $authKey)
+          bindOauthEmail(email: $email)
         }
       `,
         variables: { email }
       });
     });
 
-    if (data && data.bindOauthEmail) {
-      return true;
-    } else {
-      return false;
+    const result = data && data.bindOauthEmail;
+    if (!result) {
+      logger.error('user', 'Failed from bindOauthEmail api.');
     }
+    return result;
   } catch (e) {
-    // Probably a 401 error
-    logger.warn("auth", "Exception while checking temporary auth key. Key expired?");
+    logger.warn("user", "Exception while bind oauth email to user.");
     return null;
   }
 }

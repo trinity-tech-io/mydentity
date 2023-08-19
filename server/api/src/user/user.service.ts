@@ -205,7 +205,7 @@ export class UserService {
       if (existingUser.id !== user.id) {
         throw new AppException(AuthExceptionCode.AuthError, `Email ${email} already belongs to other user.`, 401);
       } else {
-        return;
+        return existingUser;
       }
     }
     return this.prisma.user.update({

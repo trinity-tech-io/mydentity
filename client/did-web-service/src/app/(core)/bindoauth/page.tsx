@@ -17,11 +17,12 @@ const BindOauth: FC = () => {
     console.log(`BindOauth`, existingAccessToken);
     if (existingAccessToken && existingAccessToken !== '') {
       if (email) {
-        // TODO:
-        // bindOauthEmail(email).then(() => {
-        //   window.location.replace('/account/security');
-        // });
-        window.location.replace('/account/security');
+        bindOauthEmail(email).then(success => {
+          if (!success) {
+            alert('Failed to bind oauth email.')
+          }
+          window.location.replace('/account/security');
+        });
       }
     } else {
       window.location.replace(`/dashboard?accessToken=${accessToken}&refreshToken=${refreshToken}`);
