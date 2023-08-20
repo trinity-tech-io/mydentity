@@ -7,7 +7,6 @@ import { Typography } from "@mui/material";
 import { authUser$ } from "@services/user/user.events";
 import { useRouter } from "next/navigation";
 import { FC, createRef } from "react";
-import { authenticateWithEmailAddress } from "@services/user/user.service";
 
 const Security: FC = () => {
   const { mounted } = useMounted();
@@ -27,14 +26,8 @@ const Security: FC = () => {
     router.push("/account/security/bind-password");
   }
 
-  const bindEmailWithOauth = () => {
-    window.location.replace(`${process.env.NEXT_PUBLIC_BACKEND_URL}/microsoft`);
-  };
-
-  const bindEmailDirectly = () => {
-    // TODO:
-    void authenticateWithEmailAddress('fred@didservice.com');
-    alert('please go to email box to verify.');
+  const bindEmail = () => {
+    router.push("/account/security/bind-email");
   }
 
   return (<div className="col-span-full">
@@ -58,11 +51,8 @@ const Security: FC = () => {
       }
       <br /><br />
 
-      <MainButton onClick={bindEmailWithOauth} >Bind email with oauth</MainButton>
-      <MainButton onClick={bindEmailDirectly} >Bind email directly</MainButton>
-
       <div className="flex flex-col mb-4">
-        <MainButton onClick={bindDevice} >Verify your email address</MainButton>
+        <MainButton onClick={bindEmail} >Verify your email address</MainButton>
         <div className="info">
           Attaching your email address to your account allows you to sign in later. Without email,
           you will be able to sign in using browser biometrics if configured.
