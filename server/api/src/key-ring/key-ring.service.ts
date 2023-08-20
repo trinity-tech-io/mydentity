@@ -1,9 +1,9 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { Prisma, User, UserShadowKey, UserShadowKeyType } from '@prisma/client';
-import { CryptoBox, KeyPair as CryptoBoxKeyPair, Nonce as CryptoBoxNonce, PublicKey as CryptoBoxPublicKey } from 'src/crypto/cryptobox';
 import { PasswordHash } from 'src/crypto/passwordhash';
 import { SecretBox } from 'src/crypto/secretbox';
-import { KeyPair as SignatureKeyPair, PublicKey as SignauturePublicKey, Signature } from 'src/crypto/signature';
+import { KeyPair as SignatureKeyPair, Signature } from 'src/crypto/signature';
+import { PublicKey as EcdsaPublicKey } from 'src/crypto/ecdsa';
 import { AppException } from 'src/exceptions/app-exception';
 import { KeyRingExceptionCode } from 'src/exceptions/exception-codes';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -17,21 +17,19 @@ export class KeyRingService {
   private static CHALLENGE_EXPIRATION = 5 * 60 * 1000;
 
   private serverKeyPair: SignatureKeyPair;
-  private encryptionKeyPair: CryptoBoxKeyPair;
 
   public static async init(): Promise<void> {
     await ready;
     await Signature.init();
-    await CryptoBox.init();
     await SecretBox.init();
     await PasswordHash.init();
   }
 
   constructor(private prisma: PrismaService) {
     const sk = Buffer.from(`${process.env.KEY_RING_PRIVATEKEY}`, 'hex');
+
     try {
       this.serverKeyPair = SignatureKeyPair.fromPrivateKey(sk);
-      this.encryptionKeyPair = CryptoBoxKeyPair.fromSignatureKeyPair(this.serverKeyPair);
     } catch (e) {
       throw new AppException(KeyRingExceptionCode.InvalidPrivateKey,
         "Invalid server private key from the env file: " + e, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -61,7 +59,7 @@ export class KeyRingService {
     try {
       const binSig = Buffer.from(sig, "hex");
       const binChallenge = Buffer.from(challenge.content, "hex");
-      const pk = new SignauturePublicKey(Buffer.from(key, "hex"));
+      const pk = new EcdsaPublicKey(Buffer.from(key, "hex"));
       success = pk.verify(binSig, binChallenge);
     } catch (e) {
       throw new AppException(KeyRingExceptionCode.InvalidPublicKey, "Invalid public key: " + e, HttpStatus.BAD_REQUEST);
@@ -73,23 +71,21 @@ export class KeyRingService {
 
   private async addShadowKey(userId: string, key: string, type: UserShadowKeyType, secretKey: Uint8Array): Promise<void> {
     let authKey: string;
-    let encryptedSecretKey: Uint8Array;
+    let password: string | Uint8Array;
 
     if (type == UserShadowKeyType.PASSWORD) {
       // Create the password encrypted shadow key
       authKey = PasswordHash.hash(key);
-      encryptedSecretKey = SecretBox.encryptWithPassword(secretKey, key);
+      password = key;
     } else if (type == UserShadowKeyType.ED25519) {
       // Create the device passkey encrypted shadow key
       authKey = key;
-      try {
-        const devicePk = CryptoBoxPublicKey.fromSignatureKey(Buffer.from(key, 'hex'));
-        const nonce = new CryptoBoxNonce(PasswordHash.derive(CryptoBoxNonce.BYTES, devicePk._bytes()));
-        encryptedSecretKey = CryptoBox.encryptEasy(secretKey, nonce, devicePk, this.encryptionKeyPair.privateKey());
-      } catch (e) {
-        throw new AppException(KeyRingExceptionCode.InvalidPublicKey, "Invalid public key: " + e, HttpStatus.BAD_REQUEST);
-      }
+      const k1 = Buffer.from(key, 'hex');
+      const k2 = Buffer.from(this.serverKeyPair.privateKey()._bytes());
+      password = Buffer.concat([k1, k2]);
     }
+
+    const encryptedSecretKey = SecretBox.encryptWithPassword(secretKey, password);
 
     await this.prisma.userShadowKey.create({
       data: {
@@ -135,17 +131,17 @@ export class KeyRingService {
     if (!shadow)
       throw new AppException(KeyRingExceptionCode.KeyNotExists, "Key not exists", HttpStatus.NOT_FOUND);
 
-    let secretKey: Uint8Array;
+    let password: string | Uint8Array;
     const encryptedSecretKey = Buffer.from(shadow.secretKey, 'hex');
     if (type == UserShadowKeyType.PASSWORD) {
-      secretKey = SecretBox.decryptWithPassword(encryptedSecretKey, key);
+      password = key;
     } else if (type == UserShadowKeyType.ED25519) {
-      const devicePk = CryptoBoxPublicKey.fromSignatureKey(Buffer.from(key, 'hex'));
-      const nonce = new CryptoBoxNonce(PasswordHash.derive(CryptoBoxNonce.BYTES, devicePk._bytes()));
-      secretKey = CryptoBox.decryptEasy(encryptedSecretKey, nonce, devicePk, this.encryptionKeyPair.privateKey());
+      const k1 = Buffer.from(key, 'hex');
+      const k2 = Buffer.from(this.serverKeyPair.privateKey()._bytes());
+      password = Buffer.concat([k1, k2]);
     }
 
-    return secretKey;
+    return SecretBox.decryptWithPassword(encryptedSecretKey, password);
   }
 
   async bindKey(input: BindKeyInput, user: User, clientId: string): Promise<boolean> {
