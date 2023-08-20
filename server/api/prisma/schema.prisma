@@ -28,6 +28,7 @@ model User {
   // Auth process
   temporaryEmailAuthKey       String? // Temporary authentication key generated for authentication by email address + magic "link"
   temporaryEmailAuthExpiresAt DateTime? // Date at which temporaryEmailAuthKey becomes invalid and cannot be used to confirm email sign in by magic link.
+  temporaryEmail              String? // Temporary email address used to bind to user.
 
   IdentityRoot  IdentityRoot[]
   Identity      Identity[]

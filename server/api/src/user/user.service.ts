@@ -1,17 +1,19 @@
-import { forwardRef, HttpException, Inject, Injectable } from '@nestjs/common';
-import { AuthService } from 'src/auth/auth.service';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { ThirdPartyUser } from './dto/third-party-user';
-import { MicrosoftProfileService } from './microsoft-profile.service';
-import { User, UserType } from '@prisma/client';
-import { randomUUID } from "crypto";
+import {forwardRef, HttpException, Inject, Injectable} from '@nestjs/common';
+import {AuthService} from 'src/auth/auth.service';
+import {PrismaService} from 'src/prisma/prisma.service';
+import {ThirdPartyUser} from './dto/third-party-user';
+import {MicrosoftProfileService} from './microsoft-profile.service';
+import {User, UserType} from '@prisma/client';
+import {randomUUID} from "crypto";
 import * as moment from "moment";
-import { encode } from "slugid";
-import { EmailTemplateType } from "../emailing/email-template-type";
-import { EmailingService } from "../emailing/emailing.service";
-import { SignUpInput } from './dto/sign-up.input';
+import {encode} from "slugid";
+import {EmailTemplateType} from "../emailing/email-template-type";
+import {EmailingService} from "../emailing/emailing.service";
+import {SignUpInput} from './dto/sign-up.input';
 import {AppException} from "../exceptions/app-exception";
 import {AuthExceptionCode} from "../exceptions/exception-codes";
+import {CurrentUser} from "../auth/currentuser.decorator";
+import {UserEntity} from "./entities/user.entity";
 
 // https://makinhs.medium.com/authentication-made-easy-with-nestjs-part-4-of-how-to-build-a-graphql-mongodb-d6057eae3fdf
 @Injectable()
@@ -90,9 +92,8 @@ export class UserService {
   /**
    * Initiates a new authentication by email, using a magic link.
    */
-  public async requestEmailAuthentication(emailAddress: string) {
-    // Check if a user exists with this authentication mode and email already. If not, create a user.
-    let user: User = await this.prisma.user.findFirst({
+  public async requestEmailAuthentication(curUser: UserEntity, emailAddress: string) {
+    let user: UserEntity = await this.prisma.user.findFirst({
       where: {
         email: emailAddress
       }
@@ -100,23 +101,33 @@ export class UserService {
 
     console.log("user", user, emailAddress)
 
-    if (!user) {
-      // No user, create one
-      user = await this.createEmailAuthUser(emailAddress);
+    if (!curUser && !user) { // login
+      throw new AppException(AuthExceptionCode.EmailNotExists, 'Email not exists.', 404);
+    } else if (curUser && user) { // bind
+      throw new AppException(AuthExceptionCode.EmailAlreadyExists, 'Email already exists.', 409);
+    }
+
+    let template = EmailTemplateType.EMAIL_AUTHENTICATION;
+    let subject = "Sign in with your magic link";
+    if (curUser) {
+      user = curUser;
+      template = EmailTemplateType.EMAIL_BIND;
+      subject = "Bind email with your magic link";
     }
 
     // Generate a temporary auth token with short expiration date into the user object
     const temporaryEmailAuthKey = randomUUID();
     const temporaryEmailAuthExpiresAt = moment().add(10, 'minutes').toDate();
+    const temporaryEmail = emailAddress;
 
     await this.prisma.user.update({
       where: { id: user.id },
-      data: { temporaryEmailAuthKey, temporaryEmailAuthExpiresAt }
+      data: { temporaryEmailAuthKey, temporaryEmailAuthExpiresAt, temporaryEmail }
     });
 
     // Send the authentication link by email.
     const magicLink = `${process.env.FRONTEND_URL}/checkauthkey?key=${encode(temporaryEmailAuthKey)}`;
-    this.emailingService.sendEmail(EmailTemplateType.EMAIL_AUTHENTICATION, "DID Service <email-auth@didservice.io>", emailAddress, "Sign in with your magic link", {
+    this.emailingService.sendEmail(template, "DID Service <email-auth@didservice.io>", emailAddress, subject, {
       magicLink
     });
 
@@ -160,18 +171,33 @@ export class UserService {
    * This auth key comes from a magic link received by users by email, after requesting
    * to receive a magic link by email.
    */
-  public async checkEmailAuthentication(temporaryEmailAuthKey: string) {
+  public async checkEmailAuthentication(curUser: UserEntity, temporaryEmailAuthKey: string) {
     const user = await this.prisma.user.findFirst({
       where: {
         temporaryEmailAuthExpiresAt: { gt: new Date() },
         temporaryEmailAuthKey
       }
     });
+    if (!user) {
+      throw new AppException(AuthExceptionCode.EmailNotExists, "This temporary authentication key is expired or invalid.", 401);
+    // } else if (user.id !== curUser.id) {
+    //   throw new AppException(AuthExceptionCode.EmailNotExists, "This temporary authentication key is expired or invalid..", 401);
+    }
 
-    if (!user)
-      return new HttpException("This temporary authentication key is expired or invalid", 401);
+    console.log('checkEmailAuthentication', user);
 
-    await this.maybeSendWelcomeEmail(user, user.email);
+    if (!curUser)
+      await this.maybeSendWelcomeEmail(user, user.email);
+    else {
+      await this.prisma.user.update({
+        where: {
+          id: user.id
+        },
+        data: {
+          email: user.temporaryEmail
+        }
+      })
+    }
 
     return this.authService.generateUserCredentials(user);
   }

@@ -1,10 +1,10 @@
 import { MainButton } from '@components/MainButton';
 import { Icon as ReactIcon } from '@iconify/react';
 import { InputBase , Container} from '@material-ui/core';
-import { authenticateWithEmailAddress } from "@services/user/user.service";
+import {authenticateWithEmailAddress, bindWithEmailAddress} from "@services/user/user.service";
 import { FC, FormEvent, useRef, useState } from "react";
 import clsx from 'clsx';
-import { makeStyles } from '@mui/styles'; 
+import { makeStyles } from '@mui/styles';
 
 const useStyles = makeStyles((theme) => ({
   centeredContainer: {
@@ -12,7 +12,7 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    minHeight: '20vh', 
+    minHeight: '20vh',
   },
 }));
 
@@ -50,7 +50,7 @@ export const EmailSignIn: FC = () => {
           />
         </form>
       }
-      {!authEmailSent && 
+      {!authEmailSent &&
         <MainButton
           leftIcon={<ReactIcon icon="material-symbols:key" />}
           onClick={doEmailAuth}

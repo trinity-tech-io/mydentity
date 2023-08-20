@@ -6,6 +6,8 @@ export enum KeyringExceptionCode {
 export enum AuthExceptionCode {
   SomethingTodo = 10101,
   AuthError = 10102,
+  EmailAlreadyExists = 10103,
+  EmailNotExists = 10104,
   Unspecific = 10199,
 }
 

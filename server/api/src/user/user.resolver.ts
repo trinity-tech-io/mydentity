@@ -41,14 +41,34 @@ export class UserResolver {
     return user;
   }
 
+  /**
+   * Send email with auth key to user's email box.
+   * @param emailAddress
+   */
   @Mutation(() => RequestEmailAuthenticationResult, { nullable: true })
   async requestEmailAuthentication(@Args('emailAddress') emailAddress: string) {
-    return this.userService.requestEmailAuthentication(emailAddress);
+    return this.userService.requestEmailAuthentication(null, emailAddress);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => RequestEmailAuthenticationResult, { nullable: true })
+  async bindWithEmailAddress(@CurrentUser() user: UserEntity, @Args('emailAddress') emailAddress: string) {
+    return this.userService.requestEmailAuthentication(user, emailAddress);
+  }
+
+  /**
+   * verify email auth key to sign-in.
+   * @param authKey
+   */
   @Mutation(() => LoggedUserOutput, { nullable: true })
   async checkEmailAuthentication(@Args('authKey') authKey: string) {
-    return this.userService.checkEmailAuthentication(authKey);
+    return this.userService.checkEmailAuthentication(null, authKey);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => LoggedUserOutput, { nullable: true })
+  async checkEmailBind(@CurrentUser() user: UserEntity, @Args('authKey') authKey: string) {
+    return this.userService.checkEmailAuthentication(user, authKey);
   }
 
   @Mutation(() => RefreshTokenOutput)

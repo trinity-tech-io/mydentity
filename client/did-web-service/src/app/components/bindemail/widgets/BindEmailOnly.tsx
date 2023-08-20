@@ -1,7 +1,7 @@
 import { MainButton } from '@components/MainButton';
 import { Icon as ReactIcon } from '@iconify/react';
 import { InputBase , Container} from '@material-ui/core';
-import { authenticateWithEmailAddress } from "@services/user/user.service";
+import { bindWithEmailAddress } from "@services/user/user.service";
 import { FC, FormEvent, useRef, useState } from "react";
 import clsx from 'clsx';
 import { makeStyles } from '@mui/styles';
@@ -28,7 +28,7 @@ export const BindEmailOnly: FC = () => {
     if (emailAddress !== "") {
       setAuthEmailSent(true);
 
-      void authenticateWithEmailAddress(emailAddress);
+      void bindWithEmailAddress(emailAddress);
     }
   }
 

@@ -1,14 +1,10 @@
 "use client";
 import {FC, useEffect} from "react";
-// import HeaderSignIn from './widgets/HeaderSignIn'
-// import MicrosoftSignIn from './widgets/MicrosoftSignIn'
-// import SeparateLine from './widgets/SeparateLine'
-// import { EmailSignIn } from './widgets/EmailSignIn'
 import { Card } from '@material-ui/core';
 import clsx from 'clsx';
 import EmailAuthComponent from "@components/bindemail/EmailAuthComponent";
 
-const SignIn: FC = () => {
+const BindEmail: FC = () => {
     useEffect(() => {
         const item = localStorage.getItem('access_token');
     }, []);
@@ -18,15 +14,9 @@ const SignIn: FC = () => {
             <Card className={clsx('py-40 w-full text-center min-h-full')} elevation={0}>
                 {/* SignInHeader */}
                 <EmailAuthComponent />
-                {/*/!* SignIn with MicrosoftButton *!/*/}
-                {/*<MicrosoftSignIn />*/}
-                {/*/!* Separate line *!/*/}
-                {/*<SeparateLine />*/}
-                {/*/!* SignIn with Email *!/*/}
-                {/*<EmailSignIn />*/}
             </Card>
         </div>
     )
 }
 
-export default SignIn;
+export default BindEmail;
