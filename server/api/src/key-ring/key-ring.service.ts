@@ -38,10 +38,6 @@ export class KeyRingService {
     }
   }
 
-  getPrisma(): PrismaService {
-    return this.prisma;
-  }
-
   private async verifySignature(sig: string, key: string, challengeId: string) {
     const challenge = await this.prisma.challenge.findUnique({
       where: {
