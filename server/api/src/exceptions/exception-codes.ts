@@ -8,6 +8,7 @@ export enum AuthExceptionCode {
   AuthError = 10102,
   EmailAlreadyExists = 10103,
   EmailNotExists = 10104,
+  AuthKeyNotExists = 10105,
   Unspecific = 10199,
 }
 

@@ -11,7 +11,6 @@ export type FeatureExtensionRegistrationCb = (user: User) => UserFeature;
 export class User {
   id: string;
   name?: string;
-  email?: string;
   createdAt: Date;
 
   // Features
@@ -39,7 +38,6 @@ export class User {
     return {
       id: this.id,
       name: this.name,
-      email: this.email,
       createdAt: this.createdAt.toISOString()
     }
   }

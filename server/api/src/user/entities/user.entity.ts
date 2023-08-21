@@ -13,9 +13,6 @@ export class UserEntity {
   name: string;
 
   @Field({nullable: true})
-  email: string;
-
-  @Field({nullable: true})
   fullName: string;
 
   @Field(() => Date)

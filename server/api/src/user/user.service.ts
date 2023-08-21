@@ -3,7 +3,7 @@ import {AuthService} from 'src/auth/auth.service';
 import {PrismaService} from 'src/prisma/prisma.service';
 import {ThirdPartyUser} from './dto/third-party-user';
 import {MicrosoftProfileService} from './microsoft-profile.service';
-import {User, UserType} from '@prisma/client';
+import {User, UserType, UserEmail} from '@prisma/client';
 import {randomUUID} from "crypto";
 import * as moment from "moment";
 import {encode} from "slugid";
@@ -14,6 +14,7 @@ import {AppException} from "../exceptions/app-exception";
 import {AuthExceptionCode} from "../exceptions/exception-codes";
 import {CurrentUser} from "../auth/currentuser.decorator";
 import {UserEntity} from "./entities/user.entity";
+import {UserEmailEntity} from "./entities/user-email.entity";
 
 // https://makinhs.medium.com/authentication-made-easy-with-nestjs-part-4-of-how-to-build-a-graphql-mongodb-d6057eae3fdf
 @Injectable()
@@ -40,9 +41,8 @@ export class UserService {
   }
 
   /**
-   * Update the profiles of the microsoft/google/linkedin user etc.
-   * 1. email as a key to fetch user.
-   * 2. upsert all information to profile table.
+   * Bind email or sign-in by the microsoft/google/linkedin user, etc.
+   * 1. generate access/refresh token if email relating user exists.
    *
    * @param thirdPartyUser
    */
@@ -54,13 +54,16 @@ export class UserService {
     }
 
     // if there is a user with email.
-    const user: User = await this.prisma.user.findFirst({
+    const userEmail: UserEmail & {user: User} = await this.prisma.userEmail.findFirst({
       where: {
         email: thirdPartyUser.email
+      },
+      include: {
+        user: true
       }
     });
-    if (user) {
-      const result = await this.authService.generateUserCredentials(user);
+    if (userEmail) {
+      const result = await this.authService.generateUserCredentials(userEmail.user);
       retValue.accessToken = result.accessToken;
       retValue.refreshToken = result.refreshToken;
     }
@@ -74,45 +77,35 @@ export class UserService {
   }
 
   /**
-   * When a user tries to get a magic authentication link by email,
-   * and this email doesn't exist yet, we create a temporary user.
-   * This doesn't mean that the email is valid yet.
-   */
-  private async createEmailAuthUser(emailAddress: string): Promise<User> {
-    return await this.prisma.user.create({
-      data: {
-        name: '',
-        type: UserType.EMAIL,
-        email: emailAddress,
-        fullName: '',
-      }
-    });
-  }
-
-  /**
    * Initiates a new authentication by email, using a magic link.
    */
   public async requestEmailAuthentication(curUser: UserEntity, emailAddress: string) {
-    let user: UserEntity = await this.prisma.user.findFirst({
+    const userEmail: UserEmailEntity = await this.prisma.userEmail.findFirst({
       where: {
-        email: emailAddress
+        email: emailAddress,
+      },
+      include: {
+        user: true,
       }
     })
 
-    console.log("user", user, emailAddress)
+    console.log("user", userEmail)
 
-    if (!curUser && !user) { // login
+    if (!curUser && !userEmail) { // login
       throw new AppException(AuthExceptionCode.EmailNotExists, 'Email not exists.', 404);
-    } else if (curUser && user) { // bind
+    } else if (curUser && userEmail) { // bind
       throw new AppException(AuthExceptionCode.EmailAlreadyExists, 'Email already exists.', 409);
     }
 
     let template = EmailTemplateType.EMAIL_AUTHENTICATION;
     let subject = "Sign in with your magic link";
+    let user = null;
     if (curUser) {
       user = curUser;
       template = EmailTemplateType.EMAIL_BIND;
       subject = "Bind email with your magic link";
+    } else {
+      user = userEmail.user;
     }
 
     // Generate a temporary auth token with short expiration date into the user object
@@ -179,22 +172,27 @@ export class UserService {
       }
     });
     if (!user) {
-      throw new AppException(AuthExceptionCode.EmailNotExists, "This temporary authentication key is expired or invalid.", 401);
+      throw new AppException(AuthExceptionCode.AuthKeyNotExists, "This temporary authentication key is expired or invalid.", 401);
     // } else if (user.id !== curUser.id) {
     //   throw new AppException(AuthExceptionCode.EmailNotExists, "This temporary authentication key is expired or invalid..", 401);
     }
 
     console.log('checkEmailAuthentication', user);
 
-    if (!curUser)
-      await this.maybeSendWelcomeEmail(user, user.email);
-    else {
-      await this.prisma.user.update({
+    if (!curUser) // login
+      await this.maybeSendWelcomeEmail(user, user.temporaryEmail);
+    else { // bind email
+      await this.prisma.userEmail.upsert({
         where: {
-          id: user.id
-        },
-        data: {
           email: user.temporaryEmail
+        },
+        create: {
+          email: user.temporaryEmail,
+          user: {connect: {id: curUser.id}},
+          createdAt: new Date()
+        },
+        update: {
+          // do nothing.
         }
       })
     }
@@ -221,26 +219,33 @@ export class UserService {
     return user;
   }
 
+  /**
+   * Bind oauth email to user.
+   * @param user
+   * @param email
+   */
   async bindOauthEmail(user, email: string) {
-    const existingUser: User = await this.prisma.user.findFirst({
-      where: {
-        email
-      }
-    });
-    if (existingUser) {
-      if (existingUser.id !== user.id) {
-        throw new AppException(AuthExceptionCode.AuthError, `Email ${email} already belongs to other user.`, 401);
-      } else {
-        return existingUser;
-      }
-    }
-    return this.prisma.user.update({
-      where: {
-        id: user.id,
-      },
-      data: {
-        email
-      }
+    const userEmail: UserEmailEntity = await this.prisma.userEmail.findFirst({
+      where: { email },
+      include: { user: true }
     })
+
+    if (userEmail && userEmail.user.id !== user.id) {
+      throw new AppException(AuthExceptionCode.AuthError, `Email ${email} already belongs to other user.`, 401);
+    } else if (!userEmail) {
+      await this.prisma.userEmail.upsert({
+        where: { email },
+        create: {
+          email,
+          user: {connect: {id: user.id}},
+          createdAt: new Date()
+        },
+        update: {
+          // do nothing.
+        }
+      })
+    }
+
+    return user;
   }
 }
