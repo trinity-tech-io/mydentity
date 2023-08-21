@@ -12,16 +12,16 @@ const BindOauth: FC = () => {
 
   useEffect(() => {
     const logined = isLogined();
-    if (logined) {
+    if (logined) { // email binding if logined.
       if (email) {
         bindOauthEmail(email).then(success => {
           if (!success) {
-            alert('Failed to bind oauth email.')
+            alert('Failed to bind oauth email.');
           }
           window.location.replace('/account/security');
         });
       }
-    } else {
+    } else { // login if not login.
       window.location.replace(`/dashboard?accessToken=${accessToken}&refreshToken=${refreshToken}`);
     }
   }, [])
