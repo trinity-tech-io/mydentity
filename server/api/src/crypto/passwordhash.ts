@@ -1,6 +1,6 @@
-import { ready } from "libsodium-wrappers";
-import { crypto_pwhash, crypto_pwhash_str, crypto_pwhash_str_verify } from "libsodium-wrappers";
-import { crypto_pwhash_SALTBYTES, crypto_pwhash_OPSLIMIT_INTERACTIVE, crypto_pwhash_MEMLIMIT_INTERACTIVE, crypto_pwhash_ALG_DEFAULT } from "libsodium-wrappers"
+import { ready } from "libsodium-wrappers-sumo";
+import { crypto_pwhash, crypto_pwhash_str, crypto_pwhash_str_verify } from "libsodium-wrappers-sumo";
+import { crypto_pwhash_SALTBYTES, crypto_pwhash_OPSLIMIT_INTERACTIVE, crypto_pwhash_MEMLIMIT_INTERACTIVE, crypto_pwhash_ALG_DEFAULT } from "libsodium-wrappers-sumo"
 
 export class PasswordHash {
     public static async init(): Promise<void> {

@@ -1,7 +1,7 @@
-import { ready } from "libsodium-wrappers";
-import { crypto_secretbox_keygen, crypto_secretbox_easy, crypto_secretbox_open_easy } from "libsodium-wrappers";
-import { crypto_pwhash, crypto_pwhash_ALG_DEFAULT, crypto_pwhash_MEMLIMIT_INTERACTIVE, crypto_pwhash_OPSLIMIT_INTERACTIVE, crypto_pwhash_SALTBYTES } from "libsodium-wrappers";
-import { increment, memzero, randombytes_buf, to_hex } from "libsodium-wrappers";
+import { ready } from "libsodium-wrappers-sumo";
+import { crypto_secretbox_keygen, crypto_secretbox_easy, crypto_secretbox_open_easy } from "libsodium-wrappers-sumo";
+import { crypto_pwhash, crypto_pwhash_ALG_DEFAULT, crypto_pwhash_MEMLIMIT_INTERACTIVE, crypto_pwhash_OPSLIMIT_INTERACTIVE, crypto_pwhash_SALTBYTES } from "libsodium-wrappers-sumo";
+import { increment, memzero, randombytes_buf, to_hex } from "libsodium-wrappers-sumo";
 import { InvalidArgumentException } from "./exceptions";
 
 export class SecretBox {

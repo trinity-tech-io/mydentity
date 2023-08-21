@@ -1,12 +1,12 @@
 import { ec } from "elliptic";
 import { InvalidArgumentException } from "./exceptions";
-import { Hash, createHash } from "crypto";
+import * as createHash from "create-hash";
 
 const compact = true;
 
 export class Signature {
     public static BYTES = 64;
-    private hash: Hash;
+    private hash: createHash.HashAlgorithm;
 
     public constructor() {
         this.reset();

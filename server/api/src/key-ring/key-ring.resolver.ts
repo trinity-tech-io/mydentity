@@ -5,7 +5,6 @@ import { CurrentUser } from 'src/auth/currentuser.decorator';
 import { CurrentClientID } from 'src/auth/currentclientid.decorator';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { BindKeyInput } from './dto/bind-key-input';
-import { GetMasterKeyInput } from './dto/get-master-key-input';
 import { RemoveKeyInput } from './dto/remove-key-input';
 import { ShadowKeyEntity } from './entities/shadow-key.entity';
 import { KeyRingService } from './key-ring.service';

@@ -1,9 +1,9 @@
-import { ready } from "libsodium-wrappers";
-import { KeyType } from "libsodium-wrappers";
-import { crypto_box_keypair, crypto_box_seed_keypair, crypto_scalarmult_base, crypto_sign_ed25519_pk_to_curve25519, crypto_sign_ed25519_sk_to_curve25519 } from "libsodium-wrappers";
-import { crypto_box_beforenm, crypto_box_easy_afternm, crypto_box_open_easy_afternm, crypto_box_easy, crypto_box_open_easy, crypto_box_seal, crypto_box_seal_open } from "libsodium-wrappers";
-import { increment, memzero, randombytes_buf, to_hex } from "libsodium-wrappers";
-import { PrivateKey as SignPrivateKey, PublicKey as SignPublicKey, KeyPair as SignKeyPair, Signature } from "./signature"
+import { ready } from "libsodium-wrappers-sumo";
+import { KeyType } from "libsodium-wrappers-sumo";
+import { crypto_box_keypair, crypto_box_seed_keypair, crypto_scalarmult_base, crypto_sign_ed25519_pk_to_curve25519, crypto_sign_ed25519_sk_to_curve25519 } from "libsodium-wrappers-sumo";
+import { crypto_box_beforenm, crypto_box_easy_afternm, crypto_box_open_easy_afternm, crypto_box_easy, crypto_box_open_easy, crypto_box_seal, crypto_box_seal_open } from "libsodium-wrappers-sumo";
+import { increment, memzero, randombytes_buf, to_hex } from "libsodium-wrappers-sumo";
+import { PrivateKey as SignPrivateKey, PublicKey as SignPublicKey, KeyPair as SignKeyPair, Signature } from "./ed25519"
 import { InvalidArgumentException } from "./exceptions";
 
 export class CryptoBox {

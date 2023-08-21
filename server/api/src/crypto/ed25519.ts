@@ -1,7 +1,7 @@
-import { ready } from "libsodium-wrappers";
-import { KeyType, StateAddress } from "libsodium-wrappers";
-import { crypto_sign_keypair, crypto_sign_seed_keypair, crypto_sign_detached, crypto_sign_verify_detached, crypto_sign_init, crypto_sign_update, crypto_sign_final_create, crypto_sign_final_verify } from "libsodium-wrappers";
-import { to_hex } from "libsodium-wrappers";
+import { ready } from "libsodium-wrappers-sumo";
+import { KeyType, StateAddress } from "libsodium-wrappers-sumo";
+import { crypto_sign_keypair, crypto_sign_seed_keypair, crypto_sign_detached, crypto_sign_verify_detached, crypto_sign_init, crypto_sign_update, crypto_sign_final_create, crypto_sign_final_verify } from "libsodium-wrappers-sumo";
+import { to_hex } from "libsodium-wrappers-sumo";
 import { InvalidArgumentException } from "./exceptions";
 
 export class Signature {

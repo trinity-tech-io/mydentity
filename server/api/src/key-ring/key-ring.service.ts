@@ -2,7 +2,7 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { Prisma, User, UserShadowKey, UserShadowKeyType } from '@prisma/client';
 import { PasswordHash } from 'src/crypto/passwordhash';
 import { SecretBox } from 'src/crypto/secretbox';
-import { KeyPair as SignatureKeyPair, Signature } from 'src/crypto/signature';
+import { KeyPair as SignatureKeyPair, Signature as Ed25519Signature } from 'src/crypto/ed25519';
 import { PublicKey as EcdsaPublicKey } from 'src/crypto/ecdsa';
 import { AppException } from 'src/exceptions/app-exception';
 import { KeyRingExceptionCode } from 'src/exceptions/exception-codes';
@@ -10,7 +10,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { BindKeyInput } from './dto/bind-key-input';
 import { GetMasterKeyInput } from './dto/get-master-key-input';
 import { RemoveKeyInput } from './dto/remove-key-input';
-import { ready, randombytes_buf } from 'libsodium-wrappers';
+import { ready, randombytes_buf } from 'libsodium-wrappers-sumo';
 
 @Injectable()
 export class KeyRingService {
@@ -20,7 +20,7 @@ export class KeyRingService {
 
   public static async init(): Promise<void> {
     await ready;
-    await Signature.init();
+    await Ed25519Signature.init();
     await SecretBox.init();
     await PasswordHash.init();
   }
