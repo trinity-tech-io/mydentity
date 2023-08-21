@@ -27,6 +27,12 @@
       }
     ],
     "paths": {
+      "@elastosfoundation/did-js-sdk/*": [
+        "./node_modules/@elastosfoundation/did-js-sdk/*"
+      ],
+      "@elastosfoundation/elastos-connectivity-sdk-js/*": [
+        "./node_modules/@elastosfoundation/elastos-connectivity-sdk-js/*"
+      ],
       "@graphql/*": [
         "./src/model/graphql/fields/*"
       ],
