@@ -114,6 +114,7 @@ model UserShadowKey {
   user   User   @relation(fields: [userId], references: [id], onDelete: Restrict)
   userId String
 
+  keyId     String
   key       String // For publickey types, this is the keypair public key to decrypt the SecretKey; for password type, this is the hash of the password.
   type      UserShadowKeyType
   secretKey String // Root account SecretKey encrypted by this public key or password
@@ -124,7 +125,7 @@ model UserShadowKey {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 
-  @@id([userId, key])
+  @@id([userId, keyId])
 }
 
 // Bound user device
@@ -163,11 +164,7 @@ model Activity {
 
 // No need setup the relations with the user
 model Challenge {
-  userId   String
-  clientId String
-
+  id        String @id @unique @default(uuid())
   content   String
   createdAt DateTime @default(now())
-
-  @@id([userId, clientId])
 }
