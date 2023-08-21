@@ -322,5 +322,6 @@ export async function bindOauthEmail(email: string) {
 }
 
 export function isLogined() {
-  return localStorage.getItem('access_token');
+  const accessToken = localStorage.getItem('access_token');
+  return accessToken && accessToken !== '';
 }

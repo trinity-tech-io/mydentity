@@ -6,10 +6,12 @@ import SeparateLine from './widgets/SeparateLine'
 import { EmailSignIn } from './widgets/EmailSignIn'
 import { Card } from '@material-ui/core';
 import clsx from 'clsx';
+import {isLogined} from "@services/user/user.service";
 
 const SignIn: FC = () => {
     useEffect(() => {
-        const item = localStorage.getItem('access_token');
+        // fix console error.
+        const logined = isLogined();
     }, []);
 
   return (

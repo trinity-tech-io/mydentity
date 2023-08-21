@@ -3,10 +3,12 @@ import {FC, useEffect} from "react";
 import { Card } from '@material-ui/core';
 import clsx from 'clsx';
 import EmailAuthComponent from "@components/bindemail/EmailAuthComponent";
+import {isLogined} from "@services/user/user.service";
 
 const BindEmail: FC = () => {
     useEffect(() => {
-        const item = localStorage.getItem('access_token');
+        // fix console error.
+        const logined = isLogined();
     }, []);
 
     return (

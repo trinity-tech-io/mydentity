@@ -1,10 +1,8 @@
 'use client';
 
 import {FC, useEffect} from "react";
-import {authUser$, getActiveUser} from "@services/user/user.events";
 import {useSearchParams} from "next/navigation";
-import {bindOauthEmail} from "@services/user/user.service";
-import {useBehaviorSubject} from "@hooks/useBehaviorSubject";
+import {bindOauthEmail, isLogined} from "@services/user/user.service";
 
 const BindOauth: FC = () => {
   const searchParams = useSearchParams();
@@ -13,9 +11,8 @@ const BindOauth: FC = () => {
   const refreshToken = searchParams.get('refreshToken');
 
   useEffect(() => {
-    const existingAccessToken = localStorage.getItem('access_token')
-    console.log(`BindOauth`, existingAccessToken);
-    if (existingAccessToken && existingAccessToken !== '') {
+    const logined = isLogined();
+    if (logined) {
       if (email) {
         bindOauthEmail(email).then(success => {
           if (!success) {
