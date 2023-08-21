@@ -4,13 +4,13 @@ import { BehaviorSubject } from "rxjs";
  * Wrapper around rxjs behaviorsubject, that calls an initializer function only when first accessed.
  * This is a way to load data only on demand.
  *
- * NOTE: The initializer method is responsible for feeding the subject.
+ * The initializer also emits the init value.
  */
 export class LazyBehaviorSubjectWrapper<T> {
   private subject: BehaviorSubject<T>;
   private fetchedOrFetching = false;
 
-  constructor(initialValue: T, private initializer: () => Promise<void | T> | void) {
+  constructor(initialValue: T, private initializer: () => Promise<T>) {
     this.subject = new BehaviorSubject(initialValue);
   }
 
@@ -18,8 +18,8 @@ export class LazyBehaviorSubjectWrapper<T> {
     if (!this.fetchedOrFetching) {
       this.fetchedOrFetching = true;
 
-      // Call the initializer, it will populate the subject.
-      void this.initializer();
+      // Call the initializer, and update the subject with the init value.
+      void this.initializer().then(initValue => this.subject.next(initValue));
     }
 
     return this.subject;

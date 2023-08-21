@@ -1,6 +1,6 @@
 // Separated from the service to reduce circular dependencies
 import { User } from "@model/user/user";
-import {LazyBehaviorSubjectWrapper} from "@utils/lazy-behavior-subject";
+import { LazyBehaviorSubjectWrapper } from "@utils/lazy-behavior-subject";
 
 const _authUser$ = new LazyBehaviorSubjectWrapper<User>(null, async () => {
   if (typeof window !== 'undefined') {
@@ -9,9 +9,7 @@ const _authUser$ = new LazyBehaviorSubjectWrapper<User>(null, async () => {
     if (!userStr)
       return null;
 
-    const user = await User.fromJson(JSON.parse(userStr));
-    authUser$().next(user); // MUST do this.
-    return user;
+    return User.fromJson(JSON.parse(userStr));
   }
 });
 

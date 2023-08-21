@@ -5,7 +5,7 @@ import { LazyBehaviorSubjectWrapper } from "@utils/lazy-behavior-subject";
 import { IdentityFeature } from "../identity-feature";
 
 export class CredentialsFeature implements IdentityFeature {
-  private _credentials$ = new LazyBehaviorSubjectWrapper<Credential[]>([], () => this.fetchCredentials());
+  private _credentials$ = new LazyBehaviorSubjectWrapper<Credential[]>([], this.fetchCredentials);
   public get credentials$() { return this._credentials$.getSubject(); }
 
   constructor(protected identity: Identity) {
@@ -19,18 +19,16 @@ export class CredentialsFeature implements IdentityFeature {
     return credential;
   }
 
-  private async fetchCredentials() {
+  private async fetchCredentials(): Promise<Credential[]> {
     logger.log("credentials", "Fetching credentials");
-
-    const credentials = await this.identity.listCredentials();
-    this.credentials$.next(credentials);
+    return this.identity.listCredentials();
   }
 
   public async deleteCredential(credentialId: string): Promise<boolean> {
     logger.log("credentials", "Deleting credential");
 
     const successfulDeletion = await this.identity.deleteCredential(credentialId);
-    this.credentials$.next(this.credentials$.value.filter( c => c.verifiableCredential.getId().toString() != credentialId));
+    this.credentials$.next(this.credentials$.value.filter(c => c.verifiableCredential.getId().toString() != credentialId));
     return successfulDeletion;
   }
 

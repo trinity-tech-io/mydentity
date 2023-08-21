@@ -6,8 +6,9 @@ import { User } from "../../user";
 import { UserFeature } from "../user-feature";
 
 export class IdentityFeature implements UserFeature {
-  private _identities$ = new LazyBehaviorSubjectWrapper<Identity[]>([], async () => await this.fetchIdentities());
+  private _identities$ = new LazyBehaviorSubjectWrapper<Identity[]>([], this.fetchIdentities);
   public get identities$() { return this._identities$.getSubject(); }
+
   constructor(protected user: User) {
   }
 
@@ -23,14 +24,12 @@ export class IdentityFeature implements UserFeature {
     logger.log("identities", "Deleting identity");
 
     const identity = await identityService.deleteIdentity(didString);
-    this.identities$.next(this.identities$.value.filter( i => i.did != didString));
+    this.identities$.next(this.identities$.value.filter(i => i.did != didString));
     return identity;
   }
 
-  private async fetchIdentities() {
+  private async fetchIdentities(): Promise<Identity[]> {
     logger.log("identities", "Fetching identities");
-
-    const identities = await identityService.listIdentities();
-    this.identities$.next(identities);
+    return identityService.listIdentities();
   }
 }
