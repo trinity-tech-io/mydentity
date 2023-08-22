@@ -2,7 +2,6 @@
 import { MainButton } from "@components/MainButton";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { authUser$ } from "@services/user/user.events";
-import { isLogined } from "@services/user/user.service";
 import { useRouter } from "next/navigation";
 import { FC, useEffect } from "react";
 import { WelcomeBanner } from "./WelcomeBanner";
@@ -11,13 +10,11 @@ import { RecentActivityWidget } from "./widgets/RecentActivity";
 import { clearOnGoingFlowOperation } from "@services/flow.service";
 
 const Dashboard: FC = () => {
-  clearOnGoingFlowOperation();
   const [authUser] = useBehaviorSubject(authUser$());
   const router = useRouter();
 
   useEffect(() => {
-    // keep this for console error.
-    const logined = isLogined();
+    clearOnGoingFlowOperation();
   }, []);
 
   const signUp = () => {

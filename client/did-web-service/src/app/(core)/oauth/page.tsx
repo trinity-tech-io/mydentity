@@ -2,50 +2,52 @@
 
 import {LinearProgress} from "@mui/material";
 import {clearOnGoingFlowOperation, FlowOperation, getOnGoingFlowOperation} from "@services/flow.service";
-import {bindOauthEmail, fetchSelfUser, isLogined} from "@services/user/user.service";
+import {bindOauthEmail, fetchSelfUser} from "@services/user/user.service";
 import {useRouter, useSearchParams} from "next/navigation";
-import {FC} from "react";
+import {FC, useEffect} from "react";
 
 const BindOauth: FC = () => {
   const searchParams = useSearchParams();
   const email = searchParams.get('email');
   const accessToken = searchParams.get('accessToken');
   const refreshToken = searchParams.get('refreshToken');
-  const currentFlowOperation = getOnGoingFlowOperation();
   const router = useRouter();
 
-  switch (currentFlowOperation) {
-    // User email bound during the on boarding. Now redirect to prompt for password
-    case FlowOperation.OnBoardingEmailBinding:
-      // router.push("/onboarding/bind-email-password");
-      clearOnGoingFlowOperation();
+  useEffect(() => {
+    const op = getOnGoingFlowOperation();
+    switch (op) {
+        // User email bound during the on boarding. Now redirect to prompt for password
+      case FlowOperation.OnBoardingEmailBinding:
+        // router.push("/onboarding/bind-email-password");
+        clearOnGoingFlowOperation();
 
-      if (email) {
-        bindOauthEmail(email).then(success => {
-          if (!success) {
-            alert('Failed to bind oauth email.');
-          }
-          router.push('/account/security');
-        });
-      } else {
-        alert('Invalid operation, please try again.');
-      }
-      break;
-    case FlowOperation.OnBoardingEmailSignIn:
-      clearOnGoingFlowOperation();
+        if (email) {
+          bindOauthEmail(email).then(success => {
+            if (!success) {
+              alert('Failed to bind oauth email.');
+            }
+            router.push('/account/security');
+          });
+        } else {
+          alert('Invalid operation, please try again.');
+        }
+        break;
+      case FlowOperation.OnBoardingEmailSignIn:
+        clearOnGoingFlowOperation();
 
-      if (accessToken && accessToken !== '' && refreshToken && refreshToken != '') {
-        fetchSelfUser(accessToken, refreshToken).then(user => {
-          router.push('/dashboard');
-        });
-      } else {
-        alert('Invalid operation, please try again..');
-      }
-      break;
-    default:
-      alert('Invalid operation, please try again...');
-      break;
-  }
+        if (accessToken && accessToken !== '' && refreshToken && refreshToken != '') {
+          fetchSelfUser(accessToken, refreshToken).then(user => {
+            router.push('/dashboard');
+          });
+        } else {
+          alert('Invalid operation, please try again..');
+        }
+        break;
+      default:
+        alert('Invalid operation, please try again...');
+        break;
+    }
+  }, []);
 
   return (<div className="col-span-full">
     <div className={"flex flex-col w-full"}>

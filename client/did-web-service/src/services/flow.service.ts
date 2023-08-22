@@ -12,7 +12,7 @@ export function getOnGoingFlowOperation(): FlowOperation {
 }
 
 export function setOnGoingFlowOperation(operation: FlowOperation) {
-  localStorage.setItem(ONGOING_FLOW_OPERATION, operation.toString());
+  localStorage.setItem(ONGOING_FLOW_OPERATION, FlowOperation[operation]);
 }
 
 export function clearOnGoingFlowOperation() {
