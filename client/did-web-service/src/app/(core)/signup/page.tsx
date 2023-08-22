@@ -13,8 +13,14 @@ const SignUp: FC = () => {
   const router = useRouter();
 
   const onSignUp = async () => {
+    const name = userNameRef.current.value;
+    if (!name || name.trim() === '') {
+      alert('user name must be provided.');
+      return;
+    }
+
     setSignUpBusy(true);
-    const signedUp = await signUp("Ben");
+    const signedUp = await signUp(name);
 
     if (signedUp)
       router.push("/onboarding");

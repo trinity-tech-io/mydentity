@@ -34,9 +34,12 @@ export class UserService {
 
     const user = await this.prisma.user.create({
       data: {
-        type: UserType.EMAIL // TODO: THIS IS WRONG, should not need to have a user "type" that depends on the auth method
+        name: input.name,
+        type: UserType.EMAIL, // TODO: THIS IS WRONG, should not need to have a user "type" that depends on the auth method
+        createdAt: new Date()
       }
     });
+
     return this.authService.generateUserCredentials(user);
   }
 
