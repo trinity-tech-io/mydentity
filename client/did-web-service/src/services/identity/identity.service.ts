@@ -15,10 +15,17 @@ class IdentityService {
   }
 
   /**
-   * Delete identity (DID) for the signed in user
+   * Delete identity (DID)
    */
   public deleteIdentity(didString: string): Promise<boolean> {
     return this.provider.deleteIdentity(didString);
+  }
+
+  /**
+   * Publish identity (DID), return the did transaction payload.
+   */
+  public publish(didString: string): Promise<string> {
+    return this.provider.publish(didString);
   }
 
   /**

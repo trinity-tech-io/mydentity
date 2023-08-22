@@ -6,6 +6,7 @@ import { CurrentUser } from 'src/auth/currentuser.decorator';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CreateIdentityInput } from './dto/create-identity.input';
 import { IdentityEntity } from './entities/identity.entity';
+import { PublishEntity } from './entities/publish.entity';
 import { IdentityService } from './identity.service';
 
 @Resolver(() => IdentityEntity)
@@ -22,6 +23,12 @@ export class IdentityResolver {
   @Mutation(() => Boolean)
   deleteIdentity(@Args('didString') didString: string, @CurrentUser() user: User) {
     return this.didService.deleteIdentity(didString, user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => PublishEntity)
+  publish(@Args('didString') didString: string, @CurrentUser() user: User) {
+    return this.didService.publish(didString, user);
   }
 
   @UseGuards(JwtAuthGuard)

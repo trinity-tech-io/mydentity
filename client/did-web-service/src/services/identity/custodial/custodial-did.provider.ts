@@ -3,6 +3,7 @@ import { VerifiableCredential, VerifiablePresentation } from "@elastosfoundation
 import { gqlCredentialFields } from "@graphql/credential.fields";
 import { gqlIdentityFields } from "@graphql/identity.fields";
 import { gqlPresentationFields } from "@graphql/presentation.fields";
+import { gqlPublishFields } from "@graphql/publish.fields";
 import { Credential } from "@model/credential/credential";
 import { CredentialDTO } from "@model/credential/credential.dto";
 import { Identity } from "@model/identity/identity";
@@ -84,6 +85,32 @@ export class CustodialDIDProvider implements IdentityProvider {
     }
 
     return null;
+  }
+
+  async publish(didString: string): Promise<string> {
+    const { data } = await withCaughtAppException(() => {
+      return getApolloClient().mutate<{ payload: string }>({
+        mutation: gql`
+        mutation publish($didString: String!) {
+          publish(didString: $didString) {
+            ${gqlPublishFields}
+          }
+        }
+      `,
+        variables: {
+          didString
+        }
+      });
+    });
+
+    console.log(data)
+
+    if (data?.payload) {
+      return data.payload;
+    }
+    else {
+      throw new Error("Failed to publish DID");
+    }
   }
 
   async createCredential(identityDid: string, credentialId: string, types: string[],

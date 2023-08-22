@@ -1,11 +1,14 @@
-import { DIDBackend, DIDStore, DefaultDIDAdapter, Issuer, Mnemonic, RootIdentity, VerifiableCredential, VerifiablePresentation } from '@elastosfoundation/did-js-sdk';
+import { DIDBackend, DIDDocument, DIDStore, DefaultDIDAdapter, Issuer, Logger, Mnemonic, RootIdentity, VerifiableCredential, VerifiablePresentation } from '@elastosfoundation/did-js-sdk';
 import { Injectable } from '@nestjs/common';
 import { join } from 'path';
+import { logger } from '../logger';
+import { DidAdapter } from './did.adapter';
 
 @Injectable()
 export class DidService {
   private network = 'mainnet';
   private didStoreCache: { [didStorePath: string]: DIDStore } = {};
+  private globalDidAdapter: DidAdapter = null;
 
   generateMnemonic(language: string) {
     return Mnemonic.getInstance(language).generate();
@@ -17,7 +20,7 @@ export class DidService {
 
     const didStoreDir = join(__dirname, "../..", "didstores", didStorePath);
     console.log('didStoreDir:', didStoreDir);
-    // Logger.setLevel(Logger.INFO)
+    Logger.setLevel(Logger.INFO)
 
     const didStore = await DIDStore.open(didStoreDir);
     this.didStoreCache[didStorePath] = didStore;
@@ -33,8 +36,8 @@ export class DidService {
   async getRootIdentity(didStorePath: string, storePassword: string) {
     const didStore = await this.openStore(didStorePath);
 
-    const didAdapter = new DefaultDIDAdapter(this.network);
-    DIDBackend.initialize(didAdapter);
+    this.globalDidAdapter = new DidAdapter();
+    DIDBackend.initialize(new DefaultDIDAdapter(this.network));
 
     let rootIdentity: RootIdentity = null;
     if (!didStore.containsRootIdentities()) {
@@ -45,7 +48,6 @@ export class DidService {
       console.log('contains rootIdentities, use the exist rootIdentity');
       rootIdentity = await didStore.loadRootIdentity();
     }
-    console.log('rootIdentities :', rootIdentity)
     return rootIdentity;
   }
 
@@ -106,5 +108,24 @@ export class DidService {
 
     const vpBuilder = await VerifiablePresentation.createFor(didString, null, didStore);
     return vpBuilder.credentials(...vc).nonce(nonce).realm(realm).seal(storepass);
+  }
+
+  // Get the payload of did transaction.
+  async publishDID(didStorePath: string, didString: string, storepass: string) {
+    logger.log('DidService', 'publishDID', didString)
+    const didStore = await this.openStore(didStorePath);
+    const didDocument = await didStore.loadDid(didString);
+
+    const isExpired = didDocument.isExpired();
+
+    const docBuilder = DIDDocument.Builder.newFromDocument(didDocument).edit();
+    const newDoc = await docBuilder.setDefaultExpires().seal(storepass);
+    if (isExpired) {
+      await newDoc.publish(storepass, null, true, this.globalDidAdapter);
+    } else {
+      await newDoc.publish(storepass, null, false, this.globalDidAdapter);
+    }
+
+    return this.globalDidAdapter.getPayload();
   }
 }

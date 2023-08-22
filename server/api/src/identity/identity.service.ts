@@ -76,6 +76,16 @@ export class IdentityService {
     return successfulDeletion;
   }
 
+  async publish(didString: string, user: User) {
+    console.log('IdentityService', "publish", didString)
+    const storePassword = '123456'; // TODO: use account key
+
+    const payload = await this.didService.publishDID(user.id, didString, storePassword);
+    return {
+      payload: payload.toString(),
+    }
+  }
+
   findAll(user: User) {
     return this.prisma.identity.findMany({
       where: {
