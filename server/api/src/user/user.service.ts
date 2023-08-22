@@ -11,7 +11,7 @@ import {EmailTemplateType} from "../emailing/email-template-type";
 import {EmailingService} from "../emailing/emailing.service";
 import {SignUpInput} from './dto/sign-up.input';
 import {AppException} from "../exceptions/app-exception";
-import {AuthExceptionCode} from "../exceptions/exception-codes";
+import {AppExceptionCode, AuthExceptionCode} from "../exceptions/exception-codes";
 import {CurrentUser} from "../auth/currentuser.decorator";
 import {UserEntity} from "./entities/user.entity";
 import {UserEmailEntity} from "./entities/user-email.entity";
@@ -224,7 +224,7 @@ export class UserService {
    * @param user
    * @param email
    */
-  async bindOauthEmail(user, email: string) {
+  async bindOauthEmail(user: UserEntity, email: string) {
     const userEmail: UserEmailEntity = await this.prisma.userEmail.findFirst({
       where: { email },
       include: { user: true }
@@ -247,5 +247,37 @@ export class UserService {
     }
 
     return user;
+  }
+
+  async listUserEmails(user: UserEntity) {
+    return await this.prisma.userEmail.findMany({
+      where: {
+        userId: user.id
+      }
+    })
+  }
+
+  async deleteUserEmail(user: UserEntity, email: string) {
+    const userEmail: UserEmailEntity = await this.prisma.userEmail.findFirst({
+      where: {
+        email
+      },
+      include: {
+        user: true
+      }
+    });
+
+    if (!userEmail)
+      return
+
+    if (userEmail.user.id !== user.id) {
+      throw new AppException(AuthExceptionCode.AuthError, `No permission to remove email ${email}`, 401);
+    }
+
+    await this.prisma.userEmail.delete({
+      where: {
+        id: userEmail.id
+      }
+    });
   }
 }

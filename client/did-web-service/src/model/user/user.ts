@@ -5,6 +5,7 @@ import { SecurityFeature } from "./features/security/security.feature";
 import { UserFeature } from "./features/user-feature";
 import { usersCache } from "./user.cache";
 import { UserDTO } from "./user.dto";
+import {UserEmailFeature} from "@model/user/features/email/email.feature";
 
 export type FeatureExtensionRegistrationCb = (user: User) => UserFeature;
 
@@ -17,6 +18,7 @@ export class User {
   private features = new Map<string, UserFeature>();
 
   constructor() {
+    this.addFeature("email", new UserEmailFeature(this));
     this.addFeature("identity", new IdentityFeature(this));
     this.addFeature("device", new DeviceFeature(this));
     this.addFeature("security", new SecurityFeature(this));
@@ -42,10 +44,11 @@ export class User {
     }
   }
 
+  public get(feature: "email"): UserEmailFeature;
   public get(feature: "identity"): IdentityFeature;
   public get(feature: "device"): DeviceFeature;
   public get(feature: "security"): SecurityFeature;
-  public get(feature: "identity" | "device" | "security"): UserFeature {
+  public get(feature: "email" | "identity" | "device" | "security"): UserFeature {
     if (!this.features.has(feature)) {
       throw new Error(`Unhandled user feature '${feature}'`);
     }

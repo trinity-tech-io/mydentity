@@ -1,0 +1,1 @@
+export const graphQLPublicUserEmailFields = `id userId email createdAt`;

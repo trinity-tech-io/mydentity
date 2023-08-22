@@ -6,12 +6,11 @@ import SeparateLine from './widgets/SeparateLine'
 import { EmailSignIn } from './widgets/EmailSignIn'
 import { Card } from '@material-ui/core';
 import clsx from 'clsx';
-import {isLogined} from "@services/user/user.service";
+import {signOut} from "@services/user/user.service";
 
 const SignIn: FC = () => {
     useEffect(() => {
-        // fix console error.
-        const logined = isLogined();
+        signOut();
     }, []);
 
   return (

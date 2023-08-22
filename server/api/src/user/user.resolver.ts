@@ -12,6 +12,7 @@ import {LoggedUserOutput} from "./dto/logged-user.output";
 import {RefreshTokenOutput} from "./dto/refresh-token.output";
 import {RefreshTokenInput} from "./dto/refresh-token.input";
 import { SignUpInput } from './dto/sign-up.input';
+import {UserEmailEntity} from "./entities/user-email.entity";
 
 @Resolver(() => UserEntity)
 export class UserResolver {
@@ -89,6 +90,19 @@ export class UserResolver {
   @Mutation(() => Boolean, { nullable: true })
   async bindOauthEmail(@CurrentUser() user: UserEntity, @Args('email') email: string) {
     await this.userService.bindOauthEmail(user, email);
+    return true;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Query(() => [UserEmailEntity])
+  async listUserEmails(@CurrentUser() user: UserEntity) {
+    return await this.userService.listUserEmails(user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => Boolean)
+  async deleteUserEmail(@CurrentUser() user: UserEntity, @Args('email') email: string) {
+    await this.userService.deleteUserEmail(user, email);
     return true;
   }
 }
