@@ -1,6 +1,7 @@
 "use client";
 import { MainButton } from "@components/MainButton";
 import { Typography } from "@mui/material";
+import { FlowOperation, setOnGoingFlowOperation } from "@services/flow.service";
 import { useRouter } from "next/navigation";
 import { FC } from "react";
 
@@ -8,6 +9,7 @@ const OnBoarding: FC = () => {
   const router = useRouter();
 
   const bindEmail = () => {
+    setOnGoingFlowOperation(FlowOperation.OnBoardingEmailBinding);
     router.push("/account/security/bind-email");
   }
 

@@ -23,8 +23,7 @@ const Dashboard: FC = () => {
         window.location.replace('/dashboard');
       });
     }
-  }, [accessToken, refreshToken]);
-
+  }, []);
 
   const signUp = () => {
     router.push("/signup")

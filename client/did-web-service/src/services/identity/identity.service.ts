@@ -7,9 +7,6 @@ class IdentityService {
   private provider: IdentityProvider = new CustodialDIDProvider(); // For now, only a custodial provider in use
   private activeIdentityId = "";
 
-  public async init() {
-  }
-
   /**
    * Creates a new identity (DID) for the signed in user
    */
