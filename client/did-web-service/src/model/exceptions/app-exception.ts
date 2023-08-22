@@ -5,7 +5,8 @@ import { AppExceptionCode } from "./exception-codes";
  */
 export class AppException {
   public source: string;
-  public statusCode: AppExceptionCode;
+  public appExceptionCode: AppExceptionCode;
+  public statusCode: number; // http code
   public timestamp: Date;
   public message: string; // Message displayable to end user
 
@@ -30,7 +31,8 @@ export class AppException {
   public static newClientError(code: AppExceptionCode, message: string): AppException {
     const e = new AppException();
     e.message = message;
-    e.statusCode = code;
+    e.appExceptionCode = code;
+    e.statusCode = -1;
     e.timestamp = new Date();
     e.source = "client";
     return e;

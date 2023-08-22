@@ -4,8 +4,9 @@ import AppThemeProvider from '../theming/AppThemeContext';
 
 import { PasswordPromptContextProvider } from '@components/PasswordPrompt';
 import { onNewError$ } from '@services/error.service';
+import { useToast } from '@services/feedback.service';
 import { initApp as initClientSide } from '@services/init.service';
-import { SnackbarProvider, useSnackbar } from 'notistack';
+import { SnackbarProvider } from 'notistack';
 import { Header } from '../partials/Header';
 import Sidebar from '../partials/Sidebar';
 import ThemeRegistry from '../theming/ThemeRegistry';
@@ -22,12 +23,12 @@ initClientSide();
 const LayoutCore: FC<{ children: ReactNode }> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const { enqueueSnackbar } = useSnackbar();
+  const { showErrorToast } = useToast();
 
   // Show API errors as error toast messages
   useEffect(() => {
     const sub = onNewError$.subscribe(e => {
-      enqueueSnackbar(e.message, { variant: "error" });
+      showErrorToast(e.appExceptionCode + " - " + e.message);
     });
     return () => { sub.unsubscribe() };
   });

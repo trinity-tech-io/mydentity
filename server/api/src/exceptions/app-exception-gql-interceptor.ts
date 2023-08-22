@@ -17,6 +17,7 @@ export class AppExceptionGraphQLInterceptor implements NestInterceptor {
             throw new HttpException({
               source: "api",
               timestamp: new Date().toISOString(),
+              appExceptionCode: exception.appExceptionCode,
               statusCode: exception.httpCode,
               message: exception.message
             }, exception.httpCode)

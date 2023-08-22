@@ -9,10 +9,11 @@ export const MainButton: FC<{
   onClick?: () => void;
   children: ReactNode;
   busy?: boolean;
-}> = ({ leftIcon, size = "medium", onClick, children, busy = false }) => {
+  disabled?: boolean;
+}> = ({ leftIcon, size = "medium", onClick, children, busy = false, disabled = false }) => {
   const busyIcon = <CircularProgress size={16} />
 
   return (
-    <Button startIcon={busy ? busyIcon : leftIcon} disabled={busy} size={size} variant="contained" onClick={onClick}>{children}</Button>
+    <Button startIcon={busy ? busyIcon : leftIcon} disabled={busy || disabled} size={size} variant="contained" onClick={onClick}>{children}</Button>
   )
 }

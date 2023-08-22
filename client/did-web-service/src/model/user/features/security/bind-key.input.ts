@@ -1,8 +1,9 @@
-import { UserShadowKeyType } from "@model/security/user-shadow-key-type";
+import { ShadowKeyType } from "@model/shadow-key/shadow-key-type";
 
 export type BindKeyInput = {
+  keyId: string;
   key: string;
-  type: UserShadowKeyType;
+  type: ShadowKeyType;
   authorizationKey?: string;
-  authorizationType?: UserShadowKeyType;
+  authorizationType?: ShadowKeyType;
 }

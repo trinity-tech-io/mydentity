@@ -7,6 +7,7 @@ import ManageIcon from '@assets/images/manage.svg';
 import MarketplaceIcon from '@assets/images/marketplace.svg';
 import SupportIcon from '@assets/images/support.svg';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
+import { useMounted } from '@hooks/useMounted';
 import { activeIdentity$ } from '@services/identity/identity.events';
 import { authUser$ } from '@services/user/user.events';
 import clsx from 'clsx';
@@ -26,6 +27,7 @@ type GroupConfig = {
   title: string;
   url?: string;
   links?: LinkConfig[];
+  requiresAuth?: boolean; // This link group will be shown only if user is signed in
 }
 
 const groups: GroupConfig[] = [
@@ -40,7 +42,8 @@ const groups: GroupConfig[] = [
     links: [
       { title: "My profile", url: "/profile" },
       { title: "All credentials", url: "/credentials/list" }
-    ]
+    ],
+    requiresAuth: true
   },
   {
     icon: MarketplaceIcon,
@@ -108,10 +111,15 @@ const GroupElement: FC<{
   group: GroupConfig;
   onGroupHeaderClicked: () => void;
 }> = ({ group, onGroupHeaderClicked }) => {
-  const { icon, title, links } = group;
+  const { icon, title, links, requiresAuth = false } = group;
   const pathname = usePathname();
   const isActive = group.url === pathname || group.links?.some(l => l.url === pathname);
   const [open, setOpen] = useState(isActive);
+  const [authUser] = useBehaviorSubject(authUser$());
+  const { mounted } = useMounted();
+
+  if ((requiresAuth && (!authUser || !mounted))) // render server and client without this item until we know more about "authUser"
+    return null;
 
   return (
     <div>
@@ -164,7 +172,6 @@ const Sidebar: FC<{
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
 }> = ({ sidebarOpen, setSidebarOpen }) => {
-  const pathname = usePathname();
   const [authUser] = useBehaviorSubject(authUser$());
 
   const trigger = useRef<any>(null);

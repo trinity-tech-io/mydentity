@@ -1,22 +1,21 @@
 "use client";
 import { MainButton } from "@components/MainButton";
-import { usePasswordPrompt } from "@components/PasswordPrompt";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useMounted } from "@hooks/useMounted";
 import { Typography } from "@mui/material";
 import { authUser$ } from "@services/user/user.events";
 import { useRouter } from "next/navigation";
-import { FC, createRef } from "react";
+import { FC } from "react";
 
 const Security: FC = () => {
   const { mounted } = useMounted();
   const [authUser] = useBehaviorSubject(authUser$());
   const securityFeature = authUser?.get("security");
-  const [devices] = useBehaviorSubject(authUser?.get("device").devices$);
-  const { showPasswordPrompt } = usePasswordPrompt();
+  const deviceFeature = authUser?.get("device");
+  const [devices] = useBehaviorSubject(deviceFeature?.devices$);
+  const [shadowKeys] = useBehaviorSubject(securityFeature?.shadowKeys$); // KEY THIS to lazily fetch the shadow keys
+  const isPasswordBound = securityFeature?.isPasswordBound();
   const router = useRouter();
-
-  const newPasswordRef = createRef<HTMLInputElement>()
 
   const bindDevice = () => {
     securityFeature.bindDevice();
@@ -49,6 +48,10 @@ const Security: FC = () => {
           {devices.map(device => <div key={device.id}>{device.name}</div>)}
         </>
       }
+      <br /><br />
+      {shadowKeys && <>
+        Password bound: <b>{isPasswordBound ? "YES" : "NO"}</b>
+      </>}
       <br /><br />
 
       <div className="flex flex-col mb-4">
