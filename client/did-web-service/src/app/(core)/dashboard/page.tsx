@@ -2,27 +2,22 @@
 import { MainButton } from "@components/MainButton";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { authUser$ } from "@services/user/user.events";
-import { fetchSelfUser } from "@services/user/user.service";
-import { useRouter, useSearchParams } from "next/navigation";
+import { isLogined } from "@services/user/user.service";
+import { useRouter } from "next/navigation";
 import { FC, useEffect } from "react";
 import { WelcomeBanner } from "./WelcomeBanner";
 import { IdentityListWidget } from "./widgets/IdentityList";
 import { RecentActivityWidget } from "./widgets/RecentActivity";
+import { clearOnGoingFlowOperation } from "@services/flow.service";
 
 const Dashboard: FC = () => {
-  // get access token from url params.
-  const searchParams = useSearchParams();
-  const accessToken = searchParams.get('accessToken');
-  const refreshToken = searchParams.get('refreshToken');
+  clearOnGoingFlowOperation();
   const [authUser] = useBehaviorSubject(authUser$());
   const router = useRouter();
 
   useEffect(() => {
-    if (accessToken && accessToken !== '' && refreshToken && refreshToken != '') {
-      fetchSelfUser(accessToken, refreshToken).then(user => {
-        window.location.replace('/dashboard');
-      });
-    }
+    // keep this for console error.
+    const logined = isLogined();
   }, []);
 
   const signUp = () => {

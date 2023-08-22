@@ -5,6 +5,7 @@ import {authenticateWithEmailAddress, bindWithEmailAddress} from "@services/user
 import { FC, FormEvent, useRef, useState } from "react";
 import clsx from 'clsx';
 import { makeStyles } from '@mui/styles';
+import {FlowOperation, setOnGoingFlowOperation} from "@services/flow.service";
 
 const useStyles = makeStyles((theme) => ({
   centeredContainer: {
@@ -28,6 +29,7 @@ export const EmailSignIn: FC = () => {
     if (emailAddress !== "") {
       setAuthEmailSent(true);
 
+      setOnGoingFlowOperation(FlowOperation.OnBoardingEmailSignIn);
       void authenticateWithEmailAddress(emailAddress);
     }
   }

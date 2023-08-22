@@ -5,6 +5,7 @@ import { bindWithEmailAddress } from "@services/user/user.service";
 import { FC, FormEvent, useRef, useState } from "react";
 import clsx from 'clsx';
 import { makeStyles } from '@mui/styles';
+import {FlowOperation, setOnGoingFlowOperation} from "@services/flow.service";
 
 const useStyles = makeStyles((theme) => ({
   centeredContainer: {
@@ -28,6 +29,7 @@ export const BindEmailOnly: FC = () => {
     if (emailAddress !== "") {
       setAuthEmailSent(true);
 
+      setOnGoingFlowOperation(FlowOperation.OnBoardingEmailBinding);
       void bindWithEmailAddress(emailAddress);
     }
   }
