@@ -33,3 +33,23 @@ This web app aims at helping users easily get a W3C DID and manage it. The app a
 - Preview SVG pictures: SimonSiefke.svg-preview
 - Traling spaces (to remove useless spaces when saving): shardulm94.trailing-spaces
 - Markdown (for README preview): yzhang.markdown-all-in-one
+
+# VSCode settings.json recommendation
+
+Add the following .vscode/settings.json in order to:
+
+- Not open the node_modules/ folder all the time when viewing library prototypes.
+- Auto-add missing imports when saving
+- Auto-cleanup useless imports when saving
+
+```
+{
+  "explorer.autoRevealExclude": {
+    "**/node_modules": true
+  },
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": true,
+    "source.addMissingImports": true
+  }
+}
+```

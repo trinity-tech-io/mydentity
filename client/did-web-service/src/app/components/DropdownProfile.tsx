@@ -1,22 +1,23 @@
 'use client';
 
 import UserAvatar from '@assets/images/user-avatar-32.png';
-import { getActiveUser } from "@services/user/user.events";
+import Transition from "@components/Transition";
+import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
+import { authUser$, getActiveUser } from "@services/user/user.events";
 import { signOut } from "@services/user/user.service";
 import Image from 'next/image';
 import Link from 'next/link';
-import Notifications from '../components/DropdownNotifications';
-import {useSearchParams} from "next/navigation";
-import {useEffect, useRef, useState} from "react";
-import Transition from "@components/Transition";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 
 export function DropdownUserProfile({
   align
 }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  // const [userName, setUserName] = useState('user@hotmail.com');
+  const [activeUser] = useBehaviorSubject(authUser$());
+  const isLogin = !!activeUser;
+  const userName = activeUser?.name;
   const [userTypeDesc, setUserTypeDesc] = useState('UNKNOWN');
-  const [isLogin, setIsLogin] = useState(false);
 
   // get access token from url params.
   const searchParams = useSearchParams();
@@ -41,7 +42,6 @@ export function DropdownUserProfile({
     const user = getActiveUser();
     if (user) {
       updateUserDesc(user);
-      setIsLogin(true);
     }
 
     const clickHandler = ({ target }) => {
@@ -90,7 +90,7 @@ export function DropdownUserProfile({
 
         {isLogin && (
           <div className="flex items-center truncate">
-            <span className="truncate ml-2 text-sm font-medium dark:text-slate-300 group-hover:text-slate-800 dark:group-hover:text-slate-200">Signed in</span>
+            <span className="truncate ml-2 text-sm font-medium dark:text-slate-300 group-hover:text-slate-800 dark:group-hover:text-slate-200">Hey, {userName}</span>
             <svg className="w-3 h-3 shrink-0 ml-1 fill-current text-slate-400" viewBox="0 0 12 12">
               <path d="M5.9 11.4L.5 6l1.4-1.4 4 4 4-4L11.3 6z" />
             </svg>
@@ -123,10 +123,19 @@ export function DropdownUserProfile({
               <li>
                 <Link
                   className="font-medium text-sm text-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center py-1 px-3"
+                  href="/account/profile"
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                >
+                  Account profile
+                </Link>
+              </li>
+              <li>
+                <Link
+                  className="font-medium text-sm text-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center py-1 px-3"
                   href="/account/security"
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                 >
-                  Security
+                  Security center
                 </Link>
               </li>
               <li>
@@ -138,11 +147,11 @@ export function DropdownUserProfile({
                   Sign Out
                 </Link>
               </li>
-              <li>
+              {/* <li>
                 <div className='py-1 px-3'>
                   <Notifications align="right" />
                 </div>
-              </li>
+              </li> */}
             </ul>
           </div>
         </Transition>

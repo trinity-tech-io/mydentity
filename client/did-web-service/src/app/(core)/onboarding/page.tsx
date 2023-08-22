@@ -7,8 +7,12 @@ import { FC } from "react";
 const OnBoarding: FC = () => {
   const router = useRouter();
 
-  const goToSecurityCenter = async () => {
-    router.push("/account/security");
+  const bindEmail = () => {
+    router.push("/account/security/bind-email");
+  }
+
+  const bindBrowser = () => {
+    router.push("/account/security/bind-device");
   }
 
   return (
@@ -25,8 +29,15 @@ const OnBoarding: FC = () => {
         as this is your only way to recover your account later in case one of the devices is lost. <b>We cannot do that for you</b>.
       </p>
 
-      <div className="flex flex-col mt-4 gap-4">
-        <MainButton onClick={goToSecurityCenter}>Enter security center</MainButton>
+      <div className="flex flex-row mt-4 gap-4 w-full">
+        <div className="flex flex-col gap-6 bg-slate-200 rounded-lg p-10 flex-1">
+          <p>Verify one of your existing email addresses and bind it to your account with a password. You can later use your <b>email and password</b> to sign in and unlock access to your identity.</p>
+          <MainButton onClick={bindEmail}>Bind an email address</MainButton>
+        </div>
+        <div className="flex flex-col gap-6 bg-slate-200 rounded-lg p-10 flex-1">
+          <p>Bind your current browser. This <b>doesn't require to provide any email or password</b>, but access to your identity will be lost if you don't bind multiple devices as recovery.</p>
+          <MainButton onClick={bindBrowser}>Bind my browser</MainButton>
+        </div>
       </div>
     </div>
   )

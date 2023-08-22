@@ -1,11 +1,10 @@
-import { useEffect, useRef } from 'react';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
-import Transition from './Transition';
-import { authUser$ } from '@services/user/user.events';
+import { TextField } from '@mui/material';
 import { activeIdentity$ } from '@services/identity/identity.events';
 import { identityService } from '@services/identity/identity.service';
-import { logger } from '@services/logger';
-import { CredentialsFeature } from '@model/identity/features/credentials/credentials.feature';
+import { authUser$ } from '@services/user/user.events';
+import { useEffect, useRef } from 'react';
+import Transition from './Transition';
 
 function ModalCreateIdentity({
   id,
@@ -108,27 +107,26 @@ function ModalCreateIdentity({
       >
         <div
           ref={modalContent}
-          className="bg-white dark:bg-slate-800 border border-transparent dark:border-slate-700 overflow-auto max-w-2xl w-full max-h-full rounded shadow-lg"
+          className="bg-white dark:bg-slate-800 p-4 border border-transparent dark:border-slate-700 overflow-auto max-w-2xl w-full max-h-full rounded shadow-lg"
         >
           <form className="border-b border-slate-200 dark:border-slate-700" onSubmit={handleSubmit}>
             <div className="pt-2 pb-2">
-            <label className="px-4 inset-0 w-20 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase">
-                Name
-              </label>
-              <input
-                className=" w-10/12 px-2 dark:text-slate-300 bg-white dark:bg-slate-800 border-0 focus:ring-transparent placeholder-slate-400 dark:placeholder-slate-500 appearance-none"
-                placeholder="Input user name"
-                ref={nameInput}
+              <TextField
+                className='w-full'
+                label="Remember this identity with a name"
+                inputRef={nameInput}
+                variant="outlined"
+                size="small"
               />
             </div>
           </form>
 
           <button className="btn w-full bg-indigo-500 hover:bg-indigo-600 text-white whitespace-nowrap" onClick={handleSubmit}>
-              <span className="hidden xs:block ml-2">Create new did</span>
-              <svg className="ml-2 w-4 h-4 fill-current opacity-50 shrink-0" viewBox="0 0 16 16">
-                <path d="M15 7H9V1c0-.6-.4-1-1-1S7 .4 7 1v6H1c-.6 0-1 .4-1 1s.4 1 1 1h6v6c0 .6.4 1 1 1s1-.4 1-1V9h6c.6 0 1-.4 1-1s-.4-1-1-1z" />
-              </svg>
-            </button>
+            <span className="hidden xs:block ml-2">Create this identity</span>
+            <svg className="ml-2 w-4 h-4 fill-current opacity-50 shrink-0" viewBox="0 0 16 16">
+              <path d="M15 7H9V1c0-.6-.4-1-1-1S7 .4 7 1v6H1c-.6 0-1 .4-1 1s.4 1 1 1h6v6c0 .6.4 1 1 1s1-.4 1-1V9h6c.6 0 1-.4 1-1s-.4-1-1-1z" />
+            </svg>
+          </button>
         </div>
       </Transition>
     </>

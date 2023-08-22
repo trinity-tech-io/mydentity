@@ -88,7 +88,7 @@ export const DropdownIdentity: FC<{
           />
         </svg>
         <div className="flex items-center truncate">
-          <span className="truncate ml-2 text-sm font-medium dark:text-slate-300 group-hover:text-slate-800 dark:group-hover:text-slate-200">{currentIdentity ? currentIdentity.did : "Select Identity"}</span>
+          <span className="truncate ml-2 text-sm font-medium dark:text-slate-300 group-hover:text-slate-800 dark:group-hover:text-slate-200">{currentIdentity ? currentIdentity.did : "No active identity"}</span>
           <svg className="w-3 h-3 shrink-0 ml-1 fill-current text-slate-400" viewBox="0 0 12 12">
             <path d="M5.9 11.4L.5 6l1.4-1.4 4 4 4-4L11.3 6z" />
           </svg>
@@ -115,7 +115,7 @@ export const DropdownIdentity: FC<{
               setDropdownOpen(false);
               setCreateDidModalOpen(true);
             }}>
-              <span className="hidden xs:block ml-2">Create New DID</span>
+              <span className="hidden xs:block ml-2">Create a new identity</span>
               <svg className="ml-2 w-4 h-4 fill-current opacity-50 shrink-0" viewBox="0 0 16 16">
                 <path d="M15 7H9V1c0-.6-.4-1-1-1S7 .4 7 1v6H1c-.6 0-1 .4-1 1s.4 1 1 1h6v6c0 .6.4 1 1 1s1-.4 1-1V9h6c.6 0 1-.4 1-1s-.4-1-1-1z" />
               </svg>

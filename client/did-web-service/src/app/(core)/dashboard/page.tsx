@@ -1,18 +1,21 @@
 'use client'
-import {FC, useEffect} from "react";
+import { MainButton } from "@components/MainButton";
+import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
+import { authUser$ } from "@services/user/user.events";
+import { fetchSelfUser } from "@services/user/user.service";
+import { useRouter, useSearchParams } from "next/navigation";
+import { FC, useEffect } from "react";
 import { WelcomeBanner } from "./WelcomeBanner";
 import { IdentityListWidget } from "./widgets/IdentityList";
 import { RecentActivityWidget } from "./widgets/RecentActivity";
-import {useSearchParams} from "next/navigation";
-import {fetchSelfUser} from "@services/user/user.service";
 
 const Dashboard: FC = () => {
-  console.log('enter dashboard')
-
   // get access token from url params.
   const searchParams = useSearchParams();
   const accessToken = searchParams.get('accessToken');
   const refreshToken = searchParams.get('refreshToken');
+  const [authUser] = useBehaviorSubject(authUser$());
+  const router = useRouter();
 
   useEffect(() => {
     if (accessToken && accessToken !== '' && refreshToken && refreshToken != '') {
@@ -20,10 +23,19 @@ const Dashboard: FC = () => {
         window.location.replace('/dashboard');
       });
     }
-  }, []);
+  }, [accessToken, refreshToken]);
+
+
+  const signUp = () => {
+    router.push("/signup")
+  }
+
+  const signIn = () => {
+    router.push("/signin")
+  }
+
 
   return (<>
-
     {/* Top part */}
     <div className="col-span-full">
       {/* Welcome banner */}
@@ -46,8 +58,24 @@ const Dashboard: FC = () => {
     </div>
 
     {/* Widgets */}
-    <RecentActivityWidget />
-    <IdentityListWidget />
+    {authUser &&
+      <>
+        <RecentActivityWidget />
+        <IdentityListWidget />
+      </>
+    }
+
+    {/* Not signed in */}
+    {!authUser &&
+      <div className="col-span-full flex flex-col">
+        You want a real web3 identity? You've landed at the right place!<br />
+        Continue with one of the following actions:
+        <div className="flex flex-row gap-6 mt-4">
+          <MainButton onClick={signUp} >Sign up</MainButton>
+          <MainButton onClick={signIn} >Sign in</MainButton>
+        </div>
+      </div>
+    }
   </>)
 }
 
