@@ -5,6 +5,7 @@ import EditCredentialDialog, { EDIT_TYPE } from "@components/EditCredentialDialo
 import ListHead from "@components/ListHead";
 import ListToolbar from "@components/ListToolbar";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
+import { useMounted } from "@hooks/useMounted";
 import { BasicCredentialEntry } from "@model/credential/basiccredentialentry";
 import { Credential } from "@model/credential/credential";
 import AddIcon from '@mui/icons-material/Add';
@@ -24,7 +25,7 @@ import React, { FC, forwardRef, useEffect, useState } from "react";
 const CREDENTIAL_LIST_HEAD = [
   { id: 'name', label: 'Name', alignRight: false },
   { id: 'value', label: 'Value', alignRight: false },
-  { id: '', alignRight: false},
+  { id: '', alignRight: false },
 ]
 
 const Alert = forwardRef<HTMLDivElement, AlertProps>(function Alert(
@@ -39,6 +40,7 @@ const Profile: FC = () => {
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const [credentials] = useBehaviorSubject(activeIdentity?.get("credentials").credentials$);
   const [updateCredentialSuccessOpen, setUpdateCredentialSuccessOpen] = useState(false);
+  const { mounted } = useMounted();
 
   const [originCredential, setOriginCredential] = useState<Credential>(null);
   const [avaliableItemKeys, setAvaliableItemKeys] = useState([]);
@@ -62,18 +64,18 @@ const Profile: FC = () => {
   let basicCredentialsKey: string[];
 
   useEffect(() => {
-    if(!basicCredentialsService){
+    if (!basicCredentialsService) {
       basicCredentialsService = new BasicCredentialsService();
       basicCredentialsKey = basicCredentialsService.getBasicCredentialkeys();
     }
 
-    if(credentials){
+    if (credentials) {
       setAvaliableItemKeys(findAvailableItem(basicCredentialsKey, getCredentialsKeys(credentials)));
     }
-  },[credentials]);
+  }, [credentials]);
 
   const getCredentialsKeys = (credentials: Credential[]): string[] => {
-    return credentials.map(c => ( c.verifiableCredential.getId().getFragment()));
+    return credentials.map(c => (c.verifiableCredential.getId().getFragment()));
   };
 
   const findAvailableItem = (basicCredentialKeys: string[], existCredentialKeys: string[]): string[] => {
@@ -85,7 +87,7 @@ const Profile: FC = () => {
   const handleCreateCredentialDialogClose = (value: string) => {
     setOpenCreateCredential(false);
     console.log("selected value", value);
-    if(value){
+    if (value) {
       setOpenEditCredentialDialog(true);
       setPreEditCredentialKey(value);
       setPreEditCredentialValue('');
@@ -94,7 +96,7 @@ const Profile: FC = () => {
     }
   };
 
-  const handleEditCredentialDialogClose = async (editCredentialValue: {key: string, value: string, type: EDIT_TYPE, originCredential: Credential}) => {
+  const handleEditCredentialDialogClose = async (editCredentialValue: { key: string, value: string, type: EDIT_TYPE, originCredential: Credential }) => {
     setOpenEditCredentialDialog(false);
     if (!editCredentialValue)
       return;
@@ -102,7 +104,7 @@ const Profile: FC = () => {
     if (!editCredentialValue.value)
       return;
 
-    if (editCredentialValue.type == EDIT_TYPE.EDIT && editCredentialValue.originCredential){
+    if (editCredentialValue.type == EDIT_TYPE.EDIT && editCredentialValue.originCredential) {
       try {
         await updateCredential(editCredentialValue.originCredential, editCredentialValue.value)
       } catch (error) {
@@ -110,7 +112,7 @@ const Profile: FC = () => {
       }
     }
 
-    if (editCredentialValue.type == EDIT_TYPE.NEW && !originCredential){
+    if (editCredentialValue.type == EDIT_TYPE.NEW && !originCredential) {
       try {
         await createCredential('', [], editCredentialValue.key, editCredentialValue.value);
       } catch (error) {
@@ -219,7 +221,7 @@ const Profile: FC = () => {
   }
 
   const getCredentialId = (credential: Credential): string => {
-    if(!credential && !credential.verifiableCredential && !credential.verifiableCredential.getId())
+    if (!credential && !credential.verifiableCredential && !credential.verifiableCredential.getId())
       return '';
     return credential.verifiableCredential.getId().toString()
   }
@@ -232,17 +234,17 @@ const Profile: FC = () => {
     }
   }
 
-  const createCredential = async (credentialId: string, types: string[], key: string, value: string) =>{
+  const createCredential = async (credentialId: string, types: string[], key: string, value: string) => {
     let credentialType: string[] = [];
     try {
       let finalCredentialId;
-      if (!credentialId){
-        finalCredentialId = activeIdentity.did+ "#" + key;
-      }else{
+      if (!credentialId) {
+        finalCredentialId = activeIdentity.did + "#" + key;
+      } else {
         finalCredentialId = credentialId;
       }
       const basicCredentialsService = new BasicCredentialsService();
-      const entry:BasicCredentialEntry = basicCredentialsService.getBasicCredentialInfoByKey(key);
+      const entry: BasicCredentialEntry = basicCredentialsService.getBasicCredentialInfoByKey(key);
       for (let index = 0; index < types.length; index++) {
         credentialType.push(types[index])
       }
@@ -287,7 +289,7 @@ const Profile: FC = () => {
       autoComplete="off"
     >
       <Stack alignItems="center" spacing={3} sx={{ pt: 5, borderRadius: 2, position: 'relative' }}>
-        <Avatar src="/assets/images/account.svg" sx={{ ml:2, width: 120, height: 120 }}/>
+        <Avatar src="/assets/images/account.svg" sx={{ ml: 2, width: 120, height: 120 }} />
       </Stack>
     </Box>
 
@@ -300,91 +302,92 @@ const Profile: FC = () => {
     </Stack>
 
     <Container>
-        <Stack direction="row" alignItems="center" justifyContent="space-between" >
-          <Typography variant="h4" gutterBottom>
+      <Stack direction="row" alignItems="center" justifyContent="space-between" >
+        <Typography variant="h4" gutterBottom>
           About me
-          </Typography>
-          <Button variant="contained" 
-            startIcon={<AddIcon />}
-            onClick={()=>{setOpenCreateCredential(true)}}
-            >
-            New profile item
-          </Button>
-        </Stack>
+        </Typography>
+        <Button variant="contained"
+          startIcon={<AddIcon />}
+          onClick={() => { setOpenCreateCredential(true) }}
+        >
+          New profile item
+        </Button>
+      </Stack>
 
+      {mounted &&
         <Card>
           <ListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
-            <TableContainer sx={{ maxWidth: 1200 }}>
-              <Table>
-                <ListHead
-                  order={order}
-                  orderBy={orderBy}
-                  headLabel={CREDENTIAL_LIST_HEAD}
-                  rowCount={credentials ? credentials.length : 0}
-                  numSelected={selected ? selected.length : 0}
-                  onRequestSort={handleRequestSort}
-                  onSelectAllClick={()=>{}}
-                />
-                <TableBody>
-                  {filteredUsers?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((credential: Credential) => {
-                    // const { id, name, value} = row;
-                    const id = credential.id;
-                    const name = credential.verifiableCredential.getId().getFragment();
-                    const value = getValueFromCredential(credential, name);
+          <TableContainer sx={{ maxWidth: 1200 }}>
+            <Table>
+              <ListHead
+                order={order}
+                orderBy={orderBy}
+                headLabel={CREDENTIAL_LIST_HEAD}
+                rowCount={credentials ? credentials.length : 0}
+                numSelected={selected ? selected.length : 0}
+                onRequestSort={handleRequestSort}
+                onSelectAllClick={() => { }}
+              />
+              <TableBody>
+                {filteredUsers?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((credential: Credential) => {
+                  // const { id, name, value} = row;
+                  const id = credential.id;
+                  const name = credential.verifiableCredential.getId().getFragment();
+                  const value = getValueFromCredential(credential, name);
 
-                    return (
-                      <TableRow hover key={id} tabIndex={-1} >
-                        <TableCell component="th" scope="row" padding="none">
-                          <Stack ml={1} direction="row" alignItems="center" spacing={2}>
-                            <Avatar alt={name} src={"/assets/images/account.svg"} />
-                            <Typography variant="subtitle2" noWrap>
-                              {name}
-                            </Typography>
-                          </Stack>
-                        </TableCell>
-
-                        <TableCell align="left">{value}</TableCell>
-
-                        <TableCell align="right">
-                          <IconButton size="large" color="inherit" onClick={(event)=>{handleOpenMenu(event, credential)}}>
-                            <MoreVertIcon />
-                          </IconButton>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                  {emptyRows > 0 && (
-                    <TableRow style={{ height: 53 * emptyRows }}>
-                      <TableCell colSpan={6} />
-                    </TableRow>
-                  )}
-                </TableBody>
-
-                {isNotFound && (
-                  <TableBody>
-                    <TableRow>
-                      <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
-                        <Paper
-                          sx={{
-                            textAlign: 'center',
-                          }}
-                        >
-                          <Typography variant="h6" paragraph>
-                            Not found
+                  return (
+                    <TableRow hover key={id} tabIndex={-1} >
+                      <TableCell component="th" scope="row" padding="none">
+                        <Stack ml={1} direction="row" alignItems="center" spacing={2}>
+                          <Avatar alt={name} src={"/assets/images/account.svg"} />
+                          <Typography variant="subtitle2" noWrap>
+                            {name}
                           </Typography>
+                        </Stack>
+                      </TableCell>
 
-                          <Typography variant="body2">
-                            No results found for &nbsp;
-                            <strong>&quot;{filterName}&quot;</strong>.
-                            <br /> Try checking for typos or using complete words.
-                          </Typography>
-                        </Paper>
+                      <TableCell align="left">{value}</TableCell>
+
+                      <TableCell align="right">
+                        <IconButton size="large" color="inherit" onClick={(event) => { handleOpenMenu(event, credential) }}>
+                          <MoreVertIcon />
+                        </IconButton>
                       </TableCell>
                     </TableRow>
-                  </TableBody>
+                  );
+                })}
+                {emptyRows > 0 && (
+                  <TableRow style={{ height: 53 * emptyRows }}>
+                    <TableCell colSpan={6} />
+                  </TableRow>
                 )}
-              </Table>
-            </TableContainer>
+              </TableBody>
+
+              {isNotFound && (
+                <TableBody>
+                  <TableRow>
+                    <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
+                      <Paper
+                        sx={{
+                          textAlign: 'center',
+                        }}
+                      >
+                        <Typography variant="h6" paragraph>
+                          Not found
+                        </Typography>
+
+                        <Typography variant="body2">
+                          No results found for &nbsp;
+                          <strong>&quot;{filterName}&quot;</strong>.
+                          <br /> Try checking for typos or using complete words.
+                        </Typography>
+                      </Paper>
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              )}
+            </Table>
+          </TableContainer>
 
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
@@ -396,56 +399,57 @@ const Profile: FC = () => {
             onRowsPerPageChange={handleChangeRowsPerPage}
           />
         </Card>
-      </Container>
+      }
+    </Container>
 
-      <Popover
-        open={Boolean(isOpenPopupMenu)}
-        anchorEl={isOpenPopupMenu}
-        onClose={handleCloseMenu}
-        anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-        PaperProps={{
-          sx: {
-            p: 1,
-            width: 140,
-            '& .MuiMenuItem-root': {
-              px: 1,
-              typography: 'body2',
-              borderRadius: 0.75,
-            },
+    <Popover
+      open={Boolean(isOpenPopupMenu)}
+      anchorEl={isOpenPopupMenu}
+      onClose={handleCloseMenu}
+      anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+      transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+      PaperProps={{
+        sx: {
+          p: 1,
+          width: 140,
+          '& .MuiMenuItem-root': {
+            px: 1,
+            typography: 'body2',
+            borderRadius: 0.75,
           },
-        }}
-      >
-        <MenuItem onClick={handleClickEditCredential}>
-          Edit
-        </MenuItem>
+        },
+      }}
+    >
+      <MenuItem onClick={handleClickEditCredential}>
+        Edit
+      </MenuItem>
 
-        <MenuItem sx={{ color: 'error.main' }} onClick={handleClickDeleteCredential}>
-          Delete
-        </MenuItem>
-      </Popover>
+      <MenuItem sx={{ color: 'error.main' }} onClick={handleClickDeleteCredential}>
+        Delete
+      </MenuItem>
+    </Popover>
 
-      <ComfirmDialog
-        title='Delete this Credential?'
-        content='Do you want to delete this Credential?'
-        open={openConfirmDialog}
-        onClose={(isAgree: boolean)=>handleCloseDialog(isAgree)}
-      />
+    <ComfirmDialog
+      title='Delete this Credential?'
+      content='Do you want to delete this Credential?'
+      open={openConfirmDialog}
+      onClose={(isAgree: boolean) => handleCloseDialog(isAgree)}
+    />
 
-      <CreateCredentialDialog 
-        open={openCreateCredential}
-        onClose={handleCreateCredentialDialogClose}
-        avaliableItemKeys={avaliableItemKeys}
-      />
-      
-      <EditCredentialDialog
-        credentialKey={preEditCredentialKey}
-        defaultValue={preEditCredentialValue}
-        type={editType}
-        open={openEditCredentialDialog}
-        originCredential={originCredential}
-        onClose={handleEditCredentialDialogClose}
-      />
+    <CreateCredentialDialog
+      open={openCreateCredential}
+      onClose={handleCreateCredentialDialogClose}
+      avaliableItemKeys={avaliableItemKeys}
+    />
+
+    <EditCredentialDialog
+      credentialKey={preEditCredentialKey}
+      defaultValue={preEditCredentialValue}
+      type={editType}
+      open={openEditCredentialDialog}
+      originCredential={originCredential}
+      onClose={handleEditCredentialDialogClose}
+    />
   </div>)
 }
 
