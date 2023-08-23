@@ -1,3 +1,5 @@
+import { ShadowKeyType } from '@model/shadow-key/shadow-key-type';
+import { UnlockAuthorization } from '@model/user/features/security/unlock-authorization';
 import { Dialog, Typography } from '@mui/material';
 import React, {
   Dispatch, FC,
@@ -7,7 +9,7 @@ import React, {
 import { PasskeyPrompt } from './PasskeyPrompt';
 import { PasswordPrompt } from './PasswordPrompt';
 
-type OnUnlockKeyCallback = (password: string) => void;
+type OnUnlockKeyCallback = (authorization: UnlockAuthorization) => void;
 
 type UnlockKeyPromptActions = {
   onUnlockKey?: OnUnlockKeyCallback;
@@ -46,9 +48,17 @@ const UnlockKeyPrompt: FC = () => {
     hideDialog();
   }
 
-  const onConfirm = (password) => {
-    actions.onUnlockKey?.(password);
+  const onPasswordConfirmation = (password: string) => {
+    actions.onUnlockKey?.({
+      authType: ShadowKeyType.PASSWORD,
+      authKeyId: "unused-for-now-for-passwords",
+      authKey: password
+    });
     hideDialog();
+  }
+
+  const onPasskeyConfirmation = () => {
+    // TODO
   }
 
   return (
@@ -67,13 +77,13 @@ const UnlockKeyPrompt: FC = () => {
         </Typography>
 
         <div className='mt-4'>
-          <PasswordPrompt onConfirm={onConfirm} />
+          <PasswordPrompt onConfirm={onPasswordConfirmation} />
         </div>
         <div className='my-4 text-center text-xs'>
           or
         </div>
         <div className='mt-4'>
-          <PasskeyPrompt onConfirm={onConfirm} />
+          <PasskeyPrompt onConfirm={onPasskeyConfirmation} />
         </div>
       </div>
     </Dialog>
@@ -85,7 +95,7 @@ export default React.memo(UnlockKeyPrompt);
 export const useUnlockKeyPrompt = () => {
   const { setActions } = useContext(UnlockKeyPromptContext);
 
-  const unlockMasterKey = (): Promise<string> => {
+  const unlockMasterKey = (): Promise<UnlockAuthorization> => {
     return new Promise((resolve) => {
       setActions({ onUnlockKey: resolve });
     });

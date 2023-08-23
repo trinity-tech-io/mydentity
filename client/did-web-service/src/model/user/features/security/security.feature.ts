@@ -11,6 +11,7 @@ import { LazyBehaviorSubjectWrapper } from "@utils/lazy-behavior-subject";
 import { User } from "../../user";
 import { UserFeature } from "../user-feature";
 import { BindKeyInput } from "./bind-key.input";
+import { UnlockAuthorization } from "./unlock-authorization";
 
 export class SecurityFeature implements UserFeature {
   private _shadowKeys$ = new LazyBehaviorSubjectWrapper<ShadowKey[]>(null, this.fetchShadowKeys);
@@ -109,20 +110,23 @@ export class SecurityFeature implements UserFeature {
     }
   }
 
-  public async bindPassword(newPassword: string, masterUnlockCb?: () => Promise<string>) {
+  public async bindPassword(newPassword: string, masterUnlockCb?: () => Promise<UnlockAuthorization>, unlockAuthorization?: UnlockAuthorization): Promise<boolean> {
     logger.log("security", "Binding password");
 
     const input: BindKeyInput = {
       key: newPassword,
       keyId: "unused-for-now-for-passwords",
-      type: ShadowKeyType.PASSWORD
+      type: ShadowKeyType.PASSWORD,
+      ...unlockAuthorization // If any, append the unlock keys to the input
     }
 
     const result = await withCaughtAppException(() => {
-      return getApolloClient().mutate<{ bindKey: boolean }>({
+      return getApolloClient().mutate<{ bindKey: ShadowKeyDTO }>({
         mutation: gql`
           mutation bindKey($input: BindKeyInput!) {
-            bindKey(input: $input)
+            bindKey(input: $input) {
+              ${gqlShadowKeyFields}
+            }
           }
         `,
         variables: { input }
@@ -137,9 +141,9 @@ export class SecurityFeature implements UserFeature {
         // TODO: "UnsupportedAuthenticationKey" is not a great error code, need @jingyu to
         // refine and be very specific on a "need to ask user to unload on UI" kind of error
         if (masterUnlockCb) {
-          const result = await masterUnlockCb();
-          if (result) {
-            return this.bindPassword(newPassword, masterUnlockCb);
+          const unlockresult = await masterUnlockCb();
+          if (unlockresult) {
+            return this.bindPassword(newPassword, masterUnlockCb, unlockresult);
           }
           else {
             // Operation cancelled by user, failure to bind password
@@ -148,14 +152,23 @@ export class SecurityFeature implements UserFeature {
       }
     }
 
-    console.log("bind password result", result?.data);
-
     if (result?.data?.bindKey) {
+      logger.log("security", "Password bound successfully");
+      const shadowKey = await ShadowKey.fromJson(result?.data?.bindKey);
+      this.upsertShadowKey(shadowKey);
       return true;
     }
     else {
       return false;
     }
+  }
+
+  private upsertShadowKey(shadowKey: ShadowKey) {
+    const keys = this.shadowKeys$.value;
+    this.shadowKeys$.next([
+      ...keys.filter(k => !k.equals(shadowKey)),
+      shadowKey
+    ]);
   }
 
   /**

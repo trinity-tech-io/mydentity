@@ -295,33 +295,28 @@ export function onRefreshTokenFailed() {
 }
 
 export async function bindOauthEmail(email: string) {
-  logger.log("user", "Bind oauth email address");
+  logger.log("user", "Binding oauth email address");
 
-  try {
-    const { data } = await withCaughtAppException(() => {
-      return getApolloClient().mutate<{
-        bindOauthEmail: boolean
-      }>({
-        mutation: gql`
+  const { data } = await withCaughtAppException(() => {
+    return getApolloClient().mutate<{
+      bindOauthEmail: boolean
+    }>({
+      mutation: gql`
         mutation BindOauthEmail($email: String!) {
           bindOauthEmail(email: $email)
         }
       `,
-        variables: { email }
-      });
+      variables: { email }
     });
+  });
 
-    const result = data && data.bindOauthEmail;
-    if (!result) {
-      logger.error('user', 'Failed from bindOauthEmail api.');
-    } else {
-
-    }
-    return result;
-  } catch (e) {
-    logger.warn("user", "Exception while bind oauth email to user.");
-    return null;
+  const result = data && data.bindOauthEmail;
+  if (!result) {
+    logger.error('user', 'Failure from the bindOauthEmail api.');
+  } else {
+    logger.log('user', 'Email bound successfully');
   }
+  return result;
 }
 
 export function isLogined() {

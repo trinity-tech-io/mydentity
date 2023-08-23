@@ -4,7 +4,9 @@ import { useUnlockKeyPrompt } from "@components/security/unlock-key-prompt/Unloc
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useMounted } from "@hooks/useMounted";
 import { CircularProgress, Typography } from "@mui/material";
+import { useToast } from "@services/feedback.service";
 import { authUser$ } from "@services/user/user.events";
+import { useRouter } from "next/navigation";
 import { FC } from "react";
 
 const BindPassword: FC = () => {
@@ -14,11 +16,20 @@ const BindPassword: FC = () => {
   const [shadowKeys] = useBehaviorSubject(securityFeature?.shadowKeys$); // KEY THIS to lazily fetch the shadow keys
   const isPasswordBound = securityFeature?.isPasswordBound();
   const { unlockMasterKey } = useUnlockKeyPrompt();
+  const { showSuccessToast } = useToast();
+  const router = useRouter();
 
-  const bindPassword = (password: string) => {
-    securityFeature.bindPassword(password, () => {
+  const bindPassword = async (password: string) => {
+    const bound = await securityFeature.bindPassword(password, () => {
       return unlockMasterKey();
     });
+
+    if (bound) {
+      showSuccessToast("Master password set successfully");
+      setTimeout(() => {
+        router.push("/account/security");
+      }, 2000);
+    }
   }
 
   if (!mounted || !authUser || !shadowKeys)
