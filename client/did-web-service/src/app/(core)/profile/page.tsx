@@ -14,13 +14,14 @@ import { Button, Card, Container, IconButton, MenuItem, Paper, Popover, Stack, T
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
-import Snackbar from '@mui/material/Snackbar';
+import { useToast } from "@services/feedback.service";
 import { BasicCredentialsService } from "@services/identity/basiccredentials.service";
 import { activeIdentity$ } from "@services/identity/identity.events";
 import { logger } from "@services/logger";
 import { filter } from 'lodash';
 import moment from "moment";
-import React, { FC, forwardRef, useEffect, useState } from "react";
+import { FC, forwardRef, useEffect, useState } from "react";
+
 
 const CREDENTIAL_LIST_HEAD = [
   { id: 'name', label: 'Name', alignRight: false },
@@ -39,7 +40,6 @@ const Profile: FC = () => {
   const TAG = "ProfilePage";
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const [credentials] = useBehaviorSubject(activeIdentity?.get("credentials").credentials$);
-  const [updateCredentialSuccessOpen, setUpdateCredentialSuccessOpen] = useState(false);
   const { mounted } = useMounted();
 
   const [originCredential, setOriginCredential] = useState<Credential>(null);
@@ -60,6 +60,8 @@ const Profile: FC = () => {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
 
+  const { showSuccessToast, showErrorToast } = useToast();
+  
   let basicCredentialsService: BasicCredentialsService;
   let basicCredentialsKey: string[];
 
@@ -73,6 +75,14 @@ const Profile: FC = () => {
       setAvaliableItemKeys(findAvailableItem(basicCredentialsKey, getCredentialsKeys(credentials)));
     }
   }, [credentials]);
+
+  const showFeedbackToast = (isSuccess: boolean, preMsg: string) => {
+    if(isSuccess){
+      showSuccessToast(preMsg + ' Success');
+    }else{
+      showErrorToast(preMsg + ' Faild');
+    }
+  }
 
   const getCredentialsKeys = (credentials: Credential[]): string[] => {
     return credentials.map(c => (c.verifiableCredential.getId().getFragment()));
@@ -105,22 +115,24 @@ const Profile: FC = () => {
       return;
 
     if (editCredentialValue.type == EDIT_TYPE.EDIT && editCredentialValue.originCredential) {
+      let isSuccess = false;
       try {
-        await updateCredential(editCredentialValue.originCredential, editCredentialValue.value)
+        isSuccess = await updateCredential(editCredentialValue.originCredential, editCredentialValue.value).catch()
       } catch (error) {
         logger.error(TAG, 'Update credential error', error);
       }
+      showFeedbackToast(isSuccess, 'Edit item');
     }
 
     if (editCredentialValue.type == EDIT_TYPE.NEW && !originCredential) {
+      let isSuccess = false;
       try {
-        await createCredential('', [], editCredentialValue.key, editCredentialValue.value);
+        isSuccess = await createCredential('', [], editCredentialValue.key, editCredentialValue.value);
       } catch (error) {
         logger.error(TAG, 'Create credential error', error);
       }
+      showFeedbackToast(isSuccess, 'Create item');
     }
-
-    setUpdateCredentialSuccessOpen(true);
   }
 
   const handleOpenMenu = (event, credential: Credential) => {
@@ -205,12 +217,13 @@ const Profile: FC = () => {
     setOpenConfirmDialog(false);
     if (!isAgree)
       return;
+    let isSuccess = false
     try {
-      await deleteCredential(originCredential.verifiableCredential.getId().toString());
-      setUpdateCredentialSuccessOpen(true);
+      isSuccess = await deleteCredential(originCredential.verifiableCredential.getId().toString());
     } catch (error) {
       logger.error(TAG, error);
     }
+    showFeedbackToast(isSuccess, 'Delete item');
     return;
   };
 
@@ -229,6 +242,7 @@ const Profile: FC = () => {
   const deleteCredential = async (credentialId: string) => {
     try {
       await activeIdentity?.get("credentials").deleteCredential(credentialId);
+      return true;
     } catch (error) {
       logger.error(TAG, error);
     }
@@ -256,6 +270,7 @@ const Profile: FC = () => {
       prop[key] = value;
 
       await activeIdentity?.get("credentials").createCredential(finalCredentialId, credentialType, expirationDate, prop);
+      return true;
     } catch (error) {
       logger.error(TAG, error);
     }
@@ -266,17 +281,11 @@ const Profile: FC = () => {
     try {
       await deleteCredential(credentialId);
       await createCredential(credentialId, [], credential.verifiableCredential.getId().getFragment(), newValue);
+      return true;
     } catch (error) {
       logger.error(TAG, error);
     }
   }
-
-  const handleSnackbarClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    setUpdateCredentialSuccessOpen(false);
-  };
 
   return (<div className="col-span-full">
     <Box
@@ -292,14 +301,6 @@ const Profile: FC = () => {
         <Avatar src="/assets/images/account.svg" sx={{ ml: 2, width: 120, height: 120 }} />
       </Stack>
     </Box>
-
-    <Stack spacing={2} sx={{ width: '100%' }}>
-      <Snackbar open={updateCredentialSuccessOpen} autoHideDuration={3000} onClose={handleSnackbarClose}>
-        <Alert onClose={handleSnackbarClose} severity="success" sx={{ width: '100%' }}>
-          Success
-        </Alert>
-      </Snackbar>
-    </Stack>
 
     <Container>
       <Stack direction="row" alignItems="center" justifyContent="space-between" >
