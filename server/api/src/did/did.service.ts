@@ -10,6 +10,11 @@ export class DidService {
   private didStoreCache: { [didStorePath: string]: DIDStore } = {};
   private globalDidAdapter: DidAdapter = null;
 
+  constructor() {
+    this.globalDidAdapter = new DidAdapter();
+    DIDBackend.initialize(new DefaultDIDAdapter(this.network));
+  }
+
   generateMnemonic(language: string) {
     return Mnemonic.getInstance(language).generate();
   }
@@ -35,9 +40,6 @@ export class DidService {
    */
   async getRootIdentity(didStorePath: string, storePassword: string) {
     const didStore = await this.openStore(didStorePath);
-
-    this.globalDidAdapter = new DidAdapter();
-    DIDBackend.initialize(new DefaultDIDAdapter(this.network));
 
     let rootIdentity: RootIdentity = null;
     if (!didStore.containsRootIdentities()) {

@@ -24,8 +24,16 @@ class IdentityService {
   /**
    * Publish identity (DID), return the did transaction payload.
    */
-  public publish(didString: string): Promise<string> {
-    return this.provider.publish(didString);
+  public createTransaction(didString: string): Promise<string> {
+    return this.provider.createTransaction(didString);
+  }
+
+  /**
+   * Publish identity (DID) to did chain.
+   *  return the tx id.
+   */
+  public publishIdentity(didString: string, payload: string): Promise<string> {
+    return this.provider.publishIdentity(didString, payload);
   }
 
   /**

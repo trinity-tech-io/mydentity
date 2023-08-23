@@ -10,14 +10,15 @@ import { AuthProvidersModule } from './auth-providers/auth-providers.module';
 import { AuthModule } from './auth/auth.module';
 import { CredentialsModule } from './credentials/credentials.module';
 import { DevicesModule } from './devices/devices.module';
+import { DIDPublishingModule } from './did-publishing/did-publishing.module';
 import { DIDModule } from './did/did.module';
 import { CommonEmailingModule } from "./emailing/emailing.module";
 import { AppExceptionGraphQLInterceptor } from './exceptions/app-exception-gql-interceptor';
 import { IdentityModule } from './identity/identity.module';
 import { IntentsModule } from './intents/intents.module';
+import { KeyRingModule } from './key-ring/key-ring.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { UserModule } from './user/user.module';
-import { KeyRingModule } from './key-ring/key-ring.module';
 
 
 @Module({
@@ -40,7 +41,8 @@ import { KeyRingModule } from './key-ring/key-ring.module';
     ScheduleModule.forRoot(),
     ActivityModule,
     DevicesModule,
-    KeyRingModule
+    KeyRingModule,
+    DIDPublishingModule
   ],
   controllers: [
     AppController

@@ -9,11 +9,14 @@ import { Identity } from "@model/identity/identity";
  */
 export interface IdentityProvider {
   createIdentity(name: string): Promise<Identity>;
-  deleteIdentity(didString: String): Promise<boolean>;
+  deleteIdentity(identityDid: String): Promise<boolean>;
   listIdentities(): Promise<Identity[]>;
   createCredential(identityDid: string, credentialId: string, types: string[], expirationDate: Date, prop: any): Promise<Credential>;
   listCredentials(identityDid: string): Promise<Credential[]>;
   deleteCredential(credentialId): Promise<boolean>;
   createVerifiablePresentation(identityDid: string, credentials: VerifiableCredential[], realm: string, nonce: string): Promise<VerifiablePresentation>;
-  publish(didString: String):Promise<string>;
+  // get the DID transaction payload
+  createTransaction(identityDid: String):Promise<string>;
+  // publish Identity to did chain.
+  publishIdentity(identityDid: string, payload: String):Promise<string>;
 }

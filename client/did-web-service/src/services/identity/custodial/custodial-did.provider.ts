@@ -4,10 +4,13 @@ import { gqlCredentialFields } from "@graphql/credential.fields";
 import { gqlIdentityFields } from "@graphql/identity.fields";
 import { gqlPresentationFields } from "@graphql/presentation.fields";
 import { gqlPublishFields } from "@graphql/publish.fields";
+import { gqlTransactionFields } from "@graphql/transaction.fields";
 import { Credential } from "@model/credential/credential";
 import { CredentialDTO } from "@model/credential/credential.dto";
 import { Identity } from "@model/identity/identity";
 import { IdentityDTO } from "@model/identity/identity.dto";
+import { PublishDTO } from "@model/identity/publish.dto";
+import { TransactionDTO } from "@model/identity/transaction.dto";
 import { PresentationDTO } from "@model/presentation/presenttation.dto";
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
@@ -41,16 +44,16 @@ export class CustodialDIDProvider implements IdentityProvider {
     }
   }
 
-  async deleteIdentity(didString: string): Promise<boolean> {
+  async deleteIdentity(identityDid: string): Promise<boolean> {
     const { data } = await withCaughtAppException(() => {
       return getApolloClient().mutate<{ deleteIdentity: boolean }>({
         mutation: gql`
-        mutation deleteIdentity($didString: String!) {
-          deleteIdentity(didString: $didString)
+        mutation deleteIdentity($identityDid: String!) {
+          deleteIdentity(identityDid: $identityDid)
         }
       `,
         variables: {
-          didString
+          identityDid
         }
       });
     });
@@ -87,26 +90,53 @@ export class CustodialDIDProvider implements IdentityProvider {
     return null;
   }
 
-  async publish(didString: string): Promise<string> {
+  async createTransaction(identityDid: string): Promise<string> {
     const { data } = await withCaughtAppException(() => {
-      return getApolloClient().mutate<{ payload: string }>({
+      return getApolloClient().mutate<{ createTransaction: TransactionDTO }>({
         mutation: gql`
-        mutation publish($didString: String!) {
-          publish(didString: $didString) {
-            ${gqlPublishFields}
+        mutation createTransaction($identityDid: String!) {
+          createTransaction(identityDid: $identityDid) {
+            ${gqlTransactionFields}
           }
         }
       `,
         variables: {
-          didString
+          identityDid
         }
       });
     });
 
     console.log(data)
 
-    if (data?.payload) {
-      return data.payload;
+    if (data?.createTransaction.payload) {
+      return data.createTransaction.payload;
+    }
+    else {
+      throw new Error("Failed to create transaction");
+    }
+  }
+
+  async publishIdentity(identityDid: string, payload: string): Promise<string> {
+    const { data } = await withCaughtAppException(() => {
+      return getApolloClient().mutate<{ publishIdentity: PublishDTO }>({
+        mutation: gql`
+        mutation publishIdentity($identityDid: String!, $payload: String!) {
+          publishIdentity(input: { identityDid: $identityDid, payload: $payload}) {
+            ${gqlPublishFields}
+          }
+        }
+      `,
+        variables: {
+          identityDid,
+          payload
+        }
+      });
+    });
+
+    console.log(data)
+
+    if (data?.publishIdentity.txid) {
+      return data.publishIdentity.txid;
     }
     else {
       throw new Error("Failed to publish DID");
