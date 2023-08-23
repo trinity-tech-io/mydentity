@@ -1,5 +1,6 @@
 import { Credential } from '@model/credential/credential';
 import { Avatar, Box, Grid, Stack, Typography } from '@mui/material';
+
 interface Props {
   selectedCredential: Credential
 }

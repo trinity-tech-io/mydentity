@@ -16,7 +16,7 @@ const CredentialsList: FC = () => {
       <Typography ml={2} my={3} variant="h5">All Credentials</Typography>
     </div>
     {/* Widgets */}
-    <CredentialListWidget onSelected={(credential: Credential)=>{handleSelectCredential(credential)}} />
+    <CredentialListWidget onSelected={handleSelectCredential} />
     <CredentialDetailWidget selectedCredential={selectedCredential}/>
   </>)
 }

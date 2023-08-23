@@ -1,21 +1,33 @@
 'use client'
-import { FC, createRef, useEffect } from "react";
-import Avatar from '@mui/material/Avatar';
-import React, {useState} from "react";
-import Box from '@mui/material/Box';
-import TextField from '@mui/material/TextField';
-import LoadingButton from '@mui/lab/LoadingButton';
-import Snackbar from '@mui/material/Snackbar';
-import MuiAlert, { AlertProps } from '@mui/material/Alert';
-import SaveIcon from '@mui/icons-material/Save';
-import { Stack, Typography } from "@mui/material";
+import ComfirmDialog from "@components/ComfirmDialog";
+import CreateCredentialDialog from "@components/CreateCredentialDialog";
+import EditCredentialDialog, { EDIT_TYPE } from "@components/EditCredentialDialog";
+import ListHead from "@components/ListHead";
+import ListToolbar from "@components/ListToolbar";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
-import { activeIdentity$ } from "@services/identity/identity.events";
+import { BasicCredentialEntry } from "@model/credential/basiccredentialentry";
 import { Credential } from "@model/credential/credential";
-import moment from "moment";
+import AddIcon from '@mui/icons-material/Add';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { Button, Card, Container, IconButton, MenuItem, Paper, Popover, Stack, Table, TableBody, TableCell, TableContainer, TablePagination, TableRow, Typography } from "@mui/material";
+import MuiAlert, { AlertProps } from '@mui/material/Alert';
+import Avatar from '@mui/material/Avatar';
+import Box from '@mui/material/Box';
+import Snackbar from '@mui/material/Snackbar';
+import { BasicCredentialsService } from "@services/identity/basiccredentials.service";
+import { activeIdentity$ } from "@services/identity/identity.events";
 import { logger } from "@services/logger";
+import { filter } from 'lodash';
+import moment from "moment";
+import React, { FC, forwardRef, useEffect, useState } from "react";
 
-const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
+const CREDENTIAL_LIST_HEAD = [
+  { id: 'name', label: 'Name', alignRight: false },
+  { id: 'value', label: 'Value', alignRight: false },
+  { id: '', alignRight: false},
+]
+
+const Alert = forwardRef<HTMLDivElement, AlertProps>(function Alert(
   props,
   ref,
 ) {
@@ -26,43 +38,179 @@ const Profile: FC = () => {
   const TAG = "ProfilePage";
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const [credentials] = useBehaviorSubject(activeIdentity?.get("credentials").credentials$);
-  const [currentNameCredential, setCurrentNameCredential] = useState<Credential>(null);
-  const [userName, setUserName] = useState<string>('');
-  const [loading, setLoading] = useState(false);
-  const userNameRef = createRef<HTMLInputElement>()
   const [updateCredentialSuccessOpen, setUpdateCredentialSuccessOpen] = useState(false);
 
+  const [originCredential, setOriginCredential] = useState<Credential>(null);
+  const [avaliableItemKeys, setAvaliableItemKeys] = useState([]);
+  const [openCreateCredential, setOpenCreateCredential] = useState(false);
+
+  const [openEditCredentialDialog, setOpenEditCredentialDialog] = useState(false);
+  const [preEditCredentialKey, setPreEditCredentialKey] = useState('');
+  const [preEditCredentialValue, setPreEditCredentialValue] = useState('');
+  const [editType, setEditType] = useState(EDIT_TYPE.NEW);
+
+  const [isOpenPopupMenu, setOpenPopupMenu] = useState(null);
+  const [page, setPage] = useState(0);
+  const [order, setOrder] = useState('asc');
+  const [selected, setSelected] = useState([]);
+  const [orderBy, setOrderBy] = useState('name');
+  const [filterName, setFilterName] = useState('');
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
+
+  let basicCredentialsService: BasicCredentialsService;
+  let basicCredentialsKey: string[];
+
   useEffect(() => {
+    if(!basicCredentialsService){
+      basicCredentialsService = new BasicCredentialsService();
+      basicCredentialsKey = basicCredentialsService.getBasicCredentialkeys();
+    }
+
     if(credentials){
-      const nameCredential = getNameCredential(credentials);
-      setCurrentNameCredential(nameCredential) ;
-      const name = getNameValueFromCredential(nameCredential);
-      setUserName(name);
+      setAvaliableItemKeys(findAvailableItem(basicCredentialsKey, getCredentialsKeys(credentials)));
     }
   },[credentials]);
 
-  const getNameValueFromCredential = (credential: Credential): string => {
-    return getValueFromCredential(credential,'name');
-  }
+  const getCredentialsKeys = (credentials: Credential[]): string[] => {
+    return credentials.map(c => ( c.verifiableCredential.getId().getFragment()));
+  };
 
-  const getNameCredential = (credentials: Credential[]): Credential => {
-    return getSpecialCredentials(credentials, 'name');
-  }
-
-  const getSpecialCredentials = (credentials: Credential[], fragment: string): Credential => {
-    let matchingCredential = credentials.find(credential => {
-      if (!credential|| !credential.verifiableCredential)
-        return '';
-      const didUrl = credential.verifiableCredential.getId();
-      if (didUrl) {
-        return didUrl.getFragment() == fragment;
-      }
+  const findAvailableItem = (basicCredentialKeys: string[], existCredentialKeys: string[]): string[] => {
+    return basicCredentialKeys.filter((key) => {
+      return existCredentialKeys.indexOf(key) == -1;
     });
-
-    if (!matchingCredential||!matchingCredential.verifiableCredential)
-      return null;
-    return matchingCredential;
   }
+
+  const handleCreateCredentialDialogClose = (value: string) => {
+    setOpenCreateCredential(false);
+    console.log("selected value", value);
+    if(value){
+      setOpenEditCredentialDialog(true);
+      setPreEditCredentialKey(value);
+      setPreEditCredentialValue('');
+      setEditType(EDIT_TYPE.NEW);
+      setOriginCredential(null);
+    }
+  };
+
+  const handleEditCredentialDialogClose = async (editCredentialValue: {key: string, value: string, type: EDIT_TYPE, originCredential: Credential}) => {
+    setOpenEditCredentialDialog(false);
+    if (!editCredentialValue)
+      return;
+
+    if (!editCredentialValue.value)
+      return;
+
+    if (editCredentialValue.type == EDIT_TYPE.EDIT && editCredentialValue.originCredential){
+      try {
+        await updateCredential(editCredentialValue.originCredential, editCredentialValue.value)
+      } catch (error) {
+        logger.error(TAG, 'Update credential error', error);
+      }
+    }
+
+    if (editCredentialValue.type == EDIT_TYPE.NEW && !originCredential){
+      try {
+        await createCredential('', [], editCredentialValue.key, editCredentialValue.value);
+      } catch (error) {
+        logger.error(TAG, 'Create credential error', error);
+      }
+    }
+
+    setUpdateCredentialSuccessOpen(true);
+  }
+
+  const handleOpenMenu = (event, credential: Credential) => {
+    setOpenPopupMenu(event.currentTarget);
+    setOriginCredential(credential);
+  };
+
+  const handleCloseMenu = () => {
+    setOpenPopupMenu(null);
+  };
+
+  const handleRequestSort = (event, property) => {
+    const isAsc = orderBy === property && order === 'asc';
+    setOrder(isAsc ? 'desc' : 'asc');
+    setOrderBy(property);
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setPage(0);
+    setRowsPerPage(parseInt(event.target.value, 10));
+  };
+
+  const handleFilterByName = (event) => {
+    setPage(0);
+    setFilterName(event.target.value);
+  };
+
+  function descendingComparator(a, b, orderBy) {
+    if (b[orderBy] < a[orderBy]) {
+      return -1;
+    }
+    if (b[orderBy] > a[orderBy]) {
+      return 1;
+    }
+    return 0;
+  }
+
+  function getComparator(order, orderBy) {
+    return order === 'desc'
+      ? (a, b) => descendingComparator(a, b, orderBy)
+      : (a, b) => -descendingComparator(a, b, orderBy);
+  }
+
+  function applySortFilter(array, comparator, query) {
+    const stabilizedThis = array?.map((el, index) => [el, index]);
+    stabilizedThis?.sort((a, b) => {
+      const order = comparator(a[0], b[0]);
+      if (order !== 0) return order;
+      return a[1] - b[1];
+    });
+    if (query) {
+      return filter(array, (_credential: Credential) => _credential.verifiableCredential.getId().getFragment().toLowerCase().indexOf(query.toLowerCase()) !== -1);
+    }
+    return stabilizedThis?.map((el) => el[0]);
+  }
+
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - credentials?.length) : 0;
+
+  const filteredUsers = applySortFilter(credentials, getComparator(order, orderBy), filterName);
+
+  const isNotFound = !filteredUsers?.length && !!filterName;
+
+  const handleClickDeleteCredential = () => {
+    handleCloseMenu();
+    setOpenConfirmDialog(true)
+  }
+
+  const handleClickEditCredential = () => {
+    handleCloseMenu();
+    setOpenEditCredentialDialog(true);
+    const key = originCredential.verifiableCredential.getId().getFragment();
+    setPreEditCredentialKey(key);
+    setPreEditCredentialValue(originCredential.verifiableCredential.getSubject().getProperty(key));
+    setEditType(EDIT_TYPE.EDIT);
+  }
+
+  const handleCloseDialog = async (isAgree: boolean) => {
+    setOpenConfirmDialog(false);
+    if (!isAgree)
+      return;
+    try {
+      await deleteCredential(originCredential.verifiableCredential.getId().toString());
+      setUpdateCredentialSuccessOpen(true);
+    } catch (error) {
+      logger.error(TAG, error);
+    }
+    return;
+  };
 
   const getValueFromCredential = (credential: Credential, propertyName: string): string => {
     if (!credential || !credential.verifiableCredential || !credential.verifiableCredential.getSubject())
@@ -75,40 +223,53 @@ const Profile: FC = () => {
       return '';
     return credential.verifiableCredential.getId().toString()
   }
-  
-  const updateNameCredential = async (currentNameCredential: Credential, newName: string) => {
-    const credentialId = getCredentialId(currentNameCredential);
-    const types: string[] = [
-      "https://ns.elastos.org/credentials/v1#SelfProclaimedCredential",
-      "https://ns.elastos.org/credentials/profile/name/v1#NameCredential"
-    ];
-    const expirationDate = moment().add(5, "years").toDate();
-    const prop = {
-      "name": newName
-    }
-    logger.log(TAG, "Update name credential params", credentialId, types, expirationDate, prop);
+
+  const deleteCredential = async (credentialId: string) => {
     try {
       await activeIdentity?.get("credentials").deleteCredential(credentialId);
-      await activeIdentity?.get("credentials").createCredential(credentialId, types, expirationDate, prop);
-      setUpdateCredentialSuccessOpen(true);
     } catch (error) {
       logger.error(TAG, error);
     }
   }
 
-  async function handleClick() {
-    setLoading(true);
-    const newUserName = userNameRef.current.value;
-    if (!newUserName || userName == newUserName){
-      setLoading(false)
-      return ;
-    }
+  const createCredential = async (credentialId: string, types: string[], key: string, value: string) =>{
+    let credentialType: string[] = [];
+    try {
+      let finalCredentialId;
+      if (!credentialId){
+        finalCredentialId = activeIdentity.did+ "#" + key;
+      }else{
+        finalCredentialId = credentialId;
+      }
+      const basicCredentialsService = new BasicCredentialsService();
+      const entry:BasicCredentialEntry = basicCredentialsService.getBasicCredentialInfoByKey(key);
+      for (let index = 0; index < types.length; index++) {
+        credentialType.push(types[index])
+      }
+      credentialType.push(entry.context + "#" + entry.shortType);
 
-    await updateNameCredential(currentNameCredential, newUserName);
-    setLoading(false);
+      const expirationDate = moment().add(5, "years").toDate();
+
+      let prop = {};
+      prop[key] = value;
+
+      await activeIdentity?.get("credentials").createCredential(finalCredentialId, credentialType, expirationDate, prop);
+    } catch (error) {
+      logger.error(TAG, error);
+    }
   }
 
-  const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
+  const updateCredential = async (credential: Credential, newValue: string) => {
+    const credentialId = getCredentialId(credential);
+    try {
+      await deleteCredential(credentialId);
+      await createCredential(credentialId, [], credential.verifiableCredential.getId().getFragment(), newValue);
+    } catch (error) {
+      logger.error(TAG, error);
+    }
+  }
+
+  const handleSnackbarClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
       return;
     }
@@ -125,47 +286,166 @@ const Profile: FC = () => {
       noValidate
       autoComplete="off"
     >
-
-    <Avatar  src="/assets/images/account.svg" sx={{ ml:2, width: 120, height: 120 }}/>
-
-    <Typography ml={2} my={3} variant="h5">About me</Typography>
-      <TextField
-        label="Name"
-        defaultValue={userName}
-        inputRef={userNameRef}
-        variant="outlined"
-        size="small"
-        InputLabelProps={{ shrink: true }}
-        autoFocus
-      />
-
-      <div  className="ml-2 mt-1 mb-3">
-        <LoadingButton
-            color="primary"
-            onClick={handleClick}
-            loading={loading}
-            loadingPosition="start"
-            startIcon={<SaveIcon />}
-            variant="contained"
-          >
-          <span>Save</span>
-        </LoadingButton>
-      </div>
+      <Stack alignItems="center" spacing={3} sx={{ pt: 5, borderRadius: 2, position: 'relative' }}>
+        <Avatar src="/assets/images/account.svg" sx={{ ml:2, width: 120, height: 120 }}/>
+      </Stack>
     </Box>
+
     <Stack spacing={2} sx={{ width: '100%' }}>
-      <Snackbar open={updateCredentialSuccessOpen} autoHideDuration={3000} onClose={handleClose}>
-        <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
-          Update credential success
+      <Snackbar open={updateCredentialSuccessOpen} autoHideDuration={3000} onClose={handleSnackbarClose}>
+        <Alert onClose={handleSnackbarClose} severity="success" sx={{ width: '100%' }}>
+          Success
         </Alert>
       </Snackbar>
     </Stack>
-    Here is the active identity profile. Only information for the active DID is shown. A profile is a user friendly way of displaying a few base credentials such as name, birth date, nationality. Only for VCs with known type.
-    <br /><br />
-    We want to do like in essentials here: we have a hardcoded list of basic credential types. We can edit those credentials in a UI friendly way (user never sees the credentials) and when a profile entry is edited, this creates a new VC automatically.
-    <br /><br />
-    Next to each profile entry we should also show a small icon to open the associate credential detail page.
-    <br /><br />
-    The user avatar should be saved to hive but we need to wait to get the hive service ready for that.
+
+    <Container>
+        <Stack direction="row" alignItems="center" justifyContent="space-between" >
+          <Typography variant="h4" gutterBottom>
+          About me
+          </Typography>
+          <Button variant="contained" 
+            startIcon={<AddIcon />}
+            onClick={()=>{setOpenCreateCredential(true)}}
+            >
+            New profile item
+          </Button>
+        </Stack>
+
+        <Card>
+          <ListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
+            <TableContainer sx={{ maxWidth: 1200 }}>
+              <Table>
+                <ListHead
+                  order={order}
+                  orderBy={orderBy}
+                  headLabel={CREDENTIAL_LIST_HEAD}
+                  rowCount={credentials ? credentials.length : 0}
+                  numSelected={selected ? selected.length : 0}
+                  onRequestSort={handleRequestSort}
+                  onSelectAllClick={()=>{}}
+                />
+                <TableBody>
+                  {filteredUsers?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((credential: Credential) => {
+                    // const { id, name, value} = row;
+                    const id = credential.id;
+                    const name = credential.verifiableCredential.getId().getFragment();
+                    const value = getValueFromCredential(credential, name);
+
+                    return (
+                      <TableRow hover key={id} tabIndex={-1} >
+                        <TableCell component="th" scope="row" padding="none">
+                          <Stack ml={1} direction="row" alignItems="center" spacing={2}>
+                            <Avatar alt={name} src={"/assets/images/account.svg"} />
+                            <Typography variant="subtitle2" noWrap>
+                              {name}
+                            </Typography>
+                          </Stack>
+                        </TableCell>
+
+                        <TableCell align="left">{value}</TableCell>
+
+                        <TableCell align="right">
+                          <IconButton size="large" color="inherit" onClick={(event)=>{handleOpenMenu(event, credential)}}>
+                            <MoreVertIcon />
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                  {emptyRows > 0 && (
+                    <TableRow style={{ height: 53 * emptyRows }}>
+                      <TableCell colSpan={6} />
+                    </TableRow>
+                  )}
+                </TableBody>
+
+                {isNotFound && (
+                  <TableBody>
+                    <TableRow>
+                      <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
+                        <Paper
+                          sx={{
+                            textAlign: 'center',
+                          }}
+                        >
+                          <Typography variant="h6" paragraph>
+                            Not found
+                          </Typography>
+
+                          <Typography variant="body2">
+                            No results found for &nbsp;
+                            <strong>&quot;{filterName}&quot;</strong>.
+                            <br /> Try checking for typos or using complete words.
+                          </Typography>
+                        </Paper>
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                )}
+              </Table>
+            </TableContainer>
+
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={credentials ? credentials.length : 0}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+        </Card>
+      </Container>
+
+      <Popover
+        open={Boolean(isOpenPopupMenu)}
+        anchorEl={isOpenPopupMenu}
+        onClose={handleCloseMenu}
+        anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+        PaperProps={{
+          sx: {
+            p: 1,
+            width: 140,
+            '& .MuiMenuItem-root': {
+              px: 1,
+              typography: 'body2',
+              borderRadius: 0.75,
+            },
+          },
+        }}
+      >
+        <MenuItem onClick={handleClickEditCredential}>
+          Edit
+        </MenuItem>
+
+        <MenuItem sx={{ color: 'error.main' }} onClick={handleClickDeleteCredential}>
+          Delete
+        </MenuItem>
+      </Popover>
+
+      <ComfirmDialog
+        title='Delete this Credential?'
+        content='Do you want to delete this Credential?'
+        open={openConfirmDialog}
+        onClose={(isAgree: boolean)=>handleCloseDialog(isAgree)}
+      />
+
+      <CreateCredentialDialog 
+        open={openCreateCredential}
+        onClose={handleCreateCredentialDialogClose}
+        avaliableItemKeys={avaliableItemKeys}
+      />
+      
+      <EditCredentialDialog
+        credentialKey={preEditCredentialKey}
+        defaultValue={preEditCredentialValue}
+        type={editType}
+        open={openEditCredentialDialog}
+        originCredential={originCredential}
+        onClose={handleEditCredentialDialogClose}
+      />
   </div>)
 }
 

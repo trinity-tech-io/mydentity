@@ -28,7 +28,8 @@ export const IdentityListWidget: FC = _ => {
 
   const handleCloseDialog = async (isAgree: boolean) => {
     setOpenConfirmDialog(false);
-    if (!isAgree) return;
+    if (!isAgree)
+      return;
     try {
       await authUser.get("identity").deleteIdentity(prepareDeleteDid);
       if (activeIdentity.did == prepareDeleteDid)
