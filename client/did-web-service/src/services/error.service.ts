@@ -1,4 +1,4 @@
-import { ApolloError } from "@apollo/client";
+import { ApolloError, ServerError, ServerParseError } from "@apollo/client";
 import { AppException } from "@model/exceptions/app-exception";
 import { ClientError } from "@model/exceptions/exception-codes";
 import { AxiosError } from "axios";
@@ -50,10 +50,29 @@ function handleGraphQLError(error: GraphQLError) {
   }
 }
 
+function handleApolloNetworkError(e: Error | ServerParseError | ServerError) {
+  if (e.name === "ServerError") {
+    const serverError = <ServerError>e;
+    if (typeof serverError.result === "object") {
+      serverError.result.forEach(r => {
+        r.errors?.forEach(re => {
+          logger.error("graphql", "GraphQL server network error:", re.message);
+        });
+      })
+    }
+  }
+  else {
+    logger.error("graphql", "GraphQL network error:", e);
+  }
+}
+
 function handleApolloError(e: ApolloError) {
   e.clientErrors.forEach(handleApolloClientError);
   e.graphQLErrors.forEach(handleGraphQLError);
   e.protocolErrors.forEach(handleApolloProtocolError);
+
+  if (e.networkError)
+    handleApolloNetworkError(e.networkError);
 }
 
 function handlAxiosError(e: AxiosError) {

@@ -23,9 +23,8 @@ class GraphQLService {
 
     // TODO: Only log the error. This can work with withClientState()
     const errLink = onError(({ graphQLErrors, networkError, operation, forward }) => {
+      //console.error('GraphQL service errors', graphQLErrors, networkError);
       if (graphQLErrors) {
-        //console.error('graphQLErrors', graphQLErrors);
-
         // skip when no local token.
         if (!localStorage.getItem('access_token')) {
           return;
@@ -61,9 +60,9 @@ class GraphQLService {
 
       // To retry on network errors, we recommend the RetryLink
       // instead of the onError link. This just logs the error.
-      if (networkError) {
+      /* if (networkError) {
         console.log(`[Network error]: ${networkError}`);
-      }
+      } */
     });
 
     /**
