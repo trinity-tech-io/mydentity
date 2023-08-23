@@ -1,16 +1,16 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { Prisma, User, UserShadowKey, UserShadowKeyType } from '@prisma/client';
+import { randombytes_buf, ready } from 'libsodium-wrappers-sumo';
+import { PublicKey as EcdsaPublicKey } from 'src/crypto/ecdsa';
+import { Signature as Ed25519Signature, KeyPair as SignatureKeyPair } from 'src/crypto/ed25519';
 import { PasswordHash } from 'src/crypto/passwordhash';
 import { SecretBox } from 'src/crypto/secretbox';
-import { KeyPair as SignatureKeyPair, Signature as Ed25519Signature } from 'src/crypto/ed25519';
-import { PublicKey as EcdsaPublicKey } from 'src/crypto/ecdsa';
 import { AppException } from 'src/exceptions/app-exception';
 import { KeyRingExceptionCode } from 'src/exceptions/exception-codes';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { BindKeyInput } from './dto/bind-key-input';
 import { AuthKeyInput } from './dto/auth-key-input';
+import { BindKeyInput } from './dto/bind-key-input';
 import { RemoveKeyInput } from './dto/remove-key-input';
-import { ready, randombytes_buf } from 'libsodium-wrappers-sumo';
 import { ChallengeEntity } from './entities/challenge.entity';
 
 @Injectable()
@@ -65,7 +65,7 @@ export class KeyRingService {
       throw new AppException(KeyRingExceptionCode.InvalidSignature, "Invalid signature", HttpStatus.FORBIDDEN);
   }
 
-  private async addShadowKey(userId: string, keyId: string, key: string, type: UserShadowKeyType, secretKey: Uint8Array): Promise<void> {
+  private async addShadowKey(userId: string, keyId: string, key: string, type: UserShadowKeyType, secretKey: Uint8Array): Promise<UserShadowKey> {
     let authKey: string;
     let password: string | Uint8Array;
 
@@ -83,7 +83,7 @@ export class KeyRingService {
 
     const encryptedSecretKey = SecretBox.encryptWithPassword(secretKey, password);
 
-    await this.prisma.userShadowKey.create({
+    return await this.prisma.userShadowKey.create({
       data: {
         userId: userId,
         keyId: keyId,
@@ -140,7 +140,7 @@ export class KeyRingService {
     return SecretBox.decryptWithPassword(encryptedSecretKey, password);
   }
 
-  async bindKey(input: BindKeyInput, user: User): Promise<boolean> {
+  async bindKey(input: BindKeyInput, user: User): Promise<UserShadowKey> {
     const key = await this.prisma.userShadowKey.findFirst({
       where: {
         userId: user.id
@@ -213,8 +213,7 @@ export class KeyRingService {
         throw new AppException(KeyRingExceptionCode.InvalidPassword, "Missing password", HttpStatus.BAD_REQUEST);
     }
 
-    await this.addShadowKey(user.id, input.keyId, input.key, input.type, secretKey);
-    return true;
+    return await this.addShadowKey(user.id, input.keyId, input.key, input.type, secretKey);
   }
 
   async removeKey(input: RemoveKeyInput, user: User): Promise<boolean> {

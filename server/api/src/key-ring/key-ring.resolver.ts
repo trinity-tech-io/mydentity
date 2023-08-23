@@ -5,17 +5,16 @@ import { CurrentUser } from 'src/auth/currentuser.decorator';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { BindKeyInput } from './dto/bind-key-input';
 import { RemoveKeyInput } from './dto/remove-key-input';
+import { ChallengeEntity } from './entities/challenge.entity';
 import { ShadowKeyEntity } from './entities/shadow-key.entity';
 import { KeyRingService } from './key-ring.service';
-import { ChallengeEntity } from './entities/challenge.entity';
 
 @Resolver()
 export class KeyRingResolver {
   constructor(private readonly keyRingService: KeyRingService) { }
 
-
   @UseGuards(JwtAuthGuard)
-  @Mutation(() => Boolean)
+  @Mutation(() => ShadowKeyEntity)
   bindKey(@Args('input') input: BindKeyInput, @CurrentUser() user: User) {
     return this.keyRingService.bindKey(input, user);
   }
