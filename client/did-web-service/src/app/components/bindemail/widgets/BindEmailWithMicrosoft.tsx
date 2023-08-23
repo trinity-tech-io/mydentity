@@ -4,6 +4,7 @@ import { makeStyles } from '@mui/styles';
 import clsx from 'clsx';
 import { MainButton } from '@components/MainButton';
 import {FlowOperation, setOnGoingFlowOperation} from "@services/flow.service";
+import {useRouter} from "next/navigation";
 
 const useStyles = makeStyles((theme) => ({
   centeredContainer: {
@@ -17,10 +18,11 @@ const useStyles = makeStyles((theme) => ({
 
 const BindEmailWithMicrosoft = () => {
   const classes = useStyles();
+  const router = useRouter();
 
   const signInWithMicrosoft = () => {
     setOnGoingFlowOperation(FlowOperation.OnBoardingEmailBinding);
-    window.location.replace(`${process.env.NEXT_PUBLIC_BACKEND_URL}/microsoft`);
+    router.push(`${process.env.NEXT_PUBLIC_BACKEND_URL}/microsoft`);
   };
 
   return (

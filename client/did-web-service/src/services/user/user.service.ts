@@ -37,6 +37,7 @@ export async function signUp(name: string): Promise<boolean> {
   }
   else {
     // TODO: print error
+    logger.error('user', 'failed to sign up.');
     return false;
   }
 }
@@ -58,7 +59,7 @@ async function saveAuthenticatedUser(json: UserDTO): Promise<void> {
  */
 export async function fetchSelfUser(curToken?: string, refreshToken?: string): Promise<User> {
   return fetchUserQueue.add(async () => {
-    logger.log("users", "Fetching self user profile");
+    logger.log("users", "Fetching self user profile", curToken, refreshToken);
 
     if (curToken) {
       // update for apollo client
@@ -101,12 +102,12 @@ export async function fetchSelfUser(curToken?: string, refreshToken?: string): P
       // Save this new authenticated user's json to local storage
       await saveAuthenticatedUser(rawUser);
 
-      logger.log("users", "Self user:", user);
+      logger.log("users", "user from fetchSelfUser():", user);
 
       return user;
     }
 
-    throw new Error('no data got from getSelfUser()');
+    throw new Error('no data got from fetchSelfUser()');
   });
 }
 
@@ -313,6 +314,8 @@ export async function bindOauthEmail(email: string) {
     const result = data && data.bindOauthEmail;
     if (!result) {
       logger.error('user', 'Failed from bindOauthEmail api.');
+    } else {
+
     }
     return result;
   } catch (e) {

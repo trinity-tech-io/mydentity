@@ -15,6 +15,7 @@ const BindOauth: FC = () => {
 
   useEffect(() => {
     const op = getOnGoingFlowOperation();
+    console.log('oauth', 'op', op);
     switch (op) {
         // User email bound during the on boarding. Now redirect to prompt for password
       case FlowOperation.OnBoardingEmailBinding:

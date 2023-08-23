@@ -15,6 +15,7 @@ import {AppExceptionCode, AuthExceptionCode} from "../exceptions/exception-codes
 import {CurrentUser} from "../auth/currentuser.decorator";
 import {UserEntity} from "./entities/user.entity";
 import {UserEmailEntity} from "./entities/user-email.entity";
+import {logger} from "../logger";
 
 // https://makinhs.medium.com/authentication-made-easy-with-nestjs-part-4-of-how-to-build-a-graphql-mongodb-d6057eae3fdf
 @Injectable()
@@ -39,6 +40,8 @@ export class UserService {
         createdAt: new Date()
       }
     });
+
+    logger.log('user', 'sign up with new user', user);
 
     return this.authService.generateUserCredentials(user);
   }
@@ -75,6 +78,8 @@ export class UserService {
     //     thirdPartyUser,
     //     user,
     // );
+
+    logger.log('user', 'return value for sign-in or bind email', retValue);
 
     return retValue;
   }
@@ -248,6 +253,8 @@ export class UserService {
         }
       })
     }
+
+    logger.log('user', 'bind user with email successfully', user, email);
 
     return user;
   }
