@@ -2,11 +2,13 @@
 import React, { FC, ReactNode, useEffect, useState } from 'react';
 import AppThemeProvider from '../theming/AppThemeContext';
 
-import { PasswordPromptContextProvider } from '@components/PasswordPrompt';
+import { UnlockKeyPromptContextProvider } from '@components/security/unlock-key-prompt/UnlockKeyPrompt';
+import { KeyRingExceptionCode } from '@model/exceptions/exception-codes';
 import { onNewError$ } from '@services/error.service';
 import { useToast } from '@services/feedback.service';
 import { initApp as initClientSide } from '@services/init.service';
 import { SnackbarProvider } from 'notistack';
+import { filter } from 'rxjs';
 import { Header } from '../partials/Header';
 import Sidebar from '../partials/Sidebar';
 import ThemeRegistry from '../theming/ThemeRegistry';
@@ -27,8 +29,11 @@ const LayoutCore: FC<{ children: ReactNode }> = ({ children }) => {
 
   // Show API errors as error toast messages
   useEffect(() => {
-    const sub = onNewError$.subscribe(e => {
-      showErrorToast(e.appExceptionCode + " - " + e.message);
+    const sub = onNewError$.pipe(filter(v => !!v)).subscribe(e => {
+      // Filter out this specific weak-exception as this is a master password unlock requirement handled somewhere else.
+      if (e.appExceptionCode !== KeyRingExceptionCode.UnsupportedAuthenticationKey) {
+        showErrorToast(e.appExceptionCode + " - " + e.message);
+      }
     });
     return () => { sub.unsubscribe() };
   });
@@ -71,9 +76,9 @@ export default function RootLayout({
     <ThemeRegistry>
       <AppThemeProvider>
         <SnackbarProvider>
-          <PasswordPromptContextProvider>
+          <UnlockKeyPromptContextProvider>
             <LayoutCore>{children}</LayoutCore>
-          </PasswordPromptContextProvider>
+          </UnlockKeyPromptContextProvider>
         </SnackbarProvider>
       </AppThemeProvider>
     </ThemeRegistry>

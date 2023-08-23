@@ -24,15 +24,8 @@ export const MasterPasswordInput: FC<{
   const bindPassword = async () => {
     const newPassword = newPasswordRef.current.value;
     setBinding(true);
-    const bound = await securityFeature.bindPassword(newPassword);
-    if (bound) {
-      showSuccessToast("Master password successfully created");
-
-      // Go to dashboard after a while
-      setTimeout(() => {
-        router.replace("/dashboard");
-      }, 2000);
-    }
+    await onValidConfirmation(newPassword);
+    setBinding(false);
   }
 
   const refreshPasswordValidity = () => {

@@ -1,6 +1,6 @@
 "use client";
-import { usePasswordPrompt } from "@components/PasswordPrompt";
 import { MasterPasswordInput } from "@components/security/MasterPasswordInput";
+import { useUnlockKeyPrompt } from "@components/security/unlock-key-prompt/UnlockKeyPrompt";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useMounted } from "@hooks/useMounted";
 import { CircularProgress, Typography } from "@mui/material";
@@ -13,13 +13,11 @@ const BindPassword: FC = () => {
   const securityFeature = authUser?.get("security");
   const [shadowKeys] = useBehaviorSubject(securityFeature?.shadowKeys$); // KEY THIS to lazily fetch the shadow keys
   const isPasswordBound = securityFeature?.isPasswordBound();
-  const { showPasswordPrompt } = usePasswordPrompt();
+  const { unlockMasterKey } = useUnlockKeyPrompt();
 
   const bindPassword = (password: string) => {
-    // Request current password
-    showPasswordPrompt(password => {
-      console.log("Entered password:", password);
-      securityFeature.bindPassword(password);
+    securityFeature.bindPassword(password, () => {
+      return unlockMasterKey();
     });
   }
 

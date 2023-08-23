@@ -3,13 +3,17 @@ import { AppException } from "@model/exceptions/app-exception";
 import { ClientError } from "@model/exceptions/exception-codes";
 import { AxiosError } from "axios";
 import { GraphQLError, GraphQLErrorExtensions } from "graphql";
-import { Subject } from "rxjs";
+import { BehaviorSubject } from "rxjs";
 import { logger } from "./logger";
 
-export const onNewError$ = new Subject<AppException>(); // For now, just a string - We can improve this by passing CustomException objects instead, with custom UI feedback
+export const onNewError$ = new BehaviorSubject<AppException>(null);
 
 function emitGlobalError(error: AppException) {
   onNewError$.next(error);
+}
+
+export function getMostRecentAppException(): AppException {
+  return onNewError$.value;
 }
 
 function handleApolloClientError(error: Error): AppException {
