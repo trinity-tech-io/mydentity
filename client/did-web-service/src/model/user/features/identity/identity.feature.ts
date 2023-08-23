@@ -6,7 +6,7 @@ import { User } from "../../user";
 import { UserFeature } from "../user-feature";
 
 export class IdentityFeature implements UserFeature {
-  private _identities$ = new LazyBehaviorSubjectWrapper<Identity[]>([], this.fetchIdentities);
+  private _identities$ = new LazyBehaviorSubjectWrapper<Identity[]>([], () => this.fetchIdentities());
   public get identities$() { return this._identities$.getSubject(); }
 
   constructor(protected user: User) {

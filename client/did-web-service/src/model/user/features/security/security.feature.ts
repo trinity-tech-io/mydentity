@@ -14,7 +14,7 @@ import { BindKeyInput } from "./bind-key.input";
 import { UnlockAuthorization } from "./unlock-authorization";
 
 export class SecurityFeature implements UserFeature {
-  private _shadowKeys$ = new LazyBehaviorSubjectWrapper<ShadowKey[]>(null, this.fetchShadowKeys);
+  private _shadowKeys$ = new LazyBehaviorSubjectWrapper<ShadowKey[]>(null, () => this.fetchShadowKeys());
   public get shadowKeys$() { return this._shadowKeys$.getSubject(); }
 
   constructor(protected user: User) { }

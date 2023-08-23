@@ -10,7 +10,7 @@ import { User } from "../../user";
 import { UserFeature } from "../user-feature";
 
 export class DeviceFeature implements UserFeature {
-  private _devices$ = new LazyBehaviorSubjectWrapper<Device[]>([], this.fetchDevices);
+  private _devices$ = new LazyBehaviorSubjectWrapper<Device[]>([], () => this.fetchDevices());
   public get devices$() { return this._devices$.getSubject(); }
 
   constructor(protected user: User) {

@@ -5,7 +5,7 @@ import { LazyBehaviorSubjectWrapper } from "@utils/lazy-behavior-subject";
 import { IdentityFeature } from "../identity-feature";
 
 export class CredentialsFeature implements IdentityFeature {
-  private _credentials$ = new LazyBehaviorSubjectWrapper<Credential[]>([], this.fetchCredentials);
+  private _credentials$ = new LazyBehaviorSubjectWrapper<Credential[]>([], () => this.fetchCredentials());
   public get credentials$() { return this._credentials$.getSubject(); }
 
   constructor(protected identity: Identity) {

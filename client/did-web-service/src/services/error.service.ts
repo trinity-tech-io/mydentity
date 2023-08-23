@@ -3,17 +3,20 @@ import { AppException } from "@model/exceptions/app-exception";
 import { ClientError } from "@model/exceptions/exception-codes";
 import { AxiosError } from "axios";
 import { GraphQLError, GraphQLErrorExtensions } from "graphql";
-import { BehaviorSubject } from "rxjs";
+import { Subject } from "rxjs";
 import { logger } from "./logger";
 
-export const onNewError$ = new BehaviorSubject<AppException>(null);
+// Note: keep this as subject not behaviour subject, to not show the latest message every time.
+export const onNewError$ = new Subject<AppException>();
+let mostRecentError: AppException = null;
 
 function emitGlobalError(error: AppException) {
+  mostRecentError = error;
   onNewError$.next(error);
 }
 
 export function getMostRecentAppException(): AppException {
-  return onNewError$.value;
+  return mostRecentError;
 }
 
 function handleApolloClientError(error: Error): AppException {
