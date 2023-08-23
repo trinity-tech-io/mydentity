@@ -13,8 +13,8 @@ export const PasswordPrompt: FC<{
   }
 
   return (
-    <div className='flex flex-row gap-2 bg-gray-100 mt-4 p-4'>
-      <p className='uppercase text-xs text-center'>master<br />password</p>
+    <div className='flex flex-row gap-4 bg-gray-100 mt-4 p-4'>
+      <p className='uppercase text-xs'>master<br />password</p>
       <TextField
         label="Your password"
         inputRef={passwordRef}
