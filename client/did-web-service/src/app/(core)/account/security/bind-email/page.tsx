@@ -1,9 +1,9 @@
 "use client";
-import {FC, useEffect} from "react";
-import { Card } from '@material-ui/core';
-import clsx from 'clsx';
 import EmailAuthComponent from "@components/bindemail/EmailAuthComponent";
-import {isLogined} from "@services/user/user.service";
+import { Card } from "@mui/material";
+import { isLogined } from "@services/user/user.service";
+import clsx from 'clsx';
+import { FC, useEffect } from "react";
 
 const BindEmail: FC = () => {
     useEffect(() => {

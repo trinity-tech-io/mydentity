@@ -1,12 +1,12 @@
 "use client";
-import {FC, useEffect} from "react";
-import HeaderSignIn from './widgets/HeaderSignIn'
-import MicrosoftSignIn from './widgets/MicrosoftSignIn'
-import SeparateLine from './widgets/SeparateLine'
-import { EmailSignIn } from './widgets/EmailSignIn'
-import { Card } from '@material-ui/core';
+import { Card } from "@mui/material";
+import { signOut } from "@services/user/user.service";
 import clsx from 'clsx';
-import {signOut} from "@services/user/user.service";
+import { FC, useEffect } from "react";
+import { EmailSignIn } from './widgets/EmailSignIn';
+import HeaderSignIn from './widgets/HeaderSignIn';
+import MicrosoftSignIn from './widgets/MicrosoftSignIn';
+import SeparateLine from './widgets/SeparateLine';
 
 const SignIn: FC = () => {
     useEffect(() => {

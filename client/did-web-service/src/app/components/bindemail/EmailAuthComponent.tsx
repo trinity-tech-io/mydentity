@@ -1,6 +1,5 @@
 "use client";
-
-import { Card } from '@material-ui/core';
+import { Card } from "@mui/material";
 import { isLogined } from "@services/user/user.service";
 import clsx from 'clsx';
 import { FC, useEffect } from "react";

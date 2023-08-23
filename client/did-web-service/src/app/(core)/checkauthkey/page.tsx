@@ -1,10 +1,10 @@
 'use client';
 
-import { Typography } from '@material-ui/core';
+import { Typography } from '@mui/material';
+import { checkEmailAuthenticationKey, checkEmailBind, isLogined } from "@services/user/user.service";
 import { decode } from '@utils/slugid';
+import { useSearchParams } from "next/navigation";
 import { FC, useEffect, useState } from 'react';
-import {checkEmailAuthenticationKey, checkEmailBind, isLogined} from "@services/user/user.service";
-import {useSearchParams} from "next/navigation";
 
 const CheckAuthKey: FC = () => {
   const searchParams = useSearchParams();

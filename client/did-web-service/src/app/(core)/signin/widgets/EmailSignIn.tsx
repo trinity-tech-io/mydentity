@@ -1,11 +1,11 @@
 import { MainButton } from '@components/MainButton';
 import { Icon as ReactIcon } from '@iconify/react';
-import { InputBase , Container} from '@material-ui/core';
-import {authenticateWithEmailAddress, bindWithEmailAddress} from "@services/user/user.service";
-import { FC, FormEvent, useRef, useState } from "react";
-import clsx from 'clsx';
+import { Container, InputBase } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import {FlowOperation, setOnGoingFlowOperation} from "@services/flow.service";
+import { FlowOperation, setOnGoingFlowOperation } from "@services/flow.service";
+import { authenticateWithEmailAddress } from "@services/user/user.service";
+import clsx from 'clsx';
+import { FC, FormEvent, useRef, useState } from "react";
 
 const useStyles = makeStyles((theme) => ({
   centeredContainer: {
