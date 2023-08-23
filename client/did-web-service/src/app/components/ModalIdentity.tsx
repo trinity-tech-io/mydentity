@@ -1,6 +1,5 @@
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { TextField } from '@mui/material';
-import { activeIdentity$ } from '@services/identity/identity.events';
 import { identityService } from '@services/identity/identity.service';
 import { authUser$ } from '@services/user/user.events';
 import { useEffect, useRef } from 'react';
@@ -15,13 +14,10 @@ function ModalCreateIdentity({
   const nameInput = useRef(null);
 
   const [authUser] = useBehaviorSubject(authUser$());
-  const [activeIdentity] = useBehaviorSubject(activeIdentity$);
 
-  const createDIDTest = async (name) => {
+  const createIdentity = async (name) => {
     const identity = await authUser.get("identity").createIdentity(name);
-    if (!activeIdentity$.value)
-      identityService.setActiveIdentity(identity)
-    // alert("Identity successfully created");
+    identityService.setActiveIdentity(identity)
   }
 
   const deleteDIDTest = async () => {
@@ -71,7 +67,7 @@ function ModalCreateIdentity({
   const handleSubmit = (event) => {
     // alert('A name was submitted: ' + nameInput.current.value);
     event.preventDefault();
-    createDIDTest(nameInput.current.value);
+    createIdentity(nameInput.current.value);
     // deleteDIDTest();
     // deleteCredentialTest()
     setModalOpen(false);

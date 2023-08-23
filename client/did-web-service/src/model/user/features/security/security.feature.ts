@@ -1,10 +1,9 @@
 import { gql } from "@apollo/client";
 import { gqlShadowKeyFields } from "@graphql/shadow-key.fields";
-import { KeyRingExceptionCode } from "@model/exceptions/exception-codes";
 import { ShadowKey } from "@model/shadow-key/shadow-key";
 import { ShadowKeyType } from "@model/shadow-key/shadow-key-type";
 import { ShadowKeyDTO } from "@model/shadow-key/shadow-key.dto";
-import { getMostRecentAppException, withCaughtAppException } from "@services/error.service";
+import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { logger } from "@services/logger";
 import { LazyBehaviorSubjectWrapper } from "@utils/lazy-behavior-subject";
@@ -110,7 +109,7 @@ export class SecurityFeature implements UserFeature {
     }
   }
 
-  public async bindPassword(newPassword: string, masterUnlockCb?: () => Promise<UnlockAuthorization>, unlockAuthorization?: UnlockAuthorization): Promise<boolean> {
+  public async bindPassword(newPassword: string, unlockAuthorization?: UnlockAuthorization): Promise<boolean> {
     logger.log("security", "Binding password");
 
     const input: BindKeyInput = {
@@ -132,25 +131,6 @@ export class SecurityFeature implements UserFeature {
         variables: { input }
       });
     }, null);
-
-    if (!result) {
-      // Exception during API call. Check if this is a unlock key requirement app exception and if so,
-      // trigger the master unlock callback to let the UI prompt the unlock method to the user
-      const latestAppException = getMostRecentAppException();
-      if (latestAppException?.appExceptionCode === KeyRingExceptionCode.UnsupportedAuthenticationKey) {
-        // TODO: "UnsupportedAuthenticationKey" is not a great error code, need @jingyu to
-        // refine and be very specific on a "need to ask user to unload on UI" kind of error
-        if (masterUnlockCb) {
-          const unlockresult = await masterUnlockCb();
-          if (unlockresult) {
-            return this.bindPassword(newPassword, masterUnlockCb, unlockresult);
-          }
-          else {
-            // Operation cancelled by user, failure to bind password
-          }
-        }
-      }
-    }
 
     if (result?.data?.bindKey) {
       logger.log("security", "Password bound successfully");

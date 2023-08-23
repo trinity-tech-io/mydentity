@@ -44,7 +44,9 @@ const UnlockKeyPrompt: FC = () => {
     setActions(null) // Hides the dialog
   }
 
+  // User closing
   const onClose = () => {
+    actions.onUnlockKey?.(null); // Notify that unlock was completed but with no result
     hideDialog();
   }
 

@@ -66,7 +66,8 @@ class GraphQLService {
     });
 
     /**
-     * Appends JWT access token to graphql requests
+     * Appends JWT access token to graphql requests. This auth link setter is called for every
+     * api call.
      */
     const authLink = setContext((_, { headers }) => {
       const token = localStorage.getItem('access_token');

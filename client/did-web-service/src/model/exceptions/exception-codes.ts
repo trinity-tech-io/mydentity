@@ -25,6 +25,7 @@ export enum KeyRingExceptionCode {
 
 export enum ClientError {
   OtherApolloError = 10901, // Apollo client error except handled graphql errors
+  OtherAxiosError = 10902,
 }
 
 export type AppExceptionCode = KeyRingExceptionCode | AuthExceptionCode | KeyRingExceptionCode | ClientError;

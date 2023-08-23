@@ -1,10 +1,10 @@
 "use client";
 import { MasterPasswordInput } from "@components/security/MasterPasswordInput";
-import { useUnlockKeyPrompt } from "@components/security/unlock-key-prompt/UnlockKeyPrompt";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useMounted } from "@hooks/useMounted";
 import { CircularProgress, Typography } from "@mui/material";
 import { useToast } from "@services/feedback.service";
+import { useCallWithUnlock } from "@services/security/security.service";
 import { authUser$ } from "@services/user/user.events";
 import { useRouter } from "next/navigation";
 import { FC } from "react";
@@ -15,15 +15,13 @@ const BindPassword: FC = () => {
   const securityFeature = authUser?.get("security");
   const [shadowKeys] = useBehaviorSubject(securityFeature?.shadowKeys$); // KEY THIS to lazily fetch the shadow keys
   const isPasswordBound = securityFeature?.isPasswordBound();
-  const { unlockMasterKey } = useUnlockKeyPrompt();
   const { showSuccessToast } = useToast();
   const router = useRouter();
+  const { callWithUnlock } = useCallWithUnlock<boolean>();
 
   const bindPassword = async (password: string) => {
-    const bound = await securityFeature.bindPassword(password, () => {
-      return unlockMasterKey();
-    });
-
+    // Call the bind password API with auto-retry if user unlock method is required.
+    const bound = await callWithUnlock(auth => securityFeature.bindPassword(password, auth));
     if (bound) {
       showSuccessToast("Master password set successfully");
       setTimeout(() => {

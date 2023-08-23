@@ -208,11 +208,6 @@ const Sidebar: FC<{
     }
   }, [sidebarExpanded]);
 
-  const createDIDTest = async () => {
-    await authUser.get("identity").createIdentity("Someone");
-    alert("Identity successfully created");
-  }
-
   return (
     <div>
       {/* Sidebar backdrop (mobile only) */}
