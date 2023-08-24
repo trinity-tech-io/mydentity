@@ -9,14 +9,11 @@ export class BindKeyInput {
   @Field(() => String, { description: 'The new key id' })
   keyId: string;
 
-  @Field(() => String, { description: 'The new key' })
+  @Field(() => String, { description: 'The new password or webauthn response' })
   key: string;
 
-  @Field(() => String, { description: 'The challenge id', nullable: true })
+  @Field(() => String, { description: 'The challenge id for webauthn', nullable: true })
   challengeId?: string;
-
-  @Field(() => String, { description: 'The signature', nullable: true })
-  sig?: string;
 
   @Field(() => String, { description: 'The authentication key type', nullable: true })
   authType?: UserShadowKeyType;
@@ -27,9 +24,6 @@ export class BindKeyInput {
   @Field(() => String, { description: 'The authentication key', nullable: true })
   authKey?: string;
 
-  @Field(() => String, { description: 'The authentication challenge id', nullable: true })
+  @Field(() => String, { description: 'The authentication challenge id for webauthn', nullable: true })
   authChallengeId?: string;
-
-  @Field(() => String, { description: 'The authentication signature', nullable: true })
-  authSig?: string;
 }

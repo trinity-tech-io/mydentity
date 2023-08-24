@@ -9,12 +9,9 @@ export class AuthKeyInput {
   @Field(() => String, { description: 'The key id to do the authorization' })
   keyId: string
 
-  @Field(() => String, { description: 'The password', nullable: true })
-  password?: string
+  @Field(() => String, { description: 'The password or webauthn response' })
+  key: string
 
-  @Field(() => String, { description: 'The challenge id', nullable: true })
+  @Field(() => String, { description: 'The challenge id for webauthn', nullable: true })
   challengeId?: string;
-
-  @Field(() => String, { description: 'The signature', nullable: true })
-  sig?: string
 }

@@ -25,7 +25,8 @@ export enum KeyRingExceptionCode {
   NoChallenge = 10210,
   UnsupportedAuthenticationKey = 10211,
   InvalidPassword = 10212,
-  NoChallengeId = 20213
+  NoChallengeId = 20213,
+  WebAuthnVerifyError = 20214
 }
 
 export type AppExceptionCode = KeyringExceptionCode | AuthExceptionCode | KeyRingExceptionCode;

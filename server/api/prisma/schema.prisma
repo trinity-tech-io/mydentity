@@ -109,7 +109,7 @@ model Intent {
 
 enum UserShadowKeyType {
   PASSWORD
-  ED25519
+  WEBAUTHN
 }
 
 // Encrypted versions of the main "user account key"s (one per user),
@@ -125,6 +125,8 @@ model UserShadowKey {
 
   keyId     String
   key       String // For publickey types, this is the keypair public key to decrypt the SecretKey; for password type, this is the hash of the password.
+  credentialId String?
+  counter   Int?
   type      UserShadowKeyType
   secretKey String // Root account SecretKey encrypted by this public key or password
 
