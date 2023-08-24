@@ -50,6 +50,10 @@ async function saveAuthenticatedUser(json: UserDTO): Promise<void> {
   authUser$().next(await User.fromJson(json) as User);
 }
 
+export async function saveAuthUser(user: User) {
+  return saveAuthenticatedUser(user.toJson());
+}
+
 /**
  * Based on the authenticated user id, fetch the whole user profile and
  * updates the active user state.

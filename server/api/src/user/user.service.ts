@@ -16,6 +16,7 @@ import {CurrentUser} from "../auth/currentuser.decorator";
 import {UserEntity} from "./entities/user.entity";
 import {UserEmailEntity} from "./entities/user-email.entity";
 import {logger} from "../logger";
+import {UserPropertyInput} from "./dto/user-property.input";
 
 // https://makinhs.medium.com/authentication-made-easy-with-nestjs-part-4-of-how-to-build-a-graphql-mongodb-d6057eae3fdf
 @Injectable()
@@ -289,5 +290,21 @@ export class UserService {
         id: userEmail.id
       }
     });
+  }
+
+  async updateUserProperty(user: UserEntity, input: UserPropertyInput) {
+    const data = {};
+    if (input.name) {
+      data['name'] = input.name;
+    }
+
+    const existingUser: User = await this.prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data
+    })
+
+    return existingUser;
   }
 }

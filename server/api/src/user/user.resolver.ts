@@ -15,6 +15,7 @@ import {SignUpInput} from './dto/sign-up.input';
 import {UserEmailEntity} from "./entities/user-email.entity";
 import {AppException} from "../exceptions/app-exception";
 import {AuthExceptionCode} from "../exceptions/exception-codes";
+import {UserPropertyInput} from "./dto/user-property.input";
 
 @Resolver(() => UserEntity)
 export class UserResolver {
@@ -108,6 +109,13 @@ export class UserResolver {
   @Mutation(() => Boolean)
   async deleteUserEmail(@CurrentUser() user: UserEntity, @Args('email') email: string) {
     await this.userService.deleteUserEmail(user, email);
+    return true;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => Boolean)
+  async updateUserProperty(@CurrentUser() user: UserEntity, @Args('input') input: UserPropertyInput) {
+    void this.userService.updateUserProperty(user, input);
     return true;
   }
 }

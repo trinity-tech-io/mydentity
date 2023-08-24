@@ -11,7 +11,7 @@ import {User} from "@model/user/user";
 export class UserEmailFeature implements UserFeature {
     constructor(protected user: User) {}
 
-    private async listUserEmails(): Promise<UserEmail[]> {
+    public async listUserEmails(): Promise<UserEmail[]> {
         logger.log("user", "list user emails.");
 
         const { data } = await withCaughtAppException(() => {
@@ -37,7 +37,7 @@ export class UserEmailFeature implements UserFeature {
         return null;
     }
 
-    private async removeUserEmail(id: string): Promise<boolean> {
+    public async removeUserEmail(id: string): Promise<boolean> {
         logger.log("user", "remove user email.");
 
         const { data } = await withCaughtAppException(() => {
