@@ -1,10 +1,12 @@
 'use client';
 
-import { Typography } from '@mui/material';
-import { checkEmailAuthenticationKey, checkEmailBind, isLogined } from "@services/user/user.service";
+import { Typography } from '@material-ui/core';
 import { decode } from '@utils/slugid';
-import { useSearchParams } from "next/navigation";
 import { FC, useEffect, useState } from 'react';
+import {checkEmailAuthenticationKey, isLogined} from "@services/user/user.service";
+import {useRouter, useSearchParams} from "next/navigation";
+import {useBehaviorSubject} from "@hooks/useBehaviorSubject";
+import {authUser$} from "@services/user/user.events";
 
 const CheckAuthKey: FC = () => {
   const searchParams = useSearchParams();
@@ -12,21 +14,23 @@ const CheckAuthKey: FC = () => {
   const authKey = encodedAuthKey ? decode(encodedAuthKey as string) : null;
   const [authError, setAuthError] = useState(false);
   const [logined, setLogined] = useState(false);
+  const [activeUser] = useBehaviorSubject(authUser$());
+  const router = useRouter();
 
   useEffect(() => {
     if (authKey) {
       if (!isLogined()) {
         void checkEmailAuthenticationKey(authKey).then(authenticated => {
           if (authenticated) {
-            window.location.replace('/dashboard');
+            router.push('/dashboard');
           } else
             setAuthError(true);
         });
       } else {
         setLogined(true);
-        void checkEmailBind(authKey).then(bound => {
+        void activeUser?.get('email').checkEmailBind(authKey).then(bound => {
           if (bound) {
-            window.location.replace('/account/security');
+            router.push('/account/security');
           } else
             setAuthError(true);
         });

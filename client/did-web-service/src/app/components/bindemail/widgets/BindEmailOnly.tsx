@@ -1,11 +1,12 @@
 import { MainButton } from '@components/MainButton';
 import { Icon as ReactIcon } from '@iconify/react';
-import { Container, InputBase } from '@mui/material';
-import { makeStyles } from '@mui/styles';
-import { FlowOperation, setOnGoingFlowOperation } from "@services/flow.service";
-import { bindWithEmailAddress } from "@services/user/user.service";
-import clsx from 'clsx';
+import { InputBase , Container} from '@material-ui/core';
 import { FC, FormEvent, useRef, useState } from "react";
+import clsx from 'clsx';
+import { makeStyles } from '@mui/styles';
+import {FlowOperation, setOnGoingFlowOperation} from "@services/flow.service";
+import {useBehaviorSubject} from "@hooks/useBehaviorSubject";
+import {authUser$} from "@services/user/user.events";
 
 const useStyles = makeStyles((theme) => ({
   centeredContainer: {
@@ -22,6 +23,7 @@ export const BindEmailOnly: FC = () => {
   const [authEmailSent, setAuthEmailSent] = useState(false);
   const emailForm = useRef(null);
   const classes = useStyles();
+  const [activeUser] = useBehaviorSubject(authUser$());
 
   const doEmailAuth = () => {
     const emailAddress = emailInputRef.current.value;
@@ -30,7 +32,7 @@ export const BindEmailOnly: FC = () => {
       setAuthEmailSent(true);
 
       setOnGoingFlowOperation(FlowOperation.OnBoardingEmailBinding);
-      void bindWithEmailAddress(emailAddress);
+      void activeUser?.get('email').bindWithEmailAddress(emailAddress);
     }
   }
 

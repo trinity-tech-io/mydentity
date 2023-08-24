@@ -135,25 +135,6 @@ export async function authenticateWithEmailAddress(emailAddress: string): Promis
 }
 
 /**
- * Initiates a user authentication by email address. This sends a magic auth link by email
- * and user needs to click that link to finalize the authentication.
- */
-export async function bindWithEmailAddress(emailAddress: string): Promise<void> {
-  logger.log("user", "Sending request to authentication by email");
-
-  await withCaughtAppException(() => {
-    return getApolloClient().mutate<{}>({
-      mutation: gql`
-      mutation BindWithEmailAddress($emailAddress: String!) {
-        bindWithEmailAddress(emailAddress: $emailAddress) { success }
-      }
-    `,
-      variables: { emailAddress }
-    });
-  });
-}
-
-/**
  * from email auth
  */
 export function updateUserByToken(accessToken: string, refreshToken: string) {
@@ -217,42 +198,6 @@ export async function checkEmailAuthenticationKey(authKey: string): Promise<bool
   }
 }
 
-/**
- * Checks the given temporary authentication key and signs the user in if successful
- */
-export async function checkEmailBind(authKey: string): Promise<boolean> {
-  logger.log("user", "Checking temporary authentication key for email bind.");
-
-  try {
-    const { data } = await withCaughtAppException(() => {
-      return getApolloClient().mutate<{
-        checkEmailBind: {
-          accessToken: string;
-          refreshToken: string;
-        }
-      }>({
-        mutation: gql`
-        mutation CheckEmailBind($authKey: String!) {
-          checkEmailBind(authKey: $authKey) { accessToken refreshToken }
-        }
-      `,
-        variables: { authKey }
-      });
-    });
-
-    const result = !!(data && data.checkEmailBind);
-    if (!result) {
-      logger.error('Failed to check email bind');
-    }
-    return result;
-  }
-  catch (e) {
-    // Probably a 401 error
-    logger.warn("auth", "Exception while checking temporary auth key for email bind. Key expired?");
-    return null;
-  }
-}
-
 export async function refreshToken(): Promise<string> {
   const token = localStorage.getItem('refresh_token');
   if (!token) {
@@ -296,31 +241,6 @@ export function onRefreshTokenFailed() {
   localStorage.removeItem("authenticated_user");
   // TODO: go to sign-out page.
   window.location.href = '/dashboard';
-}
-
-export async function bindOauthEmail(email: string) {
-  logger.log("user", "Binding oauth email address");
-
-  const { data } = await withCaughtAppException(() => {
-    return getApolloClient().mutate<{
-      bindOauthEmail: boolean
-    }>({
-      mutation: gql`
-        mutation BindOauthEmail($email: String!) {
-          bindOauthEmail(email: $email)
-        }
-      `,
-      variables: { email }
-    });
-  });
-
-  const result = data && data.bindOauthEmail;
-  if (!result) {
-    logger.error('user', 'Failure from the bindOauthEmail api.');
-  } else {
-    logger.log('user', 'Email bound successfully');
-  }
-  return result;
 }
 
 export function isLogined() {

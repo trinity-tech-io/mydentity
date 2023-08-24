@@ -2,12 +2,15 @@
 
 import {LinearProgress} from "@mui/material";
 import {clearOnGoingFlowOperation, FlowOperation, getOnGoingFlowOperation} from "@services/flow.service";
-import {bindOauthEmail, fetchSelfUser} from "@services/user/user.service";
+import {fetchSelfUser} from "@services/user/user.service";
 import {useRouter, useSearchParams} from "next/navigation";
 import {FC, useEffect} from "react";
+import {useBehaviorSubject} from "@hooks/useBehaviorSubject";
+import {authUser$} from "@services/user/user.events";
 
 const BindOauth: FC = () => {
   const searchParams = useSearchParams();
+  const [activeUser] = useBehaviorSubject(authUser$());
   const email = searchParams.get('email');
   const accessToken = searchParams.get('accessToken');
   const refreshToken = searchParams.get('refreshToken');
@@ -23,7 +26,7 @@ const BindOauth: FC = () => {
         clearOnGoingFlowOperation();
 
         if (email) {
-          bindOauthEmail(email).then(success => {
+          activeUser?.get('email').bindOauthEmail(email).then(success => {
             if (!success) {
               alert('Failed to bind oauth email.');
             }
