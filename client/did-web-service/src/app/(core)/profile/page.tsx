@@ -61,7 +61,7 @@ const Profile: FC = () => {
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
 
   const { showSuccessToast, showErrorToast } = useToast();
-  
+
   let basicCredentialsService: BasicCredentialsService;
   let basicCredentialsKey: string[];
 
@@ -77,9 +77,9 @@ const Profile: FC = () => {
   }, [credentials]);
 
   const showFeedbackToast = (isSuccess: boolean, preMsg: string) => {
-    if(isSuccess){
+    if (isSuccess) {
       showSuccessToast(preMsg + ' Success');
-    }else{
+    } else {
       showErrorToast(preMsg + ' Faild');
     }
   }
@@ -314,6 +314,10 @@ const Profile: FC = () => {
           New profile item
         </Button>
       </Stack>
+
+      <Typography gutterBottom>
+        <i>Good to know</i>: every item in the list below is stored in your identity as an individual <b>credential</b>. Credentials can later be shared to apps that request them, with your consent. Credentials are always signed with your own signature so no matter where they are shared, one can always make sure that <b>the information inside was created by you, and not modified</b>.
+      </Typography>
 
       {mounted &&
         <Card>

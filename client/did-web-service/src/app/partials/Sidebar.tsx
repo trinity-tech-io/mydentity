@@ -73,7 +73,8 @@ const groups: GroupConfig[] = [
     title: "Discover",
     links: [
       { title: "Essentials identity wallet", url: "/discover/essentials" },
-      { title: "Elastos", url: "/discover/elastos" }
+      { title: "Elastos Web3 Tech", url: "/discover/elastos" },
+      { title: "Trinity Tech", url: "/discover/trinity-tech" }
     ]
   },
   {
@@ -82,8 +83,7 @@ const groups: GroupConfig[] = [
     links: [
       { title: "FAQ", url: "/support/faq" },
       { title: "Contact us", url: "/support/contact" },
-      { title: "Developers", url: "/support/developers" },
-      { title: "Trinity tech website", url: "/support/ttech" }
+      //{ title: "Developers", url: "/support/developers" },
     ]
   }
 ];

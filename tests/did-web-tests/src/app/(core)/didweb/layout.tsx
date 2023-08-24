@@ -11,8 +11,8 @@ const DIDWebLayout: FC<{
 
   useEffect(() => {
     const webConnector = new DIDWebConnector({
-      webServiceEndpoint: "http://localhost:4000",
-      webServiceAPIEndpoint: "http://localhost:3000",
+      webServiceEndpoint: "http://127.0.0.1:4000",
+      webServiceAPIEndpoint: "http://127.0.0.1:3000",
     });
     connectivity.registerConnector(webConnector);
 

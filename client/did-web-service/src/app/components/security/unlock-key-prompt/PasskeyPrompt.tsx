@@ -9,7 +9,7 @@ export const PasskeyPrompt: FC<{
   }
 
   return (
-    <div className='flex flex-row gap-2 bg-gray-100 mt-4 p-4 items-center'>
+    <div className='flex flex-row gap-4 bg-gray-100 mt-4 p-4 items-center'>
       <p className='uppercase text-xs'>Browser<br />authentication</p>
       <MainButton onClick={onSubmit} >Unlock with passkey</MainButton>
     </div>
