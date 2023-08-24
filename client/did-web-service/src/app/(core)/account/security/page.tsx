@@ -6,6 +6,7 @@ import { Typography } from "@mui/material";
 import { authUser$ } from "@services/user/user.events";
 import { useRouter } from "next/navigation";
 import { FC } from "react";
+import { passkeyProgress } from "@services/keyring/keyring.service";
 
 const Security: FC = () => {
   const { mounted } = useMounted();
@@ -19,6 +20,10 @@ const Security: FC = () => {
 
   const bindDevice = () => {
     securityFeature.bindDevice();
+  }
+
+  const bindPasskey = () => {
+    router.push("/account/security/bind-passkey");
   }
 
   const bindPassword = () => {
@@ -62,8 +67,9 @@ const Security: FC = () => {
         </div>
       </div>
 
+      {/* passkey */}
       <div className="flex flex-col mb-4">
-        <MainButton onClick={bindDevice} >Secure with this browser biometrics</MainButton>
+        <MainButton onClick={bindPasskey} >Secure with this browser biometrics</MainButton>
         <div className="info">
           Binding your account to your browser biometrics allows you to sign in to this app (only from this browser)
           but also to unlock the secret key that decrypts all the data you store on our servers. Without this key, we,

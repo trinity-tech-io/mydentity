@@ -14,7 +14,7 @@ const OnBoarding: FC = () => {
   }
 
   const bindBrowser = () => {
-    router.push("/account/security/bind-device");
+    router.push("/account/security/bind-passkey");
   }
 
   return (

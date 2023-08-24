@@ -4,6 +4,7 @@ import { User } from '@prisma/client';
 import { CurrentUser } from 'src/auth/currentuser.decorator';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { BindKeyInput } from './dto/bind-key-input';
+import { AuthKeyInput } from './dto/auth-key-input';
 import { RemoveKeyInput } from './dto/remove-key-input';
 import { ChallengeEntity } from './entities/challenge.entity';
 import { ShadowKeyEntity } from './entities/shadow-key.entity';
@@ -17,6 +18,12 @@ export class KeyRingResolver {
   @Mutation(() => ShadowKeyEntity)
   bindKey(@Args('input') input: BindKeyInput, @CurrentUser() user: User) {
     return this.keyRingService.bindKey(input, user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => String)
+  verifyAuthKey(@Args('input') input: AuthKeyInput) {
+    return this.keyRingService.verifyAuthKey(input);
   }
 
   @UseGuards(JwtAuthGuard)
