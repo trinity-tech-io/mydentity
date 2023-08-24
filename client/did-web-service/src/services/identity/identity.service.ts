@@ -65,11 +65,12 @@ class IdentityService {
 
   private restoreActiveIdentity(identities: Identity[]) {
     // 1.load local cached active identity,
-    // 2.if not found cached data, set a default identity for convenience
-    if (activeIdentity$.value) return;
+    // 2.if no cached data found, set a default identity for convenience
+    if (activeIdentity$.value)
+      return;
 
     if (this.getActiveIdentityId()) {
-      const identity = this.queryIdentity(this.activeIdentityId, identities);
+      const identity = this.findIdentityByDID(this.activeIdentityId, identities);
       this.setActiveIdentity(identity);
       return;
     }
@@ -78,7 +79,7 @@ class IdentityService {
       identityService.setActiveIdentity(identities[0]);
   }
 
-  private queryIdentity(did: string, identities: Identity[]): Identity {
+  private findIdentityByDID(did: string, identities: Identity[]): Identity {
     const result = identities.find((identity) => {
       return identity.did === did;
     });
@@ -86,7 +87,7 @@ class IdentityService {
   }
 
   /**
-   * Returns the list of identities (DIDs) for the signed in user
+   * Returns the list of identities for the signed in user
    */
   public async listIdentities(): Promise<Identity[]> {
     const identities = await this.provider.listIdentities();

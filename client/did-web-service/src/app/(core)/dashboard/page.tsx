@@ -1,17 +1,19 @@
 'use client'
 import { MainButton } from "@components/MainButton";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
+import { useMounted } from "@hooks/useMounted";
+import { clearOnGoingFlowOperation } from "@services/flow.service";
 import { authUser$ } from "@services/user/user.events";
 import { useRouter } from "next/navigation";
 import { FC, useEffect } from "react";
 import { WelcomeBanner } from "./WelcomeBanner";
 import { IdentityListWidget } from "./widgets/IdentityList";
 import { RecentActivityWidget } from "./widgets/RecentActivity";
-import { clearOnGoingFlowOperation } from "@services/flow.service";
 
 const Dashboard: FC = () => {
   const [authUser] = useBehaviorSubject(authUser$());
   const router = useRouter();
+  const { mounted } = useMounted();
 
   useEffect(() => {
     clearOnGoingFlowOperation();
@@ -25,7 +27,6 @@ const Dashboard: FC = () => {
     router.push("/signin")
   }
 
-
   return (<>
     {/* Top part */}
     <div className="col-span-full">
@@ -33,7 +34,7 @@ const Dashboard: FC = () => {
       <WelcomeBanner />
 
       {/* Dashboard actions */}
-      <div className="sm:flex sm:justify-between sm:items-center mb-8">
+      <div className="sm:flex sm:justify-between sm:items-center">
 
         {/* Right: Actions */}
         {/* <div className="grid grid-flow-col sm:auto-cols-max justify-start sm:justify-end gap-2">
@@ -48,25 +49,27 @@ const Dashboard: FC = () => {
       </div>
     </div>
 
-    {/* Widgets */}
-    {authUser &&
-      <>
-        <RecentActivityWidget />
-        <IdentityListWidget />
-      </>
-    }
+    {mounted && <>
+      {/* Widgets */}
+      {authUser &&
+        <>
+          <RecentActivityWidget />
+          <IdentityListWidget />
+        </>
+      }
 
-    {/* Not signed in */}
-    {!authUser &&
-      <div className="col-span-full flex flex-col">
-        You want a real web3 identity? You've landed at the right place!<br />
-        Continue with one of the following actions:
-        <div className="flex flex-row gap-6 mt-4">
-          <MainButton onClick={signUp} >Sign up</MainButton>
-          <MainButton onClick={signIn} >Sign in</MainButton>
+      {/* Not signed in */}
+      {!authUser &&
+        <div className="col-span-full flex flex-col">
+          You want a real web3 identity? You've landed at the right place!<br />
+          Continue with one of the following actions:
+          <div className="flex flex-row gap-6 mt-4">
+            <MainButton onClick={signUp} >Sign up</MainButton>
+            <MainButton onClick={signIn} >Sign in</MainButton>
+          </div>
         </div>
-      </div>
-    }
+      }
+    </>}
   </>)
 }
 

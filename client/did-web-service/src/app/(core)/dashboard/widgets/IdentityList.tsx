@@ -1,11 +1,8 @@
 'use client';
+import ComfirmDialog from '@components/ComfirmDialog';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
-import { authUser$ } from '@services/user/user.events';
-import { FC, useState } from 'react';
 import DeleteIcon from '@mui/icons-material/Delete';
 import IconButton from '@mui/material/IconButton';
-import ComfirmDialog from '@components/ComfirmDialog';
-import { logger } from '@services/logger';
 import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -15,6 +12,10 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import { activeIdentity$ } from '@services/identity/identity.events';
 import { identityService } from '@services/identity/identity.service';
+import { shortenDID } from '@services/identity/identity.utils';
+import { logger } from '@services/logger';
+import { authUser$ } from '@services/user/user.events';
+import { FC, useState } from 'react';
 
 export const IdentityListWidget: FC = _ => {
   const TAG = "IdentityList";
@@ -49,12 +50,12 @@ export const IdentityListWidget: FC = _ => {
         title='Delete this identity?'
         content='Do you want to delete this Identity?'
         open={openConfirmDialog}
-        onClose={(isAgree: boolean)=>handleCloseDialog(isAgree)}
+        onClose={(isAgree: boolean) => handleCloseDialog(isAgree)}
       />
-        {/* Table */}
+      {/* Table */}
       <div className="overflow-x-auto">
         <TableContainer component={Paper}>
-          <Table sx={{ minWidth: 650 }} aria-label="caption table">
+          <Table aria-label="caption table">
             <TableHead>
               <TableRow>
                 <TableCell>DID</TableCell>
@@ -64,19 +65,20 @@ export const IdentityListWidget: FC = _ => {
             </TableHead>
             <TableBody>
               {
-                (identities && identities.length>0) && identities.map(identity => {
-                return (
-                  <TableRow key={identity.did}>
-                    <TableCell component="th" scope="row">{identity.did}</TableCell>
-                    <TableCell align="right">{identity.createdAt.toLocaleDateString()}</TableCell>
-                    <TableCell align="right">
-                        <IconButton aria-label="delete" onClick={()=>{setOpenConfirmDialog(true); setPrepareDeleteDid(identity.did)}}>
+                (identities && identities.length > 0) && identities.map(identity => {
+                  return (
+                    <TableRow key={identity.did}>
+                      <TableCell>{shortenDID(identity.did, 8)}</TableCell>
+                      <TableCell align="right">{identity.createdAt.toLocaleDateString()}</TableCell>
+                      <TableCell align="right">
+                        <IconButton aria-label="delete" onClick={() => { setOpenConfirmDialog(true); setPrepareDeleteDid(identity.did) }}>
                           <DeleteIcon />
                         </IconButton>
-                    </TableCell>
-                  </TableRow>
+                      </TableCell>
+                    </TableRow>
+                  )
+                }
                 )}
-              )}
             </TableBody>
           </Table>
         </TableContainer>
