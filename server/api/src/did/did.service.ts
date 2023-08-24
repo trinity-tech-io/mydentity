@@ -1,6 +1,8 @@
-import { DIDBackend, DIDDocument, DIDStore, DefaultDIDAdapter, Issuer, Logger, Mnemonic, RootIdentity, VerifiableCredential, VerifiablePresentation } from '@elastosfoundation/did-js-sdk';
-import { Injectable } from '@nestjs/common';
+import { DIDBackend, DIDDocument, DIDStore, DefaultDIDAdapter, Exceptions, Issuer, Mnemonic, RootIdentity, VerifiableCredential, VerifiablePresentation } from '@elastosfoundation/did-js-sdk';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { join } from 'path';
+import { AppException } from 'src/exceptions/app-exception';
+import { DIDExceptionCode } from 'src/exceptions/exception-codes';
 import { logger } from '../logger';
 import { DidAdapter } from './did.adapter';
 
@@ -16,7 +18,11 @@ export class DidService {
   }
 
   generateMnemonic(language: string) {
-    return Mnemonic.getInstance(language).generate();
+    try {
+      return Mnemonic.getInstance(language).generate();
+    } catch (e) {
+      throw new AppException(DIDExceptionCode.MnemonicError, e.message, HttpStatus.BAD_REQUEST);
+    }
   }
 
   async openStore(didStorePath: string) : Promise<DIDStore> {
@@ -24,10 +30,13 @@ export class DidService {
       return this.didStoreCache[didStorePath];
 
     const didStoreDir = join(__dirname, "../..", "didstores", didStorePath);
-    console.log('didStoreDir:', didStoreDir);
-    Logger.setLevel(Logger.INFO)
+    // console.log('didStoreDir:', didStoreDir);
+    // Logger.setLevel(Logger.INFO)
 
     const didStore = await DIDStore.open(didStoreDir);
+    if (!didStore) {
+      throw new AppException(DIDExceptionCode.DIDStorageError, "Can't open did store: " + didStoreDir, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
     this.didStoreCache[didStorePath] = didStore;
     return didStore;
   }
@@ -50,6 +59,10 @@ export class DidService {
       console.log('contains rootIdentities, use the exist rootIdentity');
       rootIdentity = await didStore.loadRootIdentity();
     }
+
+    if (!rootIdentity)
+      throw new AppException(DIDExceptionCode.DIDStorageError, "Can't load rootIdentity", HttpStatus.INTERNAL_SERVER_ERROR);
+
     return rootIdentity;
   }
 
@@ -82,20 +95,35 @@ export class DidService {
   }
 
   async createCredential(didStorePath: string, didString: string, credentialId: string, types: string[], expirationDate: Date, properties, storepass: string) {
-    const didStore = await this.openStore(didStorePath);
-    const didDocument = await didStore.loadDid(didString);
-    const issuer = new Issuer(didDocument);
-    const vcBuilder = issuer.issueFor(didString);
-    const vc = await vcBuilder.id(credentialId).types(...types).expirationDate(expirationDate).properties(properties).seal(storepass);
-    // save to did store
-    await didStore.storeCredential(vc);
-    // didStore.storeDid(didDocument);
-    return vc;
+    try {
+      const didStore = await this.openStore(didStorePath);
+      const didDocument = await didStore.loadDid(didString);
+      if (!didDocument)
+        throw new AppException(DIDExceptionCode.DIDNotExists, "Can't load did:" + didString, HttpStatus.NOT_FOUND);
+
+      const issuer = new Issuer(didDocument);
+      const vcBuilder = issuer.issueFor(didString);
+      const vc = await vcBuilder.id(credentialId).types(...types).expirationDate(expirationDate).properties(properties).seal(storepass);
+      // save to did store
+      await didStore.storeCredential(vc);
+      // didStore.storeDid(didDocument);
+      return vc;
+    } catch (e) {
+      if (e instanceof Exceptions.CredentialAlreadyExistException) {
+        throw new AppException(DIDExceptionCode.CredentialAlreadyExists, e.message, HttpStatus.BAD_REQUEST);
+      } else {
+        throw new AppException(DIDExceptionCode.DIDStorageError, e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+    }
   }
 
   async loadCredential(didStorePath: string, credentialId: string) {
-    const didStore = await this.openStore(didStorePath);
-    return await didStore.loadCredential(credentialId);
+    try {
+      const didStore = await this.openStore(didStorePath);
+      return await didStore.loadCredential(credentialId);
+    } catch (e) {
+      throw new AppException(DIDExceptionCode.DIDStorageError, e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   async deleteCredential(didStorePath: string, credentialId: string) {
@@ -108,24 +136,45 @@ export class DidService {
         vc: VerifiableCredential[], nonce: string, realm: string, storepass: string) {
     const didStore = await this.openStore(didStorePath);
 
-    const vpBuilder = await VerifiablePresentation.createFor(didString, null, didStore);
-    return vpBuilder.credentials(...vc).nonce(nonce).realm(realm).seal(storepass);
+    try {
+      const vpBuilder = await VerifiablePresentation.createFor(didString, null, didStore);
+      return vpBuilder.credentials(...vc).nonce(nonce).realm(realm).seal(storepass);
+    } catch (e) {
+      if ((e instanceof Exceptions.DIDObjectAlreadyExistException) || (e instanceof Exceptions.IllegalUsage)) {
+        throw new AppException(DIDExceptionCode.InvalidCredential, e.message, HttpStatus.BAD_REQUEST);
+      } else {
+        throw new AppException(DIDExceptionCode.DIDStorageError, e.message, HttpStatus.BAD_REQUEST);
+      }
+    }
   }
 
   // Get the payload of did transaction.
-  async publishDID(didStorePath: string, didString: string, storepass: string) {
+  async createDIDPublishTransaction(didStorePath: string, didString: string, storepass: string) {
     logger.log('DidService', 'publishDID', didString)
     const didStore = await this.openStore(didStorePath);
     const didDocument = await didStore.loadDid(didString);
+    if (!didDocument)
+        throw new AppException(DIDExceptionCode.DIDNotExists, "Can't load did:" + didString, HttpStatus.NOT_FOUND);
 
     const isExpired = didDocument.isExpired();
 
-    const docBuilder = DIDDocument.Builder.newFromDocument(didDocument).edit();
-    const newDoc = await docBuilder.setDefaultExpires().seal(storepass);
-    if (isExpired) {
-      await newDoc.publish(storepass, null, true, this.globalDidAdapter);
-    } else {
-      await newDoc.publish(storepass, null, false, this.globalDidAdapter);
+    try {
+      const docBuilder = DIDDocument.Builder.newFromDocument(didDocument).edit();
+      const newDoc = await docBuilder.setDefaultExpires().seal(storepass);
+
+      if (isExpired) {
+        await newDoc.publish(storepass, null, true, this.globalDidAdapter);
+      } else {
+        await newDoc.publish(storepass, null, false, this.globalDidAdapter);
+      }
+    } catch (e) {
+      if (e instanceof Exceptions.DIDNotUpToDateException) {
+        throw new AppException(DIDExceptionCode.DIDNotUpToDateError, e.message, HttpStatus.BAD_REQUEST);
+      } if (e instanceof Exceptions.DIDTransactionException) {
+        throw new AppException(DIDExceptionCode.DIDTransactionError, e.message, HttpStatus.BAD_REQUEST);
+      } else {
+        throw new AppException(DIDExceptionCode.DIDNotExists, e.message, HttpStatus.BAD_REQUEST);
+      }
     }
 
     return this.globalDidAdapter.getPayload();

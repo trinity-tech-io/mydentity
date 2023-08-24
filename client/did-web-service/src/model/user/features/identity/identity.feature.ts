@@ -28,10 +28,10 @@ export class IdentityFeature implements UserFeature {
     return identity;
   }
 
-  public async createTransaction(didString: string): Promise<string> {
-    logger.log("identities", "Publishing identity");
+  public async createDIDPublishTransaction(didString: string): Promise<string> {
+    logger.log("identities", "Creating identity publication transaction");
 
-    return await identityService.createTransaction(didString);
+    return await identityService.createDIDPublishTransaction(didString);
   }
 
   public async publish(didString: string, payload: string): Promise<string> {

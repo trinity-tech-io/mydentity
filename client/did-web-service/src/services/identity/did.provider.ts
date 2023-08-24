@@ -16,7 +16,7 @@ export interface IdentityProvider {
   deleteCredential(credentialId): Promise<boolean>;
   createVerifiablePresentation(identityDid: string, credentials: VerifiableCredential[], realm: string, nonce: string): Promise<VerifiablePresentation>;
   // get the DID transaction payload
-  createTransaction(identityDid: String):Promise<string>;
+  createDIDPublishTransaction(identityDid: String):Promise<string>;
   // publish Identity to did chain.
   publishIdentity(identityDid: string, payload: String):Promise<string>;
 }

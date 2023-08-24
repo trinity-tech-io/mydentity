@@ -1,6 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import * as request from 'request';
 import { Subject } from 'rxjs';
+import { AppException } from 'src/exceptions/app-exception';
+import { DIDExceptionCode } from 'src/exceptions/exception-codes';
 import { logger } from '../logger';
 
 export const MAINNET_TEMPLATE = "MainNet";
@@ -113,9 +115,6 @@ export class DIDPublishingService {
   public async publishDID(didString: string, payloadObject: any, memo = ''): Promise<string> {
     console.log("publicationservice", "Requesting identity publication to Assist", didString);
 
-    if (typeof payloadObject === "string")
-      throw new Error("Payload must be a JSON object, not a stringified JSON");
-
     this.persistentInfos[didString] = this.createNewPersistentInfo()
 
     this.persistentInfos[didString].did.didString = didString;
@@ -145,10 +144,7 @@ export class DIDPublishingService {
         };
 
         request.post(options, (error, response, bodyString) => {
-          // console.log("publicationservice", "response.statusCode:", response.statusCode, " error:", error)
-          // console.log("publicationservice", "bodyString:", bodyString)
           const body: AssistCreateTxResponse = bodyString ? JSON.parse(bodyString) : null;
-
           if (!error && response.statusCode === 200) {
             if (body && body.meta && body.meta.code == 200 && body.data.confirmation_id) {
               console.log("publicationservice", "All good, DID has been submitted. Now waiting.");
@@ -167,7 +163,7 @@ export class DIDPublishingService {
                 }
                 else if (status.status == DIDPublicationStatus.FAILED_TO_PUBLISH) {
                   console.log("global", "Identity publication failure");
-                  reject(this.persistentInfos[didString].did.assist.message);
+                  reject(new AppException(DIDExceptionCode.NetworkError, this.persistentInfos[didString].did.assist.message, HttpStatus.BAD_REQUEST));
                 }
               })
 
@@ -175,21 +171,21 @@ export class DIDPublishingService {
             } else {
               const errorMessage = "Successful response received from the assist API, but response can't be understood, Error:" + body?.meta?.message + " " + body?.meta?.description;
               console.warn("publicationservice", errorMessage);
-              throw errorMessage;
+              reject(new AppException(DIDExceptionCode.NetworkError, errorMessage, HttpStatus.BAD_REQUEST));
             }
           } else {
-            const errorMessage = "Failed to publish did. Error:" +  (error ? error : (body?.meta?.message + " " + body?.meta?.description));
+            const errorMessage = "Failed to publish did. Error:" +  (error ? error : (body?.meta?.message + ". " + body?.meta?.description));
             console.warn("publicationservice", errorMessage);
-            reject(errorMessage);
+            reject(new AppException(DIDExceptionCode.NetworkError, errorMessage, response.statusCode));
           }
         });
       }
       catch (err) {
         logger.error("publicationservice", "Assist publish api error:", err);
-        reject(err);
+        reject(new AppException(DIDExceptionCode.NetworkError, err.message, HttpStatus.SERVICE_UNAVAILABLE));
       }
     });
-}
+  }
 
   /**
    * Computes the right assist api endpoint according to current active network in settings.
@@ -201,7 +197,7 @@ export class DIDPublishingService {
       case TESTNET_TEMPLATE:
         return assistAPIEndpoints.TestNet;
       default:
-        throw new Error("DIDPublishingService service cannot be used to published on network " + networkTemplate);
+        throw new AppException(DIDExceptionCode.NetworkError, "DIDPublishing service cannot be used to published on network " + networkTemplate, HttpStatus.SERVICE_UNAVAILABLE);
     }
   }
 
@@ -301,7 +297,7 @@ export class DIDPublishingService {
         if (!error && response.statusCode === 200) {
           resolve(body);
         } else {
-          const errorMessage = "Failed to get publication status. Error:" +  (error ? error : (body?.meta?.message + " " + body?.meta?.description));
+          const errorMessage = "Failed to get publication status. Error:" +  (error ? error : (body?.meta?.message + ". " + body?.meta?.description));
           console.warn("getPublicationStatus:", errorMessage);
           reject(errorMessage)
         }
@@ -325,13 +321,19 @@ export class DIDPublishingService {
   /**
     * Emit a public publication status event that matches the current persistent info state.
     */
-  public emitPublicationStatusChangeFromPersistentInfo(didString) {
+  public emitPublicationStatusChangeFromPersistentInfo(didString: string) {
     if (this.persistentInfos[didString]) {
       this.publicationStatus.next({
           didString: this.persistentInfos[didString].did.didString,
           status: this.persistentInfos[didString].did.publicationStatus,
           txId: this.persistentInfos[didString].did.assist.txId || null
       });
+    }
+  }
+
+  public removePersistentInfo(didString: string) {
+    if (this.persistentInfos[didString]) {
+      delete this.persistentInfos[didString];
     }
   }
 }

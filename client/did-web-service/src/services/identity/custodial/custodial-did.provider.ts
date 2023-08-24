@@ -90,12 +90,12 @@ export class CustodialDIDProvider implements IdentityProvider {
     return null;
   }
 
-  async createTransaction(identityDid: string): Promise<string> {
+  async createDIDPublishTransaction(identityDid: string): Promise<string> {
     const { data } = await withCaughtAppException(() => {
-      return getApolloClient().mutate<{ createTransaction: TransactionDTO }>({
+      return getApolloClient().mutate<{ createDIDPublishTransaction: TransactionDTO }>({
         mutation: gql`
-        mutation createTransaction($identityDid: String!) {
-          createTransaction(identityDid: $identityDid) {
+        mutation createDIDPublishTransaction($identityDid: String!) {
+          createDIDPublishTransaction(identityDid: $identityDid) {
             ${gqlTransactionFields}
           }
         }
@@ -108,8 +108,8 @@ export class CustodialDIDProvider implements IdentityProvider {
 
     console.log(data)
 
-    if (data?.createTransaction.payload) {
-      return data.createTransaction.payload;
+    if (data?.createDIDPublishTransaction.payload) {
+      return data.createDIDPublishTransaction.payload;
     }
     else {
       throw new Error("Failed to create transaction");

@@ -29,4 +29,17 @@ export enum KeyRingExceptionCode {
   WebAuthnVerifyError = 20214
 }
 
-export type AppExceptionCode = KeyringExceptionCode | AuthExceptionCode | KeyRingExceptionCode;
+export enum DIDExceptionCode {
+  DIDStorageError = 10301,
+  MnemonicError = 10302,
+  DIDAlreadyExists = 10303,
+  DIDNotExists = 10304,
+  CredentialAlreadyExists = 10305,
+  CredentialNotExists = 10306,
+  InvalidCredential = 10307,
+  DIDNotUpToDateError = 10308,
+  DIDTransactionError = 10309,
+  NetworkError = 10310
+}
+
+export type AppExceptionCode = KeyringExceptionCode | AuthExceptionCode | KeyRingExceptionCode | DIDExceptionCode;

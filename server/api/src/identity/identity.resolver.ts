@@ -27,8 +27,8 @@ export class IdentityResolver {
 
   @UseGuards(JwtAuthGuard)
   @Mutation(() => TransactionEntity)
-  createTransaction(@Args('identityDid') identityDid: string, @CurrentUser() user: User) {
-    return this.didService.publish(identityDid, user);
+  createDIDPublishTransaction(@Args('identityDid') identityDid: string, @CurrentUser() user: User) {
+    return this.didService.createDIDPublishTransaction(identityDid, user);
   }
 
   @UseGuards(JwtAuthGuard)

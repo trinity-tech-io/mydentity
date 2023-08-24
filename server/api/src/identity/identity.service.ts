@@ -1,8 +1,10 @@
-import { DIDDocument } from '@elastosfoundation/did-js-sdk';
-import { Injectable } from '@nestjs/common';
+import { DIDDocument, RootIdentity } from '@elastosfoundation/did-js-sdk';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { Identity, User } from '@prisma/client';
 import { CredentialsService } from 'src/credentials/credentials.service';
 import { DidService } from 'src/did/did.service';
+import { AppException } from 'src/exceptions/app-exception';
+import { DIDExceptionCode } from 'src/exceptions/exception-codes';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateIdentityInput } from './dto/create-identity.input';
 
@@ -19,10 +21,17 @@ export class IdentityService {
     console.log('IdentityService', 'create', user);
     const storePassword = '123456'; // TODO: use account key
 
-    // Get rootIdentity to new did.
-    const rootIdentity = await this.didService.getRootIdentity(user.id, storePassword);
+    let rootIdentity: RootIdentity = null;
+    let didDocument: DIDDocument = null;
 
-    const didDocument: DIDDocument = await rootIdentity.newDid(storePassword);
+    try {
+      // Get rootIdentity to new did.
+      rootIdentity = await this.didService.getRootIdentity(user.id, storePassword);
+
+      didDocument = await rootIdentity.newDid(storePassword);
+    } catch (e) {
+      throw new AppException(DIDExceptionCode.DIDStorageError, e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
     // One user can create multiple dids, so we save the derivation index.
     const derivationIndex = rootIdentity.getIndex() - 1;
@@ -76,11 +85,11 @@ export class IdentityService {
     return successfulDeletion;
   }
 
-  async publish(didString: string, user: User) {
-    console.log('IdentityService', "publish", didString)
+  async createDIDPublishTransaction(didString: string, user: User) {
+    console.log('IdentityService', "createDIDPublishTransaction", didString)
     const storePassword = '123456'; // TODO: use account key
 
-    const payload = await this.didService.publishDID(user.id, didString, storePassword);
+    const payload = await this.didService.createDIDPublishTransaction(user.id, didString, storePassword);
     return {
       payload: payload.toString(),
     }
