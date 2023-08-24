@@ -312,7 +312,7 @@ export class KeyRingService {
     return keys;
   }
 
-  async auth(authKey: AuthKeyInput, clientId: string, user?: User): Promise<string> {
+  async auth(authKey: AuthKeyInput, clientId: string, user?: User): Promise<boolean> {
     if (!authKey.keyId)
       throw new AppException(KeyRingExceptionCode.InvalidAuthKey, "Missing the key id", HttpStatus.BAD_REQUEST);
 
@@ -347,7 +347,7 @@ export class KeyRingService {
 
     const masterKey = Buffer.from(await this.getSecretKey(shadow, key)).toString("hex");
     this.masterKeyCache.set(shadow.userId + "-" + clientId, masterKey);
-    return masterKey;
+    return true;
   }
 
   getMasterKey(userId: string, clientId: string): string | undefined {
