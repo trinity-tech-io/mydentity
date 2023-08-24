@@ -20,6 +20,8 @@ export class KeyRingService {
   private static CHALLENGE_EXPIRATION = 5 * 60 * 1000;
 
   private serverKeyPair: SignatureKeyPair;
+  private webautnOrigin: string;
+  private webauthnRelyingParty: string;
 
   public static async init(): Promise<void> {
     await ready;
@@ -29,6 +31,9 @@ export class KeyRingService {
   }
 
   constructor(private prisma: PrismaService) {
+    this.webautnOrigin = `${process.env.WEBAUTHN_ORIGIN}`;
+    this.webauthnRelyingParty = `${process.env.WEBAUTHN_RELYING_PARTY}`;
+
     const sk = Buffer.from(`${process.env.KEY_RING_PRIVATEKEY}`, 'hex');
 
     try {
@@ -63,8 +68,8 @@ export class KeyRingService {
       const opts: VerifyRegistrationResponseOpts = {
         response: response,
         expectedChallenge: challenge.content,
-        expectedOrigin: "http://localhost:4000",
-        expectedRPID: "localhost",
+        expectedOrigin: this.webautnOrigin,
+        expectedRPID: this.webauthnRelyingParty,
         requireUserVerification: true,
       };
       result = await verifyRegistrationResponse(opts);
@@ -84,8 +89,8 @@ export class KeyRingService {
       const opts: VerifyAuthenticationResponseOpts = {
         response: response,
         expectedChallenge: challenge.content,
-        expectedOrigin: "http://localhost:4000",
-        expectedRPID: "localhost",
+        expectedOrigin: this.webautnOrigin,
+        expectedRPID: this.webauthnRelyingParty,
         authenticator: {
           counter: shadow.counter,
           credentialID: Buffer.from(shadow.credentialId, "hex"),
