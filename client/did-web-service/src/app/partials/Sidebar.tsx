@@ -143,7 +143,7 @@ const GroupElement: FC<{
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <Image src={icon} alt="" className='shrink-0 h-6 w-6' />
-                <span className={clsx("text-sm font-medium ml-3 lg:opacity-0 2xl:opacity-100 duration-200", sidebarExpanded && "lg:opacity-100")}>
+                <span className={clsx("text-sm font-medium ml-3 lg:opacity-0 2xl:opacity-100 duration-200", sidebarExpanded && "lg:!opacity-100")}>
                   {title}
                 </span>
               </div>
@@ -158,7 +158,7 @@ const GroupElement: FC<{
           </Link>
           {/* Inner links */}
           {
-            links && <div className={clsx("lg:hidden 2xl:block", sidebarExpanded && "lg:block")}>
+            links && <div className={clsx("lg:hidden 2xl:block", sidebarExpanded && "lg:!block")}>
               <ul className={`pl-9 mt-1 ${!open && 'hidden'}`}>
                 {links.map(link => <LinkElement key={link.title} link={link} sidebarExpanded={sidebarExpanded} />)}
               </ul>
