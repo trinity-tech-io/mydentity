@@ -5,16 +5,17 @@ import { Identity } from '@model/identity/identity';
 import { activeIdentity$ } from '@services/identity/identity.events';
 import { identityService } from '@services/identity/identity.service';
 import { authUser$ } from '@services/user/user.events';
+import { useRouter } from 'next/navigation';
 import { FC, useEffect, useRef, useState } from 'react';
 import { MainButton } from './MainButton';
-import ModalCreateIdentity from './ModalIdentity';
 import Transition from './Transition';
 
 export const DropdownIdentity: FC<{
-  align?: any;
-}> = ({ align }) => {
+  align?: "left" | "right";
+}> = ({ align = "left" }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const { mounted } = useMounted();
+  const router = useRouter();
 
   const trigger = useRef(null);
   const dropdown = useRef(null);
@@ -22,10 +23,19 @@ export const DropdownIdentity: FC<{
   const [authUser] = useBehaviorSubject(authUser$());
   let [identities] = useBehaviorSubject(authUser?.get("identity").identities$);
   let [currentIdentity] = useBehaviorSubject(activeIdentity$);
-  const [createDidModalOpen, setCreateDidModalOpen] = useState(false);
+  //const [createDidModalOpen, setCreateDidModalOpen] = useState(false);
+
+  const closeDropdown = () => {
+    setDropdownOpen(false);
+  }
 
   const setCurrentIdentity = (identity: Identity) => {
     identityService.setActiveIdentity(identity);
+  }
+
+  const openNewIdentity = () => {
+    closeDropdown();
+    router.push("/new-identity");
   }
 
   // close on click outside
@@ -54,15 +64,11 @@ export const DropdownIdentity: FC<{
 
   return (
     <div className="relative inline-flex">
-      <ModalCreateIdentity id="search-modal" modalOpen={createDidModalOpen} setModalOpen={setCreateDidModalOpen} />
       <button
         ref={trigger}
         className="inline-flex justify-center items-center group"
         aria-haspopup="true"
-        onClick={() => {
-          setCreateDidModalOpen(false);
-          setDropdownOpen(!dropdownOpen);
-        }}
+        onClick={() => setDropdownOpen(!dropdownOpen)}
         aria-expanded={dropdownOpen}
       >
         {/* <Image className="w-8 h-8 rounded-full" src={IdentityAvatar} width="32" height="32" alt="User" /> */}
@@ -130,10 +136,7 @@ export const DropdownIdentity: FC<{
               })}
             </div>
           }
-          <MainButton className="min-w-max" onClick={() => {
-            setDropdownOpen(false);
-            setCreateDidModalOpen(true);
-          }}>Create a new identity</MainButton>
+          <MainButton className="min-w-max" onClick={openNewIdentity}>Create a new identity</MainButton>
         </div>
       </Transition>
     </div>
