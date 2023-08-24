@@ -10,7 +10,7 @@ export const PasskeyAuth: FC<{
 
   return (
     <div className='flex flex-row gap-4 mt-4 p-4 items-center' style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <MainButton onClick={onSubmit} >Auth passkey</MainButton>
+      <MainButton onClick={onSubmit} >Unlock passkey</MainButton>
     </div>
   );
 }

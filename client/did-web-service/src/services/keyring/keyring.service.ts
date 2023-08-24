@@ -24,24 +24,67 @@ import {
  * user account key.
  */
 
+const rpId = process.env.WEBAUTHN_RELYING_PARTY
 const userName = 'test name' // TODO: replace 
-const rpId = 'localhost' // TODO: replace 
 const rpName = 'DID web app' // TODO: replace 
 
 export async function passkeyProgress() {
-  const infos = await pkCredentialCreationOptions()
-  const attResp = await startRegistration(infos[2])
+  const challengeInfo = await getPasskeyChallenge()
+  const infos = await pkCredentialCreationOptions(challengeInfo)
+  const attResp = await startRegistration(infos[1])
+  console.log("infos1: ", infos[1])
   console.log("attResp: ", JSON.stringify(attResp, null, 2))
   const input = {
     type: ShadowKeyType.WEBAUTHN, //'ED25519',
     keyId: attResp.id,
     key: JSON.stringify(attResp),
-    challengeId: infos[1].id,
+    challengeId: challengeInfo.id,
     authType: null,
     authKeyId: null,
     authKey: null
   };
-  await bindKey(input);
+  await bindKey(input)
+}
+
+export async function unlockPasskey(): Promise<boolean> {
+  logger.log("Keyring", "start unlock passkey...")
+  const challengeInfo = await getPasskeyChallenge()
+  const infos = await pkCredentialCreationOptions(challengeInfo)
+  // true: Autofill account password will report an error
+  const attResp = await startAuthentication(infos[0], false)
+  const input = {
+    type: ShadowKeyType.WEBAUTHN,//-7
+    keyId: attResp.id,
+    key: JSON.stringify(attResp),
+    challengeId: challengeInfo.id,
+  };
+  logger.log("Keyring", "start unlock passkey, attResp: ", attResp);
+  return await unlockAuthKey(input)
+}
+
+export async function unlockAuthKey(input: AuthKeyInput): Promise<boolean> {
+  logger.log("Keyring", "start verify authKey, input: ", input);
+  const result = await withCaughtAppException(() => {
+    return getApolloClient().mutate<{}>({
+      mutation: gql`
+      mutation verifyAuthKey($input: AuthKeyInput!) {
+        verifyAuthKey(input: $input)
+      }
+    `,
+      variables: {
+        input
+      }
+    });
+  });
+  logger.log("verifyAuthKey", "verify authKey result: ", result);
+  if (result) {
+    const data = (result as any).data?.bindKey
+    logger.log("verifyAuthKey", "verify authKey Success: ", data);
+
+    return data
+  } else {
+    throw new Error('Can not verify authKey by verifyAuthKey api.');
+  }
 }
 
 export async function getPasskeyChallenge(): Promise<ChallengeEntity> {
@@ -56,9 +99,12 @@ export async function getPasskeyChallenge(): Promise<ChallengeEntity> {
         }
     }
     `,
+      fetchPolicy: "network-only",
       variables: {}
     });
   });
+
+  logger.log("verifyAuthKey", "getPasskeyChallenge: ", data);
 
   if (data) {
     const id = (data as any).data?.generateChallenge.id
@@ -74,7 +120,7 @@ export async function getPasskeyChallenge(): Promise<ChallengeEntity> {
 }
 
 export async function bindKey(input: BindKeyInput): Promise<boolean> {
-  logger.log("bindPasskey", "start bind passkey");
+  logger.log("bindPasskey", "start bind passkey, input: ", input);
   const result = await withCaughtAppException(() => {
     return getApolloClient().mutate<{}>({
       mutation: gql`
@@ -104,40 +150,7 @@ export async function bindKey(input: BindKeyInput): Promise<boolean> {
   }
 }
 
-export async function verifyAuthKey(input: AuthKeyInput): Promise<boolean> {
-  logger.log("Keyring", "start verify authKey...");
-  const infos = await pkCredentialCreationOptions()
-  // true: Autofill account password will report an error
-  startAuthentication(infos[0], false)
-    .then(async asseResp => {
-      logger.log("Keyring: ", asseResp);
-      debugger;
-    });
-  const result = await withCaughtAppException(() => {
-    return getApolloClient().mutate<{}>({
-      mutation: gql`
-      mutation verifyAuthKey($input: AuthKeyInput!) {
-        verifyAuthKey(input: $input)
-      }
-    `,
-      variables: {
-        input
-      }
-    });
-  });
-  logger.log("verifyAuthKey", "verify authKey result: ", result);
-  if (result) {
-    const data = (result as any).data?.bindKey
-    logger.log("verifyAuthKey", "verify authKey Success: ", data);
-
-    return data
-  } else {
-    throw new Error('Can not verify authKey by verifyAuthKey api.');
-  }
-}
-
-export async function pkCredentialCreationOptions(): Promise<[PublicKeyCredentialRequestOptionsJSON, ChallengeEntity, PublicKeyCredentialCreationOptionsJSON]> {
-  const challengeInfo = await getPasskeyChallenge()
+export async function pkCredentialCreationOptions(challengeInfo: ChallengeEntity): Promise<[PublicKeyCredentialRequestOptionsJSON, PublicKeyCredentialCreationOptionsJSON]> {
   const userId = userName
 
   const challengeEncoder = new TextEncoder()
@@ -147,12 +160,8 @@ export async function pkCredentialCreationOptions(): Promise<[PublicKeyCredentia
   // TO AUTH PASSKEY
   const publicKeyCredentialCreationOptions: PublicKeyCredentialRequestOptionsJSON = {
     challenge: Buffer.from(challengeUint8Array).toString(),
-    allowCredentials: [{
-      id: "",
-      type: "public-key",
-      transports: ["internal"]
-    }],
-    rpId: "localhost",
+    allowCredentials: [],
+    rpId: rpId,
     userVerification: "required",
     timeout: 60000
   };
@@ -173,7 +182,7 @@ export async function pkCredentialCreationOptions(): Promise<[PublicKeyCredentia
     challenge: challengeInfo.content,
   }
   // Authentication Options
-  return [publicKeyCredentialCreationOptions, challengeInfo, pkCredentialCreationOptionsJSON]
+  return [publicKeyCredentialCreationOptions, pkCredentialCreationOptionsJSON]
 }
 
 export function arrayBufferToBase64(arrayBuffer: ArrayBuffer): string {
