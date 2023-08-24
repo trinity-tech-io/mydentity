@@ -6,6 +6,7 @@ import { activeIdentity$ } from '@services/identity/identity.events';
 import { identityService } from '@services/identity/identity.service';
 import { authUser$ } from '@services/user/user.events';
 import { FC, useEffect, useRef, useState } from 'react';
+import { MainButton } from './MainButton';
 import ModalCreateIdentity from './ModalIdentity';
 import Transition from './Transition';
 
@@ -106,22 +107,11 @@ export const DropdownIdentity: FC<{
         leaveEnd="opacity-0"
       >
         <div
+          className='p-4'
           ref={dropdown}
           onFocus={() => setDropdownOpen(true)}
           onBlur={() => setDropdownOpen(false)}
         >
-          <div className="py-3 px-3 w-full" >
-            <button className="btn w-full bg-indigo-500 hover:bg-indigo-600 text-white whitespace-nowrap" onClick={() => {
-              setDropdownOpen(false);
-              setCreateDidModalOpen(true);
-            }}>
-              <span className="hidden xs:block ml-2">Create a new identity</span>
-              <svg className="ml-2 w-4 h-4 fill-current opacity-50 shrink-0" viewBox="0 0 16 16">
-                <path d="M15 7H9V1c0-.6-.4-1-1-1S7 .4 7 1v6H1c-.6 0-1 .4-1 1s.4 1 1 1h6v6c0 .6.4 1 1 1s1-.4 1-1V9h6c.6 0 1-.4 1-1s-.4-1-1-1z" />
-              </svg>
-            </button>
-
-          </div>
           {
             (identities && identities.length > 0) &&
             <div className="border-b border-slate-200 dark:border-slate-700 " >
@@ -140,6 +130,10 @@ export const DropdownIdentity: FC<{
               })}
             </div>
           }
+          <MainButton className="min-w-max" onClick={() => {
+            setDropdownOpen(false);
+            setCreateDidModalOpen(true);
+          }}>Create a new identity</MainButton>
         </div>
       </Transition>
     </div>

@@ -275,14 +275,16 @@ const Sidebar: FC<{
           <span className="hidden xs:block ml-2">Test New DID</span>
         </button> */}
 
-        <h3 className="text-xs uppercase text-slate-500 font-semibold pl-3">
-          <span className="hidden lg:block lg:sidebar-expanded:hidden 2xl:hidden text-center w-6" aria-hidden="true">
-            •••
-          </span>
-          <span className="lg:hidden lg:sidebar-expanded:block 2xl:block">ACTIVE IDENTITY</span>
-        </h3>
-        <span className="lg:hidden lg:sidebar-expanded:block 2xl:block text-slate-200 mx-3 mb-6" style={{ fontSize: 11 }}>{activeIdentity ? shortenDID(activeIdentity.did) : ""}</span>
-
+        {activeIdentity && <>
+          <h3 className="text-xs uppercase text-slate-500 font-semibold pl-3">
+            <span className="hidden lg:block lg:sidebar-expanded:hidden 2xl:hidden text-center w-6" aria-hidden="true">
+              •••
+            </span>
+            <span className="lg:hidden lg:sidebar-expanded:block 2xl:block">ACTIVE IDENTITY</span>
+          </h3>
+          <span className="lg:hidden lg:sidebar-expanded:block 2xl:block text-slate-200 mx-3 mb-6" style={{ fontSize: 11 }}>{shortenDID(activeIdentity.did)}</span>
+        </>
+        }
 
         {/* Links */}
         <div /* className="space-y-8" */>

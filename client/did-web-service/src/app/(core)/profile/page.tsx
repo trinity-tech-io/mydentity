@@ -10,7 +10,7 @@ import { BasicCredentialEntry } from "@model/credential/basiccredentialentry";
 import { Credential } from "@model/credential/credential";
 import AddIcon from '@mui/icons-material/Add';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { Button, Card, Container, IconButton, MenuItem, Paper, Popover, Stack, Table, TableBody, TableCell, TableContainer, TablePagination, TableRow, Typography } from "@mui/material";
+import { Button, Card, Container, IconButton, MenuItem, Popover, Stack, Table, TableBody, TableCell, TableContainer, TablePagination, TableRow, Typography } from "@mui/material";
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
@@ -372,11 +372,7 @@ const Profile: FC = () => {
                 <TableBody>
                   <TableRow>
                     <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
-                      <Paper
-                        sx={{
-                          textAlign: 'center',
-                        }}
-                      >
+                      <div className="text-center">
                         <Typography variant="h6" paragraph>
                           Not found
                         </Typography>
@@ -386,7 +382,7 @@ const Profile: FC = () => {
                           <strong>&quot;{filterName}&quot;</strong>.
                           <br /> Try checking for typos or using complete words.
                         </Typography>
-                      </Paper>
+                      </div>
                     </TableCell>
                   </TableRow>
                 </TableBody>

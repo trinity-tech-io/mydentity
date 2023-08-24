@@ -1,6 +1,7 @@
 import { } from "@mui/base";
 import { CircularProgress } from '@mui/material';
 import Button from '@mui/material/Button';
+import clsx from "clsx";
 import { FC, ReactNode } from "react";
 
 export const MainButton: FC<{
@@ -15,8 +16,8 @@ export const MainButton: FC<{
   const busyIcon = <CircularProgress size={16} />
 
   return (
-    <div className={className} >
-      <Button startIcon={busy ? busyIcon : leftIcon} disabled={busy || disabled} size={size} variant="contained" onClick={onClick}>{children}</Button>
-    </div>
+    <div className={clsx("flex", className)} >
+      <Button className="flex-1" startIcon={busy ? busyIcon : leftIcon} disabled={busy || disabled} size={size} variant="contained" onClick={onClick}>{children}</Button>
+    </div >
   )
 }
