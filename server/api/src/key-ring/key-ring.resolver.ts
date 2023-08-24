@@ -1,11 +1,10 @@
 import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { User } from '@prisma/client';
+import { CurrentClientID } from 'src/auth/currentclientid.decorator';
 import { CurrentUser } from 'src/auth/currentuser.decorator';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { BindKeyInput } from './dto/bind-key-input';
+import { JwtAuthGuard, OptionalJwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { AuthKeyInput } from './dto/auth-key-input';
-import { RemoveKeyInput } from './dto/remove-key-input';
 import { ChallengeEntity } from './entities/challenge.entity';
 import { ShadowKeyEntity } from './entities/shadow-key.entity';
 import { KeyRingService } from './key-ring.service';
@@ -14,22 +13,22 @@ import { KeyRingService } from './key-ring.service';
 export class KeyRingResolver {
   constructor(private readonly keyRingService: KeyRingService) { }
 
-  @UseGuards(JwtAuthGuard)
-  @Mutation(() => ShadowKeyEntity)
-  bindKey(@Args('input') input: BindKeyInput, @CurrentUser() user: User) {
-    return this.keyRingService.bindKey(input, user);
+  @UseGuards(OptionalJwtAuthGuard)
+  @Mutation(() => String)
+  auth(@Args('authKey') authKey: AuthKeyInput, @CurrentClientID() clientId: string, @CurrentUser() user: User | null) {
+    return this.keyRingService.auth(authKey, clientId, user);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Mutation(() => String)
-  verifyAuthKey(@Args('input') input: AuthKeyInput) {
-    return this.keyRingService.verifyAuthKey(input);
+  @Mutation(() => ShadowKeyEntity)
+  bindKey(@Args('newKey') newKey: AuthKeyInput, @CurrentClientID() clientId: string, @CurrentUser() user: User) {
+    return this.keyRingService.bindKey(newKey, clientId, user);
   }
 
   @UseGuards(JwtAuthGuard)
   @Mutation(() => Boolean)
-  removeKey(@Args('input') input: RemoveKeyInput, @CurrentUser() user: User) {
-    return this.keyRingService.removeKey(input, user);
+  removeKey(@Args('keyId') keyId: string, @CurrentUser() user: User) {
+    return this.keyRingService.removeKey(keyId, user);
   }
 
   @UseGuards(JwtAuthGuard)

@@ -3,6 +3,7 @@ import { Challenge, Prisma, User, UserShadowKey, UserShadowKeyType } from '@pris
 import { VerifiedAuthenticationResponse, VerifiedRegistrationResponse, VerifyAuthenticationResponseOpts, VerifyRegistrationResponseOpts, verifyAuthenticationResponse, verifyRegistrationResponse } from '@simplewebauthn/server';
 import { AuthenticationResponseJSON, RegistrationResponseJSON } from '@simplewebauthn/server/script/deps';
 import { randombytes_buf, ready } from 'libsodium-wrappers-sumo';
+import * as NodeCache from 'node-cache';
 import { Signature as Ed25519Signature, KeyPair as SignatureKeyPair } from 'src/crypto/ed25519';
 import { PasswordHash } from 'src/crypto/passwordhash';
 import { SecretBox } from 'src/crypto/secretbox';
@@ -10,18 +11,19 @@ import { AppException } from 'src/exceptions/app-exception';
 import { KeyRingExceptionCode } from 'src/exceptions/exception-codes';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthKeyInput } from './dto/auth-key-input';
-import { BindKeyInput } from './dto/bind-key-input';
-import { RemoveKeyInput } from './dto/remove-key-input';
 import { ChallengeEntity } from './entities/challenge.entity';
 
 @Injectable()
 export class KeyRingService {
   private static UNKNOWN_USER_ID = "unknown-user-id";
   private static CHALLENGE_EXPIRATION = 5 * 60 * 1000;
+  private static DEFAULT_TTL = 600; // 10 minutes
 
   private serverKeyPair: SignatureKeyPair;
   private webautnOrigin: string;
   private webauthnRelyingParty: string;
+
+  private masterKeyCache: NodeCache;
 
   public static async init(): Promise<void> {
     await ready;
@@ -31,17 +33,41 @@ export class KeyRingService {
   }
 
   constructor(private prisma: PrismaService) {
-    this.webautnOrigin = `${process.env.WEBAUTHN_ORIGIN}`;
-    this.webauthnRelyingParty = `${process.env.WEBAUTHN_RELYING_PARTY}`;
+    let v = process.env.WEBAUTHN_ORIGIN;
+    if (!v)
+      throw new AppException(KeyRingExceptionCode.InvalidKeyRingConfig,
+        "Missing WebAuthn origin in the env file.", HttpStatus.INTERNAL_SERVER_ERROR);
 
-    const sk = Buffer.from(`${process.env.KEY_RING_PRIVATEKEY}`, 'hex');
+    this.webautnOrigin = v.trim();
+
+    v = process.env.WEBAUTHN_RELYING_PARTY;
+    if (!v)
+      throw new AppException(KeyRingExceptionCode.InvalidKeyRingConfig,
+        "Missing WebAuthn relying party in the env file.", HttpStatus.INTERNAL_SERVER_ERROR);
+
+    this.webauthnRelyingParty = v.trim();
+
+    const sk = process.env.KEY_RING_PRIVATEKEY;
+    if (!sk)
+      throw new AppException(KeyRingExceptionCode.InvalidKeyRingConfig,
+        "Missing the private key for KeyRing in the env file.", HttpStatus.INTERNAL_SERVER_ERROR);
 
     try {
-      this.serverKeyPair = SignatureKeyPair.fromPrivateKey(sk);
+      this.serverKeyPair = SignatureKeyPair.fromPrivateKey(Buffer.from(sk.trim(), "hex"));
     } catch (e) {
-      throw new AppException(KeyRingExceptionCode.InvalidPrivateKey,
-        "Invalid server private key from the env file: " + e, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new AppException(KeyRingExceptionCode.InvalidKeyRingConfig,
+        "Invalid private key for KeyRing in the env file: " + e, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    const ttlValue = process.env.KEY_RING_TTL;
+    const ttl = ttlValue ? Number(ttlValue) : KeyRingService.DEFAULT_TTL;
+
+    this.masterKeyCache = new NodeCache({
+      stdTTL: ttl,
+      checkperiod: 300,
+      useClones: false,
+      deleteOnExpire: true
+    });
   }
 
   private async getChallenge(challengeId: string): Promise<Challenge> {
@@ -60,7 +86,7 @@ export class KeyRingService {
   private async verifyWebAuthnRegistation(responseJson: string, challengeId: string): Promise<VerifiedRegistrationResponse> {
     const challenge = await this.getChallenge(challengeId);
     if (!challenge)
-      throw new AppException(KeyRingExceptionCode.NoChallenge, "No challenge or expired", HttpStatus.BAD_REQUEST);
+      throw new AppException(KeyRingExceptionCode.InvalidChallengeId, "Invalid challenge id or expired", HttpStatus.BAD_REQUEST);
 
     const response: RegistrationResponseJSON = JSON.parse(responseJson);
     let result: VerifiedRegistrationResponse = null;
@@ -82,7 +108,7 @@ export class KeyRingService {
   private async verifyWebAuthnAuthenticatoin(responseJson: string, challengeId: string, shadow: UserShadowKey): Promise<VerifiedAuthenticationResponse> {
     const challenge = await this.getChallenge(challengeId);
     if (!challenge)
-      throw new AppException(KeyRingExceptionCode.NoChallenge, "No challenge or expired", HttpStatus.BAD_REQUEST);
+      throw new AppException(KeyRingExceptionCode.InvalidChallengeId, "Invalid challenge id or expired", HttpStatus.BAD_REQUEST);
 
     const response: AuthenticationResponseJSON = JSON.parse(responseJson);
     try {
@@ -151,9 +177,9 @@ export class KeyRingService {
     });
   }
 
-  private async removeShadowKey(userId: string, keyId: string): Promise<void> {
+  private async removeShadowKey(userId: string, keyId: string): Promise<UserShadowKey> {
     try {
-      await this.prisma.userShadowKey.delete({
+      const shadow = await this.prisma.userShadowKey.delete({
         where: {
           userId_keyId: {
             userId: userId,
@@ -161,26 +187,34 @@ export class KeyRingService {
           }
         }
       });
+
+      return shadow;
     } catch (e) {
       if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2025") {
         throw new AppException(KeyRingExceptionCode.KeyNotExists, "Key not exists", HttpStatus.NOT_FOUND);
       } else {
-        throw new AppException(KeyRingExceptionCode.DBInternalError, e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+        throw new AppException(KeyRingExceptionCode.DatabaseError, e.message, HttpStatus.INTERNAL_SERVER_ERROR);
       }
     }
   }
 
-  private async getShadowKey(userId: string, keyId: string): Promise<UserShadowKey> {
-    const shadow = await this.prisma.userShadowKey.findUnique({
-      where: {
-        userId_keyId: {
-          userId: userId,
+  private async getShadowKey(keyId: string, userId?: string): Promise<UserShadowKey> {
+    if (userId) {
+      return await this.prisma.userShadowKey.findUnique({
+        where: {
+          userId_keyId: {
+            userId: userId,
+            keyId: keyId
+          }
+        }
+      });
+    } else {
+      return await this.prisma.userShadowKey.findFirst({
+        where: {
           keyId: keyId
         }
-      }
-    });
-
-    return shadow;
+      });
+    }
   }
 
   private async getSecretKey(shadow: UserShadowKey, key: string): Promise<Uint8Array> {
@@ -197,94 +231,58 @@ export class KeyRingService {
     return SecretBox.decryptWithPassword(encryptedSecretKey, password);
   }
 
-  async bindKey(input: BindKeyInput, user: User): Promise<UserShadowKey> {
-    const key = await this.prisma.userShadowKey.findFirst({
+  async bindKey(newKey: AuthKeyInput, clientId: string, user: User): Promise<UserShadowKey> {
+    const shadow = await this.prisma.userShadowKey.findFirst({
       where: {
         userId: user.id
       }
     })
 
     let secretKey: Uint8Array;
-    if (key) {
-      if (!input.authType)
-        throw new AppException(KeyRingExceptionCode.UnsupportedAuthenticationKey, "Unknown authentication key type", HttpStatus.BAD_REQUEST);
+    if (shadow) {
+      // KeyRing exists, get the cached secret key if authorized
+      const masterKey = this.getMasterKey(user.id, clientId);
+      if (masterKey === undefined)
+        throw new AppException(KeyRingExceptionCode.Unauthorized, "User unauthorized", HttpStatus.FORBIDDEN);
 
-      if (!input.authKeyId)
-          throw new AppException(KeyRingExceptionCode.InvalidPublicKey, "Missing key id", HttpStatus.BAD_REQUEST);
-
-      if (input.authType == UserShadowKeyType.WEBAUTHN) {
-        if (!input.authChallengeId)
-          throw new AppException(KeyRingExceptionCode.NoChallengeId, "Missing challenge id", HttpStatus.BAD_REQUEST);
-
-        if (!input.authKey)
-          throw new AppException(KeyRingExceptionCode.NoSignature, "Missing the webauthn response", HttpStatus.BAD_REQUEST);
-      } else if (input.authKey == UserShadowKeyType.PASSWORD) {
-        if (!input.authKey)
-          throw new AppException(KeyRingExceptionCode.InvalidPassword, "Missing password", HttpStatus.BAD_REQUEST);
-      }
-
-      const shadow = await this.getShadowKey(user.id, input.authKeyId);
-      if (!shadow)
-        throw new AppException(KeyRingExceptionCode.NoAuthenticationKey, "no authorization key", HttpStatus.FORBIDDEN);
-
-      let key: string;
-      if (input.authType == UserShadowKeyType.WEBAUTHN) {
-        const result = await this.verifyWebAuthnAuthenticatoin(input.authKey, input.challengeId, shadow);
-        if (!result.verified)
-          throw new AppException(KeyRingExceptionCode.WebAuthnVerifyError, "WebAuthn verify error", HttpStatus.FORBIDDEN);
-
-        key = shadow.key;
-      } else if (input.authType == UserShadowKeyType.PASSWORD) {
-        if (!PasswordHash.verify(shadow.key, input.authKey))
-          throw new AppException(KeyRingExceptionCode.InvalidPassword, "Wrong password", HttpStatus.FORBIDDEN);
-
-        key = input.authKey;
-      }
-
-      secretKey = await this.getSecretKey(shadow, key);
+      secretKey = Buffer.from(masterKey, "hex");
     } else {
-      if (input.authType || input.authKeyId || input.authKey || input.authChallengeId)
-        throw new AppException(KeyRingExceptionCode.UnsupportedAuthenticationKey, "Invalid authentication key data", HttpStatus.BAD_REQUEST);
-
       // New secret key for the new key ring
       const secretBox = SecretBox.random();
       secretKey = secretBox._bytes();
     }
 
-    if (!input.keyId)
-      throw new AppException(KeyRingExceptionCode.InvalidPublicKey, "Missing key id", HttpStatus.BAD_REQUEST);
+    if (!newKey.keyId)
+      throw new AppException(KeyRingExceptionCode.InvalidAuthKey, "Missing the key id", HttpStatus.BAD_REQUEST);
 
+    let key: string = null;
     let credentialId: string = null;
     let counter = 0;
-    let newKey: string = null;
-    if (input.type == UserShadowKeyType.WEBAUTHN) {
-      if (!input.key)
-        throw new AppException(KeyRingExceptionCode.InvalidPublicKey, "Missing public key", HttpStatus.BAD_REQUEST);
+    if (newKey.type == UserShadowKeyType.WEBAUTHN) {
+      if (!newKey.key)
+        throw new AppException(KeyRingExceptionCode.InvalidAuthKey, "Missing the WebAuthn response", HttpStatus.BAD_REQUEST);
 
-      if (!input.challengeId)
-        throw new AppException(KeyRingExceptionCode.NoChallengeId, "Missing challenge id", HttpStatus.BAD_REQUEST);
+      if (!newKey.challengeId)
+        throw new AppException(KeyRingExceptionCode.InvalidAuthKey, "Missing the challenge id", HttpStatus.BAD_REQUEST);
 
-      const result = await this.verifyWebAuthnRegistation(input.key, input.challengeId);
+      const result = await this.verifyWebAuthnRegistation(newKey.key, newKey.challengeId);
       if (!result.verified)
-          throw new AppException(KeyRingExceptionCode.WebAuthnVerifyError, "WebAuthn verify error", HttpStatus.FORBIDDEN);
+          throw new AppException(KeyRingExceptionCode.WebAuthnVerifyError, "WebAuthn verify failed", HttpStatus.FORBIDDEN);
 
-      newKey = Buffer.from(result.registrationInfo.credentialPublicKey).toString("hex");
+      key = Buffer.from(result.registrationInfo.credentialPublicKey).toString("hex");
       credentialId = Buffer.from(result.registrationInfo.credentialID).toString("hex");
       counter = result.registrationInfo.counter;
-    } else if (input.type == UserShadowKeyType.PASSWORD) {
-      if (input.challengeId)
-        throw new AppException(KeyRingExceptionCode.InvalidPassword, "Missing password data", HttpStatus.BAD_REQUEST);
+    } else if (newKey.type == UserShadowKeyType.PASSWORD) {
+      if (!newKey.key)
+        throw new AppException(KeyRingExceptionCode.InvalidAuthKey, "Missing password", HttpStatus.BAD_REQUEST);
 
-      if (!input.key)
-        throw new AppException(KeyRingExceptionCode.InvalidPassword, "Missing password", HttpStatus.BAD_REQUEST);
-
-      newKey = input.key;
+      key = newKey.key;
     }
 
-    return await this.addShadowKey(user.id, input.keyId, newKey, credentialId, counter, input.type, secretKey);
+    return await this.addShadowKey(user.id, newKey.keyId, key, credentialId, counter, newKey.type, secretKey);
   }
 
-  async removeKey(input: RemoveKeyInput, user: User): Promise<boolean> {
+  async removeKey(keyId: string, user: User): Promise<boolean> {
     const count = await this.prisma.userShadowKey.count({
       where: {
         userId: user.id
@@ -292,10 +290,9 @@ export class KeyRingService {
     });
 
     if (count <= 2)
-      throw new AppException(KeyRingExceptionCode.CanNotUnbindKey, "Can not remove the last 2 keys", HttpStatus.FORBIDDEN);
+      throw new AppException(KeyRingExceptionCode.CanNotRemoveKey, "Can not remove the last 2 keys", HttpStatus.FORBIDDEN);
 
-    await this.removeShadowKey(user.id, input.keyId);
-    return true;
+    return (await this.removeShadowKey(user.id, keyId)) != null;
   }
 
   async getAllKeys(user: User): Promise<UserShadowKey[]> {
@@ -315,76 +312,50 @@ export class KeyRingService {
     return keys;
   }
 
-  async getMasterKey(input: AuthKeyInput, user: User): Promise<Uint8Array> {
-    if (!input.keyId)
-      throw new AppException(KeyRingExceptionCode.InvalidPublicKey, "Missing key id", HttpStatus.BAD_REQUEST);
+  async auth(authKey: AuthKeyInput, clientId: string, user?: User): Promise<string> {
+    if (!authKey.keyId)
+      throw new AppException(KeyRingExceptionCode.InvalidAuthKey, "Missing the key id", HttpStatus.BAD_REQUEST);
 
-    if (input.type == UserShadowKeyType.WEBAUTHN) {
-      if (!input.challengeId)
-        throw new AppException(KeyRingExceptionCode.NoChallengeId, "Missing challenge id", HttpStatus.BAD_REQUEST);
+    if (authKey.type == UserShadowKeyType.WEBAUTHN) {
+      if (!authKey.challengeId)
+        throw new AppException(KeyRingExceptionCode.InvalidAuthKey, "Missing the challenge id", HttpStatus.BAD_REQUEST);
 
-      if (!input.key)
-        throw new AppException(KeyRingExceptionCode.NoSignature, "Missing the webauthn response", HttpStatus.BAD_REQUEST);
-    } else if (input.type == UserShadowKeyType.PASSWORD) {
-      if (!input.key)
-        throw new AppException(KeyRingExceptionCode.InvalidPassword, "Missing password", HttpStatus.BAD_REQUEST);
+      if (!authKey.key)
+        throw new AppException(KeyRingExceptionCode.InvalidAuthKey, "Missing the WebAuthn response", HttpStatus.BAD_REQUEST);
+    } else if (authKey.type == UserShadowKeyType.PASSWORD) {
+      if (!authKey.key)
+        throw new AppException(KeyRingExceptionCode.InvalidAuthKey, "Missing password", HttpStatus.BAD_REQUEST);
     }
 
-    const shadow = await this.getShadowKey(user.id, input.keyId);
+    const shadow = await this.getShadowKey(authKey.keyId, user ? user.id : null);
     if (!shadow)
-      throw new AppException(KeyRingExceptionCode.NoAuthenticationKey, "no authorization key", HttpStatus.FORBIDDEN);
+      throw new AppException(KeyRingExceptionCode.KeyNotExists, "Authorization key not exists", HttpStatus.FORBIDDEN);
 
     let key: string;
-    if (input.type == UserShadowKeyType.WEBAUTHN) {
-      const result = await this.verifyWebAuthnAuthenticatoin(input.key, input.challengeId, shadow);
+    if (authKey.type == UserShadowKeyType.WEBAUTHN) {
+      const result = await this.verifyWebAuthnAuthenticatoin(authKey.key, authKey.challengeId, shadow);
       if (!result.verified)
-        throw new AppException(KeyRingExceptionCode.WebAuthnVerifyError, "WebAuthn verify error", HttpStatus.FORBIDDEN);
+        throw new AppException(KeyRingExceptionCode.WebAuthnVerifyError, "WebAuthn verify failed", HttpStatus.FORBIDDEN);
 
       key = shadow.key;
-    } else if (input.type == UserShadowKeyType.PASSWORD) {
-      if (!PasswordHash.verify(shadow.key, input.key))
-        throw new AppException(KeyRingExceptionCode.InvalidPassword, "Wrong password", HttpStatus.FORBIDDEN);
+    } else if (authKey.type == UserShadowKeyType.PASSWORD) {
+      if (!PasswordHash.verify(shadow.key, authKey.key))
+        throw new AppException(KeyRingExceptionCode.WrongPassword, "Wrong password", HttpStatus.FORBIDDEN);
 
-      key = input.key;
+      key = authKey.key;
     }
 
-    return await this.getSecretKey(shadow, key);
+    const masterKey = Buffer.from(await this.getSecretKey(shadow, key)).toString("hex");
+    this.masterKeyCache.set(shadow.userId + "-" + clientId, masterKey);
+    return masterKey;
   }
 
-  async verifyAuthKey(input: AuthKeyInput): Promise<string> {
-    if (!input.keyId)
-      throw new AppException(KeyRingExceptionCode.InvalidPublicKey, "Missing key id", HttpStatus.BAD_REQUEST);
-
-    if (input.type == UserShadowKeyType.WEBAUTHN) {
-      if (!input.challengeId)
-        throw new AppException(KeyRingExceptionCode.NoChallengeId, "Missing challenge id", HttpStatus.BAD_REQUEST);
-
-      if (!input.key)
-        throw new AppException(KeyRingExceptionCode.NoSignature, "Missing the webauthn response", HttpStatus.BAD_REQUEST);
-    } else if (input.type == UserShadowKeyType.PASSWORD) {
-      if (!input.key)
-        throw new AppException(KeyRingExceptionCode.InvalidPassword, "Missing password", HttpStatus.BAD_REQUEST);
-    }
-
-    const shadow = await this.prisma.userShadowKey.findFirst({
-      where: {
-        keyId: input.keyId
-      }
-    });
-
-    if (!shadow)
-      return null;
-
-    if (input.type == UserShadowKeyType.WEBAUTHN) {
-      const result = await this.verifyWebAuthnAuthenticatoin(input.key, input.challengeId, shadow);
-      if (!result.verified)
-        throw new AppException(KeyRingExceptionCode.WebAuthnVerifyError, "WebAuthn verify error", HttpStatus.FORBIDDEN);
-    } else if (input.type == UserShadowKeyType.PASSWORD) {
-      if (!PasswordHash.verify(shadow.key, input.key))
-        throw new AppException(KeyRingExceptionCode.InvalidPassword, "Wrong password", HttpStatus.FORBIDDEN);
-    }
-
-    return shadow.userId;
+  getMasterKey(userId: string, clientId: string): string | undefined {
+    const id = userId + "-" + clientId;
+    const masterKey: string = this.masterKeyCache.get(id);
+    if (masterKey)
+      this.masterKeyCache.ttl(id);
+    return masterKey;
   }
 
   async generateChallenge(): Promise<ChallengeEntity> {
@@ -408,4 +379,3 @@ export class KeyRingService {
     return challenge
   }
 }
-
