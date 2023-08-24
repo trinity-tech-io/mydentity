@@ -98,7 +98,6 @@ export class User {
     });
 
     this.name = name;
-    authUser$().next(this);
     console.info('user', 'update user name successfully.');
     return data?.updateUserProperty;
   }
