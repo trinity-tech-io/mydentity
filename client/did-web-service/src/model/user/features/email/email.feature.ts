@@ -63,31 +63,26 @@ export class UserEmailFeature implements UserFeature {
     public async bindOauthEmail(email: string) {
         logger.log("user", "Bind oauth email address");
 
-        try {
-            const { data } = await withCaughtAppException(() => {
-                return getApolloClient().mutate<{
-                    bindOauthEmail: boolean
-                }>({
-                    mutation: gql`
-        mutation BindOauthEmail($email: String!) {
-          bindOauthEmail(email: $email)
-        }
-      `,
-                    variables: { email }
-                });
+        const { data } = await withCaughtAppException(() => {
+            return getApolloClient().mutate<{
+                bindOauthEmail: boolean
+            }>({
+                mutation: gql`
+                mutation BindOauthEmail($email: String!) {
+                  bindOauthEmail(email: $email)
+                }
+                `,
+                variables: { email }
             });
+        });
 
-            const result = data && data.bindOauthEmail;
-            if (!result) {
-                logger.error('user', 'Failed from bindOauthEmail api.');
-            } else {
+        const result = data && data.bindOauthEmail;
+        if (!result) {
+            logger.error('user', 'Failed from bindOauthEmail api.');
+        } else {
 
-            }
-            return result;
-        } catch (e) {
-            logger.warn("user", "Exception while bind oauth email to user.");
-            return null;
         }
+        return result;
     }
 
     /**
@@ -96,34 +91,27 @@ export class UserEmailFeature implements UserFeature {
     public async checkEmailBind(authKey: string): Promise<boolean> {
         logger.log("user", "Checking temporary authentication key for email bind.");
 
-        try {
-            const { data } = await withCaughtAppException(() => {
-                return getApolloClient().mutate<{
-                    checkEmailBind: {
-                        accessToken: string;
-                        refreshToken: string;
+        const { data } = await withCaughtAppException(() => {
+            return getApolloClient().mutate<{
+                checkEmailBind: {
+                    accessToken: string;
+                    refreshToken: string;
+                }
+            }>({
+                mutation: gql`
+                    mutation CheckEmailBind($authKey: String!) {
+                        checkEmailBind(authKey: $authKey) { accessToken refreshToken }
                     }
-                }>({
-                    mutation: gql`
-                        mutation CheckEmailBind($authKey: String!) {
-                            checkEmailBind(authKey: $authKey) { accessToken refreshToken }
-                        }
-                    `,
-                    variables: { authKey }
-                });
+                `,
+                variables: { authKey }
             });
+        });
 
-            const result = !!(data && data.checkEmailBind);
-            if (!result) {
-                logger.error('Failed to check email bind');
-            }
-            return result;
+        const result = !!(data && data.checkEmailBind);
+        if (!result) {
+            logger.error('Failed to check email bind');
         }
-        catch (e) {
-            // Probably a 401 error
-            logger.warn("auth", "Exception while checking temporary auth key for email bind. Key expired?");
-            return null;
-        }
+        return result;
     }
 
     /**
