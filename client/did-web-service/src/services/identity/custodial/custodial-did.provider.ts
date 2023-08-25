@@ -135,8 +135,8 @@ export class CustodialDIDProvider implements IdentityProvider {
 
     console.log(data)
 
-    if (data?.publishIdentity.txid) {
-      return data.publishIdentity.txid;
+    if (data?.publishIdentity.publicationID) {
+      return data.publishIdentity.publicationID;
     }
     else {
       throw new Error("Failed to publish DID");

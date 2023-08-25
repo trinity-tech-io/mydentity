@@ -1,6 +1,5 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import * as request from 'request';
-import { Subject } from 'rxjs';
 import { AppException } from 'src/exceptions/app-exception';
 import { DIDExceptionCode } from 'src/exceptions/exception-codes';
 import { logger } from '../logger';
@@ -96,30 +95,15 @@ type AssistTransactionStatusResponse = AssistBaseResponse & {
 export class DIDPublishingService {
   private network = MAINNET_TEMPLATE;
   // private network = TESTNET_TEMPLATE;
-  public persistentInfos: {
-    [index: string]: PersistentInfo
-  } = {};
-
-  public publicationStatus: Subject<PublicationStatus> = null;
-
-  constructor() {
-    this.publicationStatus = new Subject<PublicationStatus>();
-    this.persistentInfos = {};
-  }
 
   /**
    * Directly publishes a payload previously generated in another part of the app.
+   * return confirmation_id as publicationID
    *
    * DOC FOR ASSIST API: https://github.com/tuum-tech/assist-restapi-backend#verify
    */
   public async publishDID(didString: string, payloadObject: any, memo = ''): Promise<string> {
     console.log("publicationservice", "Requesting identity publication to Assist", didString);
-
-    this.persistentInfos[didString] = this.createNewPersistentInfo()
-
-    this.persistentInfos[didString].did.didString = didString;
-    this.persistentInfos[didString].did.publicationStatus = DIDPublicationStatus.NO_ON_GOING_PUBLICATION;
-    this.emitPublicationStatusChangeFromPersistentInfo(didString);
 
     return new Promise(async (resolve, reject) => {
       const requestBody = {
@@ -147,27 +131,8 @@ export class DIDPublishingService {
           const body: AssistCreateTxResponse = bodyString ? JSON.parse(bodyString) : null;
           if (!error && response.statusCode === 200) {
             if (body && body.meta && body.meta.code == 200 && body.data.confirmation_id) {
-              console.log("publicationservice", "All good, DID has been submitted. Now waiting.");
-
-              this.persistentInfos[didString].did.publicationStatus = DIDPublicationStatus.AWAITING_PUBLICATION_CONFIRMATION;
-              this.persistentInfos[didString].did.assist.publicationID = body.data.confirmation_id;
-              this.emitPublicationStatusChangeFromPersistentInfo(didString);
-
-              this.publicationStatus.subscribe( status => {
-                if (status.didString != didString)
-                  return;
-
-                if (status.status == DIDPublicationStatus.PUBLISHED_AND_CONFIRMED) {
-                  console.log("global", "Identity publication success");
-                  resolve(this.persistentInfos[didString].did.assist.txId);
-                }
-                else if (status.status == DIDPublicationStatus.FAILED_TO_PUBLISH) {
-                  console.log("global", "Identity publication failure");
-                  reject(new AppException(DIDExceptionCode.NetworkError, this.persistentInfos[didString].did.assist.message, HttpStatus.BAD_REQUEST));
-                }
-              })
-
-              void this.checkPublicationStatusAndUpdate(didString);
+              console.log("publicationservice", "All good, DID has been submitted.");
+              resolve(body.data.confirmation_id);
             } else {
               const errorMessage = "Successful response received from the assist API, but response can't be understood, Error:" + body?.meta?.message + " " + body?.meta?.description;
               console.warn("publicationservice", errorMessage);
@@ -184,91 +149,6 @@ export class DIDPublishingService {
         logger.error("publicationservice", "Assist publish api error:", err);
         reject(new AppException(DIDExceptionCode.NetworkError, err.message, HttpStatus.SERVICE_UNAVAILABLE));
       }
-    });
-  }
-
-  /**
-   * Computes the right assist api endpoint according to current active network in settings.
-   */
-  private getAssistEndpoint(networkTemplate: string) {
-    switch (networkTemplate) {
-      case MAINNET_TEMPLATE:
-        return assistAPIEndpoints.MainNet;
-      case TESTNET_TEMPLATE:
-        return assistAPIEndpoints.TestNet;
-      default:
-        throw new AppException(DIDExceptionCode.NetworkError, "DIDPublishing service cannot be used to published on network " + networkTemplate, HttpStatus.SERVICE_UNAVAILABLE);
-    }
-  }
-
-  /**
-   * Checks the publication status on the assist API, for a previously saved ID.
-   */
-  public checkPublicationStatusAndUpdate(didString: string): Promise<void> {
-    // Stop checking status if not awaiting anything.
-    if (this.persistentInfos[didString].did.publicationStatus !== DIDPublicationStatus.AWAITING_PUBLICATION_CONFIRMATION)
-      return;
-
-    return new Promise(async (resolve, reject) => {
-      console.log("publicationservice", "Requesting identity publication status to Assist for confirmation ID " + this.persistentInfos[didString].did.assist.publicationID);
-
-      try {
-        const body: AssistTransactionStatusResponse = await this.getPublicationStatus(this.persistentInfos[didString].did.assist.publicationID);
-
-        if (body && body.meta && body.meta.code == 200 && body.data.status) {
-          console.log("publicationservice", "All good, We got a clear status from the assist api:", body.data.status);
-
-          if (body.data.status == AssistTransactionStatus.PENDING || body.data.status == AssistTransactionStatus.PROCESSING) {
-            // Transaction is still pending, we do nothing, just wait and retry later.
-            //Logger.log("publicationservice", "Publication is still pending / processing / not confirmed.");
-
-            // Don't save or emit for now, this will be sent when we get another useful (completed/failed) event later.
-            if (body.data.blockchainTxId)
-              this.persistentInfos[didString].did.assist.txId = body.data.blockchainTxId;
-          }
-          else if (body.data.status == AssistTransactionStatus.QUARANTINED) {
-            // Blocking issue. This publication was quarantined, there is "something wrong somewhere".
-            // So to make things more reliable, we just delete everything and restart the process
-            // from scratch.
-            console.log("publicationservice", "Publication request was quarantined! Deleting the identity and trying again.");
-            this.persistentInfos[didString].did.publicationStatus = DIDPublicationStatus.FAILED_TO_PUBLISH;
-            this.persistentInfos[didString].did.assist.message = body.meta.message;
-            this.emitPublicationStatusChangeFromPersistentInfo(didString);
-          }
-          else if (body.data.status == AssistTransactionStatus.COMPLETED) {
-            this.persistentInfos[didString].did.publicationStatus = DIDPublicationStatus.PUBLISHED_AND_CONFIRMED;
-            this.emitPublicationStatusChangeFromPersistentInfo(didString);
-          }
-          else {
-            console.error("publicationservice", "Unhandled transaction status received from assist:", body.data.status);
-            this.persistentInfos[didString].did.publicationStatus = DIDPublicationStatus.FAILED_TO_PUBLISH;
-            this.persistentInfos[didString].did.assist.message = body.meta.message;
-            this.emitPublicationStatusChangeFromPersistentInfo(didString);
-          }
-
-          setTimeout(() => {
-            void this.checkPublicationStatusAndUpdate(didString);
-          }, 1000);
-
-          resolve();
-        } else {
-          const error = "Successful response received from the assist API, but response can't be understood";
-          console.error("publicationservice", "Assist api call error:", error);
-
-          this.persistentInfos[didString].did.publicationStatus = DIDPublicationStatus.FAILED_TO_PUBLISH;
-          this.persistentInfos[didString].did.assist.message = error;
-          this.emitPublicationStatusChangeFromPersistentInfo(didString);
-          reject();
-        }
-      }
-      catch(err) {
-        console.error("publicationservice", "Assist api call error:", err);
-
-        this.persistentInfos[didString].did.publicationStatus = DIDPublicationStatus.FAILED_TO_PUBLISH;
-        this.persistentInfos[didString].did.assist.message = err.message ? err.message : err;
-        this.emitPublicationStatusChangeFromPersistentInfo(didString);
-        reject();
-      };
     });
   }
 
@@ -305,35 +185,17 @@ export class DIDPublishingService {
     });
   }
 
-  public createNewPersistentInfo(): PersistentInfo {
-    return {
-      did: {
-        didString: null,
-        publicationMedium: 'assist',
-        publicationStatus: DIDPublicationStatus.NO_ON_GOING_PUBLICATION,
-        assist: {
-          publicationID: null
-        }
-      }
-    }
-  }
-
   /**
-    * Emit a public publication status event that matches the current persistent info state.
-    */
-  public emitPublicationStatusChangeFromPersistentInfo(didString: string) {
-    if (this.persistentInfos[didString]) {
-      this.publicationStatus.next({
-          didString: this.persistentInfos[didString].did.didString,
-          status: this.persistentInfos[didString].did.publicationStatus,
-          txId: this.persistentInfos[didString].did.assist.txId || null
-      });
-    }
-  }
-
-  public removePersistentInfo(didString: string) {
-    if (this.persistentInfos[didString]) {
-      delete this.persistentInfos[didString];
+   * Computes the right assist api endpoint according to current active network in settings.
+   */
+  private getAssistEndpoint(networkTemplate: string) {
+    switch (networkTemplate) {
+      case MAINNET_TEMPLATE:
+        return assistAPIEndpoints.MainNet;
+      case TESTNET_TEMPLATE:
+        return assistAPIEndpoints.TestNet;
+      default:
+        throw new AppException(DIDExceptionCode.NetworkError, "DIDPublishing service cannot be used to published on network " + networkTemplate, HttpStatus.SERVICE_UNAVAILABLE);
     }
   }
 }

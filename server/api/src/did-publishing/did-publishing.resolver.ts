@@ -9,15 +9,9 @@ export class DIDPublishingResolver {
 
   @Mutation(() => DIDPublishEntity)
   publishIdentity(@Args('input') input: PublishIdentityInput) {
-    try {
-      const txid = this.didPublishingService.publishDID(input.identityDid, JSON.parse(input.payload));
-      return {
-        txid: txid
-      }
-    } catch (e) {
-      throw e;
-    } finally {
-      this.didPublishingService.removePersistentInfo(input.identityDid);
+    const publicationID = this.didPublishingService.publishDID(input.identityDid, JSON.parse(input.payload));
+    return {
+      publicationID: publicationID
     }
   }
 }
