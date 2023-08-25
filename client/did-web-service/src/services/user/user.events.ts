@@ -20,3 +20,7 @@ export function authUser$() {
 export function getActiveUser(): User {
   return authUser$().value;
 }
+
+export function getAccessToken(): string {
+  return localStorage.getItem('access_token');
+}

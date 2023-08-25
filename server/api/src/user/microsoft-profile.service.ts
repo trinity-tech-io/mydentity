@@ -11,6 +11,12 @@ import { ThirdPartyUser } from './dto/third-party-user';
 export class MicrosoftProfileService {
   // constructor(private readonly filesService: FilesService) {}
 
+  public async retrieveEmail(token: string): Promise<string> {
+    // https://learn.microsoft.com/en-us/azure/active-directory/develop/userinfo
+    // TODO：
+    return null;
+  }
+
   /**
    * Retrieve user avatar picture from microsoft account.
    * @param thirdPartyUser user profiles from microsoft

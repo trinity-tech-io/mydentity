@@ -88,6 +88,26 @@ export class UserService {
     return retValue;
   }
 
+  private getUserEmailByEmail(email: string): Promise<UserEmail & {user: User}> {
+    return this.prisma.userEmail.findFirst({
+      where: {
+        email
+      },
+      include: {
+        user: true
+      }
+    });
+  }
+
+  async signInByEmail(email: string) {
+    const userEmail: UserEmail & {user: User} = await this.getUserEmailByEmail(email);
+    if (!userEmail) {
+      return null;
+    }
+
+    return await this.authService.generateUserCredentials(userEmail.user);
+  }
+
   /**
    * Initiates a new authentication by email, using a magic link.
    */
@@ -234,6 +254,11 @@ export class UserService {
       throw new Error(`Can not find user by refresh token.`);
 
     return user;
+  }
+
+  async getUserByEmail(email: string): Promise<UserEntity> {
+    const userEmail: UserEmail & {user: UserEntity} = await this.getUserEmailByEmail(email);
+    return userEmail ? userEmail.user : null;
   }
 
   /**
