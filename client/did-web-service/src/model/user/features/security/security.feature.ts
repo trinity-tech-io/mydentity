@@ -106,4 +106,13 @@ export class SecurityFeature implements UserFeature {
   public isPasswordBound(): boolean {
     return !!this.shadowKeys$.value?.find(key => key.type === ShadowKeyType.PASSWORD);
   }
+
+  /**
+   * Tells if user has bound this browser with passkey
+   */
+  public isThisBrowserBound(): boolean {
+    // TODO: for now we don't check if the passkey is from this browser or another browser.
+    // Need to implement this.
+    return this.passkeyKeys$.value?.length > 0;
+  }
 }

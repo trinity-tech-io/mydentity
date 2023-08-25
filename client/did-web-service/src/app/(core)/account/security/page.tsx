@@ -21,6 +21,7 @@ const Security: FC = () => {
   const [devices] = useBehaviorSubject(deviceFeature?.devices$);
   const [shadowKeys] = useBehaviorSubject(securityFeature?.shadowKeys$);
   const isPasswordBound = securityFeature?.isPasswordBound();
+  const isThisBrowserBound = securityFeature?.isThisBrowserBound();
   const isEmailBound = false;  // TODO useBehaviorSubject(emailFeature?.emails$);
   const router = useRouter();
 
@@ -52,19 +53,6 @@ const Security: FC = () => {
     </p>
     <br /><br />
     {mounted && <>
-      <Typography variant="h5">My devices</Typography>
-      {devices?.length == 0 && "You haven't bound any device yet. Start binding this browser now to secure your account."}
-      {
-        devices && <>
-          {devices.map(device => <div key={device.id}>{device.name}</div>)}
-        </>
-      }
-      <br /><br />
-      {shadowKeys && <>
-        Password bound: <b>{isPasswordBound ? "YES" : "NO"}</b>
-      </>}
-      <br /><br />
-
       <div className='grid grid-cols-12 items-start gap-10'>
         <div className='col-span-full xl:col-span-6 flex flex-row gap-10 items-start'>
           <Image src={EmailIcon} alt="Email" height={60} />
@@ -87,14 +75,21 @@ const Security: FC = () => {
         {/* passkey */}
         <div className='col-span-full xl:col-span-6 flex flex-row gap-10 items-start'>
           <Image src={FingerprintIcon} alt="Fingerprint" height={60} />
-          <div className="flex flex-col">
-            <div className="info mb-2">
-              Binding your account to your <b>browser biometrics</b> allows you to sign in to this app (only from this browser)
-              but also to unlock the secret key that decrypts all the data you store on our servers. Without this key, we,
-              or potential attackers, are not able to read your personal information in clear text.
+          {
+            !isThisBrowserBound &&
+            <div className="flex flex-col">
+              <div className="info mb-2">
+                Binding your account to your <b>browser biometrics</b> allows you to sign in to this app (only from this browser)
+                but also to unlock the secret key that decrypts all the data you store on our servers. Without this key, we,
+                or potential attackers, are not able to read your personal information in clear text.
+              </div>
+              <MainButton onClick={bindPasskey} className="self-start">Secure with this browser biometrics</MainButton>
             </div>
-            <MainButton onClick={bindPasskey} className="self-start">Secure with this browser biometrics</MainButton>
-          </div>
+          }
+          {
+            isThisBrowserBound &&
+            <div>Your browser is bound to your account - <Link href="/account/security/bind-passkey">Bind again</Link></div>
+          }
         </div>
 
         <div className='col-span-full xl:col-span-6 flex flex-row gap-10 items-start'>
@@ -117,6 +112,16 @@ const Security: FC = () => {
         </div>
 
       </div>
+
+      <br /><br />
+
+      <Typography variant="h5">My devices</Typography>
+      {devices?.length == 0 && "You haven't bound any device yet. Start binding this browser now to secure your account."}
+      {
+        devices && <>
+          {devices.map(device => <div key={device.id}>{device.name}</div>)}
+        </>
+      }
 
     </>}
   </div>)
