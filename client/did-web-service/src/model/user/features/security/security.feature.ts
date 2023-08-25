@@ -5,15 +5,35 @@ import { ShadowKeyType } from "@model/shadow-key/shadow-key-type";
 import { ShadowKeyDTO } from "@model/shadow-key/shadow-key.dto";
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
-import { bindPassword, bindPasskey, unlockPasskey } from "@services/user/user.service";
 import { logger } from "@services/logger";
+import { bindPasskey, bindPassword, unlockPasskey } from "@services/user/user.service";
 import { LazyBehaviorSubjectWrapper } from "@utils/lazy-behavior-subject";
+import { map } from "rxjs";
 import { User } from "../../user";
 import { UserFeature } from "../user-feature";
 
 export class SecurityFeature implements UserFeature {
-  private _shadowKeys$ = new LazyBehaviorSubjectWrapper<ShadowKey[]>(null, () => this.fetchShadowKeys());
+  /**
+   * All user's shadow keys (bindings)
+   */
   public get shadowKeys$() { return this._shadowKeys$.getSubject(); }
+  private _shadowKeys$ = new LazyBehaviorSubjectWrapper<ShadowKey[]>(null, () => this.fetchShadowKeys());
+
+  /**
+   * Password shadow keys. Normally, only one per user.
+   */
+  public get passwordKeys$() { return this._passwordKeys$.getSubject(); }
+  private _passwordKeys$ = new LazyBehaviorSubjectWrapper<ShadowKey[]>(null, async () => {
+    this.shadowKeys$.pipe(map((k) => k?.filter(k => k.type === ShadowKeyType.PASSWORD))).subscribe(this.passwordKeys$);
+  });
+
+  /**
+   * Passkey shadow keys. A user may have multiple, one per bound browser.
+   */
+  public get passkeyKeys$() { return this._passkeyKeys$.getSubject(); }
+  private _passkeyKeys$ = new LazyBehaviorSubjectWrapper<ShadowKey[]>(null, async () => {
+    this.shadowKeys$.pipe(map((k) => k?.filter(k => k.type === ShadowKeyType.WEBAUTHN))).subscribe(this.passkeyKeys$);
+  });
 
   constructor(protected user: User) { }
 

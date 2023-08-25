@@ -10,7 +10,7 @@ export class LazyBehaviorSubjectWrapper<T> {
   private subject: BehaviorSubject<T>;
   private fetchedOrFetching = false;
 
-  constructor(initialValue: T, private initializer: () => Promise<T>) {
+  constructor(initialValue: T, private initializer: () => Promise<T | void>) {
     this.subject = new BehaviorSubject(initialValue);
   }
 
@@ -19,7 +19,7 @@ export class LazyBehaviorSubjectWrapper<T> {
       this.fetchedOrFetching = true;
 
       // Call the initializer, and update the subject with the init value.
-      void this.initializer().then(initValue => this.subject.next(initValue));
+      void this.initializer().then(initValue => initValue && this.subject.next(initValue));
     }
 
     return this.subject;

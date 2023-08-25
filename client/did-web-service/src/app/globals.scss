@@ -2,20 +2,20 @@
 @tailwind components;
 
 /* Additional styles */
-@import './css/utility-patterns.css';
-@import './css/flatpickr.css';
+@import "./css/utility-patterns.css";
+@import "./css/flatpickr.css";
 
 @tailwind utilities;
 
-
 @font-face {
   font-family: "Inter";
-  src: url('./assets/fonts/Inter.ttf');
- /*  font-weight: normal;
+  src: url("./assets/fonts/Inter.ttf");
+  /*  font-weight: normal;
   font-style: normal; */
 }
 
 :root {
+  --primary-color: rgb(99, 102, 241);
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
   --background-end-rgb: 255, 255, 255;
@@ -30,17 +30,21 @@
 }
 
 body {
-  font-family: 'Inter' , sans-serif;
+  font-family: "Inter", sans-serif;
   /* color: rgb(var(--foreground-rgb)); */
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  background: linear-gradient(to bottom, transparent, rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
+}
+
+a {
+  color: var(--primary-color);
+  transition: all 0.3s ease;
+
+  &:hover {
+    opacity: 0.7;
+  }
 }
 
 .info {
-  font-size: 12px;
-  font-style: italic;
+  font-size: 14px;
+  /* font-style: italic; */
 }

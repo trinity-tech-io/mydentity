@@ -14,11 +14,9 @@ export function DropdownUserProfile({
   align
 }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [activeUser] = useBehaviorSubject(authUser$(), value => {
-    setUserName(value.name);
-  });
+  const [activeUser] = useBehaviorSubject(authUser$());
   const isLogin = !!activeUser;
-  const [userName, setUserName] = useState(activeUser?.name);
+  const [userName] = useBehaviorSubject(activeUser?.name$);
   const [userTypeDesc, setUserTypeDesc] = useState('UNKNOWN');
 
   // get access token from url params.

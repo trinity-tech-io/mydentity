@@ -4,7 +4,8 @@ import { MainButton } from '../../MainButton';
 
 export const PasswordPrompt: FC<{
   onConfirm: (password: string) => void;
-}> = ({ onConfirm }) => {
+  disabled: boolean;
+}> = ({ onConfirm, disabled }) => {
   const passwordRef = createRef<HTMLInputElement>()
 
   const onSubmit = () => {
@@ -23,8 +24,9 @@ export const PasswordPrompt: FC<{
         name='master-password' // TODO + user id
         variant="outlined"
         size='small'
+        disabled={disabled}
       />
-      <MainButton onClick={onSubmit} >Continue</MainButton>
+      <MainButton onClick={onSubmit} disabled={disabled}>Continue</MainButton>
     </div>
   );
 }

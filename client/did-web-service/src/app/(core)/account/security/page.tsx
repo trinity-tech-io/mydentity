@@ -1,20 +1,27 @@
 "use client";
+import EmailIcon from '@assets/images/email.svg';
+import FingerprintIcon from '@assets/images/fingerprint.svg';
+import PasswordIcon from '@assets/images/password.svg';
 import { MainButton } from "@components/MainButton";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useMounted } from "@hooks/useMounted";
 import { Typography } from "@mui/material";
 import { authUser$ } from "@services/user/user.events";
+import Image from "next/image";
+import Link from 'next/link';
 import { useRouter } from "next/navigation";
 import { FC } from "react";
 
 const Security: FC = () => {
   const { mounted } = useMounted();
   const [authUser] = useBehaviorSubject(authUser$());
+  const emailFeature = authUser?.get("email");
   const securityFeature = authUser?.get("security");
   const deviceFeature = authUser?.get("device");
   const [devices] = useBehaviorSubject(deviceFeature?.devices$);
-  const [shadowKeys] = useBehaviorSubject(securityFeature?.shadowKeys$); // KEY THIS to lazily fetch the shadow keys
+  const [shadowKeys] = useBehaviorSubject(securityFeature?.shadowKeys$);
   const isPasswordBound = securityFeature?.isPasswordBound();
+  const isEmailBound = false;  // TODO useBehaviorSubject(emailFeature?.emails$);
   const router = useRouter();
 
   const bindDevice = () => {
@@ -58,31 +65,57 @@ const Security: FC = () => {
       </>}
       <br /><br />
 
-      <div className="flex flex-col mb-4">
-        <MainButton onClick={bindEmail} >Verify your email address</MainButton>
-        <div className="info">
-          Attaching your email address to your account allows you to sign in later. Without email,
-          you will be able to sign in using browser biometrics if configured.
+      <div className='grid grid-cols-12 items-start gap-10'>
+        <div className='col-span-full xl:col-span-6 flex flex-row gap-10 items-start'>
+          <Image src={EmailIcon} alt="Email" height={60} />
+          {
+            !isEmailBound &&
+            <div className="flex flex-col">
+              <div className="info mb-2">
+                Attaching your <b>email address</b> to your account allows you to sign in later. Without email,
+                you will be able to sign in using browser biometrics if configured.
+              </div>
+              <MainButton onClick={bindEmail} className="self-start">Verify your email address</MainButton>
+            </div>
+          }
+          {
+            isEmailBound &&
+            <div>Your email address is already bound - [change email]</div>
+          }
         </div>
-      </div>
 
-      {/* passkey */}
-      <div className="flex flex-col mb-4">
-        <MainButton onClick={bindPasskey} >Secure with this browser biometrics</MainButton>
-        <div className="info">
-          Binding your account to your browser biometrics allows you to sign in to this app (only from this browser)
-          but also to unlock the secret key that decrypts all the data you store on our servers. Without this key, we,
-          or potential attackers, are not able to read your personal information in clear text.
+        {/* passkey */}
+        <div className='col-span-full xl:col-span-6 flex flex-row gap-10 items-start'>
+          <Image src={FingerprintIcon} alt="Fingerprint" height={60} />
+          <div className="flex flex-col">
+            <div className="info mb-2">
+              Binding your account to your <b>browser biometrics</b> allows you to sign in to this app (only from this browser)
+              but also to unlock the secret key that decrypts all the data you store on our servers. Without this key, we,
+              or potential attackers, are not able to read your personal information in clear text.
+            </div>
+            <MainButton onClick={bindPasskey} className="self-start">Secure with this browser biometrics</MainButton>
+          </div>
         </div>
-      </div>
 
-      <div className="flex flex-col mb-4">
-        <MainButton onClick={bindPassword} >Bind a master password</MainButton>
-        <div className="info">
-          By defining master password, all your personal information stored in our service gets encrypted and can only
-          be accessed with your approval. Note that this password can only changed if you have another encryption method
-          defined, such as the browser biometrics.
+        <div className='col-span-full xl:col-span-6 flex flex-row gap-10 items-start'>
+          <Image src={PasswordIcon} alt="Password" height={60} />
+          {
+            !isPasswordBound &&
+            <div className="flex flex-col">
+              <div className="info mb-2">
+                By defining <b>master password</b>, all your personal information stored in our service gets encrypted and can only
+                be accessed with your approval. Note that this password can only changed if you have another encryption method
+                defined, such as the browser biometrics.
+              </div>
+              <MainButton onClick={bindPassword} className="self-start">Bind a master password</MainButton>
+            </div>
+          }
+          {
+            isPasswordBound &&
+            <div>Your master password has been set - <Link href="/account/security/bind-password">Update password</Link></div>
+          }
         </div>
+
       </div>
 
     </>}

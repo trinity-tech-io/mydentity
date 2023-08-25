@@ -1,23 +1,23 @@
 /* eslint-disable max-classes-per-file */
+import { gql } from "@apollo/client";
+import { UserEmailFeature } from "@model/user/features/email/email.feature";
+import { withCaughtAppException } from "@services/error.service";
+import { getApolloClient } from "@services/graphql.service";
+import { logger } from "@services/logger";
+import { BehaviorSubject } from "rxjs";
 import { DeviceFeature } from "./features/device/device.feature";
 import { IdentityFeature } from "./features/identity/identity.feature";
 import { SecurityFeature } from "./features/security/security.feature";
 import { UserFeature } from "./features/user-feature";
 import { usersCache } from "./user.cache";
 import { UserDTO } from "./user.dto";
-import {UserEmailFeature} from "@model/user/features/email/email.feature";
-import {logger} from "@services/logger";
-import {withCaughtAppException} from "@services/error.service";
-import {getApolloClient} from "@services/graphql.service";
-import {gql} from "@apollo/client";
-import {authUser$} from "@services/user/user.events";
 
 export type FeatureExtensionRegistrationCb = (user: User) => UserFeature;
 
 export class User {
   id: string;
   type: string;
-  name?: string;
+  name$?= new BehaviorSubject<string>(null);
   createdAt: Date;
 
   // Features
@@ -38,6 +38,7 @@ export class User {
       async fill(user: User) {
         user.fillFromJson(json);
         user.createdAt = new Date(json.createdAt);
+        user.name$.next(json.name);
       },
     }, useCache);
   }
@@ -46,7 +47,7 @@ export class User {
     return {
       id: this.id,
       type: this.type,
-      name: this.name,
+      name: this.name$.value,
       createdAt: this.createdAt.toISOString()
     }
   }
@@ -89,15 +90,15 @@ export class User {
       return getApolloClient().mutate<{
         updateUserProperty: boolean
       }>({
-        mutation: gql` 
+        mutation: gql`
         mutation UpdateUserProperty($input: UserPropertyInput!) {
           updateUserProperty(input: $input)
         } `,
-        variables: { input: {name} }
+        variables: { input: { name } }
       });
     });
 
-    this.name = name;
+    this.name$.next(name);
     console.info('user', 'update user name successfully.');
     return data?.updateUserProperty;
   }

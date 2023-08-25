@@ -1,6 +1,8 @@
+import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { ShadowKeyType } from '@model/shadow-key/shadow-key-type';
 import { Dialog, Typography } from '@mui/material';
 import { AuthKeyInput } from '@services/keyring/auth-key.input';
+import { authUser$ } from '@services/user/user.events';
 import React, {
   Dispatch, FC,
   createContext,
@@ -39,6 +41,10 @@ export function UnlockKeyPromptContextProvider(props: any) {
 
 const UnlockKeyPrompt: FC = () => {
   const { actions, setActions } = useContext(UnlockKeyPromptContext);
+  const [authUser] = useBehaviorSubject(authUser$());
+  const securityFeature = authUser?.get("security");
+  const [passwordKeys] = useBehaviorSubject(securityFeature?.passwordKeys$);
+  const [passkeyKeys] = useBehaviorSubject(securityFeature?.passkeyKeys$);
 
   const hideDialog = () => {
     setActions(null) // Hides the dialog
@@ -79,13 +85,13 @@ const UnlockKeyPrompt: FC = () => {
         </Typography>
 
         <div className='mt-4'>
-          <PasswordPrompt onConfirm={onPasswordConfirmation} />
+          <PasswordPrompt onConfirm={onPasswordConfirmation} disabled={passwordKeys?.length == 0} />
         </div>
         <div className='my-4 text-center text-xs'>
           or
         </div>
         <div className='mt-4'>
-          <PasskeyPrompt onConfirm={onPasskeyConfirmation} />
+          <PasskeyPrompt onConfirm={onPasskeyConfirmation} disabled={passkeyKeys?.length == 0} />
         </div>
       </div>
     </Dialog>
