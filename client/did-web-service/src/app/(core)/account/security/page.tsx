@@ -18,7 +18,7 @@ const Security: FC = () => {
   const router = useRouter();
 
   const bindDevice = () => {
-    securityFeature.bindDevice();
+    // securityFeature.bindDevice();
   }
 
   const bindPasskey = () => {

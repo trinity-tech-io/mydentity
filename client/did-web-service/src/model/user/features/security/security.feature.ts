@@ -5,7 +5,7 @@ import { ShadowKeyType } from "@model/shadow-key/shadow-key-type";
 import { ShadowKeyDTO } from "@model/shadow-key/shadow-key.dto";
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
-import { bindPassword } from "@services/keyring/keyring.service";
+import { bindPassword, bindPasskey, unlockPasskey } from "@services/user/user.service";
 import { logger } from "@services/logger";
 import { LazyBehaviorSubjectWrapper } from "@utils/lazy-behavior-subject";
 import { User } from "../../user";
@@ -56,6 +56,20 @@ export class SecurityFeature implements UserFeature {
     }
 
     return false;
+  }
+
+  public async bindPasskey(name: string): Promise<boolean> {
+    const shadowKey = await bindPasskey(name);
+    if (shadowKey) {
+      this.upsertShadowKey(shadowKey);
+      return true;
+    }
+
+    return false;
+  }
+
+  public async unlockPasskey(): Promise<boolean> {
+    return await unlockPasskey()
   }
 
   private upsertShadowKey(shadowKey: ShadowKey) {
