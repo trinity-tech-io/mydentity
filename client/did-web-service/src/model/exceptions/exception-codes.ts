@@ -8,19 +8,29 @@ export enum AuthExceptionCode {
 }
 
 export enum KeyRingExceptionCode {
-  DBInternalError = 10201,
-  KeyRingNotExists = 10202,
-  InvalidPrivateKey = 10203,
-  InvalidPublicKey = 10204,
-  KeyNotExists = 10205,
-  NoAuthenticationKey = 10206,
-  CanNotUnbindKey = 10207,
-  NoSignature = 10208,
-  InvalidSignature = 10209,
-  NoChallenge = 10210,
-  UnsupportedAuthenticationKey = 10211,
-  InvalidPassword = 10212,
-  NoChallengeId = 20213
+  DatabaseError = 10201,          // Database access error
+  InvalidKeyRingConfig = 10202,   // Wrong key-ring config entries in the .evn file
+  KeyRingNotExists = 10203,       // User's key-ring not exist
+  KeyNotExists = 10204,           // The auth key not exist
+  InvalidChallengeId = 10205,     // The challenge id not exist or expired
+  InvalidAuthKey = 10206,         // The auth key(input) is invalid. e.g. missing or invalid fields
+  CanNotRemoveKey = 10207,        // Can not remote the key
+  WebAuthnVerifyError = 20208,    // WebAuthn verify error
+  WrongPassword = 10209,          // Wrong password
+  Unauthorized = 10210            // Unauthorized(master key not unlocked), needs to do auth
+}
+
+export enum DIDExceptionCode {
+  DIDStorageError = 10301,
+  MnemonicError = 10302,
+  DIDAlreadyExists = 10303,
+  DIDNotExists = 10304,
+  CredentialAlreadyExists = 10305,
+  CredentialNotExists = 10306,
+  InvalidCredential = 10307,
+  DIDNotUpToDateError = 10308,
+  DIDTransactionError = 10309,
+  NetworkError = 10310
 }
 
 export enum ClientError {
@@ -28,4 +38,4 @@ export enum ClientError {
   OtherAxiosError = 10902,
 }
 
-export type AppExceptionCode = KeyRingExceptionCode | AuthExceptionCode | KeyRingExceptionCode | ClientError;
+export type AppExceptionCode = AuthExceptionCode | KeyRingExceptionCode | DIDExceptionCode | ClientError;

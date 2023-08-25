@@ -7,6 +7,7 @@ import { useToast } from "@services/feedback.service";
 import { useCallWithUnlock } from "@services/security/security.service";
 import { authUser$ } from "@services/user/user.events";
 import { useRouter } from "next/navigation";
+import router from "next/router";
 import { FC } from "react";
 
 const BindPassword: FC = () => {
@@ -21,7 +22,7 @@ const BindPassword: FC = () => {
 
   const bindPassword = async (password: string) => {
     // Call the bind password API with auto-retry if user unlock method is required.
-    const bound = await callWithUnlock(auth => securityFeature.bindPassword(password, auth));
+    const bound = await callWithUnlock(() => securityFeature.bindPassword(password));
     if (bound) {
       showSuccessToast("Master password set successfully");
       setTimeout(() => {

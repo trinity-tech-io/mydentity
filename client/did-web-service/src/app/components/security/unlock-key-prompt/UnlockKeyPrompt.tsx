@@ -52,9 +52,9 @@ const UnlockKeyPrompt: FC = () => {
 
   const onPasswordConfirmation = (password: string) => {
     actions.onUnlockKey?.({
-      authType: ShadowKeyType.PASSWORD,
-      authKeyId: "unused-for-now-for-passwords",
-      authKey: password
+      type: ShadowKeyType.PASSWORD,
+      keyId: "unused-for-now-for-passwords",
+      key: password
     });
     hideDialog();
   }
@@ -97,11 +97,11 @@ export default React.memo(UnlockKeyPrompt);
 export const useUnlockKeyPrompt = () => {
   const { setActions } = useContext(UnlockKeyPromptContext);
 
-  const unlockMasterKey = (): Promise<UnlockAuthorization> => {
+  const promptMasterKeyUnlock = (): Promise<UnlockAuthorization> => {
     return new Promise((resolve) => {
       setActions({ onUnlockKey: resolve });
     });
   }
 
-  return { unlockMasterKey };
+  return { promptMasterKeyUnlock };
 }

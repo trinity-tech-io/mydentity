@@ -5,12 +5,11 @@ import { ShadowKeyType } from "@model/shadow-key/shadow-key-type";
 import { ShadowKeyDTO } from "@model/shadow-key/shadow-key.dto";
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
+import { bindPassword } from "@services/keyring/keyring.service";
 import { logger } from "@services/logger";
 import { LazyBehaviorSubjectWrapper } from "@utils/lazy-behavior-subject";
 import { User } from "../../user";
 import { UserFeature } from "../user-feature";
-import { BindKeyInput } from "./bind-key.input";
-import { UnlockAuthorization } from "./unlock-authorization";
 
 export class SecurityFeature implements UserFeature {
   private _shadowKeys$ = new LazyBehaviorSubjectWrapper<ShadowKey[]>(null, () => this.fetchShadowKeys());
@@ -49,98 +48,14 @@ export class SecurityFeature implements UserFeature {
   // TODO: method to force request auth (ie: for export mnemonic or bind device)
   // TODO: method to save default auth method (password or passkey)
 
-  /**
-   * Requests a challenge from the API for passkey signature. This challenge will be signed
-   * using passkey and the signature+challenge id returned during security flows
-   * such as binding devices or providing decryption access to the server.
-   */
-  private requestPasskeyChallenge() {
-    /* const { data } = await withCaughtAppException(() => {
-      return getApolloClient().mutate<{ createIdentity: IdentityDTO }>({
-        mutation: gql`
-        mutation createIdentity($name: String!) {
-          createIdentity(input: { name: $name }) {
-            ${gqlIdentityFields}
-          }
-        }
-      `,
-        variables: {
-          name: "Ben"
-        }
-      });
-    });
-
-    console.log(data)
-
-    if (data?.createIdentity) {
-      return Identity.fromJson(data.createIdentity, this);
-    }
-    else {
-      throw new Error("Failed to create DID");
-    } */
-  }
-
-  public async bindDevice() {
-    const input: BindKeyInput = {
-      key: "testkey",
-      keyId: "TODO-LIAIHONG",
-      type: ShadowKeyType.ED25519
-    }
-
-    const { data } = await withCaughtAppException(() => {
-      return getApolloClient().mutate<{ bindKey: boolean }>({
-        mutation: gql`
-          mutation bindKey($input: BindKeyInput!) {
-            bindKey(input: $input)
-          }
-        `,
-        variables: { input }
-      });
-    });
-
-    console.log("bind device result", data);
-
-    if (data?.bindKey) {
-      //return Identity.fromJson(data.createIdentity, this);
-      return true;
-    }
-    else {
-      return false;
-    }
-  }
-
-  public async bindPassword(newPassword: string, unlockAuthorization?: UnlockAuthorization): Promise<boolean> {
-    logger.log("security", "Binding password");
-
-    const input: BindKeyInput = {
-      key: newPassword,
-      keyId: "unused-for-now-for-passwords",
-      type: ShadowKeyType.PASSWORD,
-      ...unlockAuthorization // If any, append the unlock keys to the input
-    }
-
-    const result = await withCaughtAppException(() => {
-      return getApolloClient().mutate<{ bindKey: ShadowKeyDTO }>({
-        mutation: gql`
-          mutation bindKey($input: BindKeyInput!) {
-            bindKey(input: $input) {
-              ${gqlShadowKeyFields}
-            }
-          }
-        `,
-        variables: { input }
-      });
-    }, null);
-
-    if (result?.data?.bindKey) {
-      logger.log("security", "Password bound successfully");
-      const shadowKey = await ShadowKey.fromJson(result?.data?.bindKey);
+  public async bindPassword(newPassword: string): Promise<boolean> {
+    const shadowKey = await bindPassword(newPassword);
+    if (shadowKey) {
       this.upsertShadowKey(shadowKey);
       return true;
     }
-    else {
-      return false;
-    }
+
+    return false;
   }
 
   private upsertShadowKey(shadowKey: ShadowKey) {

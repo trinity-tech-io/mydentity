@@ -6,7 +6,6 @@ import { Typography } from "@mui/material";
 import { authUser$ } from "@services/user/user.events";
 import { useRouter } from "next/navigation";
 import { FC } from "react";
-import { passkeyProgress } from "@services/keyring/keyring.service";
 
 const Security: FC = () => {
   const { mounted } = useMounted();

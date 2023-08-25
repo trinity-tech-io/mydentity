@@ -1,8 +1,3 @@
-export enum KeyringExceptionCode {
-  DuplicateKey = 10001,
-  Unspecific = 10099
-}
-
 export enum AuthExceptionCode {
   SomethingTodo = 10101,
   AuthError = 10102,
@@ -38,4 +33,4 @@ export enum DIDExceptionCode {
   NetworkError = 10310
 }
 
-export type AppExceptionCode = KeyringExceptionCode | AuthExceptionCode | KeyRingExceptionCode | DIDExceptionCode;
+export type AppExceptionCode = AuthExceptionCode | KeyRingExceptionCode | DIDExceptionCode;

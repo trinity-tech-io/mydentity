@@ -1,10 +1,11 @@
 import { ApolloError, ServerError, ServerParseError } from "@apollo/client";
 import { AppException } from "@model/exceptions/app-exception";
-import { ClientError, KeyRingExceptionCode } from "@model/exceptions/exception-codes";
+import { ClientError } from "@model/exceptions/exception-codes";
 import { AxiosError } from "axios";
 import { GraphQLError, GraphQLErrorExtensions } from "graphql";
 import { Subject } from "rxjs";
 import { logger } from "./logger";
+import { isUnlockException } from "./security/security.service";
 
 // Note: keep this as subject not behaviour subject, to not show the latest message every time.
 export const onNewError$ = new Subject<AppException>();
@@ -130,7 +131,7 @@ export async function withCaughtAppException<T>(call: () => Promise<T>, errorRet
 
     // If this is a unlock/password exception, throw it so that the security service can
     // prompt users for unlocking.
-    const unlockException = caughtExceptions.find(e => e.appExceptionCode === KeyRingExceptionCode.UnsupportedAuthenticationKey);
+    const unlockException = caughtExceptions.find(e => isUnlockException(e));
     if (unlockException)
       throw unlockException;
 

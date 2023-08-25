@@ -3,7 +3,6 @@ import React, { FC, ReactNode, useEffect, useState } from 'react';
 import AppThemeProvider from '../theming/AppThemeContext';
 
 import { UnlockKeyPromptContextProvider } from '@components/security/unlock-key-prompt/UnlockKeyPrompt';
-import { KeyRingExceptionCode } from '@model/exceptions/exception-codes';
 import { onNewError$ } from '@services/error.service';
 import { useToast } from '@services/feedback.service';
 import { initApp as initClientSide } from '@services/init.service';
@@ -12,6 +11,7 @@ import { filter } from 'rxjs';
 import { Header } from '../partials/Header';
 import Sidebar from '../partials/Sidebar';
 import ThemeRegistry from '../theming/ThemeRegistry';
+import { isUnlockException } from '@services/security/security.service';
 
 // This layout file is our very initial layout (the first thing that may use "use client") so we initialize the browser things from here for now.
 // BEWARE OF NEXTJS, as next has server side rendered pages and client side ones. We want to initialize browser side features for now.
@@ -31,7 +31,7 @@ const LayoutCore: FC<{ children: ReactNode }> = ({ children }) => {
   useEffect(() => {
     const sub = onNewError$.pipe(filter(v => !!v)).subscribe(e => {
       // Filter out this specific weak-exception as this is a master password unlock requirement handled somewhere else.
-      if (e.appExceptionCode !== KeyRingExceptionCode.UnsupportedAuthenticationKey) {
+      if (!isUnlockException(e)) {
         showErrorToast(e.appExceptionCode + " - " + e.message);
       }
     });
