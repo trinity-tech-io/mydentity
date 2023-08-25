@@ -1,6 +1,6 @@
 import { ShadowKeyType } from '@model/shadow-key/shadow-key-type';
-import { UnlockAuthorization } from '@model/user/features/security/unlock-authorization';
 import { Dialog, Typography } from '@mui/material';
+import { AuthKeyInput } from '@services/keyring/auth-key.input';
 import React, {
   Dispatch, FC,
   createContext,
@@ -9,7 +9,7 @@ import React, {
 import { PasskeyPrompt } from './PasskeyPrompt';
 import { PasswordPrompt } from './PasswordPrompt';
 
-type OnUnlockKeyCallback = (authorization: UnlockAuthorization) => void;
+type OnUnlockKeyCallback = (authorization: AuthKeyInput) => void;
 
 type UnlockKeyPromptActions = {
   onUnlockKey?: OnUnlockKeyCallback;
@@ -97,7 +97,7 @@ export default React.memo(UnlockKeyPrompt);
 export const useUnlockKeyPrompt = () => {
   const { setActions } = useContext(UnlockKeyPromptContext);
 
-  const promptMasterKeyUnlock = (): Promise<UnlockAuthorization> => {
+  const promptMasterKeyUnlock = (): Promise<AuthKeyInput> => {
     return new Promise((resolve) => {
       setActions({ onUnlockKey: resolve });
     });
