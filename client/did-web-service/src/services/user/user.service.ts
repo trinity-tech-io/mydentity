@@ -11,12 +11,11 @@ import { SignUpInput } from "./sign-up.input";
 import { authUser$, getActiveUser } from "./user.events";
 import { PublicKeyCredentialCreationOptionsJSON, PublicKeyCredentialRequestOptionsJSON } from '@simplewebauthn/typescript-types';
 import { startAuthentication, startRegistration } from "@simplewebauthn/browser";
-import { AuthKeyInput } from "./auth-key.input";
+import { AuthKeyInput } from "@services/keyring/auth-key.input";
 import { ChallengeEntity } from "@model/shadow-key/challengeEntity";
 import { ShadowKey } from "@model/shadow-key/shadow-key";
 import { ShadowKeyType } from "@model/shadow-key/shadow-key-type";
-import { ShadowKeyDTO } from "@model/shadow-key/shadow-key.dto";
-import { gqlShadowKeyFields } from "@graphql/shadow-key.fields";
+import { bindKey, unlockMasterKey, getPasskeyChallenge } from "@services/keyring/keyring.service";
 
 const fetchUserQueue = new Queue(1); // Execute user retrieval from the backend one by one to avoid duplicates
 
@@ -257,20 +256,9 @@ export function isLogined() {
 }
 
 export async function bindPasskey(userName: string): Promise<ShadowKey> {
-  logger.log("User", "Binding passkey");
-
   const challengeInfo = await getPasskeyChallenge()
-  console.log("User: challengeInfo=", challengeInfo)
-  console.log("User: name = ", userName)
-
   const infos = await pkCredentialCreationOptions(challengeInfo, userName)
-  console.log("User: ", challengeInfo)
-  console.log("infos1: ", infos[1])
   const attResp = await startRegistration(infos[1])
-
-  console.log("infos1: ", infos[1])
-  console.log("attResp: ", JSON.stringify(attResp, null, 2))
-
   const newKey = {
     type: ShadowKeyType.WEBAUTHN,
     keyId: attResp.id,
@@ -292,67 +280,6 @@ export async function bindPassword(newPassword: string): Promise<ShadowKey> {
   return bindKey(newKey);
 }
 
-/**
- * Internal shared method to bind passkey or password.
- */
-async function bindKey(newKey: AuthKeyInput): Promise<ShadowKey> {
-  logger.log("keyring", "Binding key");
-  const result = await withCaughtAppException(() => {
-    return getApolloClient().mutate<{ bindKey: ShadowKeyDTO }>({
-      mutation: gql`
-        mutation bindKey($newKey: AuthKeyInput!) {
-          bindKey(newKey: $newKey) {
-            ${gqlShadowKeyFields}
-          }
-        }
-      `,
-      variables: {
-        newKey
-      }
-    });
-  }, null);
-
-  if (result?.data?.bindKey) {
-    const shadowKey = await ShadowKey.fromJson(result?.data?.bindKey);
-    logger.log("keyring", "Key bound successfully");
-    return shadowKey;
-  }
-  else {
-    return null;
-  }
-}
-
-/**
- * Uses unlock authorization keys provided by the user (password, passkey) to try to unlock
- * the master key on the server. If successful, this decrypts user's master key on the server
- * side for a few minutes (memory cache) and allows calling other master-key related apis such as
- * list credentials, create identity, etc.
- */
-export async function unlockMasterKey(authKey: AuthKeyInput): Promise<boolean> {
-  logger.log("security", "Trying to unlock master key");
-
-  const result = await withCaughtAppException(() => {
-    return getApolloClient().mutate<{ auth: boolean }>({
-      mutation: gql`
-          mutation bindKey($authKey: AuthKeyInput!) {
-            auth(authKey: $authKey)
-          }
-        `,
-      variables: {
-        authKey
-      }
-    });
-  }, null);
-
-  if (result?.data?.auth) {
-    logger.log("security", "Master key unlocked successfully");
-    return true;
-  }
-  else {
-    return false;
-  }
-}
-
 export async function unlockPasskey(): Promise<boolean> {
   logger.log("Keyring", "start unlock passkey...")
   const challengeInfo = await getPasskeyChallenge()
@@ -367,38 +294,6 @@ export async function unlockPasskey(): Promise<boolean> {
   };
   logger.log("Keyring", "start unlock passkey, attResp: ", attResp);
   return await unlockMasterKey(authKey);
-}
-
-export async function getPasskeyChallenge(): Promise<ChallengeEntity> {
-  logger.log("passkey", "get challenge to generate passkey");
-  const data = await withCaughtAppException(() => {
-    return getApolloClient().query<{}>({
-      query: gql`
-      query GenerateChallenge {
-        generateChallenge{
-          id,
-          content
-        }
-    }
-    `,
-      fetchPolicy: "network-only",
-      variables: {}
-    });
-  });
-
-  logger.log("verifyAuthKey", "getPasskeyChallenge: ", data);
-
-  if (data) {
-    const id = (data as any).data?.generateChallenge.id
-    const content = (data as any).data?.generateChallenge.content
-    const challengeInfo: ChallengeEntity = {
-      id: id,
-      content: content,
-    };
-    return challengeInfo
-  } else {
-    throw new Error('Can not get challenge by generateChallenge api.');
-  }
 }
 
 export async function pkCredentialCreationOptions(challengeInfo: ChallengeEntity, userName?: string): Promise<[PublicKeyCredentialRequestOptionsJSON, PublicKeyCredentialCreationOptionsJSON]> {
@@ -433,4 +328,5 @@ export async function pkCredentialCreationOptions(challengeInfo: ChallengeEntity
 
   return [publicKeyCredentialCreationOptions, pkCredentialCreationOptionsJSON]
 }
+
 

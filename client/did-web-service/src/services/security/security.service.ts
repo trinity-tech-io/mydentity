@@ -7,7 +7,7 @@ import { useUnlockKeyPrompt } from "@components/security/unlock-key-prompt/Unloc
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { AppException } from "@model/exceptions/app-exception";
 import { KeyRingExceptionCode } from "@model/exceptions/exception-codes";
-import { unlockMasterKey } from "@services/user/user.service";
+import { unlockMasterKey } from "@services/keyring/keyring.service";
 import { logger } from "@services/logger";
 import { authUser$ } from "@services/user/user.events";
 
