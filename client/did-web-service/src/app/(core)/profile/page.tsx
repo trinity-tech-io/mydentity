@@ -76,11 +76,11 @@ const Profile: FC = () => {
     }
   }, [credentials]);
 
-  const showFeedbackToast = (isSuccess: boolean, preMsg: string) => {
+  const showFeedbackToast = (isSuccess: boolean, successMessage: string, errorMessage: string) => {
     if (isSuccess) {
-      showSuccessToast(preMsg + ' Success');
+      showSuccessToast(successMessage);
     } else {
-      showErrorToast(preMsg + ' Faild');
+      showErrorToast(errorMessage);
     }
   }
 
@@ -121,7 +121,7 @@ const Profile: FC = () => {
       } catch (error) {
         logger.error(TAG, 'Update credential error', error);
       }
-      showFeedbackToast(isSuccess, 'Edit item');
+      showFeedbackToast(isSuccess, 'Entry has been updated!', 'Failed to update the entry...');
     }
 
     if (editCredentialValue.type == EDIT_TYPE.NEW && !originCredential) {
@@ -131,7 +131,7 @@ const Profile: FC = () => {
       } catch (error) {
         logger.error(TAG, 'Create credential error', error);
       }
-      showFeedbackToast(isSuccess, 'Create item');
+      showFeedbackToast(isSuccess, 'Entry has been created!', 'Failed to create the entry...');
     }
   }
 
@@ -223,7 +223,7 @@ const Profile: FC = () => {
     } catch (error) {
       logger.error(TAG, error);
     }
-    showFeedbackToast(isSuccess, 'Delete item');
+    showFeedbackToast(isSuccess, 'Entry has been deleted', 'Failed to delete the entry...');
     return;
   };
 

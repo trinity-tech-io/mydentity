@@ -39,7 +39,7 @@ const NewIdentityPage: FC = () => {
       <div className="pt-2 pb-2">
         <TextField
           className='w-full'
-          label="Remember this identity with a name"
+          label="Identity name"
           inputRef={nameInput}
           autoFocus
           variant="outlined"
