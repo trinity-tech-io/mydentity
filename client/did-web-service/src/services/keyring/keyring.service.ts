@@ -4,7 +4,6 @@ import { getApolloClient } from "@services/graphql.service";
 import { gql } from "@apollo/client";
 import { ShadowKeyType } from "@model/shadow-key/shadow-key-type";
 import { ChallengeEntity } from "@model/shadow-key/challengeEntity";
-import { BindKeyInput } from "@model/shadow-key/bindKeyInput";
 import { AuthKeyInput } from "@model/shadow-key/authKeyInput";
 import { startAuthentication, startRegistration } from "@simplewebauthn/browser";
 
@@ -34,16 +33,13 @@ export async function passkeyProgress() {
   const attResp = await startRegistration(infos[1])
   console.log("infos1: ", infos[1])
   console.log("attResp: ", JSON.stringify(attResp, null, 2))
-  const input = {
+  const newKey = {
     type: ShadowKeyType.WEBAUTHN, //'ED25519',
     keyId: attResp.id,
     key: JSON.stringify(attResp),
     challengeId: challengeInfo.id,
-    authType: null,
-    authKeyId: null,
-    authKey: null
   };
-  await bindKey(input)
+  await bindKey(newKey)
 }
 
 export async function unlockPasskey(): Promise<boolean> {
@@ -52,27 +48,27 @@ export async function unlockPasskey(): Promise<boolean> {
   const infos = await pkCredentialCreationOptions(challengeInfo)
   // true: Autofill account password will report an error
   const attResp = await startAuthentication(infos[0], false)
-  const input = {
+  const authKey = {
     type: ShadowKeyType.WEBAUTHN,//-7
     keyId: attResp.id,
     key: JSON.stringify(attResp),
     challengeId: challengeInfo.id,
   };
   logger.log("Keyring", "start unlock passkey, attResp: ", attResp);
-  return await unlockAuthKey(input)
+  return await unlockAuthKey(authKey)
 }
 
-export async function unlockAuthKey(input: AuthKeyInput): Promise<boolean> {
-  logger.log("Keyring", "start verify authKey, input: ", input);
+export async function unlockAuthKey(authKey: AuthKeyInput): Promise<boolean> {
+  logger.log("Keyring", "start verify authKey, input: ", authKey);
   const result = await withCaughtAppException(() => {
     return getApolloClient().mutate<{}>({
       mutation: gql`
-      mutation verifyAuthKey($input: AuthKeyInput!) {
-        verifyAuthKey(input: $input)
+      mutation Auth($authKey: AuthKeyInput!) {
+        auth(authKey: $authKey)
       }
     `,
       variables: {
-        input
+        authKey
       }
     });
   });
@@ -119,13 +115,13 @@ export async function getPasskeyChallenge(): Promise<ChallengeEntity> {
   }
 }
 
-export async function bindKey(input: BindKeyInput): Promise<boolean> {
-  logger.log("bindPasskey", "start bind passkey, input: ", input);
+export async function bindKey(newKey: AuthKeyInput): Promise<boolean> {
+  logger.log("bindPasskey", "start bind passkey, input: ", newKey);
   const result = await withCaughtAppException(() => {
     return getApolloClient().mutate<{}>({
       mutation: gql`
-      mutation bindKey($input: BindKeyInput!) {
-        bindKey(input: $input){
+      mutation bindKey($newKey: AuthKeyInput!) {
+        bindKey(newKey: $newKey){
           keyId
           key
           type
@@ -135,7 +131,7 @@ export async function bindKey(input: BindKeyInput): Promise<boolean> {
       }
     `,
       variables: {
-        input
+        newKey
       }
     });
   });
@@ -151,13 +147,9 @@ export async function bindKey(input: BindKeyInput): Promise<boolean> {
 }
 
 export async function pkCredentialCreationOptions(challengeInfo: ChallengeEntity): Promise<[PublicKeyCredentialRequestOptionsJSON, PublicKeyCredentialCreationOptionsJSON]> {
-  const userId = userName
-
   const challengeEncoder = new TextEncoder()
   const challengeUint8Array = challengeEncoder.encode(challengeInfo.content)
-  const userIdEncoder = new TextEncoder()
-  const userIdUint8Array = userIdEncoder.encode(userId)
-  // TO AUTH PASSKEY
+  // TO UNLOCK PASSKEY
   const publicKeyCredentialCreationOptions: PublicKeyCredentialRequestOptionsJSON = {
     challenge: Buffer.from(challengeUint8Array).toString(),
     allowCredentials: [],
@@ -181,7 +173,7 @@ export async function pkCredentialCreationOptions(challengeInfo: ChallengeEntity
     rp: rp,
     challenge: challengeInfo.content,
   }
-  // Authentication Options
+
   return [publicKeyCredentialCreationOptions, pkCredentialCreationOptionsJSON]
 }
 
