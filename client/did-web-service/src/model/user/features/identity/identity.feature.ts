@@ -4,6 +4,7 @@ import { logger } from "@services/logger";
 import { LazyBehaviorSubjectWrapper } from "@utils/lazy-behavior-subject";
 import { User } from "../../user";
 import { UserFeature } from "../user-feature";
+import { PublicationStatus } from "@model/identity/publish.dto";
 
 export class IdentityFeature implements UserFeature {
   private _identities$ = new LazyBehaviorSubjectWrapper<Identity[]>([], () => this.fetchIdentities());
@@ -34,10 +35,16 @@ export class IdentityFeature implements UserFeature {
     return await identityService.createDIDPublishTransaction(didString);
   }
 
-  public async publish(didString: string, payload: string): Promise<string> {
+  public async publishIdentity(didString: string, payload: string): Promise<string> {
     logger.log("identities", "Publishing identity");
 
     return await identityService.publishIdentity(didString, payload);
+  }
+
+  public async getPublicationStatus(didString: string, publicationId: string): Promise<PublicationStatus> {
+    logger.log("identities", "Getting publication status");
+
+    return await identityService.getPublicationStatus(didString, publicationId);
   }
 
   private async fetchIdentities(): Promise<Identity[]> {

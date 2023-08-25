@@ -9,7 +9,7 @@ import { Credential } from "@model/credential/credential";
 import { CredentialDTO } from "@model/credential/credential.dto";
 import { Identity } from "@model/identity/identity";
 import { IdentityDTO } from "@model/identity/identity.dto";
-import { PublishDTO } from "@model/identity/publish.dto";
+import { PublicationStatus, PublishDTO } from "@model/identity/publish.dto";
 import { TransactionDTO } from "@model/identity/transaction.dto";
 import { PresentationDTO } from "@model/presentation/presenttation.dto";
 import { withCaughtAppException } from "@services/error.service";
@@ -135,11 +135,36 @@ export class CustodialDIDProvider implements IdentityProvider {
 
     console.log(data)
 
-    if (data?.publishIdentity.publicationID) {
-      return data.publishIdentity.publicationID;
+    if (data?.publishIdentity.publicationId) {
+      return data.publishIdentity.publicationId;
     }
     else {
       throw new Error("Failed to publish DID");
+    }
+  }
+
+  async getPublicationStatus(identityDid: string, publicationId: string): Promise<PublicationStatus> {
+    const { data } = await withCaughtAppException(() => {
+      return getApolloClient().mutate<{ getPublicationStatus: string }>({
+        mutation: gql`
+        mutation getPublicationStatus($identityDid: String!, $publicationId: String!) {
+          getPublicationStatus(input: { identityDid: $identityDid, publicationId: $publicationId})
+        }
+      `,
+        variables: {
+          identityDid,
+          publicationId
+        }
+      });
+    });
+
+    console.log(data)
+
+    if (data?.getPublicationStatus) {
+      return data.getPublicationStatus as PublicationStatus;
+    }
+    else {
+      throw new Error("Failed to get publication status");
     }
   }
 

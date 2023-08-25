@@ -14,35 +14,11 @@ const assistAPIEndpoints = {
 
 const assistAPIKey = "IdSFtQosmCwCB9NOLltkZrFy5VqtQn8QbxBKQoHPw7zp3w0hDOyOYjgL53DO3MDH";
 
-export type PersistentInfo = {
-  did: {
-    didString: string;
-    publicationMedium: string, // assist, wallet
-    publicationStatus: DIDPublicationStatus,
-
-    assist?: {
-      publicationID: string; // Unique publication ID returned by the assist API after a successful publication request. This is NOT a blockchain transaction ID.
-      txId?: string; // After publishing a DID request to assist we save the returned txid here.
-      message?: string; // Error message.
-    },
-    wallet?: {
-      txId?: string; // After publishing a DID request to the EID chain we save the txid here.
-      publicationTime?: number; // Unix timestamp seconds
-    }
-  },
-}
-
 export const enum DIDPublicationStatus {
   NO_ON_GOING_PUBLICATION = 0, // Initial state just before a publication is sent.
   AWAITING_PUBLICATION_CONFIRMATION = 1,
   PUBLISHED_AND_CONFIRMED = 2, // Previously published transaction was published and confirmed on chain.
   FAILED_TO_PUBLISH = 3
-}
-
-export type PublicationStatus = {
-  didString: string;
-  status: DIDPublicationStatus;
-  txId?: string;
 }
 
 type AssistBaseResponse = {
@@ -61,7 +37,7 @@ type AssistCreateTxResponse = AssistBaseResponse & {
   }
 }
 
-enum AssistTransactionStatus {
+export enum AssistTransactionStatus {
   PENDING = "Pending",
   PROCESSING = "Processing",
   COMPLETED = "Completed",
@@ -110,7 +86,7 @@ export class DIDPublishingService {
         "did": didString,
         "memo": memo || "",
         "requestFrom": "did-web-service",
-        "didRequest": payloadObject
+        "didRequest": JSON.parse(payloadObject)
       };
 
       const headers = {
@@ -128,6 +104,8 @@ export class DIDPublishingService {
         };
 
         request.post(options, (error, response, bodyString) => {
+          console.log("publicationservice", "response.statusCode:", response.statusCode)
+          console.log("publicationservice", "bodyString:", bodyString)
           const body: AssistCreateTxResponse = bodyString ? JSON.parse(bodyString) : null;
           if (!error && response.statusCode === 200) {
             if (body && body.meta && body.meta.code == 200 && body.data.confirmation_id) {

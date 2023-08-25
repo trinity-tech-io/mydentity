@@ -2,6 +2,7 @@ import { Identity } from "@model/identity/identity";
 import { CustodialDIDProvider } from "./custodial/custodial-did.provider";
 import { IdentityProvider } from "./did.provider";
 import { activeIdentity$ } from "./identity.events";
+import { PublicationStatus } from "@model/identity/publish.dto";
 
 class IdentityService {
   private provider: IdentityProvider = new CustodialDIDProvider(); // For now, only a custodial provider in use
@@ -34,6 +35,13 @@ class IdentityService {
    */
   public publishIdentity(didString: string, payload: string): Promise<string> {
     return this.provider.publishIdentity(didString, payload);
+  }
+
+  /**
+   * Get publication status
+   */
+  public getPublicationStatus(didString: string, publicationId: string): Promise<PublicationStatus> {
+    return this.provider.getPublicationStatus(didString, publicationId);
   }
 
   /**

@@ -1,3 +1,3 @@
 export const gqlPublishFields = `
-  publicationID
+  publicationId
 `;
