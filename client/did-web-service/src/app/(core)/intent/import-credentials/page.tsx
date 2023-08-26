@@ -5,8 +5,10 @@ import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { Intent } from "@model/intent/intent";
 import { JSONObject } from "@model/json";
 import { Avatar, Stack, Typography } from "@mui/material";
+import { useToast } from "@services/feedback.service";
 import { activeIdentity$ } from "@services/identity/identity.events";
 import { fetchIntent, fulfilIntentRequest } from "@services/intent.service";
+import { logger } from "@services/logger";
 import { setQueryParameter } from "@utils/urls";
 import { FC, useEffect, useState } from "react";
 import { CredentialAndDetailComponent } from "../components/CredentialAndDetailComponent";
@@ -30,12 +32,14 @@ export type ImportedCredential = {
 const RequestDetails: FC<{
   intent: Intent<VerifiableCredential[]>;
 }> = ({ intent }) => {
+  const TAG = 'ImportCredential';
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const [preparingResponse, setPreparingResponse] = useState(false);
   const [importedCredentials, setImportedCredentials] = useState<ImportedCredential[]>(null);
   const [wrongTargetDID, setWrongTargetDID] = useState<boolean>(false);
   const [requestingAppIconUrl, setRequestingAppIconUrl] = useState<string>('');
   const [requestingAppName, setRequestingAppName] = useState<string>('');
+  const { showErrorToast } = useToast();
 
   const payload = intent.requestPayload;
   useEffect(() => {
@@ -117,17 +121,28 @@ const RequestDetails: FC<{
 
     // Now fulfil the intent. The connector will then be able to
     // grab the result from the API.
-    const responsePayload = ["did:elastos:mydid#mycredid-todo"]; // TODO: list of DIDURLs of the imported VCs.
-    const fulfilled = await fulfilIntentRequest(intent.id, responsePayload);
-    if (fulfilled) {
-      // TODO: check fulfilled success - if error report error to user
+    let responsePayload: string[] = [];
+    importedCredentials.map(importedCredential => {responsePayload.push(importedCredential.credential.getId().toString())});
+    // const responsePayload = ["did:elastos:mydid#mycredid-todo"]; // TODO: list of DIDURLs of the imported VCs.
 
-      // Send the response to the original app, including the intent id as parameter.
-      // The web connector will catch this parameter to retrieve the intent response payload and
-      // to deliver it to the app through the connectivity sdk.
-      const redirectUrl = setQueryParameter(intent.redirectUrl, "rid", intent.id);
-      window.location.href = redirectUrl;
+    let fulfilled = false;
+    try {
+      fulfilled = await fulfilIntentRequest(intent.id, responsePayload);
+    } catch (error) {
+      logger.error(TAG, 'Import credential error', error);
     }
+
+    if (!fulfilled){
+      showErrorToast('Import credential error, Please retry after a while.');
+      return;
+    }
+
+    // TODO: check fulfilled success - if error report error to user
+    // Send the response to the original app, including the intent id as parameter.
+    // The web connector will catch this parameter to retrieve the intent response payload and
+    // to deliver it to the app through the connectivity sdk.
+    const redirectUrl = setQueryParameter(intent.redirectUrl, "rid", intent.id);
+    window.location.href = redirectUrl;
   }
 
   return <>
@@ -143,7 +158,7 @@ const RequestDetails: FC<{
         </Typography>
         {/* {requestingAppIconUrl && <Avatar src={requestingAppIconUrl} sx={{ ml:2, width: 120, height: 120 }}/>}
         {!requestingAppIconUrl && <Avatar src={requestingAppIconUrl} sx={{ ml:2, width: 120, height: 120 }}/>} */}
-        <Avatar sx={{ ml:2, width: 120, height: 120 }}/>}
+        <Avatar sx={{ ml:2, width: 120, height: 120 }}/>
         </Stack>
         <Typography mt={4}>
               {requestingAppName}
