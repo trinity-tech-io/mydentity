@@ -90,8 +90,6 @@ export async function getPasskeyChallenge(): Promise<ChallengeEntity> {
     });
   });
 
-  logger.log("verifyAuthKey", "getPasskeyChallenge: ", data);
-
   if (data) {
     const id = (data as any).data?.generateChallenge.id
     const content = (data as any).data?.generateChallenge.content
