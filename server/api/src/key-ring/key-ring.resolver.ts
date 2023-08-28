@@ -3,7 +3,7 @@ import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { User } from '@prisma/client';
 import { CurrentClientID } from 'src/auth/currentclientid.decorator';
 import { CurrentUser } from 'src/auth/currentuser.decorator';
-import { JwtAuthGuard, OptionalJwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { AuthKeyInput } from './dto/auth-key-input';
 import { ChallengeEntity } from './entities/challenge.entity';
 import { ShadowKeyEntity } from './entities/shadow-key.entity';
@@ -13,9 +13,9 @@ import { KeyRingService } from './key-ring.service';
 export class KeyRingResolver {
   constructor(private readonly keyRingService: KeyRingService) { }
 
-  @UseGuards(OptionalJwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Mutation(() => Boolean)
-  auth(@Args('authKey') authKey: AuthKeyInput, @CurrentClientID() clientId: string, @CurrentUser() user: User | null) {
+  unlockMasterKey(@Args('authKey') authKey: AuthKeyInput, @CurrentClientID() clientId: string, @CurrentUser() user: User) {
     return this.keyRingService.unlockMasterKey(authKey, clientId, user);
   }
 

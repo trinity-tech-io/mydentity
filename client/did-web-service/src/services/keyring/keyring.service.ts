@@ -52,10 +52,10 @@ export async function unlockMasterKey(authKey: AuthKeyInput): Promise<boolean> {
   logger.log("security", "Trying to unlock master key");
 
   const result = await withCaughtAppException(() => {
-    return getApolloClient().mutate<{ auth: boolean }>({
+    return getApolloClient().mutate<{ unlockMasterKey: boolean }>({
       mutation: gql`
-          mutation auth($authKey: AuthKeyInput!) {
-            auth(authKey: $authKey)
+          mutation unlockMasterKey($authKey: AuthKeyInput!) {
+            unlockMasterKey(authKey: $authKey)
           }
         `,
       variables: {
@@ -64,7 +64,7 @@ export async function unlockMasterKey(authKey: AuthKeyInput): Promise<boolean> {
     });
   }, null);
 
-  if (result?.data?.auth) {
+  if (result?.data?.unlockMasterKey) {
     logger.log("security", "Master key unlocked successfully");
     return true;
   }

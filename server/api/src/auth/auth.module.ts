@@ -8,7 +8,6 @@ import { JwtStrategy } from './jwt.strategy';
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    //forwardRef(() => UserModule),
     JwtModule.registerAsync({
       useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),
@@ -19,7 +18,12 @@ import { JwtStrategy } from './jwt.strategy';
     }),
     PrismaModule,
   ],
-  providers: [AuthService, JwtStrategy],
-  exports: [AuthService],
+  providers: [
+    AuthService,
+    JwtStrategy
+  ],
+  exports: [
+    AuthService
+  ],
 })
-export class AuthModule {}
+export class AuthModule { }

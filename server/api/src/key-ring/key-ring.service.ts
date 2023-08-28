@@ -312,7 +312,13 @@ export class KeyRingService {
     return keys;
   }
 
-  async unlockMasterKey(authKey: AuthKeyInput, clientId: string, user?: User): Promise<boolean> {
+  /**
+   * Unlocks a signed in user's master key during a few minutes.
+   */
+  async unlockMasterKey(authKey: AuthKeyInput, clientId: string, user: User): Promise<boolean> {
+    if (!user)
+      throw new AppException(KeyRingExceptionCode.Unauthorized, "Missing user", HttpStatus.FORBIDDEN);
+
     if (!authKey.keyId)
       throw new AppException(KeyRingExceptionCode.InvalidAuthKey, "Missing the key id", HttpStatus.BAD_REQUEST);
 
@@ -327,7 +333,7 @@ export class KeyRingService {
         throw new AppException(KeyRingExceptionCode.InvalidAuthKey, "Missing password", HttpStatus.BAD_REQUEST);
     }
 
-    const shadow = await this.getShadowKey(authKey.keyId, user ? user.id : null);
+    const shadow = await this.getShadowKey(authKey.keyId, user.id);
     if (!shadow)
       throw new AppException(KeyRingExceptionCode.KeyNotExists, "Authorization key not exists", HttpStatus.FORBIDDEN);
 

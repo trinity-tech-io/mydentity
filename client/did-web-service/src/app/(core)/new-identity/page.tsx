@@ -6,6 +6,7 @@ import { TextField } from '@mui/material';
 import { useToast } from '@services/feedback.service';
 import { identityService } from '@services/identity/identity.service';
 import { authUser$ } from '@services/user/user.events';
+import { useRouter } from 'next/navigation';
 import { FC, FormEvent, useRef, useState } from 'react';
 
 const NewIdentityPage: FC = () => {
@@ -14,6 +15,7 @@ const NewIdentityPage: FC = () => {
   const { mounted } = useMounted();
   const [creatingIdentity, setCreatingIdentity] = useState(false);
   const { showSuccessToast } = useToast();
+  const router = useRouter();
 
   const createIdentity = async (e?: FormEvent) => {
     // Disable form submit
@@ -28,7 +30,12 @@ const NewIdentityPage: FC = () => {
     if (identity) {
       identityService.setActiveIdentity(identity)
       showSuccessToast("Your new identity was created!");
+      showProfile();
     }
+  }
+
+  const showProfile = () => {
+    router.replace("/profile");
   }
 
   if (!mounted)
