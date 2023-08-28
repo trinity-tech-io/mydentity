@@ -259,13 +259,16 @@ export async function authenticateWithPasskey(): Promise<boolean> {
       }
     }>({
       query: gql`
-        query signInWithPasskey {
-          signInWithPasskey {
+        query signInWithPasskey ($authKey: AuthKeyInput!) {
+          signInWithPasskey (authKey: $authKey) {
             accessToken,
             refreshToken
           }
         }
       `,
+      variables: {
+        authKey: null, // TODO @liaihong
+      },
       fetchPolicy: "network-only" // No apollo cache, force fetch
     });
   });

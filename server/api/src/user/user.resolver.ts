@@ -104,7 +104,7 @@ export class UserResolver {
    * Receives the result of a passkey challenge as input, and retrieves the related user (if any).
    * Access tokens are returned as a result of the sign in operation.
    */
-  @Mutation(() => LoggedUserOutput, { nullable: true })
+  @Query(() => LoggedUserOutput, { nullable: true })
   async signInWithPasskey(@Args('authKey') passkeyAuthKey: AuthKeyInput) {
     return this.userService.signInWithPasskey(passkeyAuthKey);
   }

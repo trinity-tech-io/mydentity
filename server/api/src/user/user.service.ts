@@ -213,8 +213,7 @@ export class UserService {
   }
 
   public async signInWithPasskey(passkeyAuthKey: AuthKeyInput): Promise<AuthTokens> {
-    // TODO: call jingyu's keyring to find user from passkey
-    const user: User = await null; // this.keyRingService.xxxx()
+    const user = await this.keyRingService.getUserFromWebAuthnResponse(passkeyAuthKey);
     return this.authService.generateUserCredentials(user);
   }
 
