@@ -7,6 +7,7 @@ import { EmailSignIn } from './widgets/EmailSignIn';
 import HeaderSignIn from './widgets/HeaderSignIn';
 import MicrosoftSignIn from './widgets/MicrosoftSignIn';
 import SeparateLine from './widgets/SeparateLine';
+import PasskeySignIn from './widgets/PasskeySignIn';
 
 const SignIn: FC = () => {
     useEffect(() => {
@@ -24,6 +25,7 @@ const SignIn: FC = () => {
       <SeparateLine />
       {/* SignIn with Email */}
       <EmailSignIn />
+      <PasskeySignIn />
       </Card>
     </div>
   )

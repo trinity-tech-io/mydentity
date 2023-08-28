@@ -15,7 +15,7 @@ import { AuthKeyInput } from "@services/keyring/auth-key.input";
 import { ChallengeEntity } from "@model/shadow-key/challengeEntity";
 import { ShadowKey } from "@model/shadow-key/shadow-key";
 import { ShadowKeyType } from "@model/shadow-key/shadow-key-type";
-import { bindKey, unlockMasterKey, getPasskeyChallenge } from "@services/keyring/keyring.service";
+import { passkeyAuth, bindKey, unlockMasterKey, getPasskeyChallenge } from "@services/keyring/keyring.service";
 
 const fetchUserQueue = new Queue(1); // Execute user retrieval from the backend one by one to avoid duplicates
 
@@ -253,6 +253,30 @@ export function onRefreshTokenFailed() {
 export function isLogined() {
   const accessToken = localStorage.getItem('access_token');
   return accessToken && accessToken !== '';
+}
+
+export async function feactAccessTokenWithPasskey(): Promise<boolean> {
+  logger.log("user", "Checking temporary authentication key");
+
+  try {
+    // TODO: passkeyAuth
+    const data = await passkeyAuth() 
+    if (data) {
+      // TODO: 
+      const accessToken = data[0]
+      const refreshToken = data[1]
+      await updateUserByToken(accessToken, refreshToken)
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+  catch (e) {
+    // Probably a 401 error
+    logger.warn("auth", "Exception while checking temporary auth key. Key expired?");
+    return null;
+  }
 }
 
 export async function bindPasskey(userName: string): Promise<ShadowKey> {
