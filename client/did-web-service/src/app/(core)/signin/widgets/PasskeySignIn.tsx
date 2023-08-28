@@ -29,9 +29,9 @@ const PasskeySignIn = () => {
     console.log("bound= ", bound)
 
     if (bound) {
-      showSuccessToast("Unlock passkey successfully");
+      showSuccessToast("Successful sign in");
       setTimeout(() => {
-        router.push("/onboarding");
+        router.push("/dashboard");
       }, 2000);
     }
   }
