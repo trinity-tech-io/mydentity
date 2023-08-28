@@ -1,6 +1,6 @@
 import { MainButton } from '@components/MainButton';
 import { Icon as ReactIcon } from '@iconify/react';
-import { Container, InputBase } from '@mui/material';
+import { Container, TextField } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { FlowOperation, setOnGoingFlowOperation } from "@services/flow.service";
 import { authenticateWithEmailAddress } from "@services/user/user.service";
@@ -42,11 +42,15 @@ export const EmailSignIn: FC = () => {
   }
   return (
     <Container component="div" className={clsx(classes.centeredContainer)}>
-      {!authEmailSent && <form onSubmit={onEmailSubmit} ref={emailForm}>
-          <InputBase
+      {
+        !authEmailSent &&
+        <form onSubmit={onEmailSubmit} ref={emailForm} className='w-full my-4'>
+          <TextField
             inputRef={emailInputRef}
+            label="Your email address"
             placeholder="Input email address"
-            className="flex flex-1 px-11 py-4 my-8 bg-gray-200 rounded-8"
+            className="w-full"
+            size='small'
             type='email'
             name="email"
           />
@@ -56,11 +60,12 @@ export const EmailSignIn: FC = () => {
         <MainButton
           leftIcon={<ReactIcon icon="material-symbols:key" />}
           onClick={doEmailAuth}
+          className="w-full"
         >
           Send magic key to email
         </MainButton>
       }
-    {authEmailSent && <div className='text-center mt-10'>Magic link sent, please check your mailbox.</div>}
+      {authEmailSent && <div className='text-center mt-10'>Magic link sent, please check your mailbox.</div>}
     </Container>
   );
 };

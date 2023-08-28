@@ -1,32 +1,49 @@
 "use client";
-import { Card } from "@mui/material";
+import { Typography } from "@mui/material";
 import { signOut } from "@services/user/user.service";
-import clsx from 'clsx';
 import { FC, useEffect } from "react";
 import { EmailSignIn } from './widgets/EmailSignIn';
-import HeaderSignIn from './widgets/HeaderSignIn';
+import { SignInHeader } from "./widgets/HeaderSignIn";
 import MicrosoftSignIn from './widgets/MicrosoftSignIn';
-import SeparateLine from './widgets/SeparateLine';
 import PasskeySignIn from './widgets/PasskeySignIn';
 
+const SignInWidget: FC<{
+  title: string;
+  children: any;
+}> = ({ title, children }) => {
+  return <div className="col-span-full xl:col-span-4 bg-white dark:bg-slate-800 shadow-lg rounded-sm border border-slate-200 dark:border-slate-700 p-4">
+    <Typography variant="h5">{title}</Typography>
+    {children}
+  </div>
+}
+
 const SignIn: FC = () => {
-    useEffect(() => {
-        signOut();
-    }, []);
+  useEffect(() => {
+    signOut();
+  }, []);
 
   return (
-    <div className="col-span-full" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
-      <Card className={clsx('py-40 w-full text-center min-h-full')} elevation={0}>
-      {/* SignInHeader */}
-      <HeaderSignIn />
-      {/* SignIn with MicrosoftButton */}
-      <MicrosoftSignIn />
-      {/* Separate line */}
-      <SeparateLine />
-      {/* SignIn with Email */}
-      <EmailSignIn />
-      <PasskeySignIn />
-      </Card>
+    <div className="col-span-full flex flex-col justify-center items-center">
+      <div className='w-full text-center'>
+        {/* SignInHeader */}
+        <SignInHeader />
+
+        <div className="grid grid-cols-12 bg-red mt-10 gap-4">
+          <SignInWidget title="Social account">
+            {/* Sign in with Microsoft oauth */}
+            <MicrosoftSignIn />
+          </SignInWidget>
+
+          <SignInWidget title="Email magic key">
+            {/* Sign in with magic key by email */}
+            <EmailSignIn />
+          </SignInWidget>
+
+          <SignInWidget title="Browser">
+            <PasskeySignIn />
+          </SignInWidget>
+        </div>
+      </div>
     </div>
   )
 }

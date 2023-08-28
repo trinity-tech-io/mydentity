@@ -1,17 +1,15 @@
 'use client';
 import Typography from '@mui/material/Typography';
 
-const HeaderSignIn = () => {
+export const SignInHeader = () => {
   return (
     <div>
-      <Typography variant="h5" className='w-full text-center font-semibold mt-4 mb-24 leading-9'>
-        Hello! 👋<br />
+      <Typography variant="h4" className='w-full text-center font-semibold mt-4 mb-24 leading-9'>
+        Welcome back 👋
       </Typography>
-      <Typography variant="h2" className='w-full text-center font-bold'>
-        Welcome back
+      <Typography>
+        Choose how to sign in below
       </Typography>
     </div>
   );
-};
-
-export default HeaderSignIn;
+}
