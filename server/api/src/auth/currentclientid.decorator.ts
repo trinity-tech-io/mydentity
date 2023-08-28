@@ -8,6 +8,6 @@ import { GqlExecutionContext } from '@nestjs/graphql';
 export const CurrentClientID = createParamDecorator(
   (data: unknown, context: ExecutionContext) => {
     const ctx = GqlExecutionContext.create(context);
-    return ctx.getContext().req.user.clientId;
+    return ctx.getContext().req?.user?.clientId || null;
   },
 );
