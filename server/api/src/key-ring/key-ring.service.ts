@@ -223,7 +223,7 @@ export class KeyRingService {
     }
   }
 
-  private async getSecretKey(shadow: UserShadowKey, key: string): Promise<Uint8Array> {
+  private getSecretKey(shadow: UserShadowKey, key: string): Uint8Array {
     let password: string | Uint8Array;
     if (shadow.type == UserShadowKeyType.PASSWORD) {
       password = key;
@@ -301,6 +301,57 @@ export class KeyRingService {
     return (await this.removeShadowKey(user.id, keyId)) != null;
   }
 
+  async changePassword(oldPassword: string, newPassword: string, user: User): Promise<boolean>  {
+    if (!oldPassword)
+      throw new AppException(KeyRingExceptionCode.WrongPassword, "Wrong password", HttpStatus.FORBIDDEN);
+
+    if (!newPassword)
+      throw new AppException(KeyRingExceptionCode.WrongPassword, "Invalid new password", HttpStatus.FORBIDDEN);
+
+    const shadows = await this.prisma.userShadowKey.findMany({
+      where: {
+        userId: user.id,
+        type: UserShadowKeyType.PASSWORD
+      }
+    });
+
+    if (!shadows)
+      throw new AppException(KeyRingExceptionCode.KeyNotExists, "Authorization key for password not exists", HttpStatus.FORBIDDEN)
+
+    // IMPORTANT: should re-encrypt one by one for the security reason
+    // Prisma transaction with code block:
+    //   https://www.prisma.io/docs/concepts/components/prisma-client/transactions#interactive-transactions
+    const success = await this.prisma.$transaction<boolean>(async (tx) => {
+      for (const shadow of shadows) {
+        if (!PasswordHash.verify(shadow.key, oldPassword))
+          throw new AppException(KeyRingExceptionCode.WrongPassword, "Wrong password", HttpStatus.FORBIDDEN);
+
+        const secretKey = this.getSecretKey(shadow, oldPassword);
+        const authKey = PasswordHash.hash(newPassword);
+        const encryptedSecretKey = SecretBox.encryptWithPassword(secretKey, newPassword);
+
+        await tx.userShadowKey.update({
+          where: {
+            userId_keyId: {
+              userId: user.id,
+              keyId: shadow.keyId
+            }
+          },
+          data: {
+            key: authKey,
+            secretKey: Buffer.from(encryptedSecretKey).toString('hex')
+          }
+        });
+      }
+
+      return true;
+    }, {
+      isolationLevel: Prisma.TransactionIsolationLevel.Serializable
+    });
+
+    return success;
+  }
+
   async getAllKeys(user: User): Promise<UserShadowKey[]> {
     const keys = await this.prisma.userShadowKey.findMany({
       where: {
@@ -357,7 +408,7 @@ export class KeyRingService {
       key = authKey.key;
     }
 
-    const masterKey = Buffer.from(await this.getSecretKey(shadow, key)).toString("hex");
+    const masterKey = Buffer.from(this.getSecretKey(shadow, key)).toString("hex");
     this.masterKeyCache.set(shadow.userId + "-" + clientId, masterKey);
     return true;
   }
