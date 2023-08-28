@@ -20,6 +20,7 @@ import { activeIdentity$ } from "@services/identity/identity.events";
 import { logger } from "@services/logger";
 import { filter } from 'lodash';
 import moment from "moment";
+import Link from "next/link";
 import { FC, forwardRef, useEffect, useState } from "react";
 
 
@@ -43,7 +44,7 @@ const Profile: FC = () => {
   const { mounted } = useMounted();
 
   const [originCredential, setOriginCredential] = useState<Credential>(null);
-  const [avaliableItemKeys, setAvaliableItemKeys] = useState([]);
+  const [availableItemKeys, setAvailableItemKeys] = useState([]);
   const [openCreateCredential, setOpenCreateCredential] = useState(false);
 
   const [openEditCredentialDialog, setOpenEditCredentialDialog] = useState(false);
@@ -60,6 +61,8 @@ const Profile: FC = () => {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
 
+  const explorerDIDLink = activeIdentity && `https://eid.elastos.io/did?did=${encodeURIComponent(activeIdentity.did)}&is_did=true`;
+
   const { showSuccessToast, showErrorToast } = useToast();
 
   let basicCredentialsService: BasicCredentialsService;
@@ -72,7 +75,7 @@ const Profile: FC = () => {
     }
 
     if (credentials) {
-      setAvaliableItemKeys(findAvailableItem(basicCredentialsKey, getCredentialsKeys(credentials)));
+      setAvailableItemKeys(findAvailableItem(basicCredentialsKey, getCredentialsKeys(credentials)));
     }
   }, [credentials]);
 
@@ -401,6 +404,14 @@ const Profile: FC = () => {
           />
         </Card>
       }
+
+      <div className="mt-4">
+        <Typography variant="h4" gutterBottom>
+          Advanced
+        </Typography>
+      </div>
+
+      <Link target="_blank" href={explorerDIDLink}>View identity's DID on blockchain explorer</Link>
     </Container>
 
     <Popover
@@ -440,7 +451,7 @@ const Profile: FC = () => {
     <CreateCredentialDialog
       open={openCreateCredential}
       onClose={handleCreateCredentialDialogClose}
-      avaliableItemKeys={avaliableItemKeys}
+      avaliableItemKeys={availableItemKeys}
     />
 
     <EditCredentialDialog
