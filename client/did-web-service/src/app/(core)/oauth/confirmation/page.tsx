@@ -4,6 +4,7 @@ import {LinearProgress} from "@mui/material";
 import {useRouter, useSearchParams} from "next/navigation";
 import {FC, useEffect} from "react";
 import {logger} from "@services/logger";
+import {fetchSelfUser} from "@services/user/user.service";
 
 const OauthConfirmation: FC = () => {
   const searchParams = useSearchParams();
@@ -19,7 +20,15 @@ const OauthConfirmation: FC = () => {
     }
 
     if (action === 'login') {
-      router.push('/dashboard');
+      const accessToken = searchParams.get('accessToken');
+      const refreshToken = searchParams.get('refreshToken');
+      if (accessToken && accessToken !== '' && refreshToken && refreshToken != '') {
+        fetchSelfUser(accessToken, refreshToken).then(user => {
+          router.push('/dashboard');
+        });
+      } else {
+        alert('invalid operation (access token not provided), please try again.');
+      }
     } else {
       router.push('/account/security');
     }
