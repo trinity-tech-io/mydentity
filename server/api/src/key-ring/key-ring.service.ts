@@ -267,7 +267,7 @@ export class KeyRingService {
 
       const result = await this.verifyWebAuthnRegistation(newKey.key, newKey.challengeId);
       if (!result.verified)
-          throw new AppException(KeyRingExceptionCode.WebAuthnVerifyError, "WebAuthn verify failed", HttpStatus.FORBIDDEN);
+        throw new AppException(KeyRingExceptionCode.WebAuthnVerifyError, "WebAuthn verify failed", HttpStatus.FORBIDDEN);
 
       key = Buffer.from(result.registrationInfo.credentialPublicKey).toString("hex");
       credentialId = Buffer.from(result.registrationInfo.credentialID).toString("hex");
@@ -312,7 +312,7 @@ export class KeyRingService {
     return keys;
   }
 
-  async auth(authKey: AuthKeyInput, clientId: string, user?: User): Promise<boolean> {
+  async unlockMasterKey(authKey: AuthKeyInput, clientId: string, user?: User): Promise<boolean> {
     if (!authKey.keyId)
       throw new AppException(KeyRingExceptionCode.InvalidAuthKey, "Missing the key id", HttpStatus.BAD_REQUEST);
 

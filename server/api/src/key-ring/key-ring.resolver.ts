@@ -16,7 +16,7 @@ export class KeyRingResolver {
   @UseGuards(OptionalJwtAuthGuard)
   @Mutation(() => Boolean)
   auth(@Args('authKey') authKey: AuthKeyInput, @CurrentClientID() clientId: string, @CurrentUser() user: User | null) {
-    return this.keyRingService.auth(authKey, clientId, user);
+    return this.keyRingService.unlockMasterKey(authKey, clientId, user);
   }
 
   @UseGuards(JwtAuthGuard)
