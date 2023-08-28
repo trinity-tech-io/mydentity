@@ -198,20 +198,26 @@ export class KeyRingService {
     }
   }
 
-  private async getShadowKey(keyId: string, userId?: string): Promise<UserShadowKey> {
+  private async getShadowKey(keyId: string, userId?: string, includeUser?: boolean): Promise<UserShadowKey & {user?:User}> {
     if (userId) {
       return await this.prisma.userShadowKey.findUnique({
         where: {
           userId_keyId: {
             userId: userId,
             keyId: keyId
-          }
+          },
+        },
+        include: {
+          user: includeUser ? true : false
         }
       });
     } else {
       return await this.prisma.userShadowKey.findFirst({
         where: {
           keyId: keyId
+        },
+        include: {
+          user: includeUser ? true : false
         }
       });
     }
@@ -362,6 +368,30 @@ export class KeyRingService {
     if (masterKey)
       this.masterKeyCache.ttl(id);
     return masterKey;
+  }
+
+  async getUserFromWebAuthnResponse(authKey: AuthKeyInput): Promise<User | null> {
+    if (authKey.type != UserShadowKeyType.WEBAUTHN)
+      throw new AppException(KeyRingExceptionCode.InvalidAuthKey, "Only accept the WebAuthn response", HttpStatus.BAD_REQUEST);
+
+    if (!authKey.keyId)
+      throw new AppException(KeyRingExceptionCode.InvalidAuthKey, "Missing the key id", HttpStatus.BAD_REQUEST);
+
+    if (!authKey.challengeId)
+      throw new AppException(KeyRingExceptionCode.InvalidAuthKey, "Missing the challenge id", HttpStatus.BAD_REQUEST);
+
+    if (!authKey.key)
+        throw new AppException(KeyRingExceptionCode.InvalidAuthKey, "Missing the WebAuthn response", HttpStatus.BAD_REQUEST);
+
+    const shadow = await this.getShadowKey(authKey.keyId, null, true);
+    if (!shadow)
+      return null;
+
+    const result = await this.verifyWebAuthnAuthenticatoin(authKey.key, authKey.challengeId, shadow);
+    if (!result.verified)
+      throw new AppException(KeyRingExceptionCode.WebAuthnVerifyError, "WebAuthn verify failed", HttpStatus.FORBIDDEN);
+
+    return shadow.user;
   }
 
   async generateChallenge(): Promise<ChallengeEntity> {
