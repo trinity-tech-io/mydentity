@@ -26,7 +26,6 @@ const PasskeySignIn = () => {
 
   const signInWithPasskey = async () => {
     const bound = await callWithUnlock(() => authenticateWithPasskey());
-    console.log("bound= ", bound)
 
     if (bound) {
       showSuccessToast("Successful sign in");
