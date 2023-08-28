@@ -79,7 +79,7 @@ export class DIDPublishingService {
    * DOC FOR ASSIST API: https://github.com/tuum-tech/assist-restapi-backend#verify
    */
   public async publishDID(didString: string, payloadObject: any, memo = ''): Promise<string> {
-    console.log("publicationservice", "Requesting identity publication to Assist", didString);
+    logger.log("DIDPublishingService", "Requesting identity publication to Assist", didString);
 
     return new Promise(async (resolve, reject) => {
       const requestBody = {
@@ -104,27 +104,27 @@ export class DIDPublishingService {
         };
 
         request.post(options, (error, response, bodyString) => {
-          console.log("publicationservice", "response.statusCode:", response.statusCode)
-          console.log("publicationservice", "bodyString:", bodyString)
+          // logger.log("DIDPublishingService", "response.statusCode:", response.statusCode)
+          // logger.log("DIDPublishingService", "bodyString:", bodyString)
           const body: AssistCreateTxResponse = bodyString ? JSON.parse(bodyString) : null;
           if (!error && response.statusCode === 200) {
             if (body && body.meta && body.meta.code == 200 && body.data.confirmation_id) {
-              console.log("publicationservice", "All good, DID has been submitted.");
+              logger.log("DIDPublishingService", "All good, DID has been submitted.");
               resolve(body.data.confirmation_id);
             } else {
               const errorMessage = "Successful response received from the assist API, but response can't be understood, Error:" + body?.meta?.message + " " + body?.meta?.description;
-              console.warn("publicationservice", errorMessage);
+              logger.warn("DIDPublishingService", "publishDID error:", errorMessage);
               reject(new AppException(DIDExceptionCode.NetworkError, errorMessage, HttpStatus.BAD_REQUEST));
             }
           } else {
             const errorMessage = "Failed to publish did. Error:" +  (error ? error : (body?.meta?.message + ". " + body?.meta?.description));
-            console.warn("publicationservice", errorMessage);
+            logger.warn("DIDPublishingService", "publishDID error:", errorMessage);
             reject(new AppException(DIDExceptionCode.NetworkError, errorMessage, response.statusCode));
           }
         });
       }
       catch (err) {
-        logger.error("publicationservice", "Assist publish api error:", err);
+        logger.error("DIDPublishingService", "Assist publish api error:", err);
         reject(new AppException(DIDExceptionCode.NetworkError, err.message, HttpStatus.SERVICE_UNAVAILABLE));
       }
     });
@@ -135,7 +135,7 @@ export class DIDPublishingService {
    */
   public getPublicationStatus(confirmation_id: string): Promise<AssistTransactionStatusResponse> {
     return new Promise(async (resolve, reject) => {
-      console.log("publicationservice", "Requesting identity publication status to Assist for confirmation ID " + confirmation_id);
+      logger.log("DIDPublishingService", "Requesting identity publication status to Assist for confirmation ID " + confirmation_id);
 
       const headers = {
         "Content-Type": "application/json",
@@ -156,7 +156,7 @@ export class DIDPublishingService {
           resolve(body);
         } else {
           const errorMessage = "Failed to get publication status. Error:" +  (error ? error : (body?.meta?.message + ". " + body?.meta?.description));
-          console.warn("getPublicationStatus:", errorMessage);
+          logger.warn("DIDPublishingService", "getPublicationStatus:", errorMessage);
           reject(errorMessage)
         }
       })

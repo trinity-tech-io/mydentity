@@ -6,6 +6,7 @@ import { AssistTransactionStatus, DIDPublishingService } from 'src/did-publishin
 import { DidService } from 'src/did/did.service';
 import { AppException } from 'src/exceptions/app-exception';
 import { DIDExceptionCode } from 'src/exceptions/exception-codes';
+import { logger } from 'src/logger';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateIdentityInput } from './dto/create-identity.input';
 
@@ -20,7 +21,7 @@ export class IdentityService {
     private didService: DidService) { }
 
   async create(createIdentityInput: CreateIdentityInput, user: User): Promise<Identity> {
-    console.log('IdentityService', 'create', user);
+    logger.log('IdentityService', 'create', user);
     const storePassword = '123456'; // TODO: use account key
 
     let rootIdentity: RootIdentity = null;
@@ -34,13 +35,13 @@ export class IdentityService {
       didDocument = await rootIdentity.newDid(storePassword);
       identityDid = didDocument.getSubject().toString();
     } catch (e) {
-      console.log('IdentityService', 'exception:', e)
+      logger.log('IdentityService', 'create exception:', e)
       throw new AppException(DIDExceptionCode.DIDStorageError, e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     // One user can create multiple dids, so we save the derivation index.
     const derivationIndex = rootIdentity.getIndex() - 1;
-    console.log('IdentityService', 'create did index', derivationIndex);
+    logger.log('IdentityService', 'create did index', derivationIndex);
 
     const identityRoot = await this.prisma.identityRoot.create({
       data: {
@@ -74,12 +75,12 @@ export class IdentityService {
     const payload = await this.didService.createDIDPublishTransaction(user.id, identityDid, storePassword);
     const {publicationId} = await this.publishIdentity(identityDid, payload);
     identity.publicationId = publicationId;
-    console.log('IdentityService', 'create identity:', identity)
+    logger.log('IdentityService', 'create identity:', identity)
     return identity;
   }
 
   async deleteIdentity(didString: string, user: User) {
-    console.log('IdentityService', 'deleteIdentity didString:', didString);
+    logger.log('IdentityService', 'deleteIdentity didString:', didString);
     const successfulDeletion = await this.didService.deleteIdentity(didString, user.id);
     if (successfulDeletion) {
       await this.credentialsService.deleteCredentialsByIdentity(didString);
@@ -90,13 +91,13 @@ export class IdentityService {
         }
       })
     } else {
-      console.log('IdentityService', 'deleteIdentity error');
+      logger.warn('IdentityService', 'deleteIdentity error');
     }
     return successfulDeletion;
   }
 
   async createDIDPublishTransaction(didString: string, user: User) {
-    console.log('IdentityService', "createDIDPublishTransaction", didString)
+    logger.log('IdentityService', "createDIDPublishTransaction", didString)
     const storePassword = '123456'; // TODO: use account key
 
     const payload = await this.didService.createDIDPublishTransaction(user.id, didString, storePassword);
@@ -106,7 +107,7 @@ export class IdentityService {
   }
 
   async publishIdentity(didString: string, payloadObject: any) {
-    console.log('IdentityService', "publishIdentity", didString)
+    logger.log('IdentityService', "publishIdentity", didString)
 
     const publicationId = await this.didPublishingService.publishDID(didString, payloadObject);
     await this.prisma.identity.update({
@@ -124,7 +125,7 @@ export class IdentityService {
   }
 
   async getPublicationStatus(didString: string, publicationId: string) {
-    console.log('IdentityService', "getPublicationStatus", publicationId)
+    logger.log('IdentityService', "getPublicationStatus", publicationId)
 
     // Get status from prisma first
     const identiy = await this.prisma.identity.findFirst({
@@ -155,7 +156,6 @@ export class IdentityService {
   }
 
   findAll(user: User) {
-    console.log('IdentityService', 'user:', user);
     return this.prisma.identity.findMany({
       where: {
         userId: user.id

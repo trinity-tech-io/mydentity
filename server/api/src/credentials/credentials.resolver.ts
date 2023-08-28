@@ -29,14 +29,12 @@ export class CredentialsResolver {
   @UseGuards(JwtAuthGuard)
   @Mutation(() => Boolean)
   deleteCredential(@Args('credentialId') credentialId: string, @CurrentUser() user: User) {
-    console.log('CredentialsResolver deleteCredential', credentialId);
     return this.credentialsService.remove(credentialId, user);
   }
 
   @UseGuards(JwtAuthGuard)
   @Mutation(() => VerifiablePresentionEntity)
   createVerifiablePresentation(@Args('input') createVerifiablePresentationInput: CreateVerifiablePresentationInput, @CurrentUser() user: User) {
-    console.log('CredentialsResolver createVerifiablePresentation', createVerifiablePresentationInput)
     return this.credentialsService.createVerifiablePresentation(createVerifiablePresentationInput, user);
   }
 }

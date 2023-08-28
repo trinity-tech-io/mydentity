@@ -30,7 +30,7 @@ export class DidService {
       return this.didStoreCache[didStorePath];
 
     const didStoreDir = join(__dirname, "../..", "didstores", didStorePath);
-    // console.log('didStoreDir:', didStoreDir);
+    // logger.log('DidService', 'didStoreDir:', didStoreDir);
     // Logger.setLevel(Logger.INFO)
 
     const didStore = await DIDStore.open(didStoreDir);
@@ -53,10 +53,10 @@ export class DidService {
     let rootIdentity: RootIdentity = null;
     if (!didStore.containsRootIdentities()) {
       // Create DID SDK root identity
-      console.log('not contains rootIdentities, create rootIdentity');
+      logger.log('DidService', 'not contains rootIdentities, create rootIdentity');
       rootIdentity = this.initPrivateIdentity(didStore, storePassword);
     } else {
-      console.log('contains rootIdentities, use the exist rootIdentity');
+      logger.log('DidService', 'contains rootIdentities, use the exist rootIdentity');
       rootIdentity = await didStore.loadRootIdentity();
     }
 
@@ -75,7 +75,7 @@ export class DidService {
 
   //  DIDStore
   async deleteIdentity(didString: string, didStorePath: string) {
-    console.log('DidService', 'deleteIdentity didString:', didString);
+    logger.log('DidService', 'deleteIdentity didString:', didString);
     const didStore = await this.openStore(didStorePath);
 
     // Delete all credentials belonging to this did
@@ -128,7 +128,7 @@ export class DidService {
 
   async deleteCredential(didStorePath: string, credentialId: string) {
     const didStore = await this.openStore(didStorePath);
-    console.log('deleteCredential credentialId', credentialId)
+    logger.log('DidService', 'deleteCredential credentialId', credentialId)
     return didStore.deleteCredential(credentialId);
   }
 

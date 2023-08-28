@@ -2,6 +2,7 @@ import { VerifiableCredential } from '@elastosfoundation/did-js-sdk';
 import { Injectable } from '@nestjs/common';
 import { Credential, User } from '@prisma/client';
 import { DidService } from 'src/did/did.service';
+import { logger } from 'src/logger';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCredentialInput } from './dto/create-credential.input';
 import { CreateVerifiablePresentationInput } from './dto/create-verifiablePresentation.input';
@@ -11,12 +12,11 @@ export class CredentialsService {
   constructor(private prisma: PrismaService, private didService: DidService) { }
 
   async create(input: CreateCredentialInput, user: User) {
-    console.log('CredentialsService', "create")
+    logger.log('CredentialsService', "create", input)
     const storePassword = '123456'; // TODO: use account key
 
     const vc = await this.didService.createCredential(user.id, input.identityDid, input.credentialId,
           input.types, input.expirationDate, input.properties, storePassword);
-    console.log('CredentialsService', "vc:", vc)
 
     const credentials= await this.prisma.credential.create({
       data: {
@@ -31,7 +31,7 @@ export class CredentialsService {
   }
 
   async findAll(identityDid: string, user: User): Promise<Credential[]> {
-    console.log('CredentialsService findAll identityDid', identityDid)
+    // logger.log('CredentialsService', 'findAll identityDid', identityDid)
     const credentials = await this.prisma.credential.findMany({
       where: { identityDid },
     });
@@ -57,7 +57,7 @@ export class CredentialsService {
   }
 
   async deleteCredentialsByIdentity(identityDid: string) {
-    console.log('CredentialsService', 'deleteCredentialsByIdentity identityDid:', identityDid);
+    logger.log('CredentialsService', 'deleteCredentialsByIdentity identityDid:', identityDid);
     const credentials = await this.prisma.credential.findMany({
       where: { identityDid },
     });
@@ -71,7 +71,7 @@ export class CredentialsService {
   }
 
   async createVerifiablePresentation(input: CreateVerifiablePresentationInput, user: User) {
-    console.log('CredentialsService', "createVerifiablePresentation", input)
+    logger.log('CredentialsService', "createVerifiablePresentation", input)
     const storePassword = '123456'; // TODO: use account key
 
     const credentials = [];
