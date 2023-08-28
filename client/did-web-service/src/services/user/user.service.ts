@@ -303,7 +303,6 @@ export async function authenticateWithPasskey(): Promise<boolean> {
     });
   });
 
-  console.log("user", "passkey auth result: ", result); // TM
   if (result?.data?.signInWithPasskey?.accessToken) {
     const accessToken = result?.data?.signInWithPasskey?.accessToken;
     const refreshToken = result?.data?.signInWithPasskey?.refreshToken;
