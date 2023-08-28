@@ -3,11 +3,14 @@
 import {LinearProgress} from "@mui/material";
 import {useRouter, useSearchParams} from "next/navigation";
 import {FC, useEffect} from "react";
+import {logger} from "@services/logger";
 
 const OauthConfirmation: FC = () => {
   const searchParams = useSearchParams();
   const action = searchParams.get('action');
   const router = useRouter();
+
+  logger.log(`enter oauth/confirmation, action=${action}`);
 
   useEffect(() => {
     if (!action || !['bind', 'login'].includes(action)) {

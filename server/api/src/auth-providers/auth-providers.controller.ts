@@ -6,6 +6,7 @@ import {AppException} from "../exceptions/app-exception";
 import {AuthExceptionCode} from "../exceptions/exception-codes";
 import {MicrosoftProfileService} from "../user/microsoft-profile.service";
 import {UserService} from "../user/user.service";
+import {logger} from "../logger";
 
 @Controller()
 export class AuthProvidersController {
@@ -19,17 +20,43 @@ export class AuthProvidersController {
     private readonly userService: UserService
   ) {}
 
+  /**
+   * Start oauth from server.
+   * @param req
+   */
   @Get('microsoft')
   @UseGuards(AuthGuard('microsoft'))
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   microsoftAuth(@Req() req) {}
 
+  /**
+   * Call back from MS. Second step is client.
+   * @param req
+   */
   @Get('microsoft/redirect')
   @Redirect('', 301)
+  @UseGuards(AuthGuard('microsoft'))
   async microsoftAuthRedirect(@Req() req) {
+    const redirectUrl = this.configService.get<string>('MICROSOFT_CLIENT_CALLBACK_URL');
+    logger.log(`auth redirect, ${redirectUrl}`);
+    const token = req.user.accessToken;
+    return {
+      url: `${redirectUrl}?token=${token}`
+    }
+  }
+
+  /**
+   * Callback from client, this is the third step of MS callback.
+   * @param req
+   */
+  @Get('microsoft/redirectBack')
+  @Redirect('', 301)
+  async microsoftAuthRedirectBack(@Req() req) {
     const token = req.query.token;
     const action = req.query.action;
     const accessToken = req.query.accessToken;
+
+    logger.log(`enter microsoft/redirectBack, token=${token}, action=${action}, accessToken=${accessToken}`);
 
     if (!token) {
       throw new AppException(AuthExceptionCode.AuthError, `token(${token}) must provided for microsoft redirect`, 401);

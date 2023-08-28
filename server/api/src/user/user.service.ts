@@ -251,7 +251,7 @@ export class UserService {
     const data = this.authService.getTokenPayload(token);
     const user = await this.findOne(data.sub);
     if (!user)
-      throw new Error(`Can not find user by refresh token.`);
+      throw new Error(`Can not find user by access token.`);
 
     return user;
   }

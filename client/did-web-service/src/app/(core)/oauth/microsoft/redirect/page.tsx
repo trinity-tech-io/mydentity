@@ -34,7 +34,7 @@ const MicrosoftRedirect: FC = () => {
         return;
     }
 
-    let redirectUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/microsoft/redirect?token=${token}&action=${action}`;
+    let redirectUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/microsoft/redirectBack?token=${token}&action=${action}`;
     const accessToken = getAccessToken();
     if (accessToken)
       redirectUrl += `&accessToken=${accessToken}`;
