@@ -19,7 +19,9 @@ const MicrosoftRedirect: FC = () => {
 
     let action = null;
     const op = getOnGoingFlowOperation();
+
     console.log('oauth', 'op', op);
+
     switch (op) {
       case FlowOperation.OnBoardingEmailBinding:
         clearOnGoingFlowOperation();
@@ -38,6 +40,7 @@ const MicrosoftRedirect: FC = () => {
     const accessToken = getAccessToken();
     if (accessToken)
       redirectUrl += `&accessToken=${accessToken}`;
+
     router.push(redirectUrl);
   }, []);
 

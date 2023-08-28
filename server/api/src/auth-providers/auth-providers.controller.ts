@@ -30,7 +30,7 @@ export class AuthProvidersController {
   microsoftAuth(@Req() req) {}
 
   /**
-   * Call back from MS. Second step is client.
+   * Callback from MS. Second step is to client.
    * @param req
    */
   @Get('microsoft/redirect')
@@ -38,7 +38,9 @@ export class AuthProvidersController {
   @UseGuards(AuthGuard('microsoft'))
   async microsoftAuthRedirect(@Req() req) {
     const redirectUrl = this.configService.get<string>('MICROSOFT_CLIENT_CALLBACK_URL');
+
     logger.log(`auth redirect, ${redirectUrl}`);
+
     const token = req.user.accessToken;
     return {
       url: `${redirectUrl}?token=${token}`
@@ -61,6 +63,7 @@ export class AuthProvidersController {
     if (!token) {
       throw new AppException(AuthExceptionCode.AuthError, `token(${token}) must provided for microsoft redirect`, 401);
     }
+
     if (!action || ![AuthProvidersController.ACTION_BIND, AuthProvidersController.ACTION_LOGIN].includes(action)) {
       throw new AppException(AuthExceptionCode.AuthError, `invalid action(${action})`, 401);
     } else if (action === AuthProvidersController.ACTION_BIND && !accessToken) {
@@ -73,21 +76,26 @@ export class AuthProvidersController {
       if (!result) {
         throw new AppException(AuthExceptionCode.AuthError, `can not login as user not exists`, 401);
       }
-      return {
-        url: `${this.configService.get<string>('MICROSOFT_CLIENT_REDIRECT')}?accessToken=${
-            result.accessToken
-        }&refreshToken=${result.refreshToken}&action=${action}`
-      };
+
+      const url = `${this.configService.get<string>('MICROSOFT_CLIENT_REDIRECT')}?accessToken=${
+          result.accessToken
+      }&refreshToken=${result.refreshToken}&action=${action}`
+
+      logger.log(`sign-in with oauth email successfully, it will go back to client ${url}`);
+
+      return {url};
     } else { // bind
       const user = await this.userService.getUserByToken(accessToken);
-      // const user: UserEntity = await this.userService.getUserByEmail(email);
       if (!user) {
         throw new AppException(AuthExceptionCode.AuthError, `can not find user by access token`, 401);
       }
       await this.userService.bindOauthEmail(user, email);
-      return {
-        url: `${this.configService.get<string>('MICROSOFT_CLIENT_REDIRECT')}?action=${action}`
-      }
+
+      const url = `${this.configService.get<string>('MICROSOFT_CLIENT_REDIRECT')}?action=${action}`;
+
+      logger.log(`bind with oauth email successfully, it will go back to client`);
+
+      return {url}
     }
   }
 }
