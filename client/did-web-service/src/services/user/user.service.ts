@@ -9,6 +9,11 @@ import Queue from "promise-queue";
 import { LoggedUserOutput } from "./logged-user.output";
 import { SignUpInput } from "./sign-up.input";
 import { authUser$, getActiveUser } from "./user.events";
+import { getPasskeyChallenge } from "@services/keyring/keyring.service";
+import { ChallengeEntity } from "@model/shadow-key/challengeEntity";
+import { PublicKeyCredentialRequestOptionsJSON } from "@simplewebauthn/typescript-types";
+import { startAuthentication } from "@simplewebauthn/browser";
+import { ShadowKeyType } from "@model/shadow-key/shadow-key-type";
 
 const fetchUserQueue = new Queue(1); // Execute user retrieval from the backend one by one to avoid duplicates
 
@@ -248,12 +253,37 @@ export function isSignedIn() {
   return accessToken && accessToken !== '';
 }
 
+function pkCredentialCreationOptions(challengeInfo: ChallengeEntity): PublicKeyCredentialRequestOptionsJSON {
+  const rpId = process.env.NEXT_PUBLIC_RP_ID
+  const challengeEncoder = new TextEncoder()
+  const challengeUint8Array = challengeEncoder.encode(challengeInfo.content)
+  // TO UNLOCK PASSKEY
+  const publicKeyCredentialCreationOptions: PublicKeyCredentialRequestOptionsJSON = {
+    challenge: Buffer.from(challengeUint8Array).toString(),
+    allowCredentials: [],
+    rpId: rpId,
+    userVerification: "required",
+    timeout: 60000
+  };
+
+  return publicKeyCredentialCreationOptions
+}
+
 export async function authenticateWithPasskey(): Promise<boolean> {
   logger.log("user", "Authenticating with passkey");
-
+  const challengeInfo = await getPasskeyChallenge()
+  const infos = pkCredentialCreationOptions(challengeInfo)
+  // true: Autofill account password will report an error
+  const attResp = await startAuthentication(infos, false)
+  const authKey = {
+    type: ShadowKeyType.WEBAUTHN,//-7
+    keyId: attResp.id,
+    key: JSON.stringify(attResp),
+    challengeId: challengeInfo.id,
+  };
   const result = await withCaughtAppException(() => {
     return getApolloClient().query<{
-      signInWithPassKey: {
+      signInWithPasskey: {
         accessToken: string;
         refreshToken: string;
       }
@@ -267,17 +297,16 @@ export async function authenticateWithPasskey(): Promise<boolean> {
         }
       `,
       variables: {
-        authKey: null, // TODO @liaihong
+        authKey: authKey,
       },
       fetchPolicy: "network-only" // No apollo cache, force fetch
     });
   });
 
-  console.log("user", "passkey auth result: ", result); // TMP
-
-  if (result?.data?.signInWithPassKey?.accessToken) {
-    const accessToken = result?.data?.signInWithPassKey?.accessToken;
-    const refreshToken = result?.data?.signInWithPassKey?.refreshToken;
+  console.log("user", "passkey auth result: ", result); // TM
+  if (result?.data?.signInWithPasskey?.accessToken) {
+    const accessToken = result?.data?.signInWithPasskey?.accessToken;
+    const refreshToken = result?.data?.signInWithPasskey?.refreshToken;
     await updateUserByToken(accessToken, refreshToken);
     return true;
   } else {
