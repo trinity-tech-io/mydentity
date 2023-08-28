@@ -9,13 +9,6 @@ import Queue from "promise-queue";
 import { LoggedUserOutput } from "./logged-user.output";
 import { SignUpInput } from "./sign-up.input";
 import { authUser$, getActiveUser } from "./user.events";
-import { PublicKeyCredentialCreationOptionsJSON, PublicKeyCredentialRequestOptionsJSON } from '@simplewebauthn/typescript-types';
-import { startAuthentication, startRegistration } from "@simplewebauthn/browser";
-import { AuthKeyInput } from "@services/keyring/auth-key.input";
-import { ChallengeEntity } from "@model/shadow-key/challengeEntity";
-import { ShadowKey } from "@model/shadow-key/shadow-key";
-import { ShadowKeyType } from "@model/shadow-key/shadow-key-type";
-import { passkeyAuth, bindKey, unlockMasterKey, getPasskeyChallenge } from "@services/keyring/keyring.service";
 
 const fetchUserQueue = new Queue(1); // Execute user retrieval from the backend one by one to avoid duplicates
 
@@ -200,7 +193,7 @@ export async function checkEmailAuthenticationKey(authKey: string): Promise<bool
   }
   catch (e) {
     // Probably a 401 error
-    logger.warn("auth", "Exception while checking temporary auth key. Key expired?");
+    logger.warn("user", "Exception while checking temporary auth key. Key expired?");
     return null;
   }
 }
@@ -226,7 +219,7 @@ export async function refreshToken(): Promise<string> {
   });
 
   if (data) {
-    logger.log("graphql", "Refresh token", data.refreshToken);
+    logger.log("user", "Refresh token", data.refreshToken);
 
     const { accessToken } = data.refreshToken;
 
@@ -250,107 +243,43 @@ export function onRefreshTokenFailed() {
   window.location.href = '/dashboard';
 }
 
-export function isLogined() {
+export function isSignedIn() {
   const accessToken = localStorage.getItem('access_token');
   return accessToken && accessToken !== '';
 }
 
-export async function feactAccessTokenWithPasskey(): Promise<boolean> {
-  logger.log("user", "Checking temporary authentication key");
+export async function authenticateWithPasskey(): Promise<boolean> {
+  logger.log("user", "Authenticating with passkey");
 
-  try {
-    // TODO: passkeyAuth
-    const data = await passkeyAuth() 
-    if (data) {
-      // TODO: 
-      const accessToken = data[0]
-      const refreshToken = data[1]
-      await updateUserByToken(accessToken, refreshToken)
-      return true;
-    }
-    else {
-      return false;
-    }
-  }
-  catch (e) {
-    // Probably a 401 error
-    logger.warn("auth", "Exception while checking temporary auth key. Key expired?");
-    return null;
+  const result = await withCaughtAppException(() => {
+    return getApolloClient().query<{
+      signInWithPassKey: {
+        accessToken: string;
+        refreshToken: string;
+      }
+    }>({
+      query: gql`
+        query signInWithPasskey {
+          signInWithPasskey {
+            accessToken,
+            refreshToken
+          }
+        }
+      `,
+      fetchPolicy: "network-only" // No apollo cache, force fetch
+    });
+  });
+
+  console.log("user", "passkey auth result: ", result); // TMP
+
+  if (result?.data?.signInWithPassKey?.accessToken) {
+    const accessToken = result?.data?.signInWithPassKey?.accessToken;
+    const refreshToken = result?.data?.signInWithPassKey?.refreshToken;
+    await updateUserByToken(accessToken, refreshToken);
+    return true;
+  } else {
+    logger.error("Failed to sign in with passkey.");
+    return false;
   }
 }
-
-export async function bindPasskey(userName: string): Promise<ShadowKey> {
-  const challengeInfo = await getPasskeyChallenge()
-  const infos = await pkCredentialCreationOptions(challengeInfo, userName)
-  const attResp = await startRegistration(infos[1])
-  const newKey = {
-    type: ShadowKeyType.WEBAUTHN,
-    keyId: attResp.id,
-    key: JSON.stringify(attResp),
-    challengeId: challengeInfo.id,
-  };
-  return await bindKey(newKey)
-}
-
-export async function bindPassword(newPassword: string): Promise<ShadowKey> {
-  logger.log("keyring", "Binding password");
-
-  const newKey: AuthKeyInput = {
-    type: ShadowKeyType.PASSWORD,
-    key: newPassword,
-    keyId: "unused-for-now-for-passwords",
-  }
-
-  return bindKey(newKey);
-}
-
-export async function unlockPasskey(): Promise<boolean> {
-  logger.log("Keyring", "start unlock passkey...")
-  const challengeInfo = await getPasskeyChallenge()
-  const infos = await pkCredentialCreationOptions(challengeInfo, null)
-  // true: Autofill account password will report an error
-  const attResp = await startAuthentication(infos[0], false)
-  const authKey = {
-    type: ShadowKeyType.WEBAUTHN,//-7
-    keyId: attResp.id,
-    key: JSON.stringify(attResp),
-    challengeId: challengeInfo.id,
-  };
-  logger.log("Keyring", "start unlock passkey, attResp: ", attResp);
-  return await unlockMasterKey(authKey);
-}
-
-export async function pkCredentialCreationOptions(challengeInfo: ChallengeEntity, userName?: string): Promise<[PublicKeyCredentialRequestOptionsJSON, PublicKeyCredentialCreationOptionsJSON]> {
-  const rpId = process.env.NEXT_PUBLIC_RP_ID
-  const rpName = process.env.NEXT_PUBLIC_RP_NAME
-  const challengeEncoder = new TextEncoder()
-  const challengeUint8Array = challengeEncoder.encode(challengeInfo.content)
-  // TO UNLOCK PASSKEY
-  const publicKeyCredentialCreationOptions: PublicKeyCredentialRequestOptionsJSON = {
-    challenge: Buffer.from(challengeUint8Array).toString(),
-    allowCredentials: [],
-    rpId: rpId,
-    userVerification: "required",
-    timeout: 60000
-  };
-
-  // TO REGISTER PASSKEY
-  const rp: PublicKeyCredentialRpEntity = {
-    id: rpId,
-    name: rpName
-  }
-  const pkCredentialCreationOptionsJSON: PublicKeyCredentialCreationOptionsJSON = {
-    user: {
-      id: userName,
-      name: userName,
-      displayName: userName
-    },
-    pubKeyCredParams: [{ type: "public-key", alg: -7 }],
-    rp: rp,
-    challenge: challengeInfo.content,
-  }
-
-  return [publicKeyCredentialCreationOptions, pkCredentialCreationOptionsJSON]
-}
-
 

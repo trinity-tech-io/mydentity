@@ -1,21 +1,22 @@
-import {UseGuards} from '@nestjs/common';
-import {Args, Mutation, Query, Resolver} from '@nestjs/graphql';
-import {GraphQLError} from "graphql/error";
-import {CurrentUser} from 'src/auth/currentuser.decorator';
-import {JwtAuthGuard} from 'src/auth/jwt-auth.guard';
-import {AuthService} from '../auth/auth.service';
-import {UserEntity} from './entities/user.entity';
-import {UserService} from './user.service';
-import {logger} from "../logger";
-import {RequestEmailAuthenticationResult} from "./entities/request-email-authentication-result.entity";
-import {LoggedUserOutput} from "./dto/logged-user.output";
-import {RefreshTokenOutput} from "./dto/refresh-token.output";
-import {RefreshTokenInput} from "./dto/refresh-token.input";
-import {SignUpInput} from './dto/sign-up.input';
-import {UserEmailEntity} from "./entities/user-email.entity";
-import {AppException} from "../exceptions/app-exception";
-import {AuthExceptionCode} from "../exceptions/exception-codes";
-import {UserPropertyInput} from "./dto/user-property.input";
+import { UseGuards } from '@nestjs/common';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { GraphQLError } from "graphql/error";
+import { CurrentUser } from 'src/auth/currentuser.decorator';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { AuthKeyInput } from 'src/key-ring/dto/auth-key-input';
+import { AuthService } from '../auth/auth.service';
+import { AppException } from "../exceptions/app-exception";
+import { AuthExceptionCode } from "../exceptions/exception-codes";
+import { logger } from "../logger";
+import { LoggedUserOutput } from "./dto/logged-user.output";
+import { RefreshTokenInput } from "./dto/refresh-token.input";
+import { RefreshTokenOutput } from "./dto/refresh-token.output";
+import { SignUpInput } from './dto/sign-up.input';
+import { UserPropertyInput } from "./dto/user-property.input";
+import { RequestEmailAuthenticationResult } from "./entities/request-email-authentication-result.entity";
+import { UserEmailEntity } from "./entities/user-email.entity";
+import { UserEntity } from './entities/user.entity';
+import { UserService } from './user.service';
 
 @Resolver(() => UserEntity)
 export class UserResolver {
@@ -97,6 +98,15 @@ export class UserResolver {
   async bindOauthEmail(@CurrentUser() user: UserEntity, @Args('email') email: string) {
     await this.userService.bindOauthEmail(user, email);
     return true;
+  }
+
+  /**
+   * Receives the result of a passkey challenge as input, and retrieves the related user (if any).
+   * Access tokens are returned as a result of the sign in operation.
+   */
+  @Mutation(() => LoggedUserOutput, { nullable: true })
+  async signInWithPasskey(@Args('authKey') passkeyAuthKey: AuthKeyInput) {
+    return this.userService.signInWithPasskey(passkeyAuthKey);
   }
 
   @UseGuards(JwtAuthGuard)

@@ -1,12 +1,12 @@
 'use client';
 
+import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { Typography } from '@material-ui/core';
+import { authUser$ } from "@services/user/user.events";
+import { checkEmailAuthenticationKey, isSignedIn } from "@services/user/user.service";
 import { decode } from '@utils/slugid';
+import { useRouter, useSearchParams } from "next/navigation";
 import { FC, useEffect, useState } from 'react';
-import {checkEmailAuthenticationKey, isLogined} from "@services/user/user.service";
-import {useRouter, useSearchParams} from "next/navigation";
-import {useBehaviorSubject} from "@hooks/useBehaviorSubject";
-import {authUser$} from "@services/user/user.events";
 
 const CheckAuthKey: FC = () => {
   const searchParams = useSearchParams();
@@ -19,7 +19,7 @@ const CheckAuthKey: FC = () => {
 
   useEffect(() => {
     if (authKey) {
-      if (!isLogined()) {
+      if (!isSignedIn()) {
         void checkEmailAuthenticationKey(authKey).then(authenticated => {
           if (authenticated) {
             router.push('/dashboard');
@@ -56,7 +56,7 @@ const CheckAuthKey: FC = () => {
   )
 
   return (
-      <div></div>
+    <div></div>
   );
 }
 export default CheckAuthKey;

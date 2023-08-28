@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { User } from '@prisma/client';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { uuid } from 'uuidv4';
+import { AuthTokens } from './model/auth-tokens';
 
 @Injectable()
 export class AuthService {
@@ -34,7 +36,7 @@ export class AuthService {
     }
   }
 
-  async generateUserCredentials(user: UserEntity) {
+  generateUserCredentials(user: User): AuthTokens {
     const payload = { sub: user.id, clientId: uuid() };
 
     return {

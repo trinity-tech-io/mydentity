@@ -1,22 +1,24 @@
-import {forwardRef, HttpException, Inject, Injectable} from '@nestjs/common';
-import {AuthService} from 'src/auth/auth.service';
-import {PrismaService} from 'src/prisma/prisma.service';
-import {ThirdPartyUser} from './dto/third-party-user';
-import {MicrosoftProfileService} from './microsoft-profile.service';
-import {User, UserType, UserEmail} from '@prisma/client';
-import {randomUUID} from "crypto";
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { User, UserEmail, UserType } from '@prisma/client';
+import { randomUUID } from "crypto";
 import * as moment from "moment";
-import {encode} from "slugid";
-import {EmailTemplateType} from "../emailing/email-template-type";
-import {EmailingService} from "../emailing/emailing.service";
-import {SignUpInput} from './dto/sign-up.input';
-import {AppException} from "../exceptions/app-exception";
-import {AppExceptionCode, AuthExceptionCode} from "../exceptions/exception-codes";
-import {CurrentUser} from "../auth/currentuser.decorator";
-import {UserEntity} from "./entities/user.entity";
-import {UserEmailEntity} from "./entities/user-email.entity";
-import {logger} from "../logger";
-import {UserPropertyInput} from "./dto/user-property.input";
+import { encode } from "slugid";
+import { AuthService } from 'src/auth/auth.service';
+import { AuthTokens } from 'src/auth/model/auth-tokens';
+import { AuthKeyInput } from 'src/key-ring/dto/auth-key-input';
+import { KeyRingService } from 'src/key-ring/key-ring.service';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { EmailTemplateType } from "../emailing/email-template-type";
+import { EmailingService } from "../emailing/emailing.service";
+import { AppException } from "../exceptions/app-exception";
+import { AuthExceptionCode } from "../exceptions/exception-codes";
+import { logger } from "../logger";
+import { SignUpInput } from './dto/sign-up.input';
+import { ThirdPartyUser } from './dto/third-party-user';
+import { UserPropertyInput } from "./dto/user-property.input";
+import { UserEmailEntity } from "./entities/user-email.entity";
+import { UserEntity } from "./entities/user.entity";
+import { MicrosoftProfileService } from './microsoft-profile.service';
 
 // https://makinhs.medium.com/authentication-made-easy-with-nestjs-part-4-of-how-to-build-a-graphql-mongodb-d6057eae3fdf
 @Injectable()
@@ -24,6 +26,7 @@ export class UserService {
   constructor(
     private prisma: PrismaService,
     private authService: AuthService,
+    private keyRingService: KeyRingService,
     private readonly microsoftProfileService: MicrosoftProfileService,
     @Inject(forwardRef(() => EmailingService)) private emailingService: EmailingService,
   ) { }
@@ -31,7 +34,7 @@ export class UserService {
   /**
    * Creates a user with only a single name (optional).
    */
-  public async signUp(input: SignUpInput) {
+  public async signUp(input: SignUpInput): Promise<AuthTokens> {
     // TODO: save name from the input - but cannot generate a VC, this is ok, this is the account profile, not identity profile
 
     const user = await this.prisma.user.create({
@@ -54,14 +57,14 @@ export class UserService {
    * @param thirdPartyUser
    */
   async signInByThirdPartyAuth(thirdPartyUser: ThirdPartyUser) {
-    const retValue = {
+    const retValue: AuthTokens & { email: string } = {
       email: thirdPartyUser.email,
       accessToken: null,
       refreshToken: null,
     }
 
     // if there is a user with email.
-    const userEmail: UserEmail & {user: User} = await this.prisma.userEmail.findFirst({
+    const userEmail: UserEmail & { user: User } = await this.prisma.userEmail.findFirst({
       where: {
         email: thirdPartyUser.email
       },
@@ -146,17 +149,17 @@ export class UserService {
 
     const loungeUrl = `${process.env.FRONTEND_URL}/dashboard`;
     this.emailingService.sendEmail(
-        EmailTemplateType.WELCOME,
-        "welcome@didservice.io",
-        emailAddress,
-        "Welcome to DidService.io",
-        {
-          user: {
-            // Use the name only if that's not a temporary name (real user signed in)
-            name: user.type !== UserType.EMAIL && user.fullName
-          },
-          loungeUrl
-        }
+      EmailTemplateType.WELCOME,
+      "welcome@didservice.io",
+      emailAddress,
+      "Welcome to DidService.io",
+      {
+        user: {
+          // Use the name only if that's not a temporary name (real user signed in)
+          name: user.type !== UserType.EMAIL && user.fullName
+        },
+        loungeUrl
+      }
     );
 
     // Remember we've sent the welcome email
@@ -173,7 +176,7 @@ export class UserService {
    * This auth key comes from a magic link received by users by email, after requesting
    * to receive a magic link by email.
    */
-  public async checkEmailAuthentication(curUser: UserEntity, temporaryEmailAuthKey: string) {
+  public async checkEmailAuthentication(curUser: UserEntity, temporaryEmailAuthKey: string): Promise<AuthTokens> {
     const user = await this.prisma.user.findFirst({
       where: {
         temporaryEmailAuthExpiresAt: { gt: new Date() },
@@ -182,8 +185,8 @@ export class UserService {
     });
     if (!user) {
       throw new AppException(AuthExceptionCode.AuthKeyNotExists, "This temporary authentication key is expired or invalid.", 401);
-    // } else if (user.id !== curUser.id) {
-    //   throw new AppException(AuthExceptionCode.EmailNotExists, "This temporary authentication key is expired or invalid..", 401);
+      // } else if (user.id !== curUser.id) {
+      //   throw new AppException(AuthExceptionCode.EmailNotExists, "This temporary authentication key is expired or invalid..", 401);
     }
 
     console.log('checkEmailAuthentication', user);
@@ -197,7 +200,7 @@ export class UserService {
         },
         create: {
           email: user.temporaryEmail,
-          user: {connect: {id: curUser.id}},
+          user: { connect: { id: curUser.id } },
           createdAt: new Date()
         },
         update: {
@@ -206,6 +209,12 @@ export class UserService {
       })
     }
 
+    return this.authService.generateUserCredentials(user);
+  }
+
+  public async signInWithPasskey(passkeyAuthKey: AuthKeyInput): Promise<AuthTokens> {
+    // TODO: call jingyu's keyring to find user from passkey
+    const user: User = await null; // this.keyRingService.xxxx()
     return this.authService.generateUserCredentials(user);
   }
 
@@ -246,7 +255,7 @@ export class UserService {
         where: { email },
         create: {
           email,
-          user: {connect: {id: user.id}},
+          user: { connect: { id: user.id } },
           createdAt: new Date()
         },
         update: {

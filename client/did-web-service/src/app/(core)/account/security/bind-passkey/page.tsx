@@ -1,5 +1,5 @@
 "use client";
-import { isLogined } from "@services/user/user.service";
+import { isSignedIn } from "@services/user/user.service";
 import { FC, useEffect } from "react";
 import PasskeyBind from './widgets/PasskeyBind';
 import PasskeyHeader from './widgets/PasskeyHeader';
@@ -11,15 +11,15 @@ import clsx from 'clsx';
 const BindPassKey: FC = () => {
     useEffect(() => {
         // fix console error.
-        const logined = isLogined();
+        const logined = isSignedIn();
     }, []);
 
     return (
         <div className="col-span-full" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
             <Card className={clsx('py-40 w-full text-center min-h-full')} elevation={0}>
                 <PasskeyHeader />
-                <PasskeyBind/>
-                <PasskeyUnlock/>
+                <PasskeyBind />
+                <PasskeyUnlock />
             </Card>
         </div>
     )

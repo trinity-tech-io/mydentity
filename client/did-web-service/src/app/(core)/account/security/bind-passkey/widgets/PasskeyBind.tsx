@@ -20,7 +20,7 @@ export const PasskeyBind: FC = () => {
 
   const bindPasskeyConfirmation = async () => {
     // Call the bind password API with auto-retry if user unlock method is required.
-    const bound = await callWithUnlock(() => securityFeature.bindPasskey(authUser.name$.value));
+    const bound = await callWithUnlock(() => securityFeature.bindPasskey());
     if (bound) {
       showSuccessToast("Bind passkey successfully");
       setTimeout(() => {

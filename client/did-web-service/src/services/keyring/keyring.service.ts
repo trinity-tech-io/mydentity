@@ -73,34 +73,6 @@ export async function unlockMasterKey(authKey: AuthKeyInput): Promise<boolean> {
   }
 }
 
-export async function passkeyAuth(): Promise<[string, string]> {
-  logger.log("passkey", "passkey auth");
-  const data = await withCaughtAppException(() => {
-    return getApolloClient().query<{}>({
-      query: gql`
-      query passkeyAuth {
-        passkeyAuth{
-          accessToken,
-          refreshToken
-        }
-    }
-    `,
-      fetchPolicy: "network-only",
-      variables: {}
-    });
-  });
-
-  logger.log("verifyAuthKey", "passkey auth: ", data);
-
-  if (data) {
-    const accessToken = (data as any).data?.accessToken as string
-    const refreshToken = (data as any).data?.refreshToken as string
-    return [accessToken, refreshToken]
-  } else {
-    throw new Error('Can not login with passkey by passkeyAuth.');
-  }
-}
-
 export async function getPasskeyChallenge(): Promise<ChallengeEntity> {
   logger.log("passkey", "get challenge to generate passkey");
   const data = await withCaughtAppException(() => {

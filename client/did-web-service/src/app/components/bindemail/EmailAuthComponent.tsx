@@ -1,6 +1,6 @@
 "use client";
 import { Card } from "@mui/material";
-import { isLogined } from "@services/user/user.service";
+import { isSignedIn } from "@services/user/user.service";
 import clsx from 'clsx';
 import { FC, useEffect } from "react";
 import { BindEmailOnly } from './widgets/BindEmailOnly';
@@ -10,7 +10,7 @@ import SeparateLine from './widgets/SeparateLine';
 const EmailAuthComponent: FC = () => {
   useEffect(() => {
     // fix console error.
-    const logined = isLogined();
+    const logined = isSignedIn();
   }, []);
 
   return (

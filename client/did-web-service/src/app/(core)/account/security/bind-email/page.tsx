@@ -1,14 +1,14 @@
 "use client";
 import EmailAuthComponent from "@components/bindemail/EmailAuthComponent";
 import { Card } from "@mui/material";
-import { isLogined } from "@services/user/user.service";
+import { isSignedIn } from "@services/user/user.service";
 import clsx from 'clsx';
 import { FC, useEffect } from "react";
 
 const BindEmail: FC = () => {
     useEffect(() => {
         // fix console error.
-        const logined = isLogined();
+        const logined = isSignedIn();
     }, []);
 
     return (

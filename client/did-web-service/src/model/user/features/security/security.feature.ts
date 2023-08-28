@@ -1,12 +1,16 @@
 import { gql } from "@apollo/client";
 import { gqlShadowKeyFields } from "@graphql/shadow-key.fields";
+import { ChallengeEntity } from "@model/shadow-key/challengeEntity";
 import { ShadowKey } from "@model/shadow-key/shadow-key";
 import { ShadowKeyType } from "@model/shadow-key/shadow-key-type";
 import { ShadowKeyDTO } from "@model/shadow-key/shadow-key.dto";
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
+import { AuthKeyInput } from "@services/keyring/auth-key.input";
+import { bindKey, getPasskeyChallenge, unlockMasterKey } from "@services/keyring/keyring.service";
 import { logger } from "@services/logger";
-import { bindPasskey, bindPassword, unlockPasskey } from "@services/user/user.service";
+import { startAuthentication, startRegistration } from "@simplewebauthn/browser";
+import { PublicKeyCredentialCreationOptionsJSON, PublicKeyCredentialRequestOptionsJSON } from "@simplewebauthn/typescript-types";
 import { LazyBehaviorSubjectWrapper } from "@utils/lazy-behavior-subject";
 import { map } from "rxjs";
 import { User } from "../../user";
@@ -68,8 +72,20 @@ export class SecurityFeature implements UserFeature {
   // TODO: method to force request auth (ie: for export mnemonic or bind device)
   // TODO: method to save default auth method (password or passkey)
 
+  /**
+   * Sets the master unlock password for the currently signed in user.
+   */
   public async bindPassword(newPassword: string): Promise<boolean> {
-    const shadowKey = await bindPassword(newPassword);
+    logger.log("keyring", "Binding password");
+
+    const newKey: AuthKeyInput = {
+      type: ShadowKeyType.PASSWORD,
+      key: newPassword,
+      keyId: "unused-for-now-for-passwords",
+    }
+
+    const shadowKey = await bindKey(newKey);
+
     if (shadowKey) {
       this.upsertShadowKey(shadowKey);
       return true;
@@ -78,8 +94,18 @@ export class SecurityFeature implements UserFeature {
     return false;
   }
 
-  public async bindPasskey(name: string): Promise<boolean> {
-    const shadowKey = await bindPasskey(name);
+  public async bindPasskey(): Promise<boolean> {
+    const challengeInfo = await getPasskeyChallenge()
+    const infos = await this.pkCredentialCreationOptions(challengeInfo, this.user.name$.value)
+    const attResp = await startRegistration(infos[1])
+    const newKey = {
+      type: ShadowKeyType.WEBAUTHN,
+      keyId: attResp.id,
+      key: JSON.stringify(attResp),
+      challengeId: challengeInfo.id,
+    };
+    const shadowKey = await bindKey(newKey)
+
     if (shadowKey) {
       this.upsertShadowKey(shadowKey);
       return true;
@@ -88,8 +114,56 @@ export class SecurityFeature implements UserFeature {
     return false;
   }
 
+  /**
+  * Unlocks the currently signed in user's master key on the backend, from user's password.
+  */
   public async unlockPasskey(): Promise<boolean> {
-    return await unlockPasskey()
+    logger.log("Keyring", "start unlock passkey...")
+    const challengeInfo = await getPasskeyChallenge()
+    const infos = await this.pkCredentialCreationOptions(challengeInfo, null)
+    // true: Autofill account password will report an error
+    const attResp = await startAuthentication(infos[0], false)
+    const authKey = {
+      type: ShadowKeyType.WEBAUTHN,//-7
+      keyId: attResp.id,
+      key: JSON.stringify(attResp),
+      challengeId: challengeInfo.id,
+    };
+    logger.log("Keyring", "start unlock passkey, attResp: ", attResp);
+    return await unlockMasterKey(authKey);
+  }
+
+  private async pkCredentialCreationOptions(challengeInfo: ChallengeEntity, userName?: string): Promise<[PublicKeyCredentialRequestOptionsJSON, PublicKeyCredentialCreationOptionsJSON]> {
+    const rpId = process.env.NEXT_PUBLIC_RP_ID
+    const rpName = process.env.NEXT_PUBLIC_RP_NAME
+    const challengeEncoder = new TextEncoder()
+    const challengeUint8Array = challengeEncoder.encode(challengeInfo.content)
+    // TO UNLOCK PASSKEY
+    const publicKeyCredentialCreationOptions: PublicKeyCredentialRequestOptionsJSON = {
+      challenge: Buffer.from(challengeUint8Array).toString(),
+      allowCredentials: [],
+      rpId: rpId,
+      userVerification: "required",
+      timeout: 60000
+    };
+
+    // TO REGISTER PASSKEY
+    const rp: PublicKeyCredentialRpEntity = {
+      id: rpId,
+      name: rpName
+    }
+    const pkCredentialCreationOptionsJSON: PublicKeyCredentialCreationOptionsJSON = {
+      user: {
+        id: userName,
+        name: userName,
+        displayName: userName
+      },
+      pubKeyCredParams: [{ type: "public-key", alg: -7 }],
+      rp: rp,
+      challenge: challengeInfo.content,
+    }
+
+    return [publicKeyCredentialCreationOptions, pkCredentialCreationOptionsJSON]
   }
 
   private upsertShadowKey(shadowKey: ShadowKey) {

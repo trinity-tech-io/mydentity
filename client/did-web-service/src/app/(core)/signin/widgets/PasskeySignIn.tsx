@@ -1,12 +1,12 @@
 'use client';
+import { MainButton } from '@components/MainButton';
 import { Icon as ReactIcon } from '@iconify/react';
 import { makeStyles } from '@mui/styles';
-import clsx from 'clsx';
-import { MainButton } from '@components/MainButton';
-import {useRouter} from "next/navigation";
 import { useToast } from "@services/feedback.service";
 import { useCallWithUnlock } from "@services/security/security.service";
-import { feactAccessTokenWithPasskey } from "@services/user/user.service";
+import { authenticateWithPasskey } from "@services/user/user.service";
+import clsx from 'clsx';
+import { useRouter } from "next/navigation";
 
 const useStyles = makeStyles((theme) => ({
   centeredContainer: {
@@ -25,13 +25,13 @@ const PasskeySignIn = () => {
   const { showSuccessToast } = useToast()
 
   const signInWithPasskey = async () => {
-    const bound = await callWithUnlock(() => feactAccessTokenWithPasskey());
+    const bound = await callWithUnlock(() => authenticateWithPasskey());
     console.log("bound= ", bound)
 
     if (bound) {
       showSuccessToast("Unlock passkey successfully");
       setTimeout(() => {
-      router.push("/onboarding");
+        router.push("/onboarding");
       }, 2000);
     }
   }
@@ -42,7 +42,7 @@ const PasskeySignIn = () => {
         leftIcon={<ReactIcon icon="" />}
         onClick={signInWithPasskey}
       >
-      🔐    Sign in with Passkey
+        🔐    Sign in with Passkey
       </MainButton>
     </div>
   )
