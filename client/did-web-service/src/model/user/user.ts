@@ -1,6 +1,6 @@
 /* eslint-disable max-classes-per-file */
 import { gql } from "@apollo/client";
-import { UserEmailFeature } from "@model/user/features/email/email.feature";
+import { UserEmailFeature } from "@model/user/features/email/user-email.feature";
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { logger } from "@services/logger";

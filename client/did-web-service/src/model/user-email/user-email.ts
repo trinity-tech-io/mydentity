@@ -1,5 +1,5 @@
 import {User} from "@model/user/user";
-import {UserEmailDTO} from "@model/user/features/email/email.dto";
+import {UserEmailDTO} from "@model/user-email/user-email.dto";
 
 export class UserEmail {
     id: string;

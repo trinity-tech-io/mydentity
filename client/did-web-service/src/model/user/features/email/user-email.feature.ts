@@ -1,17 +1,21 @@
 import {UserFeature} from "@model/user/features/user-feature";
-import {UserEmail} from "@model/user/features/email/email";
+import {UserEmail} from "@model/user-email/user-email";
 import {logger} from "@services/logger";
 import {withCaughtAppException} from "@services/error.service";
 import {getApolloClient} from "@services/graphql.service";
-import {UserEmailDTO} from "@model/user/features/email/email.dto";
+import {UserEmailDTO} from "@model/user-email/user-email.dto";
 import {gql} from "@apollo/client";
 import {graphQLPublicUserEmailFields} from "@graphql/user-email.fields";
 import {User} from "@model/user/user";
+import {LazyBehaviorSubjectWrapper} from "@utils/lazy-behavior-subject";
 
 export class UserEmailFeature implements UserFeature {
+    private _userEmails = new LazyBehaviorSubjectWrapper<UserEmail[]>([], () => this.fetchUserEmails());
+    public get userEmails() { return this._userEmails.getSubject(); }
+
     constructor(protected user: User) {}
 
-    public async listUserEmails(): Promise<UserEmail[]> {
+    private async fetchUserEmails(): Promise<UserEmail[]> {
         logger.log("user", "list user emails.");
 
         const { data } = await withCaughtAppException(() => {
