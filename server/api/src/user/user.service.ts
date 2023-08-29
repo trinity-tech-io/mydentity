@@ -45,7 +45,7 @@ export class UserService {
 
     logger.log('user', 'sign up with new user', user);
 
-    return this.authService.generateUserCredentials(user);
+    return this.authService.generateUserCredentials(user, null, "TODO USER AGENT");
   }
 
   /**
@@ -72,7 +72,7 @@ export class UserService {
     });
 
     if (userEmail) {
-      const result = await this.authService.generateUserCredentials(userEmail.user);
+      const result = await this.authService.generateUserCredentials(userEmail.user, null, "TODO USER AGENT");
       retValue.accessToken = result.accessToken;
       retValue.refreshToken = result.refreshToken;
     }
@@ -104,7 +104,7 @@ export class UserService {
       return null;
     }
 
-    return await this.authService.generateUserCredentials(userEmail.user);
+    return await this.authService.generateUserCredentials(userEmail.user, null, "TODO USER AGENT");
   }
 
   /**
@@ -228,7 +228,7 @@ export class UserService {
       })
     }
 
-    return this.authService.generateUserCredentials(user);
+    return this.authService.generateUserCredentials(user, null, "TODO USER AGENT");
   }
 
   public async signInWithPasskey(passkeyAuthKey: AuthKeyInput, headerBrowserId: string, userAgent: string): Promise<AuthTokens> {
