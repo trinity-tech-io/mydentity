@@ -1,5 +1,5 @@
 "use client"
-import { MainButton } from "@components/MainButton";
+import { MainButton } from "@components/generic/MainButton";
 import { VerifiableCredential } from "@elastosfoundation/did-js-sdk";
 import { DID as ConnDID } from "@elastosfoundation/elastos-connectivity-sdk-js";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";

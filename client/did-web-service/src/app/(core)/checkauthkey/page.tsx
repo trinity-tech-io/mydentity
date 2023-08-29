@@ -1,7 +1,7 @@
 'use client';
 
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
-import { Typography } from '@material-ui/core';
+import { Typography } from "@mui/material";
 import { authUser$ } from "@services/user/user.events";
 import { checkEmailAuthenticationKey, isSignedIn } from "@services/user/user.service";
 import { decode } from '@utils/slugid';

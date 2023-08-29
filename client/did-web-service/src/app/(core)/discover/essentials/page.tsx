@@ -1,5 +1,5 @@
 "use client";
-import { MainButton } from "@components/MainButton";
+import { MainButton } from "@components/generic/MainButton";
 import { FC } from "react";
 
 const EssentialsPage: FC = () => {

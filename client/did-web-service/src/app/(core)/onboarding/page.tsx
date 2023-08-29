@@ -1,5 +1,5 @@
 "use client";
-import { MainButton } from "@components/MainButton";
+import { MainButton } from "@components/generic/MainButton";
 import { Typography } from "@mui/material";
 import { FlowOperation, setOnGoingFlowOperation } from "@services/flow.service";
 import { useRouter } from "next/navigation";

@@ -1,10 +1,10 @@
 'use client';
+import { MainButton } from '@components/generic/MainButton';
 import { Icon as ReactIcon } from '@iconify/react';
 import { makeStyles } from '@mui/styles';
+import { FlowOperation, setOnGoingFlowOperation } from "@services/flow.service";
 import clsx from 'clsx';
-import { MainButton } from '@components/MainButton';
-import {FlowOperation, setOnGoingFlowOperation} from "@services/flow.service";
-import {useRouter} from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const useStyles = makeStyles((theme) => ({
   centeredContainer: {

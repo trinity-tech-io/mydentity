@@ -1,4 +1,4 @@
-import { useAppThemeProvider } from '../theming/AppThemeContext';
+import { useAppThemeProvider } from '../../theming/AppThemeContext';
 
 export default function ThemeToggle() {
   const { currentTheme, changeCurrentTheme } = useAppThemeProvider();

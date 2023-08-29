@@ -1,5 +1,5 @@
 import { JSONObject, VerifiableCredential } from "@elastosfoundation/did-js-sdk";
-import { evalObjectFieldPath } from "./objects";
+import { evalObjectFieldPath } from "../../utils/objects";
 
 export class VerifiableCredentialInfo {
     private title: string = null;

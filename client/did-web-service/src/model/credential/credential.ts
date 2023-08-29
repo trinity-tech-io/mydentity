@@ -1,6 +1,6 @@
 import { VerifiableCredential } from "@elastosfoundation/did-js-sdk";
 import { CredentialDTO } from "./credential.dto";
-import { capitalizeFirstLetter } from "@utils/util";
+import { capitalizeFirstLetter } from "@utils/strings";
 
 export class Credential {
   id: string;

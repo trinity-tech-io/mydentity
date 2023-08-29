@@ -1,3 +1,4 @@
+import { ProfileCredentialInfo } from '@model/identity/features/profile/profile-credential-info';
 import PersonIcon from '@mui/icons-material/Person';
 import { Divider } from '@mui/material';
 import Avatar from '@mui/material/Avatar';
@@ -9,22 +10,21 @@ import ListItemAvatar from '@mui/material/ListItemAvatar';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import { blue } from '@mui/material/colors';
-import { capitalizeFirstLetter } from "@utils/util";
+import { capitalizeFirstLetter } from "@utils/strings";
+import { FC } from 'react';
 
 export interface CreateCredentialDialog {
   open: boolean;
-  onClose: (value: string) => void;
-  avaliableItemKeys: string[]
+  onClose: (selectedItem: ProfileCredentialInfo) => void;
+  availableItemsForAddition: ProfileCredentialInfo[]
 }
 
-function CreateCredentialDialog(props: CreateCredentialDialog) {
-  const { onClose, open, avaliableItemKeys} = props;
-  
+const CreateCredentialDialog: FC<CreateCredentialDialog> = ({ onClose, open, availableItemsForAddition }) => {
   const handleClose = () => {
-    onClose('');
+    onClose(null);
   };
 
-  const handleListItemClick = (value: string) => {
+  const handleListItemClick = (value: ProfileCredentialInfo) => {
     onClose(value);
   };
 
@@ -35,15 +35,15 @@ function CreateCredentialDialog(props: CreateCredentialDialog) {
       <Divider />
 
       <List sx={{ pt: 0 }}>
-        {avaliableItemKeys.map((key) => (
-          <ListItem disableGutters key={key}>
-            <ListItemButton onClick={() => handleListItemClick(key)}  >
+        {availableItemsForAddition?.map((addableItem, i) => (
+          <ListItem disableGutters key={i}>
+            <ListItemButton onClick={() => handleListItemClick(addableItem)}  >
               <ListItemAvatar>
                 <Avatar sx={{ bgcolor: blue[100], color: blue[600] }}>
                   <PersonIcon />
                 </Avatar>
               </ListItemAvatar>
-              <ListItemText primary={capitalizeFirstLetter(key)} />
+              <ListItemText primary={capitalizeFirstLetter(addableItem.key)} />
             </ListItemButton>
           </ListItem>
         ))}

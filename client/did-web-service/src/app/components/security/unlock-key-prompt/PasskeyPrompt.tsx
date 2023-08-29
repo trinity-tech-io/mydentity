@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { MainButton } from '../../MainButton';
+import { MainButton } from '../../generic/MainButton';
 
 export const PasskeyPrompt: FC<{
   onConfirm: (password: string) => void;

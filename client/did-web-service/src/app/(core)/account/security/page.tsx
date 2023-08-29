@@ -2,7 +2,7 @@
 import EmailIcon from '@assets/images/email.svg';
 import FingerprintIcon from '@assets/images/fingerprint.svg';
 import PasswordIcon from '@assets/images/password.svg';
-import { MainButton } from "@components/MainButton";
+import { MainButton } from "@components/generic/MainButton";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useMounted } from "@hooks/useMounted";
 import { Typography } from "@mui/material";

@@ -1,5 +1,5 @@
 'use client';
-import { MainButton } from '@components/MainButton';
+import { MainButton } from '@components/generic/MainButton';
 import { Icon as ReactIcon } from '@iconify/react';
 import { makeStyles } from '@mui/styles';
 import { useToast } from "@services/feedback.service";

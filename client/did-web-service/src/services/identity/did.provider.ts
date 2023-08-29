@@ -1,7 +1,7 @@
 import { VerifiableCredential, VerifiablePresentation } from "@elastosfoundation/did-js-sdk";
 import { Credential } from "@model/credential/credential";
 import { Identity } from "@model/identity/identity";
-import { PublicationStatus } from "@model/identity/publish.dto";
+import { PublicationStatus } from "@model/publication/publish.dto";
 
 /**
  * Interface shared by the custodial and non custodial DID solutions to provide features such as creating a DID,
@@ -17,8 +17,8 @@ export interface IdentityProvider {
   deleteCredential(credentialId): Promise<boolean>;
   createVerifiablePresentation(identityDid: string, credentials: VerifiableCredential[], realm: string, nonce: string): Promise<VerifiablePresentation>;
   // get the DID transaction payload
-  createDIDPublishTransaction(identityDid: String):Promise<string>;
+  createDIDPublishTransaction(identityDid: String): Promise<string>;
   // publish Identity to did chain.
-  publishIdentity(identityDid: string, payload: String):Promise<string>;
-  getPublicationStatus(identityDid: string, publicationId: String):Promise<PublicationStatus>;
+  publishIdentity(identityDid: string, payload: String): Promise<string>;
+  getPublicationStatus(identityDid: string, publicationId: String): Promise<PublicationStatus>;
 }

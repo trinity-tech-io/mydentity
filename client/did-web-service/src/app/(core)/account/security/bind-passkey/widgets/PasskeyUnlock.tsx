@@ -1,10 +1,10 @@
-import { FC } from 'react';
-import { MainButton } from '@components/MainButton';
-import { authUser$ } from "@services/user/user.events";
+import { MainButton } from '@components/generic/MainButton';
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useToast } from "@services/feedback.service";
 import { useCallWithUnlock } from "@services/security/security.service";
+import { authUser$ } from "@services/user/user.events";
 import { useRouter } from "next/navigation";
+import { FC } from 'react';
 
 export const PasskeyAuth: FC = () => {
   const router = useRouter();

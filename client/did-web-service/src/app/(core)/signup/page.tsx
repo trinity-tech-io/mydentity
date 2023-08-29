@@ -1,5 +1,5 @@
 "use client";
-import { MainButton } from "@components/MainButton";
+import { MainButton } from "@components/generic/MainButton";
 import { TextField, Typography } from "@mui/material";
 import { signUp } from "@services/user/user.service";
 import { useRouter } from "next/navigation";

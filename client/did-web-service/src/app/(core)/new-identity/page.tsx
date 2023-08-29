@@ -1,5 +1,5 @@
 "use client";
-import { MainButton } from '@components/MainButton';
+import { MainButton } from '@components/generic/MainButton';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { useMounted } from '@hooks/useMounted';
 import { TextField } from '@mui/material';

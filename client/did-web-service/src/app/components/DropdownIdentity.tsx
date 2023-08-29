@@ -7,8 +7,8 @@ import { identityService } from '@services/identity/identity.service';
 import { authUser$ } from '@services/user/user.events';
 import { useRouter } from 'next/navigation';
 import { FC, useEffect, useRef, useState } from 'react';
-import { MainButton } from './MainButton';
-import Transition from './Transition';
+import { MainButton } from './generic/MainButton';
+import Transition from './generic/Transition';
 
 export const DropdownIdentity: FC<{
   align?: "left" | "right";

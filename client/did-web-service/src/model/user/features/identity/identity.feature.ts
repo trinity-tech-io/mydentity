@@ -1,10 +1,10 @@
 import { Identity } from "@model/identity/identity";
+import { PublicationStatus } from "@model/publication/publish.dto";
 import { identityService } from "@services/identity/identity.service";
 import { logger } from "@services/logger";
 import { LazyBehaviorSubjectWrapper } from "@utils/lazy-behavior-subject";
 import { User } from "../../user";
 import { UserFeature } from "../user-feature";
-import { PublicationStatus } from "@model/identity/publish.dto";
 
 export class IdentityFeature implements UserFeature {
   private _identities$ = new LazyBehaviorSubjectWrapper<Identity[]>([], () => this.fetchIdentities());

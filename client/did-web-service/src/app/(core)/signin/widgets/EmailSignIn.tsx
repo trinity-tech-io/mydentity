@@ -1,4 +1,4 @@
-import { MainButton } from '@components/MainButton';
+import { MainButton } from '@components/generic/MainButton';
 import { Icon as ReactIcon } from '@iconify/react';
 import { Container, TextField } from '@mui/material';
 import { makeStyles } from '@mui/styles';

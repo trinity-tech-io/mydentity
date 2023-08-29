@@ -4,7 +4,7 @@ import { FC } from 'react';
 // import Notifications from '../components/DropdownNotifications';
 import { DropdownIdentity } from '@components/DropdownIdentity';
 import { DropdownUserProfile } from '@components/DropdownProfile';
-import { MainButton } from '@components/MainButton';
+import { MainButton } from '@components/generic/MainButton';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { useMounted } from '@hooks/useMounted';
 import { authUser$ } from '@services/user/user.events';

@@ -1,5 +1,5 @@
 'use client';
-import ComfirmDialog from '@components/ComfirmDialog';
+import ComfirmDialog from '@components/generic/ComfirmDialog';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import DeleteIcon from '@mui/icons-material/Delete';
 import IconButton from '@mui/material/IconButton';

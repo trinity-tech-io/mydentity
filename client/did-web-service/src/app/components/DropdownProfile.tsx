@@ -1,7 +1,7 @@
 'use client';
 
 import UserAvatar from '@assets/images/user-avatar-32.png';
-import Transition from "@components/Transition";
+import Transition from "@components/generic/Transition";
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { authUser$, getActiveUser } from "@services/user/user.events";
 import { signOut } from "@services/user/user.service";

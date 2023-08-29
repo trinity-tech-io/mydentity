@@ -1,6 +1,6 @@
 import { TextField } from '@mui/material';
 import { FC, createRef } from 'react';
-import { MainButton } from '../../MainButton';
+import { MainButton } from '../../generic/MainButton';
 
 export const PasswordPrompt: FC<{
   onConfirm: (password: string) => void;

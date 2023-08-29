@@ -1,5 +1,5 @@
 "use client"
-import { MainButton } from "@components/MainButton";
+import { MainButton } from "@components/generic/MainButton";
 import { VerifiableCredential } from "@elastosfoundation/did-js-sdk";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { Intent } from "@model/intent/intent";
@@ -46,11 +46,11 @@ const RequestDetails: FC<{
     runPreliminaryChecks();
     getDappIcon();
     fetchApplicationDidInfo();
-    if (payload){
+    if (payload) {
       const importedCredentials = organizeImportedCredentials(payload.credentials)
       setImportedCredentials(importedCredentials);
     }
-  },[payload]);
+  }, [payload]);
 
   /**
    * Check a few things after entering the screen. Mostly, imported credentials content quality.
@@ -77,7 +77,7 @@ const RequestDetails: FC<{
    */
   const organizeImportedCredentials = (credentialObjList: JSONObject[]): ImportedCredential[] => {
     if (!credentialObjList)
-      return[];
+      return [];
 
     let displayableCredentials = [];
     credentialObjList.map((credentialObj: JSONObject) => {
@@ -122,7 +122,7 @@ const RequestDetails: FC<{
     // Now fulfil the intent. The connector will then be able to
     // grab the result from the API.
     let responsePayload: string[] = [];
-    importedCredentials.map(importedCredential => {responsePayload.push(importedCredential.credential.getId().toString())});
+    importedCredentials.map(importedCredential => { responsePayload.push(importedCredential.credential.getId().toString()) });
     // const responsePayload = ["did:elastos:mydid#mycredid-todo"]; // TODO: list of DIDURLs of the imported VCs.
 
     let fulfilled = false;
@@ -132,7 +132,7 @@ const RequestDetails: FC<{
       logger.error(TAG, 'Import credential error', error);
     }
 
-    if (!fulfilled){
+    if (!fulfilled) {
       showErrorToast('Import credential error, Please retry after a while.');
       return;
     }
@@ -154,25 +154,25 @@ const RequestDetails: FC<{
     {activeIdentity &&
       <div className=" text-center">
         <Stack direction="row" justifyContent="center">
-        <Typography>
-        </Typography>
-        {/* {requestingAppIconUrl && <Avatar src={requestingAppIconUrl} sx={{ ml:2, width: 120, height: 120 }}/>}
+          <Typography>
+          </Typography>
+          {/* {requestingAppIconUrl && <Avatar src={requestingAppIconUrl} sx={{ ml:2, width: 120, height: 120 }}/>}
         {!requestingAppIconUrl && <Avatar src={requestingAppIconUrl} sx={{ ml:2, width: 120, height: 120 }}/>} */}
-        <Avatar sx={{ ml:2, width: 120, height: 120 }}/>
+          <Avatar sx={{ ml: 2, width: 120, height: 120 }} />
         </Stack>
         <Typography mt={4}>
-              {requestingAppName}
+          {requestingAppName}
         </Typography>
 
         <Typography mt={4}>
-              You are going to attach some infomation provided by a third party to your identity.
+          You are going to attach some infomation provided by a third party to your identity.
         </Typography>
         <Typography mt={1}>
-              Please review the following data:
+          Please review the following data:
         </Typography>
-        { importedCredentials?.map(importedCredential => {
-          return(
-            <CredentialAndDetailComponent key={importedCredential.name+"credentialanddetail"} importedCredential={importedCredential}/>
+        {importedCredentials?.map(importedCredential => {
+          return (
+            <CredentialAndDetailComponent key={importedCredential.name + "credentialanddetail"} importedCredential={importedCredential} />
           )
         })}
         <MainButton onClick={approveRequest} busy={preparingResponse} >Import this to my profile</MainButton>

@@ -1,4 +1,4 @@
-import { BasicCredentialEntry } from "@model/credential/basiccredentialentry";
+import { ProfileCredentialInfo } from "@model/identity/features/profile/profile-credential-info";
 
 /**
  * High level representation of the local DID document for convenience while displaying data on UI.
@@ -6,7 +6,7 @@ import { BasicCredentialEntry } from "@model/credential/basiccredentialentry";
  * Fields in this class match the Elastos DID specification naming convention for credentials.
  */
 export class Profile {
-    public entries: BasicCredentialEntry[] = [];
+    public entries: ProfileCredentialInfo[] = [];
 
     constructor() { }
 
@@ -16,18 +16,18 @@ export class Profile {
         });
     }
 
-    setValue(basiccredentialentry: BasicCredentialEntry, value: string, isVisible: boolean) {
+    setValue(basiccredentialentry: ProfileCredentialInfo, value: string) {
         // If the entry already exists, we just update it. Otherwise we add it first.
         let entry = this.getEntryByKey(basiccredentialentry.key);
         if (!entry) {
-            entry = new BasicCredentialEntry(basiccredentialentry.key, value, basiccredentialentry.context, basiccredentialentry.shortType, isVisible, basiccredentialentry.isSensitive);
+            entry = new ProfileCredentialInfo(basiccredentialentry.key, value, basiccredentialentry.context, basiccredentialentry.shortType, basiccredentialentry.isSensitive);
             this.entries.push(entry);
         } else {
-            entry.value = value;
+            entry.defaultSubject = value;
         }
     }
 
-    deleteEntry(entry: BasicCredentialEntry) {
+    deleteEntry(entry: ProfileCredentialInfo) {
         let deletionIndex = this.entries.findIndex((e) => {
             return e.key == entry.key;
         });
@@ -40,29 +40,29 @@ export class Profile {
         let nameEntry = this.getEntryByKey("name");
         if (!nameEntry) return null;
 
-        return nameEntry.value;
+        return nameEntry.defaultSubject;
     }
 
     getDescription(): string {
         let descriptionEntry = this.getEntryByKey("description");
         if (!descriptionEntry) return null;
 
-        return descriptionEntry.value;
+        return descriptionEntry.defaultSubject;
     }
 
     static createDefaultProfile(): Profile {
         let profile = new Profile();
 
         // Displayable Header Entries
-        profile.entries.push(new BasicCredentialEntry("name", ""));
-        profile.entries.push(new BasicCredentialEntry("avatar", null));
-        profile.entries.push(new BasicCredentialEntry("description", ""));
+        profile.entries.push(new ProfileCredentialInfo("name", ""));
+        profile.entries.push(new ProfileCredentialInfo("avatar", null));
+        profile.entries.push(new ProfileCredentialInfo("description", ""));
         // Other Essential Entries
-        profile.entries.push(new BasicCredentialEntry("birthDate", ""));
-        profile.entries.push(new BasicCredentialEntry("nationality", ""));
-        profile.entries.push(new BasicCredentialEntry("email", ""));
-        profile.entries.push(new BasicCredentialEntry("gender", ""));
-        profile.entries.push(new BasicCredentialEntry("telephone", ""));
+        profile.entries.push(new ProfileCredentialInfo("birthDate", ""));
+        profile.entries.push(new ProfileCredentialInfo("nationality", ""));
+        profile.entries.push(new ProfileCredentialInfo("email", ""));
+        profile.entries.push(new ProfileCredentialInfo("gender", ""));
+        profile.entries.push(new ProfileCredentialInfo("telephone", ""));
 
 
         return profile;
@@ -77,12 +77,14 @@ export class Profile {
     isMale() {
         let genderEntry = this.getEntryByKey("gender");
         return (
-            !genderEntry || genderEntry.value == "" || genderEntry.value == "male" || genderEntry.value == "M"
+            !genderEntry || genderEntry.defaultSubject == "" || genderEntry.defaultSubject == "male" || genderEntry.defaultSubject == "M"
         );
     }
 
     getDefaultProfilePicturePath() {
-        if (this.isMale()) return "assets/identity/images/Guy_Face.svg";
-        else return "assets/identity/images/DefaultProfileWoman.svg";
+        if (this.isMale())
+            return "assets/identity/images/Guy_Face.svg";
+        else
+            return "assets/identity/images/DefaultProfileWoman.svg";
     }
 }

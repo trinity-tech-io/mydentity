@@ -1,12 +1,12 @@
-import { MainButton } from '@components/MainButton';
+import { MainButton } from '@components/generic/MainButton';
+import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { Icon as ReactIcon } from '@iconify/react';
-import { InputBase , Container} from '@material-ui/core';
-import { FC, FormEvent, useRef, useState } from "react";
-import clsx from 'clsx';
+import { Container, InputBase } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import {FlowOperation, setOnGoingFlowOperation} from "@services/flow.service";
-import {useBehaviorSubject} from "@hooks/useBehaviorSubject";
-import {authUser$} from "@services/user/user.events";
+import { FlowOperation, setOnGoingFlowOperation } from "@services/flow.service";
+import { authUser$ } from "@services/user/user.events";
+import clsx from 'clsx';
+import { FC, FormEvent, useRef, useState } from "react";
 
 const useStyles = makeStyles((theme) => ({
   centeredContainer: {
@@ -45,14 +45,14 @@ export const BindEmailOnly: FC = () => {
   return (
     <Container component="div" className={clsx(classes.centeredContainer)}>
       {!authEmailSent && <form onSubmit={onEmailSubmit} ref={emailForm}>
-          <InputBase
-            inputRef={emailInputRef}
-            placeholder="Input email address"
-            className="flex flex-1 px-11 py-4 my-8 bg-gray-200 rounded-8"
-            type='email'
-            name="email"
-          />
-        </form>
+        <InputBase
+          inputRef={emailInputRef}
+          placeholder="Input email address"
+          className="flex flex-1 px-11 py-4 my-8 bg-gray-200 rounded-8"
+          type='email'
+          name="email"
+        />
+      </form>
       }
       {!authEmailSent &&
         <MainButton
@@ -62,7 +62,7 @@ export const BindEmailOnly: FC = () => {
           Send magic key to email
         </MainButton>
       }
-    {authEmailSent && <div className='text-center mt-10'>Magic link sent, please check your mailbox.</div>}
+      {authEmailSent && <div className='text-center mt-10'>Magic link sent, please check your mailbox.</div>}
     </Container>
   );
 };

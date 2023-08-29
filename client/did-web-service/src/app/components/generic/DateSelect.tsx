@@ -95,7 +95,7 @@ function DateSelect() {
               return (
                 <button
                   key={option.id}
-                  tabIndex="0"
+                  tabIndex={0}
                   className={`flex items-center w-full hover:bg-slate-50 hover:dark:bg-slate-700/20 py-1 px-3 cursor-pointer ${option.id === selected && 'text-indigo-500'}`}
                   onClick={() => { setSelected(option.id); setDropdownOpen(false); }}
                 >

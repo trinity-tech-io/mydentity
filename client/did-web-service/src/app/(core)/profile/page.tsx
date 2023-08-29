@@ -1,13 +1,13 @@
 'use client'
-import ComfirmDialog from "@components/ComfirmDialog";
-import CreateCredentialDialog from "@components/CreateCredentialDialog";
-import EditCredentialDialog, { EDIT_TYPE } from "@components/EditCredentialDialog";
-import ListHead from "@components/ListHead";
-import ListToolbar from "@components/ListToolbar";
+import ComfirmDialog from "@components/generic/ComfirmDialog";
+import ListHead from "@components/generic/ListHead";
+import ListToolbar from "@components/generic/ListToolbar";
+import CreateCredentialDialog from "@components/identity-profile/CreateCredentialDialog";
+import EditCredentialDialog, { EDIT_TYPE } from "@components/identity-profile/EditCredentialDialog";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useMounted } from "@hooks/useMounted";
-import { BasicCredentialEntry } from "@model/credential/basiccredentialentry";
 import { Credential } from "@model/credential/credential";
+import { ProfileCredentialInfo } from "@model/identity/features/profile/profile-credential-info";
 import AddIcon from '@mui/icons-material/Add';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { Button, Card, Container, IconButton, MenuItem, Popover, Stack, Table, TableBody, TableCell, TableContainer, TablePagination, TableRow, Typography } from "@mui/material";
@@ -15,12 +15,10 @@ import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import { useToast } from "@services/feedback.service";
-import { BasicCredentialsService } from "@services/identity/basiccredentials.service";
 import { activeIdentity$ } from "@services/identity/identity.events";
 import { logger } from "@services/logger";
-import { capitalizeFirstLetter } from "@utils/util";
+import { capitalizeFirstLetter } from "@utils/strings";
 import { filter } from 'lodash';
-import moment from "moment";
 import Link from "next/link";
 import { FC, forwardRef, useEffect, useState } from "react";
 
@@ -40,18 +38,20 @@ const Alert = forwardRef<HTMLDivElement, AlertProps>(function Alert(
 const Profile: FC = () => {
   const TAG = "ProfilePage";
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
-  const [credentials] = useBehaviorSubject(activeIdentity?.get("credentials").credentials$);
+  const identityProfileFeature = activeIdentity?.get("profile");
+  const [credentials] = useBehaviorSubject(activeIdentity?.get("credentials").credentials$); // All credentials of this identity
   const { mounted } = useMounted();
 
   const [originCredential, setOriginCredential] = useState<Credential>(null);
-  const [availableItemKeys, setAvailableItemKeys] = useState([]);
+  const [availableItemsForAddition, setAvailableItemsForAddition] = useState<ProfileCredentialInfo[]>([]);
   const [openCreateCredential, setOpenCreateCredential] = useState(false);
 
   const [openEditCredentialDialog, setOpenEditCredentialDialog] = useState(false);
-  const [preEditCredentialKey, setPreEditCredentialKey] = useState('');
-  const [preEditCredentialValue, setPreEditCredentialValue] = useState('');
+  const [preEditCredentialInfo, setPreEditCredentialInfo] = useState<ProfileCredentialInfo>(null);
+  const [preEditCredentialValue, setPreEditCredentialValue] = useState<string>('');
   const [editType, setEditType] = useState(EDIT_TYPE.NEW);
 
+  const { showSuccessToast, showErrorToast } = useToast();
   const [isOpenPopupMenu, setOpenPopupMenu] = useState(null);
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('asc');
@@ -60,24 +60,29 @@ const Profile: FC = () => {
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
+  const availableProfileEntries = identityProfileFeature?.getAvailableProfileEntries(); // List of addable profile items (that can produce credentials)
 
   const explorerDIDLink = activeIdentity && `https://eid.elastos.io/did?did=${encodeURIComponent(activeIdentity.did)}&is_did=true`;
 
-  const { showSuccessToast, showErrorToast } = useToast();
-
-  let basicCredentialsService: BasicCredentialsService;
-  let basicCredentialsKey: string[];
-
   useEffect(() => {
-    if (!basicCredentialsService) {
-      basicCredentialsService = new BasicCredentialsService();
-      basicCredentialsKey = basicCredentialsService.getBasicCredentialkeys();
-    }
-
-    if (credentials) {
-      setAvailableItemKeys(findAvailableItem(basicCredentialsKey, getCredentialsKeys(credentials)));
-    }
+    computeAvailableItems();
   }, [credentials]);
+
+  /**
+   * Computes the list of available items a user can add to his profile.
+   * This list is based on the global list of available profile items, minus the profile items that are
+   * already added and that can't be added more than once.
+   */
+  const computeAvailableItems = () => {
+    const availableEntries = availableProfileEntries?.filter((entry) => {
+      // Condition to keep the entry available for addition?
+      // - Be of kind "multipleInstancesAllowed"
+      // - Or not be used by user's credentials yet
+      return entry.options.multipleInstancesAllowed || !credentials.find(c => c.verifiableCredential.type.includes(entry.shortType));
+    });
+
+    setAvailableItemsForAddition(availableEntries);
+  }
 
   const showFeedbackToast = (isSuccess: boolean, successMessage: string, errorMessage: string) => {
     if (isSuccess) {
@@ -87,29 +92,23 @@ const Profile: FC = () => {
     }
   }
 
-  const getCredentialsKeys = (credentials: Credential[]): string[] => {
-    return credentials.map(c => (c.verifiableCredential.getId().getFragment()));
-  };
+  /*  const getCredentialsKeys = (credentials: Credential[]): string[] => {
+     return credentials.map(c => (c.verifiableCredential.getId().getFragment()));
+   }; */
 
-  const findAvailableItem = (basicCredentialKeys: string[], existCredentialKeys: string[]): string[] => {
-    return basicCredentialKeys.filter((key) => {
-      return existCredentialKeys.indexOf(key) == -1;
-    });
-  }
-
-  const handleCreateCredentialDialogClose = (value: string) => {
+  const handleCreateCredentialDialogClose = (selectedItem: ProfileCredentialInfo) => {
     setOpenCreateCredential(false);
-    console.log("selected value", value);
-    if (value) {
+    console.log("selected item", selectedItem);
+    if (selectedItem) {
       setOpenEditCredentialDialog(true);
-      setPreEditCredentialKey(value);
+      setPreEditCredentialInfo(selectedItem);
       setPreEditCredentialValue('');
       setEditType(EDIT_TYPE.NEW);
       setOriginCredential(null);
     }
   };
 
-  const handleEditCredentialDialogClose = async (editCredentialValue: { key: string, value: string, type: EDIT_TYPE, originCredential: Credential }) => {
+  const handleEditCredentialDialogClose = async (editCredentialValue: { info: ProfileCredentialInfo, value: string, type: EDIT_TYPE, originCredential: Credential }) => {
     setOpenEditCredentialDialog(false);
     if (!editCredentialValue)
       return;
@@ -120,7 +119,7 @@ const Profile: FC = () => {
     if (editCredentialValue.type == EDIT_TYPE.EDIT && editCredentialValue.originCredential) {
       let isSuccess = false;
       try {
-        isSuccess = await updateCredential(editCredentialValue.originCredential, editCredentialValue.value).catch()
+        isSuccess = await identityProfileFeature.updateCredential(editCredentialValue.originCredential, editCredentialValue.value).catch()
       } catch (error) {
         logger.error(TAG, 'Update credential error', error);
       }
@@ -130,7 +129,7 @@ const Profile: FC = () => {
     if (editCredentialValue.type == EDIT_TYPE.NEW && !originCredential) {
       let isSuccess = false;
       try {
-        isSuccess = await createCredential('', [], editCredentialValue.key, editCredentialValue.value);
+        isSuccess = await identityProfileFeature.createCredential('', [editCredentialValue.info.shortType], editCredentialValue.info.key, editCredentialValue.value);
       } catch (error) {
         logger.error(TAG, 'Create credential error', error);
       }
@@ -210,9 +209,10 @@ const Profile: FC = () => {
   const handleClickEditCredential = () => {
     handleCloseMenu();
     setOpenEditCredentialDialog(true);
-    const key = originCredential.verifiableCredential.getId().getFragment();
-    setPreEditCredentialKey(key);
-    setPreEditCredentialValue(originCredential.verifiableCredential.getSubject().getProperty(key));
+    const entry = identityProfileFeature.findProfileInfoByTypes(originCredential.verifiableCredential.getType());
+    setPreEditCredentialInfo(entry);
+    // TODO: DONT GET THE PROPERTY LIKE THIS: ASK THE PROFILE FEATURE TO RETURN THE VALUE
+    setPreEditCredentialValue(originCredential.verifiableCredential.getSubject().getProperty(entry.key));
     setEditType(EDIT_TYPE.EDIT);
   }
 
@@ -222,7 +222,7 @@ const Profile: FC = () => {
       return;
     let isSuccess = false
     try {
-      isSuccess = await deleteCredential(originCredential.verifiableCredential.getId().toString());
+      isSuccess = await identityProfileFeature.deleteCredential(originCredential.verifiableCredential.getId().toString());
     } catch (error) {
       logger.error(TAG, error);
     }
@@ -230,64 +230,11 @@ const Profile: FC = () => {
     return;
   };
 
+  // TODO: MAKE THIS MORE GENERIC - WORKS ONLY FOR STRING VALUES
   const getValueFromCredential = (credential: Credential, propertyName: string): string => {
     if (!credential || !credential.verifiableCredential || !credential.verifiableCredential.getSubject())
       return '';
     return credential.verifiableCredential.getSubject().getProperty(propertyName);
-  }
-
-  const getCredentialId = (credential: Credential): string => {
-    if (!credential && !credential.verifiableCredential && !credential.verifiableCredential.getId())
-      return '';
-    return credential.verifiableCredential.getId().toString()
-  }
-
-  const deleteCredential = async (credentialId: string) => {
-    try {
-      await activeIdentity?.get("credentials").deleteCredential(credentialId);
-      return true;
-    } catch (error) {
-      logger.error(TAG, error);
-    }
-  }
-
-  const createCredential = async (credentialId: string = null, types: string[], key: string, value: string) => {
-    let credentialType: string[] = [];
-    try {
-      let finalCredentialId;
-      if (!credentialId) {
-        finalCredentialId = activeIdentity.did + "#" + key;
-      } else {
-        finalCredentialId = credentialId;
-      }
-      const basicCredentialsService = new BasicCredentialsService();
-      const entry: BasicCredentialEntry = basicCredentialsService.getBasicCredentialInfoByKey(key);
-      for (let index = 0; index < types.length; index++) {
-        credentialType.push(types[index])
-      }
-      credentialType.push(entry.context + "#" + entry.shortType);
-
-      const expirationDate = moment().add(5, "years").toDate();
-
-      let prop = {};
-      prop[key] = value;
-
-      await activeIdentity?.get("credentials").createCredential(finalCredentialId, credentialType, expirationDate, prop);
-      return true;
-    } catch (error) {
-      logger.error(TAG, error);
-    }
-  }
-
-  const updateCredential = async (credential: Credential, newValue: string) => {
-    const credentialId = getCredentialId(credential);
-    try {
-      await deleteCredential(credentialId);
-      await createCredential(credentialId, [], credential.verifiableCredential.getId().getFragment(), newValue);
-      return true;
-    } catch (error) {
-      logger.error(TAG, error);
-    }
   }
 
   return (<div className="col-span-full">
@@ -450,11 +397,11 @@ const Profile: FC = () => {
     <CreateCredentialDialog
       open={openCreateCredential}
       onClose={handleCreateCredentialDialogClose}
-      avaliableItemKeys={availableItemKeys}
+      availableItemsForAddition={availableItemsForAddition}
     />
 
     <EditCredentialDialog
-      credentialKey={preEditCredentialKey}
+      credentialInfo={preEditCredentialInfo}
       defaultValue={preEditCredentialValue}
       type={editType}
       open={openEditCredentialDialog}

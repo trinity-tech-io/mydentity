@@ -1,8 +1,8 @@
 import { Identity } from "@model/identity/identity";
+import { PublicationStatus } from "@model/publication/publish.dto";
 import { CustodialDIDProvider } from "./custodial/custodial-did.provider";
 import { IdentityProvider } from "./did.provider";
 import { activeIdentity$ } from "./identity.events";
-import { PublicationStatus } from "@model/identity/publish.dto";
 
 class IdentityService {
   private provider: IdentityProvider = new CustodialDIDProvider(); // For now, only a custodial provider in use

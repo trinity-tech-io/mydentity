@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-import { parse, stringify, v4 as uuidV4 } from 'uuid';
+import { parse, stringify } from 'uuid';
 
 /** @type {(bytes: Uint8Array) => string} */
 var toBase64 = (() => {
@@ -62,39 +62,4 @@ export function decode(slug: string): string {
     .replace(/_/g, '/')
     + '==';
   return stringify(fromBase64(base64));
-};
-
-/**
- * Returns a randomly generated uuid v4 compliant slug
- */
-export function v4() {
-  var bytes = uuidV4(null, new Uint8Array(16));
-  var base64 = toBase64(bytes);
-  var slug = base64
-    .replace(/\+/g, '-')  // Replace + with - (see RFC 4648, sec. 5)
-    .replace(/\//g, '_')  // Replace / with _ (see RFC 4648, sec. 5)
-    .substring(0, 22);    // Drop '==' padding
-  return slug;
-};
-
-/**
- * Returns a randomly generated uuid v4 compliant slug which conforms to a set
- * of "nice" properties, at the cost of some entropy. Currently this means one
- * extra fixed bit (the first bit of the uuid is set to 0) which guarantees the
- * slug will begin with [A-Za-f]. For example such slugs don't require special
- * handling when used as command line parameters (whereas non-nice slugs may
- * start with `-` which can confuse command line tools).
- *
- * Potentially other "nice" properties may be added in future to further
- * restrict the range of potential uuids that may be generated.
- */
-export function nice() {
-  var bytes = uuidV4(null, new Uint8Array(16));
-  bytes[0] = bytes[0] & 0x7f;  // unset first bit to ensure [A-Za-f] first char
-  var base64 = toBase64(bytes);
-  var slug = base64
-    .replace(/\+/g, '-')  // Replace + with - (see RFC 4648, sec. 5)
-    .replace(/\//g, '_')  // Replace / with _ (see RFC 4648, sec. 5)
-    .substring(0, 22);    // Drop '==' padding
-  return slug;
 };

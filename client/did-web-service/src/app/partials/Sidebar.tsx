@@ -16,7 +16,7 @@ import Image, { StaticImageData } from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { FC, useEffect, useRef, useState } from 'react';
-import ThemeToggle from '../components/ThemeToggle';
+import ThemeToggle from '../components/generic/ThemeToggle';
 
 type LinkConfig = {
   title: string;

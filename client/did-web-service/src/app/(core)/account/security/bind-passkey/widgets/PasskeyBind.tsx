@@ -1,4 +1,4 @@
-import { MainButton } from '@components/MainButton';
+import { MainButton } from '@components/generic/MainButton';
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useToast } from "@services/feedback.service";
 import { useCallWithUnlock } from "@services/security/security.service";

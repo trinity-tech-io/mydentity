@@ -1,5 +1,5 @@
 "use client";
-import EmailAuthComponent from "@components/bindemail/EmailAuthComponent";
+import EmailAuthComponent from "@components/security/bindemail/EmailAuthComponent";
 import { Card } from "@mui/material";
 import { isSignedIn } from "@services/user/user.service";
 import clsx from 'clsx';

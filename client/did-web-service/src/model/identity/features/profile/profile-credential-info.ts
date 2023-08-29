@@ -1,21 +1,32 @@
-import { area } from "@assets/identity/area";
-import { CountryCodeInfo } from "./countrycodeinfo";
+import { merge } from "lodash";
 
-export class BasicCredentialEntry {
+export type ProfileCredentialInfoOptions = {
+    defaultSubject?: any;
+    isSensitive?: boolean;
+    multipleInstancesAllowed?: boolean; // Whether user can add several profile entries with this type (ie: emails) or not (ie: nationality)
+}
+
+const defaultOptions: ProfileCredentialInfoOptions = {
+    defaultSubject: "",
+    isSensitive: false,
+    multipleInstancesAllowed: false
+}
+
+export class ProfileCredentialInfo {
     constructor(
-        public key: string, // Related key in basic credential keys ("name", "avatar"...)
-        public value: any, // Credentials will mostly be strings, sometimes more complex objects
-        public context: string = null,
-        public shortType: string = null,
-        public isVisible: boolean = false, // Convenient way to toggle profile credentials visibility from the UI
-        public isSensitive: boolean = false,
-    ) { }
+        public key: string, // Related key in profile credential keys ("name", "avatar"...)
+        public context?: string,
+        public shortType?: string,
+        public options: ProfileCredentialInfoOptions = {}
+    ) {
+        options = merge({}, defaultOptions, options);
+    }
 
     /**
      * Returns a displayable string that shows this entry content. For now we put all types in this class, we
      * don't want to build one class per credential type.
      */
-    toDisplayString() {
+    /* toDisplayString() {
         switch (this.key) {
             case 'nationality':
                 return this.getDisplayableNation();
@@ -47,7 +58,7 @@ export class BasicCredentialEntry {
 
         let d = new Date(this.value);
         return d.toLocaleDateString();
-    }
+    } */
 
     // private getDisplayableGender(): string {
     //     if (!this.value || this.value == "")
