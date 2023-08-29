@@ -5,7 +5,7 @@ import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { logger } from "@services/logger";
 import { BehaviorSubject } from "rxjs";
-import { DeviceFeature } from "./features/device/device.feature";
+import { BrowserFeature } from "./features/browser/browser.feature";
 import { IdentityFeature } from "./features/identity/identity.feature";
 import { SecurityFeature } from "./features/security/security.feature";
 import { UserFeature } from "./features/user-feature";
@@ -26,7 +26,7 @@ export class User {
   constructor() {
     this.addFeature("email", new UserEmailFeature(this));
     this.addFeature("identity", new IdentityFeature(this));
-    this.addFeature("device", new DeviceFeature(this));
+    this.addFeature("browser", new BrowserFeature(this));
     this.addFeature("security", new SecurityFeature(this));
   }
 
@@ -54,9 +54,9 @@ export class User {
 
   public get(feature: "email"): UserEmailFeature;
   public get(feature: "identity"): IdentityFeature;
-  public get(feature: "device"): DeviceFeature;
+  public get(feature: "browser"): BrowserFeature;
   public get(feature: "security"): SecurityFeature;
-  public get(feature: "email" | "identity" | "device" | "security"): UserFeature {
+  public get(feature: "email" | "identity" | "browser" | "security"): UserFeature {
     if (!this.features.has(feature)) {
       throw new Error(`Unhandled user feature '${feature}'`);
     }

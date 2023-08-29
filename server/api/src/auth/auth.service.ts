@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
+import { BrowsersService } from 'src/browsers/browsers.service';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { uuid } from 'uuidv4';
 import { AuthTokens } from './model/auth-tokens';
@@ -12,6 +13,7 @@ export class AuthService {
   constructor(
     //@Inject(forwardRef(() => UserService)) private usersService: UserService,
     private jwtTokenService: JwtService,
+    private browsersService: BrowsersService
   ) { }
 
   /* async validateUser(email: string, password: string): Promise<any>   {
@@ -36,8 +38,13 @@ export class AuthService {
     }
   }
 
-  generateUserCredentials(user: User): AuthTokens {
-    const payload = { sub: user.id, clientId: uuid() };
+  public async generateUserCredentials(user: User, existingBrowserId?: string, userAgent?: string): Promise<AuthTokens> {
+    const browserId = await this.browsersService.validateOrCreateBrowserId(user, userAgent, existingBrowserId);
+
+    const payload = {
+      sub: user.id,
+      browserId
+    };
 
     return {
       accessToken: this.jwtTokenService.sign(payload, {

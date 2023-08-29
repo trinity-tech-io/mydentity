@@ -3,6 +3,8 @@ import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { GraphQLError } from "graphql/error";
 import { CurrentUser } from 'src/auth/currentuser.decorator';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { HeaderBrowserId } from 'src/browsers/browser-id-header.decorator';
+import { UserAgent } from 'src/browsers/user-agent-decorator';
 import { AuthKeyInput } from 'src/key-ring/dto/auth-key-input';
 import { AuthService } from '../auth/auth.service';
 import { AppException } from "../exceptions/app-exception";
@@ -105,8 +107,8 @@ export class UserResolver {
    * Access tokens are returned as a result of the sign in operation.
    */
   @Query(() => LoggedUserOutput, { nullable: true })
-  async signInWithPasskey(@Args('authKey') passkeyAuthKey: AuthKeyInput) {
-    return this.userService.signInWithPasskey(passkeyAuthKey);
+  async signInWithPasskey(@HeaderBrowserId() headerBrowserId: string, @UserAgent() userAgent: string, @Args('authKey') passkeyAuthKey: AuthKeyInput) {
+    return this.userService.signInWithPasskey(passkeyAuthKey, headerBrowserId, userAgent);
   }
 
   @UseGuards(JwtAuthGuard)

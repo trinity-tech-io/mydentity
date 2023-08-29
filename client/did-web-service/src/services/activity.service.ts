@@ -1,10 +1,9 @@
-import {getApolloClient} from "@services/graphql.service";
-import {gql} from "@apollo/client";
-import {logger} from "@services/logger";
-import {graphQLActivityFields} from "@graphql/activity.fields";
-import {ActivityDto} from "@model/activity/activity.dto";
-import {Activity} from "@model/activity/activity";
-
+import { gql } from "@apollo/client";
+import { graphQLActivityFields } from "@graphql/activity.fields";
+import { Activity } from "@model/activity/activity";
+import { ActivityDto } from "@model/activity/activity.dto";
+import { getApolloClient } from "@services/graphql.service";
+import { logger } from "@services/logger";
 
 export async function getActivities(): Promise<Activity[]> {
     logger.log("activity", "Get activities");

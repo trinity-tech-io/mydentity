@@ -1,5 +1,5 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { User, UserEmail, UserType } from '@prisma/client';
+import { User, UserType } from '@prisma/client';
 import { randomUUID } from "crypto";
 import * as moment from "moment";
 import { encode } from "slugid";
@@ -64,7 +64,7 @@ export class UserService {
     }
 
     // if there is a user with email.
-    const userEmail: UserEmail & { user: User } = await this.prisma.userEmail.findFirst({
+    const userEmail = await this.prisma.userEmail.findFirst({
       where: {
         email: thirdPartyUser.email
       },
@@ -72,6 +72,7 @@ export class UserService {
         user: true
       }
     });
+
     if (userEmail) {
       const result = await this.authService.generateUserCredentials(userEmail.user);
       retValue.accessToken = result.accessToken;
@@ -232,9 +233,9 @@ export class UserService {
     return this.authService.generateUserCredentials(user);
   }
 
-  public async signInWithPasskey(passkeyAuthKey: AuthKeyInput): Promise<AuthTokens> {
+  public async signInWithPasskey(passkeyAuthKey: AuthKeyInput, headerBrowserId: string, userAgent: string): Promise<AuthTokens> {
     const user = await this.keyRingService.getUserFromWebAuthnResponse(passkeyAuthKey);
-    return this.authService.generateUserCredentials(user);
+    return this.authService.generateUserCredentials(user, headerBrowserId, userAgent);
   }
 
   findOne(id: string): Promise<User> {

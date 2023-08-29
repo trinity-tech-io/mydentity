@@ -17,8 +17,8 @@ const Security: FC = () => {
   const [authUser] = useBehaviorSubject(authUser$());
   const emailFeature = authUser?.get("email");
   const securityFeature = authUser?.get("security");
-  const deviceFeature = authUser?.get("device");
-  const [devices] = useBehaviorSubject(deviceFeature?.devices$);
+  const browserFeature = authUser?.get("browser");
+  const [browsers] = useBehaviorSubject(browserFeature?.browsers$);
   const [shadowKeys] = useBehaviorSubject(securityFeature?.shadowKeys$);
   const isPasswordBound = securityFeature?.isPasswordBound();
   const isThisBrowserBound = securityFeature?.isThisBrowserBound();
@@ -47,7 +47,7 @@ const Security: FC = () => {
       Your identity is a Web3 identity, <b>protected by cryptographic keys</b>. Many Web3 applications require you to
       save those keys by yourself, and you will sometimes do that in unsafe ways. On the contrary, this service
       partially stores the complex cryptographic keys
-      for you so you don&apos;t have to do it. Your keys are protected by your own devices or passwords
+      for you so you don&apos;t have to do it. Your keys are protected by your own browsers or passwords
       and <b>this app cannot do anything without your consent</b>. For this reason, you need to bind multiple devices and browsers,
       as this is your only way to recover your account later in case one of the devices is lost. <b>We cannot do that for you</b>.
     </p>
@@ -115,11 +115,11 @@ const Security: FC = () => {
 
       <br /><br />
 
-      <Typography variant="h5">My devices</Typography>
-      {devices?.length == 0 && "You haven't bound any device yet. Start binding this browser now to secure your account."}
+      <Typography variant="h5">My browsers</Typography>
+      {browsers?.length == 0 && "No browser used so far."}
       {
-        devices && <>
-          {devices.map(device => <div key={device.id}>{device.name}</div>)}
+        browsers && <>
+          {browsers.map(device => <div key={device.id}>{device.name}</div>)}
         </>
       }
 

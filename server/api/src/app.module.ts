@@ -8,8 +8,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthProvidersModule } from './auth-providers/auth-providers.module';
 import { AuthModule } from './auth/auth.module';
+import { BrowsersModule } from './browsers/browsers.module';
 import { CredentialsModule } from './credentials/credentials.module';
-import { DevicesModule } from './devices/devices.module';
 import { DIDPublishingModule } from './did-publishing/did-publishing.module';
 import { DIDModule } from './did/did.module';
 import { CommonEmailingModule } from "./emailing/emailing.module";
@@ -40,7 +40,7 @@ import { UserModule } from './user/user.module';
     IntentsModule,
     ScheduleModule.forRoot(),
     ActivityModule,
-    DevicesModule,
+    BrowsersModule,
     KeyRingModule,
     DIDPublishingModule
   ],

@@ -8,6 +8,7 @@ import { BatchHttpLink } from '@apollo/client/link/batch-http';
 import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
 import { onRefreshTokenFailed, refreshToken } from '@services/user/user.service';
+import { getBrowserId } from './browser.service';
 import { configService } from './config/config.service';
 
 class GraphQLService {
@@ -73,10 +74,12 @@ class GraphQLService {
       const token = localStorage.getItem('access_token');
 
       // Return the modified headers to the context so httpLink can read them
+      const browserId = getBrowserId();
       return {
         headers: {
           ...headers,
           authorization: token ? `Bearer ${token}` : "",
+          ...(browserId && { "x-browser-id": browserId })
         }
       }
     });

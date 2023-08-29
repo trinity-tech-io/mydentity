@@ -1,4 +1,4 @@
-export type DeviceDTO = {
+export type BrowserDTO = {
   id: string;
   createdAt: string; // ISO date
   userAgent: string;

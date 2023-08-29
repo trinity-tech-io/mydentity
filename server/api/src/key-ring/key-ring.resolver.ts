@@ -1,9 +1,9 @@
 import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { User } from '@prisma/client';
-import { CurrentClientID } from 'src/auth/currentclientid.decorator';
 import { CurrentUser } from 'src/auth/currentuser.decorator';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { CurrentBrowserID } from 'src/browsers/browser-id-user.decorator';
 import { AuthKeyInput } from './dto/auth-key-input';
 import { ChallengeEntity } from './entities/challenge.entity';
 import { ShadowKeyEntity } from './entities/shadow-key.entity';
@@ -15,13 +15,13 @@ export class KeyRingResolver {
 
   @UseGuards(JwtAuthGuard)
   @Mutation(() => Boolean)
-  unlockMasterKey(@Args('authKey') authKey: AuthKeyInput, @CurrentClientID() clientId: string, @CurrentUser() user: User) {
+  unlockMasterKey(@Args('authKey') authKey: AuthKeyInput, @CurrentBrowserID() clientId: string, @CurrentUser() user: User) {
     return this.keyRingService.unlockMasterKey(authKey, clientId, user);
   }
 
   @UseGuards(JwtAuthGuard)
   @Mutation(() => ShadowKeyEntity)
-  bindKey(@Args('newKey') newKey: AuthKeyInput, @CurrentClientID() clientId: string, @CurrentUser() user: User) {
+  bindKey(@Args('newKey') newKey: AuthKeyInput, @CurrentBrowserID() clientId: string, @CurrentUser() user: User) {
     return this.keyRingService.bindKey(newKey, clientId, user);
   }
 

@@ -1,6 +1,7 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
+import { BrowsersModule } from 'src/browsers/browsers.module';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
@@ -17,6 +18,7 @@ import { JwtStrategy } from './jwt.strategy';
       imports: [ConfigModule],
     }),
     PrismaModule,
+    forwardRef(() => BrowsersModule)
   ],
   providers: [
     AuthService,

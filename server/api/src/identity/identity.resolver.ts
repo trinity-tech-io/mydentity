@@ -1,9 +1,10 @@
 import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { User } from '@prisma/client';
-import { CurrentClientID } from 'src/auth/currentclientid.decorator';
 import { CurrentUser } from 'src/auth/currentuser.decorator';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { HeaderBrowserId } from 'src/browsers/browser-id-header.decorator';
+import { CurrentBrowserID } from 'src/browsers/browser-id-user.decorator';
 import { CreateIdentityInput } from './dto/create-identity.input';
 import { PublicationStatusInput } from './dto/publication-status.input';
 import { PublishIdentityInput } from './dto/publish-identity.input';
@@ -46,7 +47,8 @@ export class IdentityResolver {
 
   @UseGuards(JwtAuthGuard)
   @Query(() => [IdentityEntity], { name: 'identities' })
-  findAll(@CurrentUser() user: User, @CurrentClientID() clientId: string) {
+  findAll(@CurrentUser() user: User, @HeaderBrowserId() headerBrowserID: string, @CurrentBrowserID() CurrentBrowserID: string) {
+    console.log("browser id test in list identities", headerBrowserID, CurrentBrowserID)
     return this.identityService.findAll(user);
   }
 }

@@ -1,19 +1,20 @@
 import { gql } from "@apollo/client";
 import { graphQLPublicUserFields } from "@graphql/user.fields";
+import { ChallengeEntity } from "@model/shadow-key/challengeEntity";
+import { ShadowKeyType } from "@model/shadow-key/shadow-key-type";
 import { User } from "@model/user/user";
 import { UserDTO } from "@model/user/user.dto";
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
+import { getPasskeyChallenge } from "@services/keyring/keyring.service";
 import { logger } from "@services/logger";
+import { startAuthentication } from "@simplewebauthn/browser";
+import { PublicKeyCredentialRequestOptionsJSON } from "@simplewebauthn/typescript-types";
 import Queue from "promise-queue";
 import { LoggedUserOutput } from "./logged-user.output";
 import { SignUpInput } from "./sign-up.input";
 import { authUser$, getActiveUser } from "./user.events";
-import { getPasskeyChallenge } from "@services/keyring/keyring.service";
-import { ChallengeEntity } from "@model/shadow-key/challengeEntity";
-import { PublicKeyCredentialRequestOptionsJSON } from "@simplewebauthn/typescript-types";
-import { startAuthentication } from "@simplewebauthn/browser";
-import { ShadowKeyType } from "@model/shadow-key/shadow-key-type";
+import { checkNewAccessTokenForBrowserId } from "@services/browser.service";
 
 const fetchUserQueue = new Queue(1); // Execute user retrieval from the backend one by one to avoid duplicates
 
@@ -64,7 +65,7 @@ export async function saveAuthUser(user: User) {
  * updates the active user state.
  *
  * @param curToken current access token for user data transferring.
- * @param curToken current refresh token.
+ * @param refreshToken current refresh token.
  */
 export async function fetchSelfUser(curToken?: string, refreshToken?: string): Promise<User> {
   return fetchUserQueue.add(async () => {
@@ -140,16 +141,21 @@ export async function authenticateWithEmailAddress(emailAddress: string): Promis
 }
 
 /**
- * from email auth
+ * Method called after a successful authentication, with new access and refresh tokens from the backend.
+ * those tokens are saved as new active tokens to identity the active user and call APIs later.
  */
-export function updateUserByToken(accessToken: string, refreshToken: string) {
+export async function updateUserByToken(accessToken: string, refreshToken: string) {
   const curAccessToken = localStorage.getItem('access_token');
   const curRefreshToken = localStorage.getItem('refresh_token');
   localStorage.setItem("access_token", accessToken);
   localStorage.setItem("refresh_token", refreshToken);
 
   try {
-    return fetchSelfUser(accessToken);
+    const user = await fetchSelfUser(accessToken);
+
+    await checkNewAccessTokenForBrowserId(accessToken);
+
+    return user;
   } catch (e) {
     logger.error('userService', 'failed to fetch user info.: ', e);
     localStorage.setItem("access_token", curAccessToken);
@@ -271,6 +277,7 @@ function pkCredentialCreationOptions(challengeInfo: ChallengeEntity): PublicKeyC
 
 export async function authenticateWithPasskey(): Promise<boolean> {
   logger.log("user", "Authenticating with passkey");
+
   const challengeInfo = await getPasskeyChallenge()
   const infos = pkCredentialCreationOptions(challengeInfo)
   // true: Autofill account password will report an error
@@ -281,6 +288,7 @@ export async function authenticateWithPasskey(): Promise<boolean> {
     key: JSON.stringify(attResp),
     challengeId: challengeInfo.id,
   };
+
   const result = await withCaughtAppException(() => {
     return getApolloClient().query<{
       signInWithPasskey: {

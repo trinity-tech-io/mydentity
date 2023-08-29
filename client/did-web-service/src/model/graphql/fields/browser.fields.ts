@@ -1,4 +1,4 @@
-export const gqlDeviceFields = `
+export const gqlBrowserFields = `
   id
   createdAt
   userAgent

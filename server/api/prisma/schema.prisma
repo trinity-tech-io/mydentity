@@ -32,7 +32,7 @@ model User {
   IdentityRoot  IdentityRoot[]
   Identity      Identity[]
   UserShadowKey UserShadowKey[]
-  Device        Device[]
+  Device        Browser[]
   Activities    Activity[]
   UserEmails    UserEmail[]
 }
@@ -43,7 +43,7 @@ model UserEmail {
   email     String?  @unique
   createdAt DateTime @default(now())
 
-  userId    String
+  userId String
 }
 
 // Corresponds to a RootIdentity in the DID SDK, meaning one mnemonic.
@@ -75,8 +75,8 @@ model Identity {
 
   credentials Credential[]
 
-  publicationId   String?
-  publishedAt     DateTime?
+  publicationId String?
+  publishedAt   DateTime?
 }
 
 // Metadata for Verifiable Credentials, with additional information
@@ -126,14 +126,14 @@ model UserShadowKey {
   user   User   @relation(fields: [userId], references: [id], onDelete: Restrict)
   userId String
 
-  keyId     String
-  key       String // For publickey types, this is the keypair public key to decrypt the SecretKey; for password type, this is the hash of the password.
+  keyId        String
+  key          String // For publickey types, this is the keypair public key to decrypt the SecretKey; for password type, this is the hash of the password.
   credentialId String?
-  counter   Int?
-  type      UserShadowKeyType
-  secretKey String // Root account SecretKey encrypted by this public key or password
+  counter      Int?
+  type         UserShadowKeyType
+  secretKey    String // Root account SecretKey encrypted by this public key or password
 
-  device   Device? @relation(fields: [deviceId], references: [id], onDelete: Restrict) // For publickey types, this is the related device entity for which this shadow key was generated
+  device   Browser? @relation(fields: [deviceId], references: [id], onDelete: Restrict) // For publickey types, this is the related device entity for which this shadow key was generated
   deviceId String?
 
   createdAt DateTime @default(now())
@@ -142,17 +142,20 @@ model UserShadowKey {
   @@id([userId, keyId])
 }
 
-// Bound user device
-model Device {
+// Browser used to access the service
+model Browser {
   id String @id @unique @default(uuid())
 
   createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Restrict)
-  userAgent String // Browser user agent raw string as provided when binding the device
+  // clientId  String // Client device uuid (stored in local storage) to better match a browser even after update (user agent change) or when access token is renewed.
+  userAgent String // Browser user agent raw string as provided when binding the device. This is purely informative as a browser update can make this change
   name      String // Device name, originally auto defined from the user agent, later optionally configured by users
+  user      User     @relation(fields: [userId], references: [id], onDelete: Restrict)
 
   userId        String
   UserShadowKey UserShadowKey[]
+
+  // @@id([userId, clientId])
 }
 
 enum ActivityType {
@@ -178,7 +181,7 @@ model Activity {
 
 // No need setup the relations with the user
 model Challenge {
-  id        String @id @unique @default(uuid())
+  id        String   @id @unique @default(uuid())
   content   String
   createdAt DateTime @default(now())
 }
