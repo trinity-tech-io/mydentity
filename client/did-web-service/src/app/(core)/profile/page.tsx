@@ -22,7 +22,7 @@ import { filter } from 'lodash';
 import moment from "moment";
 import Link from "next/link";
 import { FC, forwardRef, useEffect, useState } from "react";
-
+import { capitalizeFirstLetter } from "@utils/util";
 
 const CREDENTIAL_LIST_HEAD = [
   { id: 'name', label: 'Name', alignRight: false },
@@ -347,9 +347,9 @@ const Profile: FC = () => {
                     <TableRow hover key={id} tabIndex={-1} >
                       <TableCell component="th" scope="row" padding="none">
                         <Stack ml={1} direction="row" alignItems="center" spacing={2}>
-                          <Avatar alt={name} src={"/assets/images/account.svg"} />
+                          <Avatar src={"/assets/images/account.svg"} />
                           <Typography variant="subtitle2" noWrap>
-                            {name}
+                            {capitalizeFirstLetter(name)}
                           </Typography>
                         </Stack>
                       </TableCell>

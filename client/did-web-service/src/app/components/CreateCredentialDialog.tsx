@@ -9,6 +9,7 @@ import ListItemAvatar from '@mui/material/ListItemAvatar';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import { blue } from '@mui/material/colors';
+import { capitalizeFirstLetter } from "@utils/util";
 
 export interface CreateCredentialDialog {
   open: boolean;
@@ -42,7 +43,7 @@ function CreateCredentialDialog(props: CreateCredentialDialog) {
                   <PersonIcon />
                 </Avatar>
               </ListItemAvatar>
-              <ListItemText primary={key} />
+              <ListItemText primary={capitalizeFirstLetter(key)} />
             </ListItemButton>
           </ListItem>
         ))}

@@ -1,5 +1,6 @@
 import { Credential } from '@model/credential/credential';
 import { Avatar, Box, Grid, Stack, Typography } from '@mui/material';
+import { capitalizeFirstLetter } from "@utils/util";
 
 interface Props {
   selectedCredential: Credential
@@ -15,7 +16,7 @@ export const CredentialDetailWidget = (props: Props) => {
             <Avatar  src="/assets/images/account.svg" sx={{ ml:2, width: 120, height: 120 }}/>
             <Box sx={{ textAlign: 'left', width:'50%' }}>
               <Typography gutterBottom variant="h6">
-                {selectedCredential.verifiableCredential.getId().getFragment()}
+                {capitalizeFirstLetter(selectedCredential.verifiableCredential)}
               </Typography>
 
               <Typography variant="body1" sx={{ color: 'text.secondary' }}>
