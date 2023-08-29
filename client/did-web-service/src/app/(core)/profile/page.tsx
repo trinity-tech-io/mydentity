@@ -340,8 +340,7 @@ const Profile: FC = () => {
                 {filteredUsers?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((credential: Credential) => {
                   // const { id, name, value} = row;
                   const id = credential.id;
-                  const name = credential.verifiableCredential.getId().getFragment();
-                  const value = getValueFromCredential(credential, name);
+                  const value = getValueFromCredential(credential, credential.key);
 
                   return (
                     <TableRow hover key={id} tabIndex={-1} >
@@ -349,7 +348,7 @@ const Profile: FC = () => {
                         <Stack ml={1} direction="row" alignItems="center" spacing={2}>
                           <Avatar src={"/assets/images/account.svg"} />
                           <Typography variant="subtitle2" noWrap>
-                            {capitalizeFirstLetter(name)}
+                            {credential.tittle}
                           </Typography>
                         </Stack>
                       </TableCell>

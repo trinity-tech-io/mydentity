@@ -11,7 +11,6 @@ import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import PersonIcon from '@mui/icons-material/Person';
 import { Typography } from '@mui/material';
 import { Credential } from '@model/credential/credential';
-import { capitalizeFirstLetter } from "@utils/util";
 
 interface ConfirmDialogProps {
   onSelected: (credential: Credential) => void;
@@ -53,7 +52,7 @@ export const CredentialListWidget = (props: ConfirmDialogProps) => {
               <ListItemIcon>
                 <PersonIcon />
               </ListItemIcon>
-              <ListItemText primary={capitalizeFirstLetter(c.verifiableCredential.getId().getFragment())} secondary={c.verifiableCredential.getSubject().getProperty(c.verifiableCredential.getId().getFragment())}/>
+              <ListItemText primary={c.tittle} secondary={c.verifiableCredential.getSubject().getProperty(c.verifiableCredential.getId().getFragment())}/>
             </ListItemButton>
           <Divider />
           </div>

@@ -1,10 +1,13 @@
 import { VerifiableCredential } from "@elastosfoundation/did-js-sdk";
 import { CredentialDTO } from "./credential.dto";
+import { capitalizeFirstLetter } from "@utils/util";
 
 export class Credential {
   id: string;
   createdAt: Date;
   verifiableCredential: VerifiableCredential;
+  tittle: string; // key: capitalizeFirstLetter
+  key: string; // key
 
   public static async fromJson(json: CredentialDTO): Promise<Credential> {
     const credential = new Credential();
@@ -12,7 +15,8 @@ export class Credential {
 
     credential.createdAt = new Date(json.createdAt);
     credential.verifiableCredential = VerifiableCredential.parse(json.verifiableCredential);
-
+    credential.key = credential.verifiableCredential.getId().getFragment()
+    credential.tittle = capitalizeFirstLetter(credential.key)
     return credential;
   }
 
