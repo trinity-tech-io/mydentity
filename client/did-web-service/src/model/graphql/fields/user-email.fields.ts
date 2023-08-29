@@ -1,1 +1,1 @@
-export const graphQLPublicUserEmailFields = `id userId email createdAt`;
+export const graphQLPublicUserEmailFields = `id email createdAt`;

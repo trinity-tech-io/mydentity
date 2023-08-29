@@ -113,8 +113,10 @@ export class UserResolver {
 
   @UseGuards(JwtAuthGuard)
   @Query(() => [UserEmailEntity])
-  async listUserEmails(@CurrentUser() user: UserEntity) {
-    return await this.userService.listUserEmails(user);
+  async fetchUserEmails(@CurrentUser() user: UserEntity) {
+    const emails = await this.userService.listUserEmails(user);
+    logger.log(`fetchUserEmails`, emails);
+    return emails;
   }
 
   @UseGuards(JwtAuthGuard)

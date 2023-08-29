@@ -16,6 +16,7 @@ const Security: FC = () => {
   const { mounted } = useMounted();
   const [authUser] = useBehaviorSubject(authUser$());
   const emailFeature = authUser?.get("email");
+  const [userEmails] = useBehaviorSubject(emailFeature?.userEmails$);
   const securityFeature = authUser?.get("security");
   const browserFeature = authUser?.get("browser");
   const [browsers] = useBehaviorSubject(browserFeature?.browsers$);
@@ -71,6 +72,15 @@ const Security: FC = () => {
             <div>Your email address is already bound - [change email]</div>
           }
         </div>
+        {userEmails?.length == 0 && "You haven't bound any email yet."}
+        {
+            userEmails?.length > 0 && <>
+              <div className="info mb-2">Bound Emails:</div>
+          <div>
+              {userEmails.map(email => <div key={email.id} className="info mb-2">{email.email}</div>)}
+          </div>
+            </>
+        }
 
         {/* passkey */}
         <div className='col-span-full xl:col-span-6 flex flex-row gap-10 items-start'>

@@ -10,8 +10,8 @@ import {User} from "@model/user/user";
 import {LazyBehaviorSubjectWrapper} from "@utils/lazy-behavior-subject";
 
 export class UserEmailFeature implements UserFeature {
-    private _userEmails = new LazyBehaviorSubjectWrapper<UserEmail[]>([], () => this.fetchUserEmails());
-    public get userEmails() { return this._userEmails.getSubject(); }
+    private _userEmails$ = new LazyBehaviorSubjectWrapper<UserEmail[]>([], () => this.fetchUserEmails());
+    public get userEmails$() { return this._userEmails$.getSubject(); }
 
     constructor(protected user: User) {}
 
@@ -20,21 +20,22 @@ export class UserEmailFeature implements UserFeature {
 
         const { data } = await withCaughtAppException(() => {
             return getApolloClient().query<{
-                listUserEmails: UserEmailDTO[]
+                fetchUserEmails: UserEmailDTO[]
             }>({
                 query: gql`
-                query ListUserEmails() {
-                  listUserEmails() {
+                query FetchUserEmails {
+                  fetchUserEmails {
                     ${graphQLPublicUserEmailFields}
                   }
                 }
-                `,
-                variables: { }
+                `
             });
         });
 
-        if (data?.listUserEmails) {
-            return data.listUserEmails.map(e => UserEmail.fromJson(e, this.user));
+        logger.log("user", "data", data);
+
+        if (data?.fetchUserEmails) {
+            return data.fetchUserEmails.map(e => UserEmail.fromJson(e, this.user));
         }
 
         console.error('user', 'can not fetch user emails.');
