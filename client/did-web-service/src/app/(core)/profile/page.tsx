@@ -17,7 +17,6 @@ import Box from '@mui/material/Box';
 import { useToast } from "@services/feedback.service";
 import { activeIdentity$ } from "@services/identity/identity.events";
 import { logger } from "@services/logger";
-import { capitalizeFirstLetter } from "@utils/strings";
 import { filter } from 'lodash';
 import Link from "next/link";
 import { FC, forwardRef, useEffect, useState } from "react";
@@ -220,21 +219,27 @@ const Profile: FC = () => {
     setOpenConfirmDialog(false);
     if (!isAgree)
       return;
-    let isSuccess = false
+
+    let isSuccess = false;
     try {
       isSuccess = await identityProfileFeature.deleteCredential(originCredential.verifiableCredential.getId().toString());
     } catch (error) {
       logger.error(TAG, error);
     }
     showFeedbackToast(isSuccess, 'Entry has been deleted', 'Failed to delete the entry...');
-    return;
   };
 
   // TODO: MAKE THIS MORE GENERIC - WORKS ONLY FOR STRING VALUES
-  const getValueFromCredential = (credential: Credential, propertyName: string): string => {
+  const getValueFromCredential = (credential: Credential): string => {
     if (!credential || !credential.verifiableCredential || !credential.verifiableCredential.getSubject())
       return '';
-    return credential.verifiableCredential.getSubject().getProperty(propertyName);
+
+    const profileInfoEntry = identityProfileFeature.findProfileInfoByTypes(credential.verifiableCredential.getType());
+
+    if (profileInfoEntry)
+      return credential.verifiableCredential.getSubject().getProperty(profileInfoEntry.key);
+    else
+      return JSON.stringify(credential.verifiableCredential.getSubject());
   }
 
   return (<div className="col-span-full">
@@ -287,7 +292,7 @@ const Profile: FC = () => {
                 {filteredUsers?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((credential: Credential) => {
                   // const { id, name, value} = row;
                   const id = credential.id;
-                  const value = getValueFromCredential(credential, credential.key);
+                  const value = getValueFromCredential(credential);
 
                   return (
                     <TableRow hover key={id} tabIndex={-1} >

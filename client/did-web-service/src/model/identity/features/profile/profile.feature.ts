@@ -2,9 +2,9 @@ import { Credential } from "@model/credential/credential";
 import { ProfileCredentialInfo } from "@model/identity/features/profile/profile-credential-info";
 import { Identity } from "@model/identity/identity";
 import { logger } from "@services/logger";
+import { randomIntString } from "@utils/random";
 import moment from "moment";
 import { IdentityFeature } from "../identity-feature";
-import { randomIntString } from "@utils/random";
 
 export class ProfileFeature implements IdentityFeature {
   private availableProfileCredentialEntries: ProfileCredentialInfo[];
@@ -145,10 +145,15 @@ export class ProfileFeature implements IdentityFeature {
 
   public async updateCredential(credential: Credential, newValue: string) {
     const credentialId = credential.verifiableCredential.getId().toString();
+    const profileInfoEntry = this.findProfileInfoByTypes(credential.verifiableCredential.getType());
 
     try {
       await this.deleteCredential(credentialId);
-      await this.createCredential(credentialId, credential.verifiableCredential.getType(), credential.verifiableCredential.getId().getFragment(), newValue);
+      await this.createCredential(
+        credentialId,
+        credential.verifiableCredential.getType(),
+        profileInfoEntry.key,
+        newValue);
       return true;
     } catch (error) {
       logger.error("profile", error);
