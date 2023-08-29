@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
 import { BrowsersService } from 'src/browsers/browsers.service';
@@ -13,7 +13,7 @@ export class AuthService {
   constructor(
     //@Inject(forwardRef(() => UserService)) private usersService: UserService,
     private jwtTokenService: JwtService,
-    private browsersService: BrowsersService
+    @Inject(forwardRef(() => BrowsersService)) private browsersService: BrowsersService
   ) { }
 
   /* async validateUser(email: string, password: string): Promise<any>   {

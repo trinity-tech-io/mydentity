@@ -1,12 +1,12 @@
-import {Controller, Get, Redirect, Req, UseGuards} from '@nestjs/common';
-import {ConfigService} from '@nestjs/config';
-import {AuthGuard} from '@nestjs/passport';
-import {AuthProvidersService} from './auth-providers.service';
-import {AppException} from "../exceptions/app-exception";
-import {AuthExceptionCode} from "../exceptions/exception-codes";
-import {MicrosoftProfileService} from "../user/microsoft-profile.service";
-import {UserService} from "../user/user.service";
-import {logger} from "../logger";
+import { Controller, Get, Redirect, Req, UseGuards } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { AuthGuard } from '@nestjs/passport';
+import { AppException } from "../exceptions/app-exception";
+import { AuthExceptionCode } from "../exceptions/exception-codes";
+import { logger } from "../logger";
+import { UserService } from "../user/user.service";
+import { AuthProvidersService } from './auth-providers.service';
+import { MicrosoftProfileService } from "./microsoft-profile.service";
 
 @Controller()
 export class AuthProvidersController {
@@ -18,7 +18,7 @@ export class AuthProvidersController {
     private readonly configService: ConfigService,
     private readonly microsoftProfileService: MicrosoftProfileService,
     private readonly userService: UserService
-  ) {}
+  ) { }
 
   /**
    * Start oauth from server.
@@ -27,7 +27,7 @@ export class AuthProvidersController {
   @Get('microsoft')
   @UseGuards(AuthGuard('microsoft'))
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  microsoftAuth(@Req() req) {}
+  microsoftAuth(@Req() req) { }
 
   /**
    * Callback from MS. Second step is to client.
@@ -77,13 +77,12 @@ export class AuthProvidersController {
         throw new AppException(AuthExceptionCode.AuthError, `can not login as user not exists`, 401);
       }
 
-      const url = `${this.configService.get<string>('MICROSOFT_CLIENT_REDIRECT')}?accessToken=${
-          result.accessToken
-      }&refreshToken=${result.refreshToken}&action=${action}`
+      const url = `${this.configService.get<string>('MICROSOFT_CLIENT_REDIRECT')}?accessToken=${result.accessToken
+        }&refreshToken=${result.refreshToken}&action=${action}`
 
       logger.log(`sign-in with oauth email successfully, it will go back to client ${url}`);
 
-      return {url};
+      return { url };
     } else { // bind
       const user = await this.userService.getUserByToken(accessToken);
       if (!user) {
@@ -95,7 +94,7 @@ export class AuthProvidersController {
 
       logger.log(`bind with oauth email successfully, it will go back to client`);
 
-      return {url}
+      return { url }
     }
   }
 }

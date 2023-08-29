@@ -1,5 +1,5 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { User, UserType } from '@prisma/client';
+import { User, UserEmail, UserType } from '@prisma/client';
 import { randomUUID } from "crypto";
 import * as moment from "moment";
 import { encode } from "slugid";
@@ -18,7 +18,6 @@ import { ThirdPartyUser } from './dto/third-party-user';
 import { UserPropertyInput } from "./dto/user-property.input";
 import { UserEmailEntity } from "./entities/user-email.entity";
 import { UserEntity } from "./entities/user.entity";
-import { MicrosoftProfileService } from './microsoft-profile.service';
 
 // https://makinhs.medium.com/authentication-made-easy-with-nestjs-part-4-of-how-to-build-a-graphql-mongodb-d6057eae3fdf
 @Injectable()
@@ -27,7 +26,6 @@ export class UserService {
     private prisma: PrismaService,
     private authService: AuthService,
     private keyRingService: KeyRingService,
-    private readonly microsoftProfileService: MicrosoftProfileService,
     @Inject(forwardRef(() => EmailingService)) private emailingService: EmailingService,
   ) { }
 
@@ -89,7 +87,7 @@ export class UserService {
     return retValue;
   }
 
-  private getUserEmailByEmail(email: string): Promise<UserEmail & {user: User}> {
+  private getUserEmailByEmail(email: string): Promise<UserEmail & { user: User }> {
     return this.prisma.userEmail.findFirst({
       where: {
         email
@@ -101,7 +99,7 @@ export class UserService {
   }
 
   async signInByEmail(email: string) {
-    const userEmail: UserEmail & {user: User} = await this.getUserEmailByEmail(email);
+    const userEmail: UserEmail & { user: User } = await this.getUserEmailByEmail(email);
     if (!userEmail) {
       return null;
     }
@@ -258,7 +256,7 @@ export class UserService {
   }
 
   async getUserByEmail(email: string): Promise<UserEntity> {
-    const userEmail: UserEmail & {user: UserEntity} = await this.getUserEmailByEmail(email);
+    const userEmail: UserEmail & { user: UserEntity } = await this.getUserEmailByEmail(email);
     return userEmail ? userEmail.user : null;
   }
 
