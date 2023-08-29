@@ -4,7 +4,7 @@ import Queue from "promise-queue";
 import { BehaviorSubject } from "rxjs";
 import { identityService } from "./identity.service";
 
-type OnlineDIDDocumentStatus = {
+export type OnlineDIDDocumentStatus = {
   checking: boolean;
   checked: boolean;
   document: DIDDocument;
@@ -128,9 +128,9 @@ class DIDDocumentsService {
     let applicationCredentials = this.getCredentialsByType(credentials, "ApplicationCredential");
     //console.log("getRepresentativeIcon applicationCredentials", applicationCredentials)
     if (applicationCredentials && applicationCredentials.length > 0) {
-      let credSubject = applicationCredentials[0].getSubject();
-      if ("iconUrl" in credSubject)
-        hiveIconUrl = credSubject["iconUrl"] as string;
+      let props = applicationCredentials[0].getSubject().getProperties();
+      if ("iconUrl" in props)
+        hiveIconUrl = props["iconUrl"] as string;
     }
 
     // Check the "avatar" standard
@@ -145,11 +145,11 @@ class DIDDocumentsService {
       }
 
       if (avatarCredentials && avatarCredentials.length > 0) {
-        let credSubject = avatarCredentials[0].getSubject();
-        if ("avatar" in credSubject && typeof credSubject["avatar"] === "object") {
-          let avatar = credSubject["avatar"];
+        let props = avatarCredentials[0].getSubject().getProperties();
+        if ("avatar" in props && typeof props["avatar"] === "object") {
+          let avatar = props["avatar"];
           if ("type" in avatar && avatar["type"] === "elastoshive")
-            hiveIconUrl = avatar["data"];
+            hiveIconUrl = avatar["data"] as string;
         }
       }
     }
@@ -175,18 +175,18 @@ class DIDDocumentsService {
     // Try to find suitable credentials in the document - start with the application credential type
     let applicationCredentials = this.getCredentialsByType(credentials, "ApplicationCredential");
     if (applicationCredentials && applicationCredentials.length > 0) {
-      let credSubject = applicationCredentials[0].getSubject();
-      if ("name" in credSubject)
-        name = credSubject["name"] as string;
+      let props = applicationCredentials[0].getSubject().getProperties();
+      if ("name" in props)
+        name = props["name"] as string;
     }
 
     // Check the "name" standard
     if (!name) {
       let nameCredentials = this.getCredentialsByType(credentials, "NameCredential");
       if (nameCredentials && nameCredentials.length > 0) {
-        let credSubject = nameCredentials[0].getSubject();
-        if ("name" in credSubject)
-          name = credSubject["name"] as string;
+        let props = nameCredentials[0].getSubject().getProperties();
+        if ("name" in props)
+          name = props["name"] as string;
       }
     }
 
@@ -194,9 +194,9 @@ class DIDDocumentsService {
     if (!name) {
       let nameCredential = this.getCredentialById(credentials, new DIDURL("#name"));
       if (nameCredential) {
-        let credSubject = nameCredential.getSubject();
-        if ("name" in credSubject)
-          name = credSubject["name"] as string;
+        let props = nameCredential.getSubject().getProperties();
+        if ("name" in props)
+          name = props["name"] as string;
       }
     }
 

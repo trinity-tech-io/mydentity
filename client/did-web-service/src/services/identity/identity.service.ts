@@ -61,7 +61,7 @@ class IdentityService {
     localStorage.setItem("activeIdentityId", this.activeIdentityId);
   }
 
-  private getActiveIdentityId(): string {
+  public getActiveIdentityId(): string {
     if (!this.activeIdentityId)
       this.activeIdentityId = this.loadActiveIdentityId();
     return this.activeIdentityId;
