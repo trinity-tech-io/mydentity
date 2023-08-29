@@ -18,11 +18,11 @@ import { useToast } from "@services/feedback.service";
 import { BasicCredentialsService } from "@services/identity/basiccredentials.service";
 import { activeIdentity$ } from "@services/identity/identity.events";
 import { logger } from "@services/logger";
+import { capitalizeFirstLetter } from "@utils/util";
 import { filter } from 'lodash';
 import moment from "moment";
 import Link from "next/link";
 import { FC, forwardRef, useEffect, useState } from "react";
-import { capitalizeFirstLetter } from "@utils/util";
 
 const CREDENTIAL_LIST_HEAD = [
   { id: 'name', label: 'Name', alignRight: false },
@@ -251,7 +251,7 @@ const Profile: FC = () => {
     }
   }
 
-  const createCredential = async (credentialId: string, types: string[], key: string, value: string) => {
+  const createCredential = async (credentialId: string = null, types: string[], key: string, value: string) => {
     let credentialType: string[] = [];
     try {
       let finalCredentialId;
@@ -411,7 +411,7 @@ const Profile: FC = () => {
         </Typography>
       </div>
 
-      <Link target="_blank" href={explorerDIDLink}>View identity's DID on blockchain explorer</Link>
+      {explorerDIDLink && <Link target="_blank" href={explorerDIDLink}>View identity's DID on blockchain explorer</Link>}
     </Container>
 
     <Popover

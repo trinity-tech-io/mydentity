@@ -10,8 +10,8 @@ import { CredentialDTO } from "@model/credential/credential.dto";
 import { Identity } from "@model/identity/identity";
 import { IdentityDTO } from "@model/identity/identity.dto";
 import { PublicationStatus, PublishDTO } from "@model/identity/publish.dto";
-import { TransactionDTO } from "@model/identity/transaction.dto";
 import { PresentationDTO } from "@model/presentation/presenttation.dto";
+import { TransactionDTO } from "@model/transaction/transaction.dto";
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { logger } from "@services/logger";
@@ -169,7 +169,7 @@ export class CustodialDIDProvider implements IdentityProvider {
   }
 
   async createCredential(identityDid: string, credentialId: string, types: string[],
-        expirationDate: Date, properties: any): Promise<Credential> {
+    expirationDate: Date, properties: any): Promise<Credential> {
     const { data } = await withCaughtAppException(() => {
       return getApolloClient().mutate<{ createCredential: CredentialDTO }>({
         mutation: gql`
@@ -244,7 +244,7 @@ export class CustodialDIDProvider implements IdentityProvider {
 
   public async createVerifiablePresentation(identityDid: string, credentialsArg: VerifiableCredential[], realm: string, nonce: string): Promise<VerifiablePresentation> {
     let credentials = [];
-    credentialsArg.forEach( c => {
+    credentialsArg.forEach(c => {
       credentials.push(c.toJSON())
     })
 

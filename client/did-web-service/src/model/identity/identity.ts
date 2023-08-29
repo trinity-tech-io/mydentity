@@ -1,5 +1,4 @@
 import { VerifiableCredential, VerifiablePresentation } from "@elastosfoundation/did-js-sdk";
-import { Credential } from "@model/credential/credential";
 import { IdentityProvider } from "@services/identity/did.provider";
 import { CredentialsFeature } from "./features/credentials/credentials.feature";
 import { IdentityFeature } from "./features/identity-feature";
@@ -44,27 +43,6 @@ export class Identity {
     this.features.set(name, feature);
 
     return feature;
-  }
-
-  /**
-   * Returns the list of credentials for the signed in user
-   */
-  public createCredential(credentialId: string, types: string[], expirationDate: Date, prop: any): Promise<Credential> {
-    return this.provider.createCredential(this.did, credentialId, types, expirationDate, prop);
-  }
-
-  /**
-   * Returns the list of credentials for the signed in user
-   */
-  public listCredentials(): Promise<Credential[]> {
-    return this.provider.listCredentials(this.did);
-  }
-
-  /**
-   * Returns the list of credential for the signed in user
-   */
-  public deleteCredential(credentialId: string): Promise<boolean> {
-    return this.provider.deleteCredential(credentialId);
   }
 
   /**
