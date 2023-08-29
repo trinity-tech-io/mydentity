@@ -16,7 +16,7 @@ export const CredentialDetailWidget = (props: Props) => {
             <Avatar  src="/assets/images/account.svg" sx={{ ml:2, width: 120, height: 120 }}/>
             <Box sx={{ textAlign: 'left', width:'50%' }}>
               <Typography gutterBottom variant="h6">
-                {capitalizeFirstLetter(selectedCredential.verifiableCredential)}
+              {capitalizeFirstLetter(selectedCredential.verifiableCredential.getId().getFragment())}
               </Typography>
 
               <Typography variant="body1" sx={{ color: 'text.secondary' }}>
