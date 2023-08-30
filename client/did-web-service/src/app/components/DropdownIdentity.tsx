@@ -1,20 +1,20 @@
 "use client";
-import React, { FC, useRef, useEffect, useState } from 'react';
-import { Avatar } from '@mui/material';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { useMounted } from '@hooks/useMounted';
 import { Identity } from '@model/identity/identity';
+import { Avatar } from '@mui/material';
+import { makeStyles } from '@mui/styles';
+import { Theme } from '@mui/system';
 import { activeIdentity$ } from '@services/identity/identity.events';
 import { identityService } from '@services/identity/identity.service';
-import { authUser$ } from '@services/user/user.events';
-import { useRouter } from 'next/navigation';
 import { shortenDID } from '@services/identity/identity.utils';
-import { makeStyles } from '@mui/styles';
+import { authUser$ } from '@services/user/user.events';
+import { initialsString } from "@utils/strings";
+import { useRouter } from 'next/navigation';
+import { FC, useEffect, useRef, useState } from 'react';
+import CircleComponent from './CircleComponent';
 import { MainButton } from './generic/MainButton';
 import Transition from './generic/Transition';
-import { Theme } from '@mui/system'; 
-import CircleComponent from './CircleComponent';
-import { initialsString } from "@utils/strings";
 
 const useStyles = makeStyles((theme: Theme) => ({
   button: {
@@ -29,13 +29,14 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   textContainer: {
     marginLeft: theme.spacing(2),
+    marginRight: theme.spacing(2),
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
   },
   blackText: {
-    color: 'black', // 
+    color: 'black', //
   },
 }));
 
@@ -112,18 +113,18 @@ export const DropdownIdentity: FC<{
         aria-expanded={dropdownOpen}
       >
 
-      {name && name !== null ? (
-          <CircleComponent text={initialsString(name)} /> ) : (
+        {name && name !== null ? (
+          <CircleComponent text={initialsString(name)} />) : (
           <Avatar src={"/assets/images/account.svg"} />
-      )}
+        )}
         <div className={classes.avatarContainer}>
           <div className={classes.textContainer}>
-            <span className={`truncate text-sm font-medium ${currentIdentity ? classes.blackText : ''}`}>
-              {DID}
-            </span>
-            <span className={`truncate text-sm font-bold dark:text-slate-300 group-hover:text-slate-800 dark:group-hover:text-slate-200 ${currentIdentity ? classes.blackText : ''}`}>
+            <div className={`truncate text-sm font-bold dark:text-slate-300 group-hover:text-slate-800 dark:group-hover:text-slate-200 ${currentIdentity ? classes.blackText : ''}`}>
               {name}
-            </span>
+            </div>
+            <div className={`truncate leading-3 mb-1 text-sm font-medium ${currentIdentity ? classes.blackText : ''}`}>
+              {DID}
+            </div>
           </div>
           <div className="ml-auto">
             <svg className="w-3 h-3 shrink-0 ml-1 fill-current text-slate-400" viewBox="0 0 12 12">
