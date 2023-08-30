@@ -1,9 +1,8 @@
 import { DIDBackend, DIDDocument, DIDStore, DefaultDIDAdapter, Exceptions, Features, Issuer, Mnemonic, RootIdentity, VerifiableCredential, VerifiablePresentation } from '@elastosfoundation/did-js-sdk';
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { join } from 'path';
 import { AppException } from 'src/exceptions/app-exception';
 import { DIDExceptionCode } from 'src/exceptions/exception-codes';
-import { logger } from '../logger';
 import { DidAdapter } from './did.adapter';
 
 @Injectable()
@@ -12,7 +11,10 @@ export class DidService {
   private didStoreCache: { [didStorePath: string]: DIDStore } = {};
   private globalDidAdapter: DidAdapter = null;
 
+  private logger: Logger;
+
   constructor() {
+    this.logger = new Logger("DidService");
     this.globalDidAdapter = new DidAdapter();
     DIDBackend.initialize(new DefaultDIDAdapter(this.network));
   }
@@ -30,7 +32,7 @@ export class DidService {
       return this.didStoreCache[didStorePath];
 
     const didStoreDir = join(__dirname, "../..", "didstores", didStorePath);
-    // logger.log('DidService', 'didStoreDir:', didStoreDir);
+    // this.logger.log('didStoreDir:' + didStoreDir);
     // Logger.setLevel(Logger.INFO)
 
     const didStore = await DIDStore.open(didStoreDir);
@@ -53,10 +55,10 @@ export class DidService {
     let rootIdentity: RootIdentity = null;
     if (!didStore.containsRootIdentities()) {
       // Create DID SDK root identity
-      logger.log('DidService', 'not contains rootIdentities, create rootIdentity');
+      this.logger.log('not contains rootIdentities, create rootIdentity');
       rootIdentity = this.initPrivateIdentity(didStore, storePassword);
     } else {
-      logger.log('DidService', 'contains rootIdentities, use the exist rootIdentity');
+      this.logger.log('contains rootIdentities, use the exist rootIdentity');
       rootIdentity = await didStore.loadRootIdentity();
     }
 
@@ -75,7 +77,7 @@ export class DidService {
 
   //  DIDStore
   async deleteIdentity(didString: string, didStorePath: string) {
-    logger.log('DidService', 'deleteIdentity didString:', didString);
+    this.logger.log('deleteIdentity didString:' + didString);
     const didStore = await this.openStore(didStorePath);
 
     // Delete all credentials belonging to this did
@@ -141,7 +143,7 @@ export class DidService {
 
   async deleteCredential(didStorePath: string, credentialId: string) {
     const didStore = await this.openStore(didStorePath);
-    logger.log('DidService', 'deleteCredential credentialId', credentialId)
+    this.logger.log('deleteCredential credentialId:' + credentialId)
     return didStore.deleteCredential(credentialId);
   }
 
@@ -163,7 +165,7 @@ export class DidService {
 
   // Get the payload of did transaction.
   async createDIDPublishTransaction(didStorePath: string, didString: string, storepass: string) {
-    logger.log('DidService', 'publishDID', didString)
+    this.logger.log('createDIDPublishTransaction:' + didString)
     const didStore = await this.openStore(didStorePath);
     const didDocument = await didStore.loadDid(didString);
     if (!didDocument)

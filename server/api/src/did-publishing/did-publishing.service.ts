@@ -1,8 +1,7 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import * as request from 'request';
 import { AppException } from 'src/exceptions/app-exception';
 import { DIDExceptionCode } from 'src/exceptions/exception-codes';
-import { logger } from '../logger';
 
 export const MAINNET_TEMPLATE = "MainNet";
 export const TESTNET_TEMPLATE = "TestNet";
@@ -72,6 +71,12 @@ export class DIDPublishingService {
   private network = MAINNET_TEMPLATE;
   // private network = TESTNET_TEMPLATE;
 
+  private logger: Logger;
+
+  constructor() {
+    this.logger = new Logger("DIDPublishingService");
+  }
+
   /**
    * Directly publishes a payload previously generated in another part of the app.
    * return confirmation_id as publicationID
@@ -79,7 +84,7 @@ export class DIDPublishingService {
    * DOC FOR ASSIST API: https://github.com/tuum-tech/assist-restapi-backend#verify
    */
   public async publishDID(didString: string, payloadObject: any, memo = ''): Promise<string> {
-    logger.log("DIDPublishingService", "Requesting identity publication to Assist", didString);
+    this.logger.log("Requesting identity publication to Assist" + didString);
 
     return new Promise(async (resolve, reject) => {
       const requestBody = {
@@ -104,27 +109,27 @@ export class DIDPublishingService {
         };
 
         request.post(options, (error, response, bodyString) => {
-          // logger.log("DIDPublishingService", "response.statusCode:", response.statusCode)
-          // logger.log("DIDPublishingService", "bodyString:", bodyString)
+          // this.logger.log("response.statusCode:" + response.statusCode)
+          // this.logger.log("bodyString:" + bodyString)
           const body: AssistCreateTxResponse = bodyString ? JSON.parse(bodyString) : null;
           if (!error && response.statusCode === 200) {
             if (body && body.meta && body.meta.code == 200 && body.data.confirmation_id) {
-              logger.log("DIDPublishingService", "All good, DID has been submitted.");
+              this.logger.log("All good, DID has been submitted.");
               resolve(body.data.confirmation_id);
             } else {
               const errorMessage = "Successful response received from the assist API, but response can't be understood, Error:" + body?.meta?.message + " " + body?.meta?.description;
-              logger.warn("DIDPublishingService", "publishDID error:", errorMessage);
+              this.logger.warn("publishDID error:" + errorMessage);
               reject(new AppException(DIDExceptionCode.NetworkError, errorMessage, HttpStatus.BAD_REQUEST));
             }
           } else {
             const errorMessage = "Failed to publish did. Error:" +  (error ? error : (body?.meta?.message + ". " + body?.meta?.description));
-            logger.warn("DIDPublishingService", "publishDID error:", errorMessage);
+            this.logger.warn("publishDID error:" + errorMessage);
             reject(new AppException(DIDExceptionCode.NetworkError, errorMessage, response.statusCode));
           }
         });
       }
       catch (err) {
-        logger.error("DIDPublishingService", "Assist publish api error:", err);
+        this.logger.error(`Assist publish api error: ${err}`);
         reject(new AppException(DIDExceptionCode.NetworkError, err.message, HttpStatus.SERVICE_UNAVAILABLE));
       }
     });
@@ -135,7 +140,7 @@ export class DIDPublishingService {
    */
   public getPublicationStatus(confirmation_id: string): Promise<AssistTransactionStatusResponse> {
     return new Promise(async (resolve, reject) => {
-      logger.log("DIDPublishingService", "Requesting identity publication status to Assist for confirmation ID " + confirmation_id);
+      this.logger.log("Requesting identity publication status to Assist for confirmation ID " + confirmation_id);
 
       const headers = {
         "Content-Type": "application/json",
@@ -156,7 +161,7 @@ export class DIDPublishingService {
           resolve(body);
         } else {
           const errorMessage = "Failed to get publication status. Error:" +  (error ? error : (body?.meta?.message + ". " + body?.meta?.description));
-          logger.warn("DIDPublishingService", "getPublicationStatus:", errorMessage);
+          this.logger.warn("getPublicationStatus:" + errorMessage);
           reject(errorMessage)
         }
       })

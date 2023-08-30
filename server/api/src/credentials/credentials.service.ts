@@ -1,8 +1,7 @@
 import { VerifiableCredential } from '@elastosfoundation/did-js-sdk';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Credential, User } from '@prisma/client';
 import { DidService } from 'src/did/did.service';
-import { logger } from 'src/logger';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AddCredentialInput } from './dto/add-credential.input';
 import { CreateCredentialInput } from './dto/create-credential.input';
@@ -10,10 +9,14 @@ import { CreateVerifiablePresentationInput } from './dto/create-verifiablePresen
 
 @Injectable()
 export class CredentialsService {
-  constructor(private prisma: PrismaService, private didService: DidService) { }
+  private logger: Logger;
+
+  constructor(private prisma: PrismaService, private didService: DidService) {
+    this.logger = new Logger("CredentialsService");
+  }
 
   async create(input: CreateCredentialInput, user: User) {
-    logger.log('CredentialsService', "create", input)
+    this.logger.log("create")
     const storePassword = '123456'; // TODO: use account key
 
     const vc = await this.didService.createCredential(user.id, input.identityDid, input.credentialId,
@@ -32,10 +35,8 @@ export class CredentialsService {
   }
 
   async storeCredential(input: AddCredentialInput, user: User) {
-    // logger.log('CredentialsService', "storeCredential", input)
-
     const vc = VerifiableCredential.parse(input.credentialString);
-    logger.log('CredentialsService', "storeCredential vc", vc)
+    this.logger.log("storeCredential")
     await this.didService.storeCredential(user.id, vc);
 
     const credentials= await this.prisma.credential.create({
@@ -51,7 +52,6 @@ export class CredentialsService {
   }
 
   async findAll(identityDid: string, user: User): Promise<Credential[]> {
-    // logger.log('CredentialsService', 'findAll identityDid', identityDid)
     const credentials = await this.prisma.credential.findMany({
       where: { identityDid },
     });
@@ -77,7 +77,7 @@ export class CredentialsService {
   }
 
   async deleteCredentialsByIdentity(identityDid: string) {
-    logger.log('CredentialsService', 'deleteCredentialsByIdentity identityDid:', identityDid);
+    this.logger.log('deleteCredentialsByIdentity identityDid:' + identityDid);
     const credentials = await this.prisma.credential.findMany({
       where: { identityDid },
     });
@@ -91,7 +91,7 @@ export class CredentialsService {
   }
 
   async createVerifiablePresentation(input: CreateVerifiablePresentationInput, user: User) {
-    logger.log('CredentialsService', "createVerifiablePresentation", input)
+    this.logger.log("createVerifiablePresentation")
     const storePassword = '123456'; // TODO: use account key
 
     const credentials = [];
