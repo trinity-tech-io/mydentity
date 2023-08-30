@@ -25,11 +25,11 @@ export class KeyRingResolver {
     return this.keyRingService.bindKey(newKey, browser.id, user);
   }
 
-  /* @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Mutation(() => Boolean)
-  changePassword(@Args('newKey') newKey: AuthKeyInput) {
-    return this.keyRingService.changePassword(keyId, user);
-  } */
+  changePassword(@Args('newPassword') newPassword: string, @CurrentBrowser() browser: Browser, @CurrentUser() user: User) {
+    return this.keyRingService.changePassword(newPassword, browser.id, user);
+  }
 
   @UseGuards(JwtAuthGuard)
   @Mutation(() => Boolean)

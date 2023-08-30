@@ -146,7 +146,7 @@ export class KeyRingService {
     });
   }
 
-  private async addShadowKey(userId: string, keyId: string, key: string, credentialId: string, counter: number, type: UserShadowKeyType, secretKey: Uint8Array): Promise<UserShadowKey> {
+  private async addShadowKey(userId: string, keyId: string, key: string, credentialId: string, counter: number, type: UserShadowKeyType, secretKey: Uint8Array, browserId: string): Promise<UserShadowKey> {
     let authKey: string;
     let password: string | Uint8Array;
 
@@ -172,7 +172,8 @@ export class KeyRingService {
         credentialId: credentialId,
         counter: counter,
         type: type,
-        secretKey: Buffer.from(encryptedSecretKey).toString('hex')
+        secretKey: Buffer.from(encryptedSecretKey).toString('hex'),
+        browserId: browserId
       }
     });
   }
@@ -237,7 +238,7 @@ export class KeyRingService {
     return SecretBox.decryptWithPassword(encryptedSecretKey, password);
   }
 
-  async bindKey(newKey: AuthKeyInput, clientId: string, user: User): Promise<UserShadowKey> {
+  async bindKey(newKey: AuthKeyInput, browserId: string, user: User): Promise<UserShadowKey> {
     const shadow = await this.prisma.userShadowKey.findFirst({
       where: {
         userId: user.id
@@ -247,7 +248,7 @@ export class KeyRingService {
     let secretKey: Uint8Array;
     if (shadow) {
       // KeyRing exists, get the cached secret key if authorized
-      const masterKey = this.getMasterKey(user.id, clientId);
+      const masterKey = this.getMasterKey(user.id, browserId);
       if (masterKey === undefined)
         throw new AppException(KeyRingExceptionCode.Unauthorized, "User unauthorized", HttpStatus.FORBIDDEN);
 
@@ -285,7 +286,7 @@ export class KeyRingService {
       key = newKey.key;
     }
 
-    return await this.addShadowKey(user.id, newKey.keyId, key, credentialId, counter, newKey.type, secretKey);
+    return await this.addShadowKey(user.id, newKey.keyId, key, credentialId, counter, newKey.type, secretKey, browserId);
   }
 
   async removeKey(keyId: string, user: User): Promise<boolean> {
@@ -301,9 +302,13 @@ export class KeyRingService {
     return (await this.removeShadowKey(user.id, keyId)) != null;
   }
 
-  async changePassword(oldPassword: string, newPassword: string, user: User): Promise<boolean>  {
-    if (!oldPassword)
-      throw new AppException(KeyRingExceptionCode.WrongPassword, "Wrong password", HttpStatus.FORBIDDEN);
+  async changePassword(newPassword: string, browserId: string, user: User): Promise<boolean>  {
+    // get the cached secret key if authorized
+    const masterKey = this.getMasterKey(user.id, browserId);
+    if (masterKey === undefined)
+      throw new AppException(KeyRingExceptionCode.Unauthorized, "User unauthorized", HttpStatus.FORBIDDEN);
+
+    const secretKey = Buffer.from(masterKey, "hex");
 
     if (!newPassword)
       throw new AppException(KeyRingExceptionCode.WrongPassword, "Invalid new password", HttpStatus.FORBIDDEN);
@@ -323,10 +328,6 @@ export class KeyRingService {
     //   https://www.prisma.io/docs/concepts/components/prisma-client/transactions#interactive-transactions
     const success = await this.prisma.$transaction<boolean>(async (tx) => {
       for (const shadow of shadows) {
-        if (!PasswordHash.verify(shadow.key, oldPassword))
-          throw new AppException(KeyRingExceptionCode.WrongPassword, "Wrong password", HttpStatus.FORBIDDEN);
-
-        const secretKey = this.getSecretKey(shadow, oldPassword);
         const authKey = PasswordHash.hash(newPassword);
         const encryptedSecretKey = SecretBox.encryptWithPassword(secretKey, newPassword);
 
@@ -372,7 +373,7 @@ export class KeyRingService {
   /**
    * Unlocks a signed in user's master key during a few minutes.
    */
-  async unlockMasterKey(authKey: AuthKeyInput, clientId: string, user: User): Promise<boolean> {
+  async unlockMasterKey(authKey: AuthKeyInput, browserId: string, user: User): Promise<boolean> {
     if (!user)
       throw new AppException(KeyRingExceptionCode.Unauthorized, "Missing user", HttpStatus.FORBIDDEN);
 
@@ -409,15 +410,20 @@ export class KeyRingService {
     }
 
     const masterKey = Buffer.from(this.getSecretKey(shadow, key)).toString("hex");
-    this.masterKeyCache.set(shadow.userId + "-" + clientId, masterKey);
+    this.masterKeyCache.set(shadow.userId + "-" + browserId, masterKey);
     return true;
   }
 
-  getMasterKey(userId: string, clientId: string): string | undefined {
-    const id = userId + "-" + clientId;
+  getMasterKey(userId: string, browserId: string, throwIfNotExists = true): string | undefined {
+    const id = userId + "-" + browserId;
     const masterKey: string = this.masterKeyCache.get(id);
-    if (masterKey)
+    if (masterKey) {
       this.masterKeyCache.ttl(id);
+    } else {
+      if (throwIfNotExists)
+        throw new AppException(KeyRingExceptionCode.Unauthorized, "Unauthorized to access master key", HttpStatus.UNAUTHORIZED);
+    }
+
     return masterKey;
   }
 
