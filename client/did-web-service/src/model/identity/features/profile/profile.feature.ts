@@ -102,7 +102,7 @@ export class ProfileFeature implements IdentityFeature {
    * This looks for Name credentials mostly.
    */
   private getName(): string {
-    // NOT: for now, search only for the base "profile credential" that we manage, not for any other
+    // NOTE: for now, search only for the base "profile credential" that we manage, not for any other
     // kind of credential type.
     const nameCredential = this.profileCredentials$.value?.find(c => c.getProfileInfo().key === "name");
     if (!nameCredential)

@@ -31,7 +31,7 @@ const SignUp: FC = () => {
   return (
     <div className="col-span-4">
       <Typography variant="h5" className='w-full text-center font-semibold mt-32 mb-24 leading-9'>
-        Welcome! Create your first user
+        Welcome! Create your main account
       </Typography>
 
       <div className="flex flex-col mt-4 gap-4">
