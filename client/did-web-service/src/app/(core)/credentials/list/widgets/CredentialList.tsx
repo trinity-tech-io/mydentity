@@ -52,7 +52,7 @@ export const CredentialListWidget = (props: ConfirmDialogProps) => {
                   <ListItemIcon>
                     <PersonIcon />
                   </ListItemIcon>
-                  <ListItemText primary={c.tittle} secondary={c.verifiableCredential.getSubject().getProperty(c.verifiableCredential.getId().getFragment())} />
+                  <ListItemText primary={c.tittle} secondary={activeIdentity.getName(c)} />
                 </ListItemButton>
                 <Divider />
               </div>

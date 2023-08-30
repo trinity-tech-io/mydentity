@@ -1,11 +1,14 @@
 import { Credential } from '@model/credential/credential';
 import { Avatar, Box, Grid, Stack, Typography } from '@mui/material';
+import { activeIdentity$ } from '@services/identity/identity.events';
+import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 
 interface Props {
   selectedCredential: Credential
 }
 export const CredentialDetailWidget = (props: Props) => {
   const { selectedCredential } = props
+  const [activeIdentity] = useBehaviorSubject(activeIdentity$);
 
   return (
     <div className="col-span-full xl:col-span-7 bg-white dark:bg-slate-800 shadow-lg rounded-sm border border-slate-200 dark:border-slate-700">
@@ -30,7 +33,7 @@ export const CredentialDetailWidget = (props: Props) => {
                 </Grid>
                 <Grid item xs={6}>
                   <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-                    {selectedCredential.verifiableCredential.issuanceDate.toLocaleDateString()}
+                    {activeIdentity.getName(selectedCredential)}
                   </Typography>
                 </Grid>
 

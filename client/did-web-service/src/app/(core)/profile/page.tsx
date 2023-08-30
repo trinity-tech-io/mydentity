@@ -292,7 +292,7 @@ const Profile: FC = () => {
                 {filteredUsers?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((credential: Credential) => {
                   // const { id, name, value} = row;
                   const id = credential.id;
-                  const value = getValueFromCredential(credential);
+                  const value = activeIdentity.getName(credential)
 
                   return (
                     <TableRow hover key={id} tabIndex={-1} >
