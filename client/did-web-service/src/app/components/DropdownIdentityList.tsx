@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-const IdentityListComponent = ({ identities, setCurrentIdentity, setDropdownOpen }) => {
+const DropdownIdentityList = ({ identities, setCurrentIdentity, setDropdownOpen }) => {
   const classes = useStyles();
 
   return (
@@ -52,4 +52,4 @@ const IdentityListComponent = ({ identities, setCurrentIdentity, setDropdownOpen
   );
 };
 
-export default IdentityListComponent;
+export default DropdownIdentityList;

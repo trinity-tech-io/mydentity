@@ -15,7 +15,7 @@ import { FC, useEffect, useRef, useState } from 'react';
 import CircleComponent from './CircleComponent';
 import { MainButton } from './generic/MainButton';
 import Transition from './generic/Transition';
-import IdentityListComponent from './IdentityListComponent';
+import DropdownIdentityList from './DropdownIdentityList';
 
 const useStyles = makeStyles((theme: Theme) => ({
   button: {
@@ -154,7 +154,7 @@ export const DropdownIdentity: FC<{
           {
             (identities && identities.length > 0) &&
             <div className="border-b border-slate-200 dark:border-slate-700 " >
-              <IdentityListComponent
+              <DropdownIdentityList
                 identities={identities}
                 setCurrentIdentity={setCurrentIdentity}
                 setDropdownOpen={setDropdownOpen}

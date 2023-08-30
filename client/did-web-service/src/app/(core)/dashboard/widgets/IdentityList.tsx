@@ -58,7 +58,7 @@ export const IdentityListWidget: FC = _ => {
           <Table aria-label="caption table">
             <TableHead>
               <TableRow>
-                <TableCell>DID</TableCell>
+                <TableCell>Identity</TableCell>
                 <TableCell align="right">Creation date</TableCell>
                 <TableCell align="right">Action</TableCell>
               </TableRow>
