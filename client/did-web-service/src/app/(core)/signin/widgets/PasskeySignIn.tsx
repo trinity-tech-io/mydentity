@@ -29,9 +29,7 @@ const PasskeySignIn = () => {
 
     if (bound) {
       showSuccessToast("Successful sign in");
-      setTimeout(() => {
-        router.push("/dashboard");
-      }, 2000);
+      router.replace("/dashboard");
     }
   }
 
@@ -41,7 +39,7 @@ const PasskeySignIn = () => {
         leftIcon={<ReactIcon icon="" />}
         onClick={signInWithPasskey}
       >
-        🔐    Sign in with Passkey
+        🔐 Sign in with Passkey
       </MainButton>
     </div>
   )

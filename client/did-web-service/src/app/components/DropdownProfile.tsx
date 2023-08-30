@@ -1,17 +1,18 @@
 'use client';
 import Transition from "@components/generic/Transition";
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
+import Avatar from '@mui/material/Avatar';
 import { authUser$, getActiveUser } from "@services/user/user.events";
 import { signOut } from "@services/user/user.service";
 import Link from 'next/link';
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import Avatar from '@mui/material/Avatar';
 import CircleComponent from './CircleComponent';
 
 export function DropdownUserProfile({
   align
 }) {
+  const router = useRouter();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [activeUser] = useBehaviorSubject(authUser$());
   const isLogin = !!activeUser;
@@ -64,7 +65,7 @@ export function DropdownUserProfile({
 
   const onSignOut = () => {
     signOut();
-    window.location.replace('/dashboard')
+    router.replace('/dashboard')
   }
 
   // close if the esc key is pressed
@@ -87,7 +88,7 @@ export function DropdownUserProfile({
         aria-expanded={dropdownOpen}
       >
         {isLogin ? (
-          <CircleComponent text={userNameInitials} /> ) : (
+          <CircleComponent text={userNameInitials} />) : (
           <Avatar src={"/assets/images/account.svg"} />
         )}
         {isLogin && (
