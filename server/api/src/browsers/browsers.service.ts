@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Browser, User } from '@prisma/client';
+import { logger } from 'src/logger';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as userAgentParser from 'ua-parser-js';
 
@@ -11,6 +12,8 @@ export class BrowsersService {
    * Creates a new user bound browser and give it a default name.
    */
   public create(user: User, userAgent: string): Promise<Browser> {
+    logger.log("Creating browser with user agent:", userAgent);
+
     const deviceName = this.generateBrowserNameFromUserAgent(userAgent);
 
     return this.prisma.browser.create({
@@ -35,6 +38,7 @@ export class BrowsersService {
    * - If no browser id is given, create a new one too
    */
   public async validateOrCreateBrowserId(user: User, userAgent: string, existingBrowserId?: string): Promise<string> {
+    console.log("existingBrowserId", existingBrowserId)
     let browserId = existingBrowserId;
     if (existingBrowserId) {
       const existingBrowser = await this.findOne(existingBrowserId);

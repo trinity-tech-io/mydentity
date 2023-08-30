@@ -3,6 +3,7 @@ import { BrowserDTO } from "./browser.dto";
 export class Browser {
   id: string;
   createdAt: Date;
+  lastUsedAt: Date;
   userAgent: string;
   name: string;
 
@@ -11,6 +12,7 @@ export class Browser {
     Object.assign(browser, json);
 
     browser.createdAt = new Date(json.createdAt);
+    browser.lastUsedAt = new Date(json.lastUsedAt);
 
     return browser;
   }

@@ -25,9 +25,19 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   async validate(payload: JWTPayload) {
     // Fetch authenticated user object based on access token user id.
     // JWT signature validity has been checked earlier by passport-jwt
+    const user = await this.prisma.user.findFirst({ where: { id: payload.sub } });
+
+    // Remember last access from this browser
+    const browser = await this.prisma.browser.update({
+      where: { userId: user.id, id: payload.browserId },
+      data: {
+        lastUsedAt: new Date()
+      }
+    })
+
     return {
-      user: await this.prisma.user.findFirst({ where: { id: payload.sub } }),
-      browserId: payload.browserId
+      user,
+      browser
     };
   }
 }

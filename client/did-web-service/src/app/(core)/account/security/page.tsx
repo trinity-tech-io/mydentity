@@ -1,16 +1,32 @@
 "use client";
+import BrowserIcon from '@assets/images/browser.svg';
 import EmailIcon from '@assets/images/email.svg';
 import FingerprintIcon from '@assets/images/fingerprint.svg';
 import PasswordIcon from '@assets/images/password.svg';
 import { MainButton } from "@components/generic/MainButton";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useMounted } from "@hooks/useMounted";
+import { Browser } from '@model/browser/browser';
 import { Typography } from "@mui/material";
 import { authUser$ } from "@services/user/user.events";
 import Image from "next/image";
 import Link from 'next/link';
 import { useRouter, useSearchParams } from "next/navigation";
 import { FC, useEffect, useState } from "react";
+
+const BrowserRow: FC<{
+  browser: Browser;
+}> = ({ browser }) => {
+  return (
+    <div className='flex flex-row mt-4'>
+      <Image src={BrowserIcon} height={40} alt="Browser" />
+      <div className='flex flex-col ml-4'>
+        <div className='font-bold'>{browser.name}</div>
+        <div className='italic text-xs'>Last used: {browser.lastUsedAt.toLocaleString()}</div>
+      </div>
+    </div>
+  )
+}
 
 const Security: FC = () => {
   const { mounted } = useMounted();
@@ -150,11 +166,8 @@ const Security: FC = () => {
       <Typography variant="h5">My browsers</Typography>
       {browsers?.length == 0 && "No browser used so far."}
       {
-        browsers && <>
-          {browsers.map(device => <div key={device.id}>{device.name}</div>)}
-        </>
+        browsers && browsers.map((browser, i) => <BrowserRow key={i} browser={browser} />)
       }
-
     </>}
   </div>)
 }

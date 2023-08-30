@@ -8,6 +8,9 @@ export class Browser {
   @Field(() => GraphQLISODateTime)
   createdAt: string;
 
+  @Field(() => GraphQLISODateTime)
+  lastUsedAt: string;
+
   @Field()
   userAgent: string;
 

@@ -133,8 +133,8 @@ model UserShadowKey {
   type         UserShadowKeyType
   secretKey    String // Root account SecretKey encrypted by this public key or password
 
-  device   Browser? @relation(fields: [deviceId], references: [id], onDelete: Restrict) // For publickey types, this is the related device entity for which this shadow key was generated
-  deviceId String?
+  browser   Browser? @relation(fields: [browserId], references: [id], onDelete: Restrict) // For publickey types, this is the related browser entity for which this shadow key was generated
+  browserId String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
@@ -146,11 +146,13 @@ model UserShadowKey {
 model Browser {
   id String @id @unique @default(uuid())
 
-  createdAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+  lastUsedAt DateTime @default(now())
+
   // clientId  String // Client device uuid (stored in local storage) to better match a browser even after update (user agent change) or when access token is renewed.
   userAgent String // Browser user agent raw string as provided when binding the device. This is purely informative as a browser update can make this change
   name      String // Device name, originally auto defined from the user agent, later optionally configured by users
-  user      User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+  user      User   @relation(fields: [userId], references: [id], onDelete: Restrict)
 
   userId        String
   UserShadowKey UserShadowKey[]
