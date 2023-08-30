@@ -1,3 +1,4 @@
+import { VerifiableCredential } from "@elastosfoundation/did-js-sdk";
 import { Credential } from "@model/credential/credential";
 import { Identity } from "@model/identity/identity";
 import { logger } from "@services/logger";
@@ -14,6 +15,14 @@ export class CredentialsFeature implements IdentityFeature {
     logger.log("credentials", "Creating credential", credentialId, types, expirationDate, prop);
 
     const credential = await this.identity.provider.createCredential(this.identity.did, credentialId, types, expirationDate, prop);
+    this.credentials$.next([credential, ...this.credentials$.value]);
+    return credential;
+  }
+
+  public async addCredential(vc: VerifiableCredential): Promise<Credential> {
+    logger.log("credentials", "Adding credential", vc);
+
+    const credential = await this.identity.provider.addCredential(this.identity.did, vc);
     this.credentials$.next([credential, ...this.credentials$.value]);
     return credential;
   }

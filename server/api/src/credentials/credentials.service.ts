@@ -4,6 +4,7 @@ import { Credential, User } from '@prisma/client';
 import { DidService } from 'src/did/did.service';
 import { logger } from 'src/logger';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { AddCredentialInput } from './dto/add-credential.input';
 import { CreateCredentialInput } from './dto/create-credential.input';
 import { CreateVerifiablePresentationInput } from './dto/create-verifiablePresentation.input';
 
@@ -17,6 +18,25 @@ export class CredentialsService {
 
     const vc = await this.didService.createCredential(user.id, input.identityDid, input.credentialId,
           input.types, input.expirationDate, input.properties, storePassword);
+
+    const credentials= await this.prisma.credential.create({
+      data: {
+        identityDid: input.identityDid,
+        credentialId: vc.id.toString(),
+      },
+    });
+    return {
+      ...credentials,
+      verifiableCredential: vc.toString(),
+    };
+  }
+
+  async storeCredential(input: AddCredentialInput, user: User) {
+    // logger.log('CredentialsService', "storeCredential", input)
+
+    const vc = VerifiableCredential.parse(input.credentialString);
+    logger.log('CredentialsService', "storeCredential vc", vc)
+    await this.didService.storeCredential(user.id, vc);
 
     const credentials= await this.prisma.credential.create({
       data: {

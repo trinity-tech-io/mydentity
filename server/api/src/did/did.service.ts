@@ -1,4 +1,4 @@
-import { DIDBackend, DIDDocument, DIDStore, DefaultDIDAdapter, Exceptions, Issuer, Mnemonic, RootIdentity, VerifiableCredential, VerifiablePresentation } from '@elastosfoundation/did-js-sdk';
+import { DIDBackend, DIDDocument, DIDStore, DefaultDIDAdapter, Exceptions, Features, Issuer, Mnemonic, RootIdentity, VerifiableCredential, VerifiablePresentation } from '@elastosfoundation/did-js-sdk';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { join } from 'path';
 import { AppException } from 'src/exceptions/app-exception';
@@ -101,6 +101,8 @@ export class DidService {
       if (!didDocument)
         throw new AppException(DIDExceptionCode.DIDNotExists, "Can't load did:" + didString, HttpStatus.NOT_FOUND);
 
+      Features.enableJsonLdContext(true);
+
       const issuer = new Issuer(didDocument);
       const vcBuilder = issuer.issueFor(didString);
       const vc = await vcBuilder.id(credentialId).types(...types).expirationDate(expirationDate).properties(properties).seal(storepass);
@@ -114,6 +116,8 @@ export class DidService {
       } else {
         throw new AppException(DIDExceptionCode.DIDStorageError, e.message, HttpStatus.INTERNAL_SERVER_ERROR);
       }
+    } finally {
+      Features.enableJsonLdContext(false);
     }
   }
 
@@ -121,6 +125,15 @@ export class DidService {
     try {
       const didStore = await this.openStore(didStorePath);
       return await didStore.loadCredential(credentialId);
+    } catch (e) {
+      throw new AppException(DIDExceptionCode.DIDStorageError, e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async storeCredential(didStorePath: string, credential: VerifiableCredential) {
+    try {
+      const didStore = await this.openStore(didStorePath);
+      return await didStore.storeCredential(credential);
     } catch (e) {
       throw new AppException(DIDExceptionCode.DIDStorageError, e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
