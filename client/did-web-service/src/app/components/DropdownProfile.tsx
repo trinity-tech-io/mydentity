@@ -1,14 +1,13 @@
 'use client';
-
-import UserAvatar from '@assets/images/user-avatar-32.png';
 import Transition from "@components/generic/Transition";
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { authUser$, getActiveUser } from "@services/user/user.events";
 import { signOut } from "@services/user/user.service";
-import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import Avatar from '@mui/material/Avatar';
+import CircleComponent from './CircleComponent';
 
 export function DropdownUserProfile({
   align
@@ -17,6 +16,7 @@ export function DropdownUserProfile({
   const [activeUser] = useBehaviorSubject(authUser$());
   const isLogin = !!activeUser;
   const [userName] = useBehaviorSubject(activeUser?.name$);
+  const [userNameInitials] = useBehaviorSubject(activeUser?.nameInitials$);
   const [userTypeDesc, setUserTypeDesc] = useState('UNKNOWN');
 
   // get access token from url params.
@@ -86,8 +86,10 @@ export function DropdownUserProfile({
         onClick={() => onIconClick()}
         aria-expanded={dropdownOpen}
       >
-        <Image className="w-8 h-8 rounded-full" src={UserAvatar} width="32" height="32" alt="User" />
-
+        {isLogin ? (
+          <CircleComponent text={userNameInitials} /> ) : (
+          <Avatar src={"/assets/images/account.svg"} />
+        )}
         {isLogin && (
           <div className="flex items-center truncate">
             <span className="truncate ml-2 text-sm font-medium dark:text-slate-300 group-hover:text-slate-800 dark:group-hover:text-slate-200">Hey, {userName}</span>

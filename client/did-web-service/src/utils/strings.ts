@@ -10,3 +10,13 @@ export function shortenString(inputString: string, maxLength: number): string {
     inputString.substring(inputString.length - (maxLength / 2 - 1), inputString.length) :
     inputString;
 }
+
+// Get the first letter of each word and combine them.
+export function initialsString(str?: string): string {
+  if (str == null) {
+    return null
+  }
+  return capitalizeFirstLetter(str.split(' ').map(word => word[0]).join(''))
+}
+
+

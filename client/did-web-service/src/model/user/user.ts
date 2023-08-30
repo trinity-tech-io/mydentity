@@ -11,6 +11,7 @@ import { SecurityFeature } from "./features/security/security.feature";
 import { UserFeature } from "./features/user-feature";
 import { usersCache } from "./user.cache";
 import { UserDTO } from "./user.dto";
+import { initialsString } from "@utils/strings";
 
 export type FeatureExtensionRegistrationCb = (user: User) => UserFeature;
 
@@ -18,6 +19,7 @@ export class User {
   id: string;
   type: string;
   name$?= new BehaviorSubject<string>(null);
+  nameInitials$?= new BehaviorSubject<string>(null);
   createdAt: Date;
 
   // Features
@@ -38,6 +40,7 @@ export class User {
       async fill(user: User) {
         user.fillFromJson(json);
         user.createdAt = new Date(json.createdAt);
+        user.nameInitials$.next(initialsString(json.name));
         user.name$.next(json.name);
       },
     }, useCache);
@@ -48,6 +51,7 @@ export class User {
       id: this.id,
       type: this.type,
       name: this.name$.value,
+      nameInitials: initialsString(this.name$.value),
       createdAt: this.createdAt.toISOString()
     }
   }
