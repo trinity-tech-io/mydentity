@@ -73,4 +73,18 @@ export class ProfileFeature implements IdentityFeature {
       return false;
     }
   }
+
+  /**
+   * Convenient method to get a displayable "name" that represents this identity.
+   * This looks for Name credentials mostly.
+   */
+  public getName(): string {
+    // NOT: for now, search only for the base "profile credential" that we manage, not for any other
+    // kind of credential type.
+    const nameCredential = this.profileCredentials$.value?.find(c => c.getProfileInfo().key === "name");
+    if (!nameCredential)
+      return null;
+
+    return nameCredential.getDisplayValue();
+  }
 }
