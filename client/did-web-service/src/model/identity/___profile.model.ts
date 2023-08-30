@@ -1,4 +1,4 @@
-import { ProfileCredentialInfo } from "@model/identity/features/profile/profile-credential-info";
+import { ProfileCredentialInfo } from "@services/identity-profile-info/profile-credential-info";
 
 /**
  * High level representation of the local DID document for convenience while displaying data on UI.

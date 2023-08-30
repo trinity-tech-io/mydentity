@@ -6,6 +6,7 @@ import { gqlPresentationFields } from "@graphql/presentation.fields";
 import { gqlPublishFields } from "@graphql/publish.fields";
 import { gqlTransactionFields } from "@graphql/transaction.fields";
 import { Credential } from "@model/credential/credential";
+import { credentialFromJson } from "@model/credential/credential-builder";
 import { CredentialDTO } from "@model/credential/credential.dto";
 import { Identity } from "@model/identity/identity";
 import { IdentityDTO } from "@model/identity/identity.dto";
@@ -189,7 +190,7 @@ export class CustodialDIDProvider implements IdentityProvider {
       });
     });
     if (data && data.createCredential) {
-      return Credential.fromJson(data!.createCredential);
+      return credentialFromJson(data!.createCredential);
     }
 
     return null;
@@ -212,7 +213,7 @@ export class CustodialDIDProvider implements IdentityProvider {
     });
 
     if (data && data.credentials) {
-      const credentials = await Promise.all(data!.credentials.map(credential => Credential.fromJson(credential)));
+      const credentials = await Promise.all(data!.credentials.map(credential => credentialFromJson(credential)));
       logger.log("custodial-provider", "Fetched credentials:", credentials);
       return credentials;
     }

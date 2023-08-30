@@ -1,65 +1,35 @@
-import { Credential } from "@model/credential/credential";
-import { ProfileCredentialInfo } from "@model/identity/features/profile/profile-credential-info";
+import { ProfileCredential } from "@model/credential/profile-credential";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
+import { ProfileCredentialInfo, ProfileCredentialInfoEditionType } from "@services/identity-profile-info/profile-credential-info";
 import { createRef, useEffect, useRef, useState } from "react";
 
-enum DISPLAY_TYPE {
-    INPUT = 1,
-    SELECT = 2,
-    DATE_SELECT = 3,
-    INPUT_NUMBER = 4,
-    AVATAR = 5
-}
-
-export enum EDIT_TYPE {
-    EDIT = 1,
-    NEW = 2,
+export enum EditionMode {
+    EDIT,
+    NEW
 }
 
 export interface EditCredentialDialogProps {
-    credentialInfo: ProfileCredentialInfo,
-    defaultValue: string,
-    open: boolean,
-    type: EDIT_TYPE,
-    originCredential: Credential
-    onClose: (editCredentialValue?: { info: ProfileCredentialInfo, value: string, type: EDIT_TYPE, originCredential: Credential }) => void;
+    credentialInfo: ProfileCredentialInfo;
+    defaultValue: string;
+    open: boolean;
+    type: EditionMode;
+    originCredential: ProfileCredential;
+    onClose: (editCredentialValue?: { info: ProfileCredentialInfo, value: string, type: EditionMode, originCredential: ProfileCredential }) => void;
 }
 
 function EditCredentialDialog(props: EditCredentialDialogProps) {
     const { credentialInfo, defaultValue, open, type, originCredential, onClose } = props;
-    const [displayType, setDisplayType] = useState(0);
+    const [editionType, setEditionType] = useState<ProfileCredentialInfoEditionType>(null);
     const radioGroupRef = useRef<HTMLElement>(null);
 
     useEffect(() => {
         if (open) {
-            setDisplayType(selectDisplayType(credentialInfo));
+            setEditionType(credentialInfo.getConverter().getEditionType());
         }
     }, [credentialInfo, open]);
 
     const inputRef = createRef<HTMLInputElement>()
 
-    const selectDisplayType = (info: ProfileCredentialInfo): number => {
-        let displayType = DISPLAY_TYPE.INPUT;
-        switch (info.key) {
-            case "gender":
-            case "nationality":
-                displayType = DISPLAY_TYPE.SELECT;
-                break;
-
-            case "birthDate":
-                displayType = DISPLAY_TYPE.DATE_SELECT;
-                break;
-
-            case "telephone":
-                displayType = DISPLAY_TYPE.INPUT_NUMBER;
-                break;
-
-            case "avatar":
-                displayType = DISPLAY_TYPE.AVATAR;
-                break;
-        }
-        return displayType;
-    }
     const handleEntering = () => {
         if (radioGroupRef.current != null) {
             radioGroupRef.current.focus();
@@ -72,7 +42,7 @@ function EditCredentialDialog(props: EditCredentialDialogProps) {
 
     const handleOk = () => {
         const result = inputRef.current.value;
-        onClose({ info: credentialInfo, value: result, type: type, originCredential: originCredential });
+        onClose({ info: credentialInfo, value: result, type: type, originCredential });
     };
 
     return (
@@ -82,14 +52,13 @@ function EditCredentialDialog(props: EditCredentialDialogProps) {
             TransitionProps={{ onEntering: handleEntering }}
             open={open}
         >
-            {type == EDIT_TYPE.EDIT &&
-                <DialogTitle>Edit Item</DialogTitle>
-            }
-            {type == EDIT_TYPE.NEW &&
-                <DialogTitle>Add Item</DialogTitle>
-            }
+            {/* Title */}
+            {type == EditionMode.EDIT && <DialogTitle>Edit Item</DialogTitle>}
+            {type == EditionMode.NEW && <DialogTitle>Add Item</DialogTitle>}
+
+            {/* Content input */}
             <DialogContent dividers>
-                {displayType == DISPLAY_TYPE.INPUT &&
+                {editionType == ProfileCredentialInfoEditionType.SingleLineString &&
                     <TextField
                         fullWidth={true}
                         label={credentialInfo.key}
@@ -101,11 +70,12 @@ function EditCredentialDialog(props: EditCredentialDialogProps) {
                         autoFocus
                     />
                 }
-                {displayType != DISPLAY_TYPE.INPUT &&
+                {editionType != ProfileCredentialInfoEditionType.SingleLineString &&
                     <div>TODO</div>
                 }
-
             </DialogContent>
+
+            {/* Action buttons */}
             <DialogActions>
                 <Button autoFocus onClick={handleCancel}>
                     Cancel

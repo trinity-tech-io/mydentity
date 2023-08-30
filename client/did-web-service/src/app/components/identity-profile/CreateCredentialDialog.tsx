@@ -1,4 +1,3 @@
-import { ProfileCredentialInfo } from '@model/identity/features/profile/profile-credential-info';
 import PersonIcon from '@mui/icons-material/Person';
 import { Divider } from '@mui/material';
 import Avatar from '@mui/material/Avatar';
@@ -10,6 +9,7 @@ import ListItemAvatar from '@mui/material/ListItemAvatar';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import { blue } from '@mui/material/colors';
+import { ProfileCredentialInfo } from '@services/identity-profile-info/profile-credential-info';
 import { capitalizeFirstLetter } from "@utils/strings";
 import { FC } from 'react';
 
@@ -30,7 +30,7 @@ const CreateCredentialDialog: FC<CreateCredentialDialog> = ({ onClose, open, ava
 
   return (
     <Dialog fullWidth={true} maxWidth={"sm"} onClose={handleClose} open={open}>
-      <DialogTitle>Add field</DialogTitle>
+      <DialogTitle>Add profile information</DialogTitle>
 
       <Divider />
 

@@ -3,11 +3,11 @@ import ComfirmDialog from "@components/generic/ComfirmDialog";
 import ListHead from "@components/generic/ListHead";
 import ListToolbar from "@components/generic/ListToolbar";
 import CreateCredentialDialog from "@components/identity-profile/CreateCredentialDialog";
-import EditCredentialDialog, { EDIT_TYPE } from "@components/identity-profile/EditCredentialDialog";
+import EditCredentialDialog, { EditionMode } from "@components/identity-profile/EditCredentialDialog";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useMounted } from "@hooks/useMounted";
 import { Credential } from "@model/credential/credential";
-import { ProfileCredentialInfo } from "@model/identity/features/profile/profile-credential-info";
+import { ProfileCredential } from "@model/credential/profile-credential";
 import AddIcon from '@mui/icons-material/Add';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { Button, Card, Container, IconButton, MenuItem, Popover, Stack, Table, TableBody, TableCell, TableContainer, TablePagination, TableRow, Typography } from "@mui/material";
@@ -15,6 +15,8 @@ import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import { useToast } from "@services/feedback.service";
+import { findProfileInfoByTypes, getAvailableProfileEntries } from "@services/identity-profile-info/identity-profile-info.service";
+import { ProfileCredentialInfo } from "@services/identity-profile-info/profile-credential-info";
 import { activeIdentity$ } from "@services/identity/identity.events";
 import { logger } from "@services/logger";
 import { filter } from 'lodash';
@@ -38,17 +40,17 @@ const Profile: FC = () => {
   const TAG = "ProfilePage";
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const identityProfileFeature = activeIdentity?.get("profile");
-  const [credentials] = useBehaviorSubject(activeIdentity?.get("credentials").credentials$); // All credentials of this identity
+  const [credentials] = useBehaviorSubject(activeIdentity?.get("profile").profileCredentials$); // All profile credentials of this identity
   const { mounted } = useMounted();
 
-  const [originCredential, setOriginCredential] = useState<Credential>(null);
+  const [originCredential, setOriginCredential] = useState<ProfileCredential>(null);
   const [availableItemsForAddition, setAvailableItemsForAddition] = useState<ProfileCredentialInfo[]>([]);
   const [openCreateCredential, setOpenCreateCredential] = useState(false);
 
   const [openEditCredentialDialog, setOpenEditCredentialDialog] = useState(false);
   const [preEditCredentialInfo, setPreEditCredentialInfo] = useState<ProfileCredentialInfo>(null);
   const [preEditCredentialValue, setPreEditCredentialValue] = useState<string>('');
-  const [editType, setEditType] = useState(EDIT_TYPE.NEW);
+  const [editType, setEditType] = useState(EditionMode.NEW);
 
   const { showSuccessToast, showErrorToast } = useToast();
   const [isOpenPopupMenu, setOpenPopupMenu] = useState(null);
@@ -59,7 +61,7 @@ const Profile: FC = () => {
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
-  const availableProfileEntries = identityProfileFeature?.getAvailableProfileEntries(); // List of addable profile items (that can produce credentials)
+  const availableProfileEntries = getAvailableProfileEntries(); // List of addable profile items (that can produce credentials)
 
   const explorerDIDLink = activeIdentity && `https://eid.elastos.io/did?did=${encodeURIComponent(activeIdentity.did)}&is_did=true`;
 
@@ -77,7 +79,7 @@ const Profile: FC = () => {
       // Condition to keep the entry available for addition?
       // - Be of kind "multipleInstancesAllowed"
       // - Or not be used by user's credentials yet
-      return entry.options.multipleInstancesAllowed || !credentials.find(c => c.verifiableCredential.type.includes(entry.shortType));
+      return entry.options.multipleInstancesAllowed || !credentials?.find(c => c.verifiableCredential.type.includes(entry.shortType));
     });
 
     setAvailableItemsForAddition(availableEntries);
@@ -102,12 +104,12 @@ const Profile: FC = () => {
       setOpenEditCredentialDialog(true);
       setPreEditCredentialInfo(selectedItem);
       setPreEditCredentialValue('');
-      setEditType(EDIT_TYPE.NEW);
+      setEditType(EditionMode.NEW);
       setOriginCredential(null);
     }
   };
 
-  const handleEditCredentialDialogClose = async (editCredentialValue: { info: ProfileCredentialInfo, value: string, type: EDIT_TYPE, originCredential: Credential }) => {
+  const handleEditCredentialDialogClose = async (editCredentialValue: { info: ProfileCredentialInfo, value: string, type: EditionMode, originCredential: ProfileCredential }) => {
     setOpenEditCredentialDialog(false);
     if (!editCredentialValue)
       return;
@@ -115,20 +117,20 @@ const Profile: FC = () => {
     if (!editCredentialValue.value)
       return;
 
-    if (editCredentialValue.type == EDIT_TYPE.EDIT && editCredentialValue.originCredential) {
+    if (editCredentialValue.type == EditionMode.EDIT && editCredentialValue.originCredential) {
       let isSuccess = false;
       try {
-        isSuccess = await identityProfileFeature.updateCredential(editCredentialValue.originCredential, editCredentialValue.value).catch()
+        isSuccess = await identityProfileFeature.updateProfileCredential(editCredentialValue.originCredential, editCredentialValue.value).catch()
       } catch (error) {
         logger.error(TAG, 'Update credential error', error);
       }
       showFeedbackToast(isSuccess, 'Entry has been updated!', 'Failed to update the entry...');
     }
 
-    if (editCredentialValue.type == EDIT_TYPE.NEW && !originCredential) {
+    if (editCredentialValue.type == EditionMode.NEW && !originCredential) {
       let isSuccess = false;
       try {
-        isSuccess = await identityProfileFeature.createCredential('', [editCredentialValue.info.shortType], editCredentialValue.info.key, editCredentialValue.value);
+        isSuccess = await identityProfileFeature.createProfileCredential('', [editCredentialValue.info.shortType], editCredentialValue.info.key, editCredentialValue.value);
       } catch (error) {
         logger.error(TAG, 'Create credential error', error);
       }
@@ -136,7 +138,7 @@ const Profile: FC = () => {
     }
   }
 
-  const handleOpenMenu = (event, credential: Credential) => {
+  const handleOpenMenu = (event, credential: ProfileCredential) => {
     setOpenPopupMenu(event.currentTarget);
     setOriginCredential(credential);
   };
@@ -196,9 +198,9 @@ const Profile: FC = () => {
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - credentials?.length) : 0;
 
-  const filteredUsers = applySortFilter(credentials, getComparator(order, orderBy), filterName);
+  const filteredCredentials = applySortFilter(credentials, getComparator(order, orderBy), filterName);
 
-  const isNotFound = !filteredUsers?.length && !!filterName;
+  const isNotFound = !filteredCredentials?.length && !!filterName;
 
   const handleClickDeleteCredential = () => {
     handleCloseMenu();
@@ -208,11 +210,11 @@ const Profile: FC = () => {
   const handleClickEditCredential = () => {
     handleCloseMenu();
     setOpenEditCredentialDialog(true);
-    const entry = identityProfileFeature.findProfileInfoByTypes(originCredential.verifiableCredential.getType());
+    const entry = findProfileInfoByTypes(originCredential.verifiableCredential.getType());
     setPreEditCredentialInfo(entry);
     // TODO: DONT GET THE PROPERTY LIKE THIS: ASK THE PROFILE FEATURE TO RETURN THE VALUE
     setPreEditCredentialValue(originCredential.verifiableCredential.getSubject().getProperty(entry.key));
-    setEditType(EDIT_TYPE.EDIT);
+    setEditType(EditionMode.EDIT);
   }
 
   const handleCloseDialog = async (isAgree: boolean) => {
@@ -222,7 +224,7 @@ const Profile: FC = () => {
 
     let isSuccess = false;
     try {
-      isSuccess = await identityProfileFeature.deleteCredential(originCredential.verifiableCredential.getId().toString());
+      isSuccess = await identityProfileFeature.deleteProfileCredential(originCredential.verifiableCredential.getId().toString());
     } catch (error) {
       logger.error(TAG, error);
     }
@@ -230,17 +232,17 @@ const Profile: FC = () => {
   };
 
   // TODO: MAKE THIS MORE GENERIC - WORKS ONLY FOR STRING VALUES
-  const getValueFromCredential = (credential: Credential): string => {
+  /* const getValueFromCredential = (credential: Credential): string => {
     if (!credential || !credential.verifiableCredential || !credential.verifiableCredential.getSubject())
       return '';
 
-    const profileInfoEntry = identityProfileFeature.findProfileInfoByTypes(credential.verifiableCredential.getType());
+    const profileInfoEntry = findProfileInfoByTypes(credential.verifiableCredential.getType());
 
     if (profileInfoEntry)
       return credential.verifiableCredential.getSubject().getProperty(profileInfoEntry.key);
     else
       return JSON.stringify(credential.verifiableCredential.getSubject());
-  }
+  } */
 
   return (<div className="col-span-full">
     <Box
@@ -289,10 +291,10 @@ const Profile: FC = () => {
                 onSelectAllClick={() => { }}
               />
               <TableBody>
-                {filteredUsers?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((credential: Credential) => {
+                {filteredCredentials?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((credential: ProfileCredential) => {
                   // const { id, name, value} = row;
                   const id = credential.id;
-                  const value = activeIdentity.getName(credential)
+                  const value = credential.getProfileDisplayValue();
 
                   return (
                     <TableRow hover key={id} tabIndex={-1} >
@@ -300,7 +302,7 @@ const Profile: FC = () => {
                         <Stack ml={1} direction="row" alignItems="center" spacing={2}>
                           <Avatar src={"/assets/images/account.svg"} />
                           <Typography variant="subtitle2" noWrap>
-                            {credential.tittle}
+                            {credential.title}
                           </Typography>
                         </Stack>
                       </TableCell>

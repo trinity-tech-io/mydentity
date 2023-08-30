@@ -1,15 +1,25 @@
 import { merge } from "lodash";
+import { CredentialValueConverter } from "./credential-value-converter";
+
+export enum ProfileCredentialInfoEditionType {
+    SingleLineString,
+    MultiLineText,
+    Date,
+    Country,
+}
 
 export type ProfileCredentialInfoOptions = {
     defaultSubject?: any;
     isSensitive?: boolean;
     multipleInstancesAllowed?: boolean; // Whether user can add several profile entries with this type (ie: emails) or not (ie: nationality)
+    converter: CredentialValueConverter<any>;
 }
 
 const defaultOptions: ProfileCredentialInfoOptions = {
     defaultSubject: "",
     isSensitive: false,
-    multipleInstancesAllowed: false
+    multipleInstancesAllowed: false,
+    converter: null
 }
 
 export class ProfileCredentialInfo {
@@ -17,9 +27,13 @@ export class ProfileCredentialInfo {
         public key: string, // Related key in profile credential keys ("name", "avatar"...)
         public context?: string,
         public shortType?: string,
-        public options: ProfileCredentialInfoOptions = {}
+        public options: ProfileCredentialInfoOptions = { converter: null }
     ) {
         options = merge({}, defaultOptions, options);
+    }
+
+    public getConverter(): CredentialValueConverter<any> {
+        return this.options.converter;
     }
 
     /**
