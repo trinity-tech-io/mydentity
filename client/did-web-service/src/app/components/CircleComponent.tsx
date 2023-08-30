@@ -3,8 +3,8 @@ import React from 'react';
 
 const CircleComponent = ({ text }) => {
   const circleStyle = {
-    width: '33px',
-    height: '33px',
+    width: '39px',
+    height: '39px',
     borderRadius: '50%',
     display: 'flex',
     justifyContent: 'center',
