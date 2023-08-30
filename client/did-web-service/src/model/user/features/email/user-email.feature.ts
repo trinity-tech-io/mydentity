@@ -15,6 +15,10 @@ export function isEmailAlreadyExistsException(e: AppException): boolean {
     return e.appExceptionCode === AuthExceptionCode.EmailAlreadyExists;
 }
 
+export function isEmailNotExistsException(e: AppException): boolean {
+    return e.appExceptionCode === AuthExceptionCode.EmailNotExists;
+}
+
 export class UserEmailFeature implements UserFeature {
     private _userEmails$ = new LazyBehaviorSubjectWrapper<UserEmail[]>([], () => this.fetchUserEmails());
     public get userEmails$() { return this._userEmails$.getSubject(); }

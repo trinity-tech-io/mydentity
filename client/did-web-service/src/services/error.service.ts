@@ -6,8 +6,9 @@ import { GraphQLError, GraphQLErrorExtensions } from "graphql";
 import { Subject } from "rxjs";
 import { logger } from "./logger";
 import { isUnlockException } from "./security/security.service";
-import { isEmailAlreadyExistsException } from "@model/user/features/email/user-email.feature";
+import { isEmailAlreadyExistsException, isEmailNotExistsException } from "@model/user/features/email/user-email.feature";
 import { EmailExistsException } from "@model/exceptions/email-exists-exception";
+import { EmailNotExistsException } from "@model/exceptions/email-not-exists-exception";
 
 // Note: keep this as subject not behaviour subject, to not show the latest message every time.
 export const onNewError$ = new Subject<AppException>();
@@ -140,6 +141,10 @@ export async function withCaughtAppException<T>(call: () => Promise<T>, errorRet
     const emailAlreadyExistsException = caughtExceptions.find(e => isEmailAlreadyExistsException(e));
     if (emailAlreadyExistsException)
       throw new EmailExistsException();
+
+    const emailNotExistsException = caughtExceptions.find(e => isEmailNotExistsException(e));
+    if (emailNotExistsException)
+      throw new EmailNotExistsException();
 
     // Return default value expected by the original method call
     return errorReturnValue || null;

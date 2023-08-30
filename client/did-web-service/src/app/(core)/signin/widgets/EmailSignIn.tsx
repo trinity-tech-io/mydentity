@@ -6,6 +6,7 @@ import { FlowOperation, setOnGoingFlowOperation } from "@services/flow.service";
 import { authenticateWithEmailAddress } from "@services/user/user.service";
 import clsx from 'clsx';
 import { FC, FormEvent, useRef, useState } from "react";
+import { EmailNotExistsException } from "@model/exceptions/email-not-exists-exception";
 
 const useStyles = makeStyles((theme) => ({
   centeredContainer: {
@@ -22,23 +23,35 @@ export const EmailSignIn: FC = () => {
   const [authEmailSent, setAuthEmailSent] = useState(false);
   const emailForm = useRef(null);
   const classes = useStyles();
+  const [rawEmailErrorMsg, setRawEmailErrorMsg] = useState(null);
 
-  const doEmailAuth = () => {
+  const doEmailAuth = async () => {
     const emailAddress = emailInputRef.current.value;
 
     if (emailAddress !== "") {
       setAuthEmailSent(true);
 
       setOnGoingFlowOperation(FlowOperation.OnBoardingEmailSignIn);
-      void authenticateWithEmailAddress(emailAddress);
+
+      try {
+        void await authenticateWithEmailAddress(emailAddress);
+      } catch (error) {
+        if (error instanceof EmailNotExistsException) {
+          setRawEmailErrorMsg('Email not exists.');
+        } else {
+          setRawEmailErrorMsg('Unknown error, please try again.');
+        }
+
+        setAuthEmailSent(false);
+      }
     }
   }
 
-  function onEmailSubmit(ev?: FormEvent) {
+  async function onEmailSubmit(ev?: FormEvent) {
     ev?.preventDefault();
     emailInputRef.current.blur();
 
-    doEmailAuth();
+    await doEmailAuth();
   }
   return (
     <Container component="div" className={clsx(classes.centeredContainer)}>
@@ -66,6 +79,10 @@ export const EmailSignIn: FC = () => {
         </MainButton>
       }
       {authEmailSent && <div className='text-center mt-10'>Magic link sent, please check your mailbox.</div>}
+      { rawEmailErrorMsg && <>
+        <div><font COLOR="#ff0000">{rawEmailErrorMsg}</font></div>
+      </>
+      }
     </Container>
   );
 };
