@@ -1,4 +1,5 @@
 'use client';
+import { FC, useState } from 'react';
 import ComfirmDialog from '@components/generic/ComfirmDialog';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -12,10 +13,9 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import { activeIdentity$ } from '@services/identity/identity.events';
 import { identityService } from '@services/identity/identity.service';
-import { shortenDID } from '@services/identity/identity.utils';
 import { logger } from '@services/logger';
 import { authUser$ } from '@services/user/user.events';
-import { FC, useState } from 'react';
+import IdentityCellLeft from "./IdentityCellLeft";
 
 export const IdentityListWidget: FC = _ => {
   const TAG = "IdentityList";
@@ -68,11 +68,13 @@ export const IdentityListWidget: FC = _ => {
                 (identities && identities.length > 0) && identities.map(identity => {
                   return (
                     <TableRow key={identity.did}>
-                      <TableCell>{shortenDID(identity.did, 8)}</TableCell>
+                      <TableCell>
+                        <IdentityCellLeft identity={identity} />
+                      </TableCell>
                       <TableCell align="right">{identity.createdAt.toLocaleDateString()}</TableCell>
                       <TableCell align="right">
                         <IconButton aria-label="delete" onClick={() => { setOpenConfirmDialog(true); setPrepareDeleteDid(identity.did) }}>
-                          <DeleteIcon />
+                          <DeleteIcon style={{ color: 'red' }} />
                         </IconButton>
                       </TableCell>
                     </TableRow>
