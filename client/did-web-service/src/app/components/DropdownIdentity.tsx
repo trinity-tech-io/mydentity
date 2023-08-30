@@ -15,6 +15,7 @@ import { FC, useEffect, useRef, useState } from 'react';
 import CircleComponent from './CircleComponent';
 import { MainButton } from './generic/MainButton';
 import Transition from './generic/Transition';
+import IdentityListComponent from './IdentityListComponent';
 
 const useStyles = makeStyles((theme: Theme) => ({
   button: {
@@ -153,28 +154,11 @@ export const DropdownIdentity: FC<{
           {
             (identities && identities.length > 0) &&
             <div className="border-b border-slate-200 dark:border-slate-700 " >
-              {identities.map(identity => {
-                return (
-                  <div key={identity.did}>
-                    <div className="font-medium text-sm text-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center py-3 px-3"
-                      onClick={() => {
-                        setCurrentIdentity(identity)
-                        setDropdownOpen(false)
-                      }}>
-                      <div className={classes.avatarContainer}>
-                        <div className={classes.textContainer}>
-                          <span className={`text-left cursor-pointer`}>
-                            {shortenDID(identity.did)}
-                          </span>
-                          <span className={`truncate text-sm font-bold dark:text-slate-300 group-hover:text-slate-800 dark:group-hover:text-slate-200`}>
-                            {name}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )
-              })}
+              <IdentityListComponent
+                identities={identities}
+                setCurrentIdentity={setCurrentIdentity}
+                setDropdownOpen={setDropdownOpen}
+              />
             </div>
           }
           <MainButton className="min-w-max" onClick={openNewIdentity}>Create a new identity</MainButton>
