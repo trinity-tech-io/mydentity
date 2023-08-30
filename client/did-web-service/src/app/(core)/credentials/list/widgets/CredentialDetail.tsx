@@ -30,7 +30,7 @@ export const CredentialDetailWidget = (props: Props) => {
                 </Grid>
                 <Grid item xs={6}>
                   <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-                    {selectedCredential.getDisplayValue()}
+                    {selectedCredential.verifiableCredential.issuanceDate.toLocaleDateString()}
                   </Typography>
                 </Grid>
 
