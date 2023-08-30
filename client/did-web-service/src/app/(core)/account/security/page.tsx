@@ -23,7 +23,7 @@ const Security: FC = () => {
   const [shadowKeys] = useBehaviorSubject(securityFeature?.shadowKeys$);
   const isPasswordBound = securityFeature?.isPasswordBound();
   const isThisBrowserBound = securityFeature?.isThisBrowserBound();
-  const isEmailBound = false;  // TODO useBehaviorSubject(emailFeature?.emails$);
+  const isEmailBound = userEmails?.length > 0;
   const router = useRouter();
 
   const searchParams = useSearchParams();
@@ -82,47 +82,24 @@ const Security: FC = () => {
                 you will be able to sign in using browser biometrics if configured.
               </div>
               <MainButton onClick={bindEmail} className="self-start">Verify your email address</MainButton>
-              { errorMsg && <>
-                <div><font COLOR="#ff0000">{errorMsg}</font></div>
-                </>
+              {errorMsg && <>
+                <div className='text-red-500'>{errorMsg}</div>
+              </>
               }
             </div>
           }
           {
-            isEmailBound &&
-            <div>Your email address is already bound - [change email]</div>
-          }
-        </div>
-        {userEmails?.length == 0 && "You haven't bound any email yet."}
-        {
-            userEmails?.length > 0 && <>
-              <div className="info mb-2">Bound Emails:</div>
-          <div>
-              {userEmails.map(email => <div key={email.id} className="info mb-2">{email.email}</div>)}
-          </div>
-            </>
-        }
-
-        {/* passkey */}
-        <div className='col-span-full xl:col-span-6 flex flex-row gap-10 items-start'>
-          <Image src={FingerprintIcon} alt="Fingerprint" height={60} />
-          {
-            !isThisBrowserBound &&
-            <div className="flex flex-col">
-              <div className="info mb-2">
-                Binding your account to your <b>browser biometrics</b> allows you to sign in to this app (only from this browser)
-                but also to unlock the secret key that decrypts all the data you store on our servers. Without this key, we,
-                or potential attackers, are not able to read your personal information in clear text.
+            isEmailBound && <div className='flex flex-col'>
+              <div>Email addresses already bound</div>
+              <div>
+                {userEmails.map(email => <div key={email.id} className="info mb-2">{email.email}</div>)}
               </div>
-              <MainButton onClick={bindPasskey} className="self-start">Secure with this browser biometrics</MainButton>
+              <Link href="/account/security/bind-email">Bind more</Link>
             </div>
           }
-          {
-            isThisBrowserBound &&
-            <div>Your browser is bound to your account - <Link href="/account/security/bind-passkey">Bind again</Link></div>
-          }
         </div>
 
+        {/* Password */}
         <div className='col-span-full xl:col-span-6 flex flex-row gap-10 items-start'>
           <Image src={PasswordIcon} alt="Password" height={60} />
           {
@@ -137,8 +114,32 @@ const Security: FC = () => {
             </div>
           }
           {
-            isPasswordBound &&
-            <div>Your master password has been set - <Link href="/account/security/bind-password">Update password</Link></div>
+            isPasswordBound && <div className='flex flex-col'>
+              <div>Your master password has been set</div>
+              <Link href="/account/security/bind-password">Update password</Link>
+            </div>
+          }
+        </div>
+
+        {/* Passkey */}
+        <div className='col-span-full xl:col-span-6 flex flex-row gap-10 items-start'>
+          <Image src={FingerprintIcon} alt="Fingerprint" height={60} />
+          {
+            !isThisBrowserBound &&
+            <div className="flex flex-col">
+              <div className="info mb-2">
+                Binding your account to your <b>browser biometrics</b> allows you to sign in to this app (only from this browser)
+                but also to unlock the secret key that decrypts all the data you store on our servers. Without this key, we,
+                or potential attackers, are not able to read your personal information in clear text.
+              </div>
+              <MainButton onClick={bindPasskey} className="self-start">Secure with this browser biometrics</MainButton>
+            </div>
+          }
+          {
+            isThisBrowserBound && <div className='flex flex-col'>
+              <div>Your browser is bound to your account</div>
+              <Link href="/account/security/bind-passkey">Bind again</Link>
+            </div>
           }
         </div>
 
