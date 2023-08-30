@@ -20,7 +20,11 @@ export class ProfileFeature implements IdentityFeature {
   public get name$() { return this._name$.getSubject(); }
   private _name$ = new LazyBehaviorSubjectWrapper<string>(null, async () => {
     this.identity.get("credentials").credentials$.subscribe(creds => {
-      this.name$.next(this.getName());
+      creds.find(c => {
+        if (c.getFragment() === "name") {
+          this.name$.next(c.getDisplayValue());
+        }
+      });
     });
   });
 
