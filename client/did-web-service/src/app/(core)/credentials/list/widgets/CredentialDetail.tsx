@@ -19,7 +19,7 @@ export const CredentialDetailWidget = (props: Props) => {
               </Typography>
 
               <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-                {selectedCredential.getDisplayableDescription()}
+                {selectedCredential.getDisplayValue()}
               </Typography>
 
               <Grid container spacing={2} sx={{ mt: 1 }}>
@@ -30,7 +30,7 @@ export const CredentialDetailWidget = (props: Props) => {
                 </Grid>
                 <Grid item xs={6}>
                   <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-                    {selectedCredential.getDisplayableDescription()}
+                    {selectedCredential.getDisplayValue()}
                   </Typography>
                 </Grid>
 

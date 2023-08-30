@@ -10,11 +10,15 @@ export class CredentialValueConverterString extends CredentialValueConverter<str
     super(ProfileCredentialInfoEditionType.SingleLineString);
   }
 
-  toDisplayableValue(credential: Credential): string {
+  public toEditableValue(credential: Credential): string {
     return credential.verifiableCredential.getSubject().getProperty(this.subjectKey);
   }
 
-  toSubject(editedValue: string): any {
+  public toDisplayableValue(credential: Credential): string {
+    return credential.verifiableCredential.getSubject().getProperty(this.subjectKey);
+  }
+
+  public toSubject(editedValue: string): any {
     return {
       [this.subjectKey]: editedValue
     }

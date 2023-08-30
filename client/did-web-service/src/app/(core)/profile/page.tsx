@@ -294,7 +294,7 @@ const Profile: FC = () => {
                 {filteredCredentials?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((credential: ProfileCredential) => {
                   // const { id, name, value} = row;
                   const id = credential.id;
-                  const value = credential.getProfileDisplayValue();
+                  const value = credential.getDisplayValue();
 
                   return (
                     <TableRow hover key={id} tabIndex={-1} >

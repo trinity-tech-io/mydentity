@@ -15,8 +15,8 @@ export class Credential {
   public verifiableCredential: VerifiableCredential;
 
   // Computed client data
-  protected title: string;
-  private description: string = null;
+  protected displayTitle: string;
+  protected displayValue: string = null;
   private iconSrc: string = null;
   private onIconReadyCallback: (iconSrc: string) => void = null;
 
@@ -24,8 +24,8 @@ export class Credential {
    * Prepare all display data.
    */
   public prepareForDisplay() {
-    this.prepareTitle();
-    this.prepareDescription();
+    this.prepareDisplayTitle();
+    this.prepareDisplayValue();
     void this.prepareIcon();
   }
 
@@ -33,29 +33,25 @@ export class Credential {
     // If the credential implements the DisplayableCredential type, get the title from there.
     let credProps = this.verifiableCredential.getSubject();
     if ("displayable" in credProps) {
-      this.title = (credProps["displayable"] as JSONObject)["title"] as string;
+      this.displayTitle = (credProps["displayable"] as JSONObject)["title"] as string;
     }
     else {
       return null;
     }
   }
 
-  protected prepareTitle() {
+  protected prepareDisplayTitle() {
     const displayableCredentialTitle = this.getDisplayableCredentialTitle();
     if (displayableCredentialTitle)
-      this.title = displayableCredentialTitle;
+      this.displayTitle = displayableCredentialTitle;
     else {
       // Fallback try to guess a name, or use a default display
       let fragment = this.verifiableCredential.getId().getFragment();
-      this.title = capitalizeFirstLetter(fragment);
+      this.displayTitle = capitalizeFirstLetter(fragment);
     }
   }
 
-  /**
-   * Tries to extract a user friendly "description" of the credential, ie a readable summary
-   * of its content.
-   */
-  private prepareDescription() {
+  protected getDisplayableCredentialDescription(): string {
     let credProps = this.verifiableCredential.getSubject();
     if ("displayable" in credProps) {
       // rawDescription sample: hello ${firstName} ${lastName.test}
@@ -77,12 +73,30 @@ export class Credential {
             description = description.replace(tag, evaluatedField);
           }
         }
-        this.description = description;
+        return description;
       }
     }
     else {
-      this.description = "TODO"
+      return null;
     }
+  }
+
+  /**
+   * Tries to extract a user friendly "description" of the credential, ie a readable summary
+   * of its content.
+   */
+  protected prepareDisplayValue() {
+    const displayableCredentialDescription = this.getDisplayableCredentialDescription();
+    if (displayableCredentialDescription)
+      this.displayValue = displayableCredentialDescription;
+    else {
+      // TODO: if only one field, show the field value instead of a json data
+      this.displayValue = JSON.stringify(this.getValueItems());
+    }
+  }
+
+  public getDisplayValue(): any {
+    return this.displayValue;
   }
 
   /**
@@ -252,14 +266,7 @@ export class Credential {
    * "Title" best representing this credential on the UI
    */
   public getDisplayableTitle(): string {
-    return this.title;
-  }
-
-  /**
-   * "Sub-title" / "description" best representing this credential on the UI
-   * */
-  public getDisplayableDescription(): string {
-    return this.description;
+    return this.displayTitle;
   }
 
   public onIconReady(callback: (iconSrc: string) => void) {

@@ -7,12 +7,21 @@ export class ProfileCredential extends Credential {
     super();
   }
 
-  protected prepareTitle() {
+  protected prepareDisplayTitle() {
     const displayableCredentialTitle = this.getDisplayableCredentialTitle();
     if (displayableCredentialTitle)
-      this.title = displayableCredentialTitle;
+      this.displayTitle = displayableCredentialTitle;
     else {
-      this.title = capitalizeFirstLetter(this.profileInfo.key); // TODO: replace with a real nice title put inside info objects
+      this.displayTitle = capitalizeFirstLetter(this.profileInfo.key); // TODO: replace with a real nice title put inside info objects
+    }
+  }
+
+  protected prepareDisplayValue() {
+    const displayableCredentialTitle = this.getDisplayableCredentialTitle();
+    if (displayableCredentialTitle)
+      this.displayValue = displayableCredentialTitle;
+    else {
+      this.displayValue = this.profileInfo.options.converter.toDisplayableValue(this);
     }
   }
 
@@ -21,12 +30,5 @@ export class ProfileCredential extends Credential {
    */
   public getProfileInfo(): ProfileCredentialInfo {
     return this.profileInfo;
-  }
-
-  /**
-   * Return the credential's friendly display value using the info converter.
-   */
-  public getProfileDisplayValue(): any {
-    return this.profileInfo.options.converter.toDisplayableValue(this);
   }
 }

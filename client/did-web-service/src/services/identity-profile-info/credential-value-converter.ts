@@ -9,7 +9,19 @@ import { ProfileCredentialInfo, ProfileCredentialInfoEditionType } from "./profi
 export abstract class CredentialValueConverter<DisplayType> {
   constructor(protected editionType: ProfileCredentialInfoEditionType) { }
 
+  /**
+   * Returns the credential value in an internal format ready to edition
+   */
+  public abstract toEditableValue(credential: Credential): DisplayType;
+
+  /**
+   * Returns the credential value in a string format ready for display
+   */
   public abstract toDisplayableValue(credential: Credential): DisplayType;
+
+  /**
+   * Creates the VC subject ready to be saved in a VerifiableCredential.
+   */
   public abstract toSubject(editedValue: DisplayType): any;
 
   protected getInfo(credential: Credential): ProfileCredentialInfo {
