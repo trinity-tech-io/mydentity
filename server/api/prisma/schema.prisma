@@ -7,11 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum UserType {
-  MICROSOFT
-  EMAIL
-}
-
 model User {
   id       String  @id @unique @default(uuid()) // Unique user ID. Also used as DID store ID to retrieve the DID store.
   name     String?
@@ -21,8 +16,6 @@ model User {
   updatedAt          DateTime  @default(now())
   lastSeenAt         DateTime  @default(now()) // Updated every time the user uses the app
   welcomeEmailSentAt DateTime? // Date at which the welcome email was sent, if any
-
-  type UserType
 
   // Auth process
   temporaryEmailAuthKey       String? // Temporary authentication key generated for authentication by email address + magic "link"

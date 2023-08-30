@@ -1,5 +1,5 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { User, UserEmail, UserType } from '@prisma/client';
+import { User, UserEmail } from '@prisma/client';
 import { randomUUID } from "crypto";
 import * as moment from "moment";
 import { encode } from "slugid";
@@ -37,7 +37,6 @@ export class UserService {
     const user = await this.prisma.user.create({
       data: {
         name: input.name,
-        type: UserType.EMAIL, // TODO: THIS IS WRONG, should not need to have a user "type" that depends on the auth method
         createdAt: new Date()
       }
     });
@@ -174,7 +173,7 @@ export class UserService {
       {
         user: {
           // Use the name only if that's not a temporary name (real user signed in)
-          name: user.type !== UserType.EMAIL && user.fullName
+          name: user.name
         },
         loungeUrl
       }
