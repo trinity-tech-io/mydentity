@@ -8,6 +8,12 @@ import {gql} from "@apollo/client";
 import {graphQLPublicUserEmailFields} from "@graphql/user-email.fields";
 import {User} from "@model/user/user";
 import {LazyBehaviorSubjectWrapper} from "@utils/lazy-behavior-subject";
+import {AppException} from "@model/exceptions/app-exception";
+import {AuthExceptionCode} from "@model/exceptions/exception-codes";
+
+export function isEmailAlreadyExistsException(e: AppException): boolean {
+    return e.appExceptionCode === AuthExceptionCode.EmailAlreadyExists;
+}
 
 export class UserEmailFeature implements UserFeature {
     private _userEmails$ = new LazyBehaviorSubjectWrapper<UserEmail[]>([], () => this.fetchUserEmails());

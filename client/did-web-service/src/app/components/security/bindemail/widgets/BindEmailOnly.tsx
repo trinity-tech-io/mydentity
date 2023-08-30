@@ -7,6 +7,8 @@ import { FlowOperation, setOnGoingFlowOperation } from "@services/flow.service";
 import { authUser$ } from "@services/user/user.events";
 import clsx from 'clsx';
 import { FC, FormEvent, useRef, useState } from "react";
+import { EmailExistsException } from "@model/exceptions/email-exists-exception";
+import { useRouter } from "next/navigation";
 
 const useStyles = makeStyles((theme) => ({
   centeredContainer: {
@@ -24,23 +26,33 @@ export const BindEmailOnly: FC = () => {
   const emailForm = useRef(null);
   const classes = useStyles();
   const [activeUser] = useBehaviorSubject(authUser$());
+  const router = useRouter();
 
-  const doEmailAuth = () => {
+  const doEmailAuth = async () => {
     const emailAddress = emailInputRef.current.value;
 
     if (emailAddress !== "") {
       setAuthEmailSent(true);
 
       setOnGoingFlowOperation(FlowOperation.OnBoardingEmailBinding);
-      void activeUser?.get('email').bindWithEmailAddress(emailAddress);
+
+      try {
+        void await activeUser?.get('email').bindWithEmailAddress(emailAddress);
+      } catch (error) {
+        if (error instanceof EmailExistsException) {
+          router.push('/account/security?error=emailExists')
+        } else {
+          router.push('/account/security?error=unknown')
+        }
+      }
     }
   }
 
-  function onEmailSubmit(ev?: FormEvent) {
+  async function onEmailSubmit(ev?: FormEvent) {
     ev?.preventDefault();
     emailInputRef.current.blur();
 
-    doEmailAuth();
+    await doEmailAuth();
   }
   return (
     <Container component="div" className={clsx(classes.centeredContainer)}>

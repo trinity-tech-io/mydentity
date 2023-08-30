@@ -9,8 +9,8 @@ import { Typography } from "@mui/material";
 import { authUser$ } from "@services/user/user.events";
 import Image from "next/image";
 import Link from 'next/link';
-import { useRouter } from "next/navigation";
-import { FC } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { FC, useEffect, useState } from "react";
 
 const Security: FC = () => {
   const { mounted } = useMounted();
@@ -25,6 +25,23 @@ const Security: FC = () => {
   const isThisBrowserBound = securityFeature?.isThisBrowserBound();
   const isEmailBound = false;  // TODO useBehaviorSubject(emailFeature?.emails$);
   const router = useRouter();
+
+  const searchParams = useSearchParams();
+  const error = searchParams.get('error');
+  const [errorMsg, setErrorMsg] = useState(null);
+
+  useEffect(() => {
+    if (error && error !== '') {
+      switch (error) {
+        case 'emailExists':
+          setErrorMsg('Email already exists');
+          break;
+        default:
+          setErrorMsg('Unknown error, please try again.');
+          break;
+      }
+    }
+  }, []);
 
   const bindDevice = () => {
     // securityFeature.bindDevice();
@@ -65,6 +82,10 @@ const Security: FC = () => {
                 you will be able to sign in using browser biometrics if configured.
               </div>
               <MainButton onClick={bindEmail} className="self-start">Verify your email address</MainButton>
+              { errorMsg && <>
+                <div><font COLOR="#ff0000">{errorMsg}</font></div>
+                </>
+              }
             </div>
           }
           {
