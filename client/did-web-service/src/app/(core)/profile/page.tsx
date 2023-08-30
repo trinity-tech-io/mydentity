@@ -302,7 +302,7 @@ const Profile: FC = () => {
                         <Stack ml={1} direction="row" alignItems="center" spacing={2}>
                           <Avatar src={"/assets/images/account.svg"} />
                           <Typography variant="subtitle2" noWrap>
-                            {credential.title}
+                            {credential.getDisplayableTitle()}
                           </Typography>
                         </Stack>
                       </TableCell>

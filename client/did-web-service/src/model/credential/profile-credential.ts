@@ -1,9 +1,19 @@
 import { ProfileCredentialInfo } from "@services/identity-profile-info/profile-credential-info";
+import { capitalizeFirstLetter } from "@utils/strings";
 import { Credential } from "./credential";
 
 export class ProfileCredential extends Credential {
   constructor(private profileInfo: ProfileCredentialInfo) {
     super();
+  }
+
+  protected prepareTitle() {
+    const displayableCredentialTitle = this.getDisplayableCredentialTitle();
+    if (displayableCredentialTitle)
+      this.title = displayableCredentialTitle;
+    else {
+      this.title = capitalizeFirstLetter(this.profileInfo.key); // TODO: replace with a real nice title put inside info objects
+    }
   }
 
   /**

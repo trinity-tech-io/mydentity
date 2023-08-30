@@ -4,7 +4,6 @@ import { CredentialsFeature } from "./features/credentials/credentials.feature";
 import { IdentityFeature } from "./features/identity-feature";
 import { ProfileFeature } from "./features/profile/profile.feature";
 import { IdentityDTO } from "./identity.dto";
-import { Credential } from "@model/credential/credential";
 
 export class Identity {
   did: string;
@@ -29,13 +28,6 @@ export class Identity {
 
     identity.provider = provider;
     return identity;
-  }
-
-  getName(credential: Credential): string {
-    // TODO: Replace with getting from the server
-    if (!credential || !credential.verifiableCredential || !credential.verifiableCredential.getSubject())
-      return '';
-    return credential.verifiableCredential.getSubject().getProperty(credential.key);
   }
 
   public get(feature: "credentials"): CredentialsFeature;
