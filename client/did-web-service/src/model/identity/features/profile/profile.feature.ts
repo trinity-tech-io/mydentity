@@ -16,6 +16,13 @@ export class ProfileFeature implements IdentityFeature {
     });
   });
 
+  public get name$() { return this._name$.getSubject(); }
+  private _name$ = new LazyBehaviorSubjectWrapper<string>(null, async () => {
+    this.identity.get("credentials").credentials$.subscribe(creds => {
+      this.name$.next(this.getName());
+    });
+  });
+
   constructor(protected identity: Identity) { }
 
   public async deleteProfileCredential(credentialId: string): Promise<boolean> {
@@ -78,7 +85,7 @@ export class ProfileFeature implements IdentityFeature {
    * Convenient method to get a displayable "name" that represents this identity.
    * This looks for Name credentials mostly.
    */
-  public getName(): string {
+  private getName(): string {
     // NOT: for now, search only for the base "profile credential" that we manage, not for any other
     // kind of credential type.
     const nameCredential = this.profileCredentials$.value?.find(c => c.getProfileInfo().key === "name");

@@ -55,13 +55,6 @@ export class Identity {
     return this.provider.createVerifiablePresentation(this.did, credentials, realm, nonce);
   }
 
-  /**
-   * Convenient shortcut to profile's name
-   */
-  public getName(): string {
-    return this.get("profile").getName();
-  }
-
   public equals(otherIdentity: Identity): boolean {
     return this.did === otherIdentity.did;
   }
