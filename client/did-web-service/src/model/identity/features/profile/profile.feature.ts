@@ -1,3 +1,4 @@
+import { ImportedCredential } from "@/app/(core)/intent/import-credentials/page";
 import { ProfileCredential } from "@model/credential/profile-credential";
 import { Identity } from "@model/identity/identity";
 import { findProfileInfoByTypes } from "@services/identity-profile-info/identity-profile-info.service";
@@ -56,6 +57,17 @@ export class ProfileFeature implements IdentityFeature {
       let credentialSubject = entry.options.converter.toSubject(editionValue);
 
       await this.identity.get("credentials").createCredential(finalCredentialId, credentialType, expirationDate, credentialSubject);
+      return true;
+    } catch (error) {
+      logger.error("profile", error);
+      return false;
+    }
+  }
+
+  // Import credential
+  public async addProfileCredential(importedCredential: ImportedCredential): Promise<boolean> {
+    try {
+      await this.identity.get("credentials").addCredential(importedCredential.credential.verifiableCredential);
       return true;
     } catch (error) {
       logger.error("profile", error);
