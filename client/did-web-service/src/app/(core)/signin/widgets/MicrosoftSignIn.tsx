@@ -4,7 +4,8 @@ import { Icon as ReactIcon } from '@iconify/react';
 import { makeStyles } from '@mui/styles';
 import { FlowOperation, setOnGoingFlowOperation } from "@services/flow.service";
 import clsx from 'clsx';
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const useStyles = makeStyles((theme) => ({
   centeredContainer: {
@@ -20,6 +21,16 @@ const MicrosoftSignIn = () => {
   const classes = useStyles();
   const router = useRouter();
 
+  const searchParams = useSearchParams();
+  const error = searchParams.get('error');
+  const [errorMsg, setErrorMsg] = useState(null);
+
+  useEffect(() => {
+    if (error === 'oauthEmailNotExists') {
+      setErrorMsg('Email not exists.');
+    }
+  }, [])
+
   const signInWithMicrosoft = () => {
     setOnGoingFlowOperation(FlowOperation.OnBoardingEmailSignIn);
     router.push(`${process.env.NEXT_PUBLIC_BACKEND_URL}/microsoft`);
@@ -33,6 +44,10 @@ const MicrosoftSignIn = () => {
       >
         Sign in with Microsoft
       </MainButton>
+      { errorMsg && <>
+        <div><font COLOR="#ff0000">{errorMsg}</font></div>
+      </>
+      }
     </div>
   );
 };

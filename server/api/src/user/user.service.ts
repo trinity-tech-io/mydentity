@@ -272,7 +272,7 @@ export class UserService {
     })
 
     if (userEmail && userEmail.user.id !== user.id) {
-      throw new AppException(AuthExceptionCode.AuthError, `Email ${email} already belongs to other user.`, 401);
+      return null;
     } else if (!userEmail) {
       await this.prisma.userEmail.upsert({
         where: { email },

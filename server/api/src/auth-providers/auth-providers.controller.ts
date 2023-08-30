@@ -71,26 +71,30 @@ export class AuthProvidersController {
     }
 
     const email = await this.microsoftProfileService.retrieveEmail(token);
+    const url = `${this.configService.get<string>('MICROSOFT_CLIENT_REDIRECT')}?action=${action}`;
     if (action === 'login') {
       const result = await this.userService.signInByEmail(email);
       if (!result) {
-        throw new AppException(AuthExceptionCode.AuthError, `can not login as user not exists`, 401);
+        return {
+          url: `${url}&error=emailNotExists`
+        }
       }
-
-      const url = `${this.configService.get<string>('MICROSOFT_CLIENT_REDIRECT')}?accessToken=${result.accessToken
-        }&refreshToken=${result.refreshToken}&action=${action}`
 
       logger.log(`sign-in with oauth email successfully, it will go back to client ${url}`);
 
-      return { url };
+      return { url: `${url}&accessToken=${result.accessToken}&refreshToken=${result.refreshToken}` };
     } else { // bind
       const user = await this.userService.getUserByToken(accessToken);
       if (!user) {
         throw new AppException(AuthExceptionCode.AuthError, `can not find user by access token`, 401);
       }
-      await this.userService.bindOauthEmail(user, email);
 
-      const url = `${this.configService.get<string>('MICROSOFT_CLIENT_REDIRECT')}?action=${action}`;
+      const resultUser = await this.userService.bindOauthEmail(user, email);
+      if (!resultUser) {
+        return {
+          url: `${url}&error=emailAlreadyExists`
+        }
+      }
 
       logger.log(`bind with oauth email successfully, it will go back to client`);
 

@@ -98,7 +98,10 @@ export class UserResolver {
   @UseGuards(JwtAuthGuard)
   @Mutation(() => Boolean, { nullable: true })
   async bindOauthEmail(@CurrentUser() user: UserEntity, @Args('email') email: string) {
-    await this.userService.bindOauthEmail(user, email);
+    const resultUser = await this.userService.bindOauthEmail(user, email);
+    if (!resultUser) {
+      throw new AppException(AuthExceptionCode.EmailAlreadyExists, `Email ${email} already belongs to other user.`, 401);
+    }
     return true;
   }
 

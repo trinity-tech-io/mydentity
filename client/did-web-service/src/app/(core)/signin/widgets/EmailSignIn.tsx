@@ -23,7 +23,7 @@ export const EmailSignIn: FC = () => {
   const [authEmailSent, setAuthEmailSent] = useState(false);
   const emailForm = useRef(null);
   const classes = useStyles();
-  const [rawEmailErrorMsg, setRawEmailErrorMsg] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(null);
 
   const doEmailAuth = async () => {
     const emailAddress = emailInputRef.current.value;
@@ -37,9 +37,9 @@ export const EmailSignIn: FC = () => {
         void await authenticateWithEmailAddress(emailAddress);
       } catch (error) {
         if (error instanceof EmailNotExistsException) {
-          setRawEmailErrorMsg('Email not exists.');
+          setErrorMsg('Email not exists.');
         } else {
-          setRawEmailErrorMsg('Unknown error, please try again.');
+          setErrorMsg('Unknown error, please try again.');
         }
 
         setAuthEmailSent(false);
@@ -79,8 +79,8 @@ export const EmailSignIn: FC = () => {
         </MainButton>
       }
       {authEmailSent && <div className='text-center mt-10'>Magic link sent, please check your mailbox.</div>}
-      { rawEmailErrorMsg && <>
-        <div><font COLOR="#ff0000">{rawEmailErrorMsg}</font></div>
+      { errorMsg && <>
+        <div><font COLOR="#ff0000">{errorMsg}</font></div>
       </>
       }
     </Container>

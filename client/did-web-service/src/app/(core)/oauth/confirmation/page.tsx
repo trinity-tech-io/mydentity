@@ -9,6 +9,7 @@ import {fetchSelfUser} from "@services/user/user.service";
 const OauthConfirmation: FC = () => {
   const searchParams = useSearchParams();
   const action = searchParams.get('action');
+  const error = searchParams.get('error');
   const router = useRouter();
 
   logger.log(`enter oauth/confirmation, action=${action}`);
@@ -19,18 +20,26 @@ const OauthConfirmation: FC = () => {
       return;
     }
 
-    if (action === 'login') {
-      const accessToken = searchParams.get('accessToken');
-      const refreshToken = searchParams.get('refreshToken');
-      if (accessToken && accessToken !== '' && refreshToken && refreshToken != '') {
-        fetchSelfUser(accessToken, refreshToken).then(user => {
-          router.push('/dashboard');
-        });
-      } else {
-        alert('invalid operation (access token not provided), please try again.');
+    if (error === 'emailNotExists' || error === 'emailAlreadyExists') {
+      if (action === 'login') {
+        router.push(`/signin?error=oauthEmailNotExists`);
+      } else { // bind
+        router.push(`/account/security?error=emailExists`);
       }
     } else {
-      router.push('/account/security');
+      if (action === 'login') {
+        const accessToken = searchParams.get('accessToken');
+        const refreshToken = searchParams.get('refreshToken');
+        if (accessToken && accessToken !== '' && refreshToken && refreshToken != '') {
+          fetchSelfUser(accessToken, refreshToken).then(user => {
+            router.push('/dashboard');
+          });
+        } else {
+          alert('invalid operation (access token not provided), please try again.');
+        }
+      } else {
+        router.push('/account/security');
+      }
     }
   }, []);
 
