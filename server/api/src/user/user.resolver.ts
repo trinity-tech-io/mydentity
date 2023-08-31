@@ -1,12 +1,13 @@
 import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Browser } from '@prisma/client';
 import { GraphQLError } from "graphql/error";
 import { CurrentUser } from 'src/auth/currentuser.decorator';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { HeaderBrowserId } from 'src/browsers/browser-id-header.decorator';
+import { CurrentBrowser } from 'src/browsers/browser-user.decorator';
 import { UserAgent } from 'src/browsers/user-agent-decorator';
 import { AuthKeyInput } from 'src/key-ring/dto/auth-key-input';
-import { AuthService } from '../auth/auth.service';
 import { AppException } from "../exceptions/app-exception";
 import { AuthExceptionCode } from "../exceptions/exception-codes";
 import { logger } from "../logger";
@@ -25,16 +26,15 @@ export class UserResolver {
   private readonly INVALID_REFRESH_TOKEN = 'INVALID_REFRESH_TOKEN';
 
   constructor(
-    private readonly userService: UserService,
-    private readonly authService: AuthService
+    private readonly userService: UserService
   ) { }
 
   @Mutation(() => LoggedUserOutput, { nullable: true })
-  async signUp(@Args('input') input: SignUpInput) {
+  async signUp(@Args('input') input: SignUpInput, @CurrentBrowser() browser: Browser, @UserAgent() userAgent: string) {
     if (!input.name || input.name.trim() === '')
       throw new AppException(AuthExceptionCode.AuthError, 'User name must be provided.', 401);
 
-    return this.userService.signUp(input);
+    return this.userService.signUp(input, browser?.id, userAgent);
   }
 
   /**
@@ -71,21 +71,22 @@ export class UserResolver {
    * @param authKey
    */
   @Mutation(() => LoggedUserOutput, { nullable: true })
-  async checkEmailAuthentication(@Args('authKey') authKey: string) {
-    return this.userService.checkEmailAuthentication(null, authKey);
+  async checkEmailAuthentication(@Args('authKey') authKey: string, @CurrentBrowser() browser: Browser, @UserAgent() userAgent: string) {
+    return this.userService.checkEmailAuthentication(null, authKey, browser?.id, userAgent);
   }
 
   @UseGuards(JwtAuthGuard)
   @Mutation(() => LoggedUserOutput, { nullable: true })
-  async checkEmailBind(@CurrentUser() user: UserEntity, @Args('authKey') authKey: string) {
-    return this.userService.checkEmailAuthentication(user, authKey);
+  async checkEmailBind(@CurrentUser() user: UserEntity, @Args('authKey') authKey: string, @CurrentBrowser() browser: Browser, @UserAgent() userAgent: string) {
+    return this.userService.checkEmailAuthentication(user, authKey, browser?.id, userAgent);
   }
 
   @Mutation(() => RefreshTokenOutput)
-  async refreshToken(@Args('refreshTokenInput') refreshTokenInput: RefreshTokenInput): Promise<RefreshTokenOutput> {
+  async refreshToken(@Args('refreshTokenInput') refreshTokenInput: RefreshTokenInput, @CurrentBrowser() browser: Browser, @UserAgent() userAgent: string): Promise<RefreshTokenOutput> {
     try {
+      console.log("refresh token browser", browser)
       const user = await this.userService.getUserByToken(refreshTokenInput.refreshToken);
-      return this.userService.refreshAccessToken(user);
+      return this.userService.refreshAccessToken(user, browser?.id, userAgent);
     } catch (e) {
       throw new GraphQLError("Can't refresh token", {
         extensions: {
@@ -117,9 +118,7 @@ export class UserResolver {
   @UseGuards(JwtAuthGuard)
   @Query(() => [UserEmailEntity])
   async fetchUserEmails(@CurrentUser() user: UserEntity) {
-    const emails = await this.userService.listUserEmails(user);
-    logger.log(`fetchUserEmails`, emails);
-    return emails;
+    return this.userService.listUserEmails(user);
   }
 
   @UseGuards(JwtAuthGuard)

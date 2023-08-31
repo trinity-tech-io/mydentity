@@ -1,6 +1,7 @@
 import jwtDecode from "jwt-decode";
 import { logger } from "./logger";
 import { AccessTokenPayload } from "./user/access-token-payload";
+import { signOut } from "./user/user.service";
 
 const BROWSER_ID_STORAGE_KEY = "browser-client-id";
 
@@ -23,8 +24,15 @@ export function checkNewAccessTokenForBrowserId(accessToken: string) {
 
   const existingBrowserId = getBrowserId();
   if (existingBrowserId) {
-    // TODO: check if browser ID is still the same. If not, report error.
-    return;
+    // If we already have a browser id in local storage, but the browser id packaged in the
+    // access token is not the same, this is weird. This can either be a state bug (dev bug) or
+    // an attempt to reuse a stolen access token in another browser. If this is the case, we
+    // throw an error for now (mostly dev bug).
+    if (existingBrowserId !== decodedToken.browserId) {
+      deleteBrowserId();
+      signOut()
+      throw new Error(`State error! Browser ID ${existingBrowserId} is different from access token browser ID ${decodedToken.browserId} !`);
+    }
   }
 
   setBrowserId(decodedToken.browserId);
@@ -36,4 +44,8 @@ export function getBrowserId(): string {
 
 export function setBrowserId(browserId: string) {
   localStorage.setItem(BROWSER_ID_STORAGE_KEY, browserId);
+}
+
+export function deleteBrowserId() {
+  localStorage.removeItem(BROWSER_ID_STORAGE_KEY);
 }

@@ -17,12 +17,19 @@ import { FC, useEffect, useState } from "react";
 const BrowserRow: FC<{
   browser: Browser;
 }> = ({ browser }) => {
+  const [shadowKey] = useBehaviorSubject(browser?.activeShadowKey$);
+  const isCurrentBrowser = browser?.isCurrentBrowser();
+
+  console.log("shadowKey", shadowKey)
+
   return (
     <div className='flex flex-row mt-4'>
       <Image src={BrowserIcon} height={40} alt="Browser" />
       <div className='flex flex-col ml-4'>
         <div className='font-bold'>{browser.name}</div>
         <div className='italic text-xs'>Last used: {browser.lastUsedAt.toLocaleString()}</div>
+        SKEY: {shadowKey?.keyId}<br />
+        CURRENT: {isCurrentBrowser ? "YES" : "NO"}
       </div>
     </div>
   )

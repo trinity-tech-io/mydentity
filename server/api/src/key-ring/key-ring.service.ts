@@ -174,6 +174,9 @@ export class KeyRingService {
         type: type,
         secretKey: Buffer.from(encryptedSecretKey).toString('hex'),
         browserId: browserId
+      },
+      include: {
+        browser: true // Needed by several APIs
       }
     });
   }
@@ -199,7 +202,7 @@ export class KeyRingService {
     }
   }
 
-  private async getShadowKey(keyId: string, userId?: string, includeUser?: boolean): Promise<UserShadowKey & {user?:User}> {
+  private async getShadowKey(keyId: string, userId?: string, includeUser?: boolean): Promise<UserShadowKey & { user?: User }> {
     if (userId) {
       return await this.prisma.userShadowKey.findUnique({
         where: {
@@ -302,7 +305,7 @@ export class KeyRingService {
     return (await this.removeShadowKey(user.id, keyId)) != null;
   }
 
-  async changePassword(newPassword: string, browserId: string, user: User): Promise<boolean>  {
+  async changePassword(newPassword: string, browserId: string, user: User): Promise<boolean> {
     // get the cached secret key if authorized
     const masterKey = this.getMasterKey(user.id, browserId);
     if (masterKey === undefined)
@@ -357,6 +360,9 @@ export class KeyRingService {
     const keys = await this.prisma.userShadowKey.findMany({
       where: {
         userId: user.id
+      },
+      include: {
+        browser: true
       }
     });
 
@@ -438,7 +444,7 @@ export class KeyRingService {
       throw new AppException(KeyRingExceptionCode.InvalidAuthKey, "Missing the challenge id", HttpStatus.BAD_REQUEST);
 
     if (!authKey.key)
-        throw new AppException(KeyRingExceptionCode.InvalidAuthKey, "Missing the WebAuthn response", HttpStatus.BAD_REQUEST);
+      throw new AppException(KeyRingExceptionCode.InvalidAuthKey, "Missing the WebAuthn response", HttpStatus.BAD_REQUEST);
 
     const shadow = await this.getShadowKey(authKey.keyId, null, true);
     if (!shadow)

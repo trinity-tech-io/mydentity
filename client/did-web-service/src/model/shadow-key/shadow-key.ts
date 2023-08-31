@@ -1,24 +1,34 @@
+import { Browser } from "@model/browser/browser";
 import { ShadowKeyType } from "./shadow-key-type";
+import { shadowKeyCache } from "./shadow-key.cache";
 import { ShadowKeyDTO } from "./shadow-key.dto";
 
 export class ShadowKey {
-  id: string;
+  keyId: string;
   key: string;
   type: ShadowKeyType;
   createdAt: Date;
   updatedAt: Date;
+  browser: Browser;
 
   public static async fromJson(json: ShadowKeyDTO): Promise<ShadowKey> {
-    const shadowKey = new ShadowKey();
-    Object.assign(shadowKey, json);
+    return shadowKeyCache.get(json.keyId, {
+      async create() {
+        return new ShadowKey();
+      },
+      async fill(shadowKey: ShadowKey) {
+        Object.assign(shadowKey, json);
 
-    shadowKey.createdAt = new Date(json.createdAt);
-    shadowKey.updatedAt = new Date(json.updatedAt);
+        shadowKey.createdAt = new Date(json.createdAt);
+        shadowKey.updatedAt = new Date(json.updatedAt);
 
-    return shadowKey;
+        if (json.browser)
+          shadowKey.browser = await Browser.fromJson(json.browser);
+      },
+    });
   }
 
   public equals(otherKey: ShadowKey): boolean {
-    return this.id === otherKey.id;
+    return this.keyId === otherKey.keyId;
   }
 }

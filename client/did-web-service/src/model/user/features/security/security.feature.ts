@@ -82,7 +82,7 @@ export class SecurityFeature implements UserFeature {
     logger.log("keyring", "Binding password");
 
     let shadowKey: ShadowKey;
-    if (this.isPasswordBound()) {
+    if (!this.isPasswordBound()) {
       const newKey: AuthKeyInput = {
         type: ShadowKeyType.PASSWORD,
         key: newPassword,
@@ -206,8 +206,6 @@ export class SecurityFeature implements UserFeature {
    * Tells if user has bound this browser with passkey
    */
   public isThisBrowserBound(): boolean {
-    // TODO: for now we don't check if the passkey is from this browser or another browser.
-    // Need to implement this.
-    return this.passkeyKeys$.value?.length > 0;
+    return !!this.passkeyKeys$.value?.find(key => key.browser?.isCurrentBrowser());
   }
 }

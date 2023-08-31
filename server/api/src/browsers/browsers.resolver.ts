@@ -4,14 +4,14 @@ import { User } from '@prisma/client';
 import { CurrentUser } from 'src/auth/currentuser.decorator';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { BrowsersService } from './browsers.service';
-import { Browser } from './entities/browser.entity';
+import { BrowserEntity } from './entities/browser.entity';
 
-@Resolver(() => Browser)
+@Resolver(() => BrowserEntity)
 export class BrowsersResolver {
   constructor(private readonly browsersService: BrowsersService) { }
 
   @UseGuards(JwtAuthGuard)
-  @Query(() => [Browser], { name: 'browsers' })
+  @Query(() => [BrowserEntity], { name: 'browsers' })
   findAll(@CurrentUser() user: User) {
     return this.browsersService.findAll(user);
   }

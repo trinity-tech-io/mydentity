@@ -1,15 +1,15 @@
-import {UserFeature} from "@model/user/features/user-feature";
-import {UserEmail} from "@model/user-email/user-email";
-import {logger} from "@services/logger";
-import {withCaughtAppException} from "@services/error.service";
-import {getApolloClient} from "@services/graphql.service";
-import {UserEmailDTO} from "@model/user-email/user-email.dto";
-import {gql} from "@apollo/client";
-import {graphQLPublicUserEmailFields} from "@graphql/user-email.fields";
-import {User} from "@model/user/user";
-import {LazyBehaviorSubjectWrapper} from "@utils/lazy-behavior-subject";
-import {AppException} from "@model/exceptions/app-exception";
-import {AuthExceptionCode} from "@model/exceptions/exception-codes";
+import { gql } from "@apollo/client";
+import { graphQLPublicUserEmailFields } from "@graphql/user-email.fields";
+import { AppException } from "@model/exceptions/app-exception";
+import { AuthExceptionCode } from "@model/exceptions/exception-codes";
+import { UserEmail } from "@model/user-email/user-email";
+import { UserEmailDTO } from "@model/user-email/user-email.dto";
+import { UserFeature } from "@model/user/features/user-feature";
+import { User } from "@model/user/user";
+import { withCaughtAppException } from "@services/error.service";
+import { getApolloClient } from "@services/graphql.service";
+import { logger } from "@services/logger";
+import { LazyBehaviorSubjectWrapper } from "@utils/lazy-behavior-subject";
 
 export function isEmailAlreadyExistsException(e: AppException): boolean {
     return e.appExceptionCode === AuthExceptionCode.EmailAlreadyExists;
@@ -23,7 +23,7 @@ export class UserEmailFeature implements UserFeature {
     private _userEmails$ = new LazyBehaviorSubjectWrapper<UserEmail[]>([], () => this.fetchUserEmails());
     public get userEmails$() { return this._userEmails$.getSubject(); }
 
-    constructor(protected user: User) {}
+    constructor(protected user: User) { }
 
     private async fetchUserEmails(): Promise<UserEmail[]> {
         logger.log("user", "list user emails.");
@@ -41,8 +41,6 @@ export class UserEmailFeature implements UserFeature {
                 `
             });
         });
-
-        logger.log("user", "data", data);
 
         if (data?.fetchUserEmails) {
             return data.fetchUserEmails.map(e => UserEmail.fromJson(e, this.user));

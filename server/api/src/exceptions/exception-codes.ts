@@ -1,9 +1,10 @@
 export enum AuthExceptionCode {
-  SomethingTodo = 10101,
   AuthError = 10102,
   EmailAlreadyExists = 10103,
-  EmailNotExists = 10104,
-  AuthKeyNotExists = 10105,
+  InexistingEmail = 10104,
+  InexistingAuthKey = 10105,
+  WrongAccessToken = 10106,
+  InexistingUser = 10107,
   Unspecific = 10199,
 }
 

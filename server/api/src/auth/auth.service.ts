@@ -2,8 +2,6 @@ import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
 import { BrowsersService } from 'src/browsers/browsers.service';
-import { UserEntity } from 'src/user/entities/user.entity';
-import { uuid } from 'uuidv4';
 import { AuthTokens } from './model/auth-tokens';
 
 @Injectable()
@@ -54,8 +52,10 @@ export class AuthService {
     };
   }
 
-  async refreshAccessToken(user: UserEntity) {
-    const payload = { sub: user.id, clientId: uuid() };
+  async refreshAccessToken(user: User, existingBrowserId?: string, userAgent?: string) {
+    const browserId = await this.browsersService.validateOrCreateBrowserId(user, userAgent, existingBrowserId);
+
+    const payload = { sub: user.id, browserId: existingBrowserId };
 
     return {
       accessToken: this.jwtTokenService.sign(payload, {

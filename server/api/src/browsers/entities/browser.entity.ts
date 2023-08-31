@@ -1,7 +1,7 @@
 import { Field, GraphQLISODateTime, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
-export class Browser {
+export class BrowserEntity {
   @Field(() => String)
   id: string;
 

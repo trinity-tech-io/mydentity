@@ -1,5 +1,6 @@
 import { Field, GraphQLISODateTime, ObjectType } from '@nestjs/graphql';
 import { UserShadowKeyType } from '@prisma/client';
+import { BrowserEntity } from 'src/browsers/entities/browser.entity';
 
 @ObjectType()
 export class ShadowKeyEntity {
@@ -17,4 +18,7 @@ export class ShadowKeyEntity {
 
   @Field(() => GraphQLISODateTime)
   updatedAt: string;
+
+  @Field(() => BrowserEntity, { nullable: true })
+  browser?: BrowserEntity;
 }

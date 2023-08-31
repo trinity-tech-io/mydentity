@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
+import { AppException } from 'src/exceptions/app-exception';
+import { AuthExceptionCode } from 'src/exceptions/exception-codes';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 type JWTPayload = {
@@ -26,6 +28,9 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     // Fetch authenticated user object based on access token user id.
     // JWT signature validity has been checked earlier by passport-jwt
     const user = await this.prisma.user.findFirst({ where: { id: payload.sub } });
+
+    if (!payload.browserId)
+      throw new AppException(AuthExceptionCode.WrongAccessToken, "browserId not found in access token. Sign in again and retry.", 403);
 
     // Remember last access from this browser
     const browser = await this.prisma.browser.update({

@@ -4,6 +4,7 @@ import { ChallengeEntity } from "@model/shadow-key/challengeEntity";
 import { ShadowKeyType } from "@model/shadow-key/shadow-key-type";
 import { User } from "@model/user/user";
 import { UserDTO } from "@model/user/user.dto";
+import { checkNewAccessTokenForBrowserId } from "@services/browser.service";
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { getPasskeyChallenge } from "@services/keyring/keyring.service";
@@ -14,7 +15,6 @@ import Queue from "promise-queue";
 import { LoggedUserOutput } from "./logged-user.output";
 import { SignUpInput } from "./sign-up.input";
 import { authUser$, getActiveUser } from "./user.events";
-import { checkNewAccessTokenForBrowserId } from "@services/browser.service";
 
 const fetchUserQueue = new Queue(1); // Execute user retrieval from the backend one by one to avoid duplicates
 
@@ -69,7 +69,7 @@ export async function saveAuthUser(user: User) {
  */
 export async function fetchSelfUser(curToken?: string, refreshToken?: string): Promise<User> {
   return fetchUserQueue.add(async () => {
-    logger.log("users", "Fetching self user profile", curToken, refreshToken);
+    logger.log("users", "Fetching self user profile");
 
     if (curToken) {
       // update for apollo client
@@ -236,6 +236,8 @@ export async function refreshToken(): Promise<string> {
 
     // Only update active access token.
     localStorage.setItem("access_token", accessToken);
+
+    await checkNewAccessTokenForBrowserId(accessToken);
 
     // Notify user access token changed, websocket will recreated.
     authUser$().next(getActiveUser());

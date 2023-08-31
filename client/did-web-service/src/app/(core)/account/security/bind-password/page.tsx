@@ -7,7 +7,6 @@ import { useToast } from "@services/feedback.service";
 import { useCallWithUnlock } from "@services/security/security.service";
 import { authUser$ } from "@services/user/user.events";
 import { useRouter } from "next/navigation";
-import router from "next/router";
 import { FC } from "react";
 
 const BindPassword: FC = () => {
@@ -27,7 +26,7 @@ const BindPassword: FC = () => {
       showSuccessToast("Master password set successfully");
       setTimeout(() => {
         router.push("/account/security");
-      }, 2000);
+      }, 500);
     }
   }
 
