@@ -120,6 +120,8 @@ class DIDDocumentsService {
    * - An "app icon", if the did document is an application DID
    */
   public getRepresentativeIcon(document: DIDDocument): BehaviorSubject<Buffer> {
+    if (!document) return null;
+
     let hiveIconUrl: string = null;
 
     let credentials = document.getCredentials();
@@ -168,6 +170,8 @@ class DIDDocumentsService {
    * - An "app title", if the did document is an application DID
    */
   public getRepresentativeOwnerName(document: DIDDocument): string {
+    if (!document) return null;
+
     let name: string = null;
 
     let credentials = document.getCredentials();

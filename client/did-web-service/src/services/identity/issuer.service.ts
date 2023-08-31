@@ -7,7 +7,10 @@ export class IssuerService {
   private issuerName = null;
   private issuerIcon = null;
 
-  constructor(private didString: string) {}
+  constructor(private didString: string) {
+    // for test
+    // this.didString = "did:elastos:iqjN3CLRjd7a4jGCZe6B3isXyeLy7KKDuK"; // Kyc
+  }
 
   async getIssuerName() {
     if (this.issuerName)
@@ -39,6 +42,12 @@ export class IssuerService {
       } else
         resolve(null);
     });
+  }
+
+  async isPublished() {
+    await this.fetchDIDDocument();
+
+    return this.didDocument != null;
   }
 
   /**

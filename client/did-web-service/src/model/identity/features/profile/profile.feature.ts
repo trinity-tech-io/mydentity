@@ -47,12 +47,12 @@ export class ProfileFeature implements IdentityFeature {
       }
 
       const entry = findProfileInfoByTypes(types);
-      for (let index = 0; index < types.length; index++) {
+      types.forEach(type => {
         // Only support full type
-        if (types[index].indexOf('#') >= 0) {
-          credentialType.push(types[index])
-        }
-      }
+        if (type.indexOf('#') >= 0)
+          credentialType.push(type);
+      });
+
       credentialType.push(entry.context + "#" + entry.shortType);
 
       const expirationDate = moment().add(5, "years").toDate();
