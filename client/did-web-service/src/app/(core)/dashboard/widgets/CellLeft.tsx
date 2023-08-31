@@ -16,7 +16,7 @@ const IdentityCellLeft = ({ identity }) => {
         ) : (
           <Avatar src={"/assets/images/account.svg"} />
         )}
-        <div style={{ marginLeft: '8px' }}>
+        <div style={{ width: '300px', marginLeft: '8px' }}>
           <div style={{ fontWeight: 'bold' }}>{name  as string}</div>
           {shortenDID(identity.did, 8)}
         </div>
