@@ -48,7 +48,10 @@ export class ProfileFeature implements IdentityFeature {
 
       const entry = findProfileInfoByTypes(types);
       for (let index = 0; index < types.length; index++) {
-        credentialType.push(types[index])
+        // Only support full type
+        if (types[index].indexOf('#') >= 0) {
+          credentialType.push(types[index])
+        }
       }
       credentialType.push(entry.context + "#" + entry.shortType);
 
