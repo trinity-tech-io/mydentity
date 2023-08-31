@@ -1,13 +1,38 @@
-import React from 'react';
+import { logger } from '@elastosfoundation/elastos-connectivity-sdk-js';
 import { Credential } from '@model/credential/credential';
 import { Avatar, Box, Grid, Stack, Typography } from '@mui/material';
-import IdentityMenu from './IdentityMenu'; 
+import { issuerService } from '@services/identity/issuer.service';
+import { useEffect, useState } from 'react';
+import IdentityMenu from './IdentityMenu';
 
 interface Props {
   selectedCredential: Credential
 }
 export const CredentialDetailWidget = (props: Props) => {
-  const { selectedCredential } = props
+  const { selectedCredential } = props;
+  const [isPublished, setIsPublished] = useState<boolean>(false);
+  const [issuerName, setIssuerName] = useState<string>('');
+  const [issuerIcon, setIssuerIcon] = useState<string>('');
+
+  useEffect(() => {
+    fetchIssuerInfo();
+  }, [selectedCredential]);
+
+  const fetchIssuerInfo = async () => {
+    let issuer = selectedCredential.verifiableCredential.getIssuer().toString();
+
+    const isPublish = await issuerService.isPublished(issuer);
+    setIsPublished(isPublish);
+
+    if (isPublish) {
+      const issuerName = await issuerService.getIssuerName(issuer);
+      logger.log('credential', 'issuerName:', issuerName);
+      setIssuerName(issuerName);
+
+      const issuerIcon = await issuerService.getIssuerAvatar(issuer);
+      setIssuerIcon(issuerIcon);
+    }
+  }
 
   return (
     <div className="col-span-full xl:col-span-7 bg-white dark:bg-slate-800 shadow-lg rounded-sm border border-slate-200 dark:border-slate-700">
@@ -47,6 +72,18 @@ export const CredentialDetailWidget = (props: Props) => {
                 <Grid item xs={6}>
                   <Typography variant="body1" sx={{ color: 'text.secondary' }}>
                     {selectedCredential.verifiableCredential.expirationDate.toLocaleDateString()}
+                  </Typography>
+                </Grid>
+
+                <Grid item xs={6}>
+                  <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+                    Issuer:
+                  </Typography>
+                </Grid>
+                {/* TODO Issuer avatar */}
+                <Grid item xs={6}>
+                  <Typography variant="body1" sx={{ color: 'text.secondary' }} noWrap>
+                    {issuerName}
                   </Typography>
                 </Grid>
               </Grid>

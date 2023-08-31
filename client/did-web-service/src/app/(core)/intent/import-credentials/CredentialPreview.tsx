@@ -5,7 +5,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import { Avatar, Card, Stack, Typography } from "@mui/material";
 import Paper from '@mui/material/Paper';
 import { styled } from '@mui/material/styles';
-import { IssuerService } from '@services/identity/issuer.service';
+import { issuerService } from '@services/identity/issuer.service';
 import { shortenString } from '@utils/strings';
 import { FC, useEffect, useState } from "react";
 
@@ -33,17 +33,17 @@ export const CredentialPreview: FC<Props> = (props: Props) => {
     }, [credential]);
 
     const fetchIssuerInfo = async () => {
-      let issuerService = new IssuerService(credential.verifiableCredential.getIssuer().toString());
+      let issuer = credential.verifiableCredential.getIssuer().toString();
 
-      const isPublish = await issuerService.isPublished();
+      const isPublish = await issuerService.isPublished(issuer);
       setIsPublished(isPublish);
 
       if (isPublish) {
-        const issuerName = await issuerService.getIssuerName();
+        const issuerName = await issuerService.getIssuerName(issuer);
         logger.log('credential', 'issuerName:', issuerName);
         setIssuerName(issuerName);
 
-        const issuerIcon = await issuerService.getIssuerAvatar();
+        const issuerIcon = await issuerService.getIssuerAvatar(issuer);
         setIcon(issuerIcon);
       }
     }
