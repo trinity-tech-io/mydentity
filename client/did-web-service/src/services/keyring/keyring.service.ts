@@ -43,6 +43,38 @@ export async function bindKey(newKey: AuthKeyInput): Promise<ShadowKey> {
 }
 
 /**
+ * Change password - similar to bindKey for passwords but bindKey can't be called
+ * when a password is already set, we need to call changePassword instead.
+ */
+export async function changePassword(newPassword: string): Promise<ShadowKey> {
+  logger.log("keyring", "Changing password");
+
+  const result = await withCaughtAppException(() => {
+    return getApolloClient().mutate<{ changePassword: ShadowKeyDTO }>({
+      mutation: gql`
+        mutation ChangePassword($newPassword: String!) {
+          changePassword(newPassword: $newPassword) {
+            ${gqlShadowKeyFields}
+          }
+        }
+      `,
+      variables: {
+        newPassword
+      }
+    });
+  }, null);
+
+  if (result?.data?.changePassword) {
+    const shadowKey = await ShadowKey.fromJson(result?.data?.changePassword);
+    logger.log("keyring", "Password changed successfully");
+    return shadowKey;
+  }
+  else {
+    return null;
+  }
+}
+
+/**
  * Uses unlock authorization keys provided by the user (password, passkey) to try to unlock
  * the master key on the server. If successful, this decrypts user's master key on the server
  * side for a few minutes (memory cache) and allows calling other master-key related apis such as

@@ -7,7 +7,7 @@ import { ShadowKeyDTO } from "@model/shadow-key/shadow-key.dto";
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { AuthKeyInput } from "@services/keyring/auth-key.input";
-import { bindKey, getPasskeyChallenge, unlockMasterKey } from "@services/keyring/keyring.service";
+import { bindKey, changePassword, getPasskeyChallenge, unlockMasterKey } from "@services/keyring/keyring.service";
 import { logger } from "@services/logger";
 import { startAuthentication, startRegistration } from "@simplewebauthn/browser";
 import { PublicKeyCredentialCreationOptionsJSON, PublicKeyCredentialRequestOptionsJSON } from "@simplewebauthn/typescript-types";
@@ -74,20 +74,34 @@ export class SecurityFeature implements UserFeature {
 
   /**
    * Sets the master unlock password for the currently signed in user.
+   * - If a password key already exists, we call bindKey (first time).
+   * - If not, we call changePassword, which creates a new shadow key.
+   * Then the old password shadow key is removed locally.
    */
   public async bindPassword(newPassword: string): Promise<boolean> {
     logger.log("keyring", "Binding password");
 
-    const newKey: AuthKeyInput = {
-      type: ShadowKeyType.PASSWORD,
-      key: newPassword,
-      keyId: "unused-for-now-for-passwords",
+    let shadowKey: ShadowKey;
+    if (this.isPasswordBound()) {
+      const newKey: AuthKeyInput = {
+        type: ShadowKeyType.PASSWORD,
+        key: newPassword,
+        keyId: "unused-for-now-for-passwords",
+      }
+
+      shadowKey = await bindKey(newKey);
+    }
+    else {
+      shadowKey = await changePassword(newPassword);
     }
 
-    const shadowKey = await bindKey(newKey);
-
     if (shadowKey) {
+      // Delete the existing password shadow key if any
+      this.deletePasswordShadowKey();
+
+      // Insert the new password key
       this.upsertShadowKey(shadowKey);
+
       return true;
     }
 
@@ -171,6 +185,13 @@ export class SecurityFeature implements UserFeature {
     this.shadowKeys$.next([
       ...keys.filter(k => !k.equals(shadowKey)),
       shadowKey
+    ]);
+  }
+
+  private deletePasswordShadowKey() {
+    const keys = this.shadowKeys$.value;
+    this.shadowKeys$.next([
+      ...keys.filter(k => k.type !== ShadowKeyType.PASSWORD),
     ]);
   }
 
