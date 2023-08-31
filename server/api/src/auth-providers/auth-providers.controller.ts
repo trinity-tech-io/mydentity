@@ -5,7 +5,6 @@ import { AppException } from "../exceptions/app-exception";
 import { AuthExceptionCode } from "../exceptions/exception-codes";
 import { logger } from "../logger";
 import { UserService } from "../user/user.service";
-import { AuthProvidersService } from './auth-providers.service';
 import { MicrosoftProfileService } from "./microsoft-profile.service";
 
 @Controller()
@@ -14,7 +13,6 @@ export class AuthProvidersController {
   private static readonly ACTION_LOGIN = 'login';
 
   constructor(
-    private readonly authProvidersService: AuthProvidersService,
     private readonly configService: ConfigService,
     private readonly microsoftProfileService: MicrosoftProfileService,
     private readonly userService: UserService

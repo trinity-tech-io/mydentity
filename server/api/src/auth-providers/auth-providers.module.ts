@@ -5,7 +5,6 @@ import { AuthModule } from '../auth/auth.module';
 import { PrismaModule } from '../prisma/prisma.module';
 import { UserModule } from '../user/user.module';
 import { AuthProvidersController } from './auth-providers.controller';
-import { AuthProvidersService } from './auth-providers.service';
 import { MicrosoftProfileService } from './microsoft-profile.service';
 import { MicrosoftStrategy } from './microsoft.strategy';
 
@@ -26,7 +25,6 @@ import { MicrosoftStrategy } from './microsoft.strategy';
   ],
   controllers: [AuthProvidersController],
   providers: [
-    AuthProvidersService,
     MicrosoftStrategy,
     MicrosoftProfileService
   ],
