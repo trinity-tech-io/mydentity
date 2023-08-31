@@ -4,7 +4,7 @@
  */
 import { gql } from "@apollo/client";
 import { gqlShadowKeyFields } from "@graphql/shadow-key.fields";
-import { ChallengeEntity } from "@model/shadow-key/challengeEntity";
+import { ChallengeEntity } from "@model/shadow-key/challenge-entity";
 import { ShadowKey } from "@model/shadow-key/shadow-key";
 import { ShadowKeyDTO } from "@model/shadow-key/shadow-key.dto";
 import { withCaughtAppException } from "@services/error.service";

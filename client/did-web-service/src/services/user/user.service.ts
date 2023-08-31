@@ -1,6 +1,6 @@
 import { gql } from "@apollo/client";
 import { graphQLPublicUserFields } from "@graphql/user.fields";
-import { ChallengeEntity } from "@model/shadow-key/challengeEntity";
+import { ChallengeEntity } from "@model/shadow-key/challenge-entity";
 import { ShadowKeyType } from "@model/shadow-key/shadow-key-type";
 import { User } from "@model/user/user";
 import { UserDTO } from "@model/user/user.dto";
