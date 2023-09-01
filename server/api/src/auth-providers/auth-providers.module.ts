@@ -7,6 +7,7 @@ import { UserModule } from '../user/user.module';
 import { AuthProvidersController } from './auth-providers.controller';
 import { MicrosoftProfileService } from './microsoft-profile.service';
 import { MicrosoftStrategy } from './microsoft.strategy';
+import { AuthProviderResolver } from "./auth-provider.resolver";
 
 @Module({
   imports: [
@@ -26,7 +27,8 @@ import { MicrosoftStrategy } from './microsoft.strategy';
   controllers: [AuthProvidersController],
   providers: [
     MicrosoftStrategy,
-    MicrosoftProfileService
+    MicrosoftProfileService,
+    AuthProviderResolver
   ],
 })
 export class AuthProvidersModule { }

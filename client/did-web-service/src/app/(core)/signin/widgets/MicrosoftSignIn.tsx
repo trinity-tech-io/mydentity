@@ -28,6 +28,9 @@ const MicrosoftSignIn = () => {
   useEffect(() => {
     if (error === 'oauthEmailNotExists') {
       setErrorMsg('This email address is unknown.');
+      setErrorMsg('Email not exists.');
+    } else if (error === 'unknown') {
+      setErrorMsg('Failed to sign in with MS account.');
     }
   }, [])
 

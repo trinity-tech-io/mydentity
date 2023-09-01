@@ -4,44 +4,62 @@ import {LinearProgress} from "@mui/material";
 import {clearOnGoingFlowOperation, FlowOperation, getOnGoingFlowOperation} from "@services/flow.service";
 import {useRouter, useSearchParams} from "next/navigation";
 import {FC, useEffect} from "react";
-import {getAccessToken} from "@services/user/user.events";
+import {oauthMSBindEmail, oauthMSSignIn} from "@services/user/user.service";
+import {EmailExistsException} from "@model/exceptions/email-exists-exception";
+import {EmailNotExistsException} from "@model/exceptions/email-not-exists-exception";
 
 const MicrosoftRedirect: FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const token = searchParams.get('token');
+  const code = searchParams.get('code');
 
   useEffect(() => {
-    if (!token) {
-      alert('MicrosoftRedirect: No token from microsoft authentication.');
+    if (!code) {
+      alert('MicrosoftRedirect: No code from microsoft authentication callback.');
       return;
     }
 
-    let action = null;
     const op = getOnGoingFlowOperation();
 
     console.log('oauth', 'op', op);
 
     switch (op) {
       case FlowOperation.OnBoardingEmailBinding:
-        clearOnGoingFlowOperation();
-        action = 'bind';
+        {
+          clearOnGoingFlowOperation();
+          oauthMSBindEmail(code).then(result => {
+            if (result) {
+              router.push('/account/security?error=unknown');
+            } else {
+              router.push('/account/security');
+            }
+          }).catch((e) => {
+            if (e instanceof EmailExistsException) {
+              router.push('/account/security?error=emailExists');
+            }
+          });
+        }
         break;
       case FlowOperation.OnBoardingEmailSignIn:
-        clearOnGoingFlowOperation();
-        action = 'login';
+        {
+          clearOnGoingFlowOperation();
+          oauthMSSignIn(code).then(result => {
+            if (result) {
+              router.push(`/signin?error=unknown`);
+            } else {
+              router.push(`/signin`);
+            }
+          }).catch((e) => {
+            if (e instanceof EmailNotExistsException) {
+              router.push(`/signin?error=oauthEmailNotExists`);
+            }
+          });
+        }
         break;
       default:
         alert('Invalid operation, please try again.');
         return;
     }
-
-    let redirectUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/microsoft/redirectBack?token=${token}&action=${action}`;
-    const accessToken = getAccessToken();
-    if (accessToken)
-      redirectUrl += `&accessToken=${accessToken}`;
-
-    router.push(redirectUrl);
   }, []);
 
   return (<div className="col-span-full">

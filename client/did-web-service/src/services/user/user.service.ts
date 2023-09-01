@@ -15,6 +15,7 @@ import Queue from "promise-queue";
 import { LoggedUserOutput } from "./logged-user.output";
 import { SignUpInput } from "./sign-up.input";
 import { authUser$, getActiveUser } from "./user.events";
+import { MsSignUpInput } from "@services/user/ms-sign-up.input";
 
 const fetchUserQueue = new Queue(1); // Execute user retrieval from the backend one by one to avoid duplicates
 
@@ -324,3 +325,56 @@ export async function authenticateWithPasskey(): Promise<boolean> {
   }
 }
 
+export async function oauthMSSignIn(code: string): Promise<boolean> {
+  logger.log("user", "oauth MS sign in.");
+
+  const input: MsSignUpInput = { code };
+
+  const response = await withCaughtAppException(() => {
+    return getApolloClient().mutate<{ oauthMSSignIn: LoggedUserOutput }>({
+      mutation: gql`
+        mutation OauthMSSignIn($input: MsSignInInput!) {
+          oauthMSSignIn(input: $input) { accessToken refreshToken }
+        }
+      `,
+      variables: { input }
+    });
+  });
+
+  if (response?.data && response.data.oauthMSSignIn) {
+    const { accessToken, refreshToken } = response.data.oauthMSSignIn;
+    void updateUserByToken(accessToken, refreshToken);
+    return true;
+  }
+  else {
+    // TODO: print error
+    logger.error('user', 'failed to oauth MS sign in.');
+    return false;
+  }
+}
+
+export async function oauthMSBindEmail(code: string): Promise<boolean> {
+  logger.log("user", "oauth MS bind email.");
+
+  const input: MsSignUpInput = { code };
+
+  const response = await withCaughtAppException(() => {
+    return getApolloClient().mutate<{ oauthMSBindEmail: boolean }>({
+      mutation: gql`
+        mutation OauthMSBindEmail($input: MsBindEmailInput!) {
+          oauthMSBindEmail(input: $input)
+        }
+      `,
+      variables: { input }
+    });
+  });
+
+  if (response?.data && response.data.oauthMSBindEmail) {
+    return true;
+  }
+  else {
+    // TODO: print error
+    logger.error('user', 'failed to oauth MS bind email.');
+    return false;
+  }
+}

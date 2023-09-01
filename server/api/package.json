@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@apollo/server": "^4.9.0",
+    "@azure/msal-node": "^2.0.2",
     "@elastosfoundation/did-js-sdk": "^2.2.13",
     "@nestjs/apollo": "^12.0.7",
     "@nestjs/config": "^3.0.0",
