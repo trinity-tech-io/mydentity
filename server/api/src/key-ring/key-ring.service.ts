@@ -164,7 +164,7 @@ export class KeyRingService {
 
     const encryptedSecretKey = SecretBox.encryptWithPassword(secretKey, password);
 
-    return await this.prisma.userShadowKey.create({
+    return this.prisma.userShadowKey.create({
       data: {
         userId: userId,
         keyId: keyId,
@@ -204,7 +204,7 @@ export class KeyRingService {
 
   private async getShadowKey(keyId: string, userId?: string, includeUser?: boolean): Promise<UserShadowKey & { user?: User }> {
     if (userId) {
-      return await this.prisma.userShadowKey.findUnique({
+      return this.prisma.userShadowKey.findUnique({
         where: {
           userId_keyId: {
             userId: userId,
@@ -216,7 +216,7 @@ export class KeyRingService {
         }
       });
     } else {
-      return await this.prisma.userShadowKey.findFirst({
+      return this.prisma.userShadowKey.findFirst({
         where: {
           keyId: keyId
         },
@@ -289,7 +289,7 @@ export class KeyRingService {
       key = newKey.key;
     }
 
-    return await this.addShadowKey(user.id, newKey.keyId, key, credentialId, counter, newKey.type, secretKey, browserId);
+    return this.addShadowKey(user.id, newKey.keyId, key, credentialId, counter, newKey.type, secretKey, browserId);
   }
 
   async removeKey(keyId: string, user: User): Promise<boolean> {
@@ -349,7 +349,6 @@ export class KeyRingService {
           }
         });
 
-        newKey.key = "";
         shadowKeys.push(newKey);
       }
 
