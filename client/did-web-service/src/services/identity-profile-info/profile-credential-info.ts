@@ -1,3 +1,4 @@
+import { CredentialType } from "@model/credential/credential-type";
 import { merge } from "lodash";
 import { CredentialValueConverter } from "./credential-value-converter";
 
@@ -25,8 +26,7 @@ const defaultOptions: ProfileCredentialInfoOptions = {
 export class ProfileCredentialInfo {
     constructor(
         public key: string, // Related key in profile credential keys ("name", "avatar"...)
-        public context?: string,
-        public shortType?: string,
+        public type?: CredentialType,
         public options: ProfileCredentialInfoOptions = { converter: null }
     ) {
         options = merge({}, defaultOptions, options);
@@ -34,6 +34,16 @@ export class ProfileCredentialInfo {
 
     public getConverter(): CredentialValueConverter<any> {
         return this.options.converter;
+    }
+
+    /**
+     * Returns a list of full types to use when creating a profile credential based on this 
+     * profile info.
+     */
+    public typesForCreation(): string[] {
+        return [
+            this.type.getLongType()
+        ];
     }
 
     /**

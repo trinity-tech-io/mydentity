@@ -36,7 +36,7 @@ export class ProfileFeature implements IdentityFeature {
     }
   }
 
-  public async createProfileCredential(credentialId: string = null, types: string[], key: string, editionValue: any): Promise<boolean> {
+  public async createProfileCredential(credentialId: string = null, fullTypes: string[], key: string, editionValue: any): Promise<boolean> {
     let credentialType: string[] = [];
     try {
       let finalCredentialId;
@@ -46,14 +46,9 @@ export class ProfileFeature implements IdentityFeature {
         finalCredentialId = credentialId;
       }
 
-      const entry = findProfileInfoByTypes(types);
-      types.forEach(type => {
-        // Only support full type
-        if (type.indexOf('#') >= 0)
-          credentialType.push(type);
-      });
+      const entry = findProfileInfoByTypes(fullTypes);
 
-      credentialType.push(entry.context + "#" + entry.shortType);
+      credentialType.push(entry.type.getLongType());
 
       const expirationDate = moment().add(5, "years").toDate();
 
@@ -86,7 +81,7 @@ export class ProfileFeature implements IdentityFeature {
       await this.deleteProfileCredential(credentialId);
       await this.createProfileCredential(
         credentialId,
-        credential.verifiableCredential.getType(),
+        profileInfoEntry.typesForCreation(),
         profileInfoEntry.key,
         newValue);
       return true;

@@ -79,7 +79,7 @@ const Profile: FC = () => {
       // Condition to keep the entry available for addition?
       // - Be of kind "multipleInstancesAllowed"
       // - Or not be used by user's credentials yet
-      return entry.options.multipleInstancesAllowed || !credentials?.find(c => c.verifiableCredential.type.includes(entry.shortType));
+      return entry.options.multipleInstancesAllowed || !credentials?.find(c => c.verifiableCredential.type.includes(entry.type?.getShortType()));
     });
 
     setAvailableItemsForAddition(availableEntries);
@@ -130,7 +130,7 @@ const Profile: FC = () => {
     if (editCredentialValue.type == EditionMode.NEW && !originCredential) {
       let isSuccess = false;
       try {
-        isSuccess = await identityProfileFeature.createProfileCredential('', [editCredentialValue.info.shortType], editCredentialValue.info.key, editCredentialValue.value);
+        isSuccess = await identityProfileFeature.createProfileCredential('', editCredentialValue.info.typesForCreation(), editCredentialValue.info.key, editCredentialValue.value);
       } catch (error) {
         logger.error(TAG, 'Create credential error', error);
       }
