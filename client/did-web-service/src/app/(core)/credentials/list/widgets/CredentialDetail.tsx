@@ -10,12 +10,11 @@ export const CredentialDetailWidget = (props: Props) => {
   const { selectedCredential } = props;
   const [issuerInfo] = useBehaviorSubject(selectedCredential?.issuerInfo$);
 
-
   return (
     <div className="col-span-full xl:col-span-7 bg-white dark:bg-slate-800 shadow-lg rounded-sm border border-slate-200 dark:border-slate-700">
       {selectedCredential &&
         (<Box sx={{ px: 2.5, pb: 3 }}>
-          <div style={{ display: 'flex', justifyContent: 'flex-end',  marginTop: '24px'}}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '24px' }}>
             <IdentityMenu onEdit={selectedCredential} onDelete={selectedCredential} />
           </div>
           <Stack alignItems="center" spacing={3} sx={{ pt: 5, borderRadius: 2, position: 'relative' }}>
@@ -53,19 +52,19 @@ export const CredentialDetailWidget = (props: Props) => {
                 </Grid>
 
                 {
-                  (!selectedCredential.selfIssued() && issuerInfo.isPublished) && (
-                <><Grid item xs={6}>
-                    <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-                      Issuer:
-                    </Typography>
-                  </Grid>
-                    {/* TODO Issuer avatar */}
-                    <Grid item xs={6}>
-                      <Typography variant="body1" sx={{ color: 'text.secondary' }} noWrap>
-                        {issuerInfo?.name}
+                  (!selectedCredential.selfIssued() && issuerInfo?.isPublished) && (
+                    <><Grid item xs={6}>
+                      <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+                        Issuer:
                       </Typography>
-                    </Grid></>
-                )}
+                    </Grid>
+                      {/* TODO Issuer avatar */}
+                      <Grid item xs={6}>
+                        <Typography variant="body1" sx={{ color: 'text.secondary' }} noWrap>
+                          {issuerInfo?.name}
+                        </Typography>
+                      </Grid></>
+                  )}
               </Grid>
             </Box>
           </Stack>

@@ -61,7 +61,7 @@ export const CredentialPreview: FC<Props> = (props: Props) => {
                                     <Avatar>T</Avatar>
                                 </Stack>
                                 <Stack sx={{ maxWidth: 400 }}>
-                                    <Typography fontSize={13} noWrap>{shortenString(issuerInfo?.name, 30)}</Typography>
+                                    <Typography fontSize={13} noWrap>{issuerInfo && shortenString(issuerInfo?.name, 30)}</Typography>
                                 </Stack>
                             </Stack>
                         </Item>

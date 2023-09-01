@@ -38,7 +38,6 @@ export class BrowsersService {
    * - If no browser id is given, create a new one too
    */
   public async validateOrCreateBrowserId(user: User, userAgent: string, existingBrowserId?: string): Promise<string> {
-    console.log("existingBrowserId", existingBrowserId)
     let browserId = existingBrowserId;
     if (existingBrowserId) {
       const existingBrowser = await this.findOne(existingBrowserId);

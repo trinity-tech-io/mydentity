@@ -5,7 +5,7 @@ export function capitalizeFirstLetter(str: string) {
 }
 
 export function shortenString(inputString: string, maxLength: number): string {
-  return inputString.length > maxLength ?
+  return inputString?.length > maxLength ?
     inputString.substring(0, maxLength / 2 - 1) + "..." +
     inputString.substring(inputString.length - (maxLength / 2 - 1), inputString.length) :
     inputString;

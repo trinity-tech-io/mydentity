@@ -84,7 +84,6 @@ export class UserResolver {
   @Mutation(() => RefreshTokenOutput)
   async refreshToken(@Args('refreshTokenInput') refreshTokenInput: RefreshTokenInput, @HeaderBrowserId() browserId: string, @UserAgent() userAgent: string): Promise<RefreshTokenOutput> {
     try {
-      console.log("refresh token browser", browserId)
       const user = await this.userService.getUserByToken(refreshTokenInput.refreshToken);
       return this.userService.refreshAccessToken(user, browserId, userAgent);
     } catch (e) {
