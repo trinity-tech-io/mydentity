@@ -81,7 +81,7 @@ export class SecurityFeature implements UserFeature {
   public async bindPassword(newPassword: string): Promise<boolean> {
     logger.log("keyring", "Binding password");
 
-    let shadowKey: ShadowKey;
+    let newShadowKeys: ShadowKey[];
     if (!this.isPasswordBound()) {
       const newKey: AuthKeyInput = {
         type: ShadowKeyType.PASSWORD,
@@ -89,18 +89,18 @@ export class SecurityFeature implements UserFeature {
         keyId: "unused-for-now-for-passwords",
       }
 
-      shadowKey = await bindKey(newKey);
+      newShadowKeys = [await bindKey(newKey)];
     }
     else {
-      shadowKey = await changePassword(newPassword);
+      newShadowKeys = await changePassword(newPassword);
     }
 
-    if (shadowKey) {
+    if (newShadowKeys) {
       // Delete the existing password shadow key if any
       this.deletePasswordShadowKey();
 
       // Insert the new password key
-      this.upsertShadowKey(shadowKey);
+      newShadowKeys.forEach(k => this.upsertShadowKey(k));
 
       return true;
     }

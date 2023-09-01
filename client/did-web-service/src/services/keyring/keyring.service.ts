@@ -46,12 +46,15 @@ export async function bindKey(newKey: AuthKeyInput): Promise<ShadowKey> {
 /**
  * Change password - similar to bindKey for passwords but bindKey can't be called
  * when a password is already set, we need to call changePassword instead.
+ *
+ * An array of new shadow keys is returned, as forward compatibility to future
+ * "multi passwords" support. But in theory, only one entry is returned for now.
  */
-export async function changePassword(newPassword: string): Promise<ShadowKey> {
+export async function changePassword(newPassword: string): Promise<ShadowKey[]> {
   logger.log("keyring", "Changing password");
 
   const result = await withCaughtAppException(() => {
-    return getApolloClient().mutate<{ changePassword: ShadowKeyDTO }>({
+    return getApolloClient().mutate<{ changePassword: ShadowKeyDTO[] }>({
       mutation: gql`
         mutation ChangePassword($newPassword: String!) {
           changePassword(newPassword: $newPassword) {
@@ -66,9 +69,9 @@ export async function changePassword(newPassword: string): Promise<ShadowKey> {
   }, null);
 
   if (result?.data?.changePassword) {
-    const shadowKey = await ShadowKey.fromJson(result?.data?.changePassword);
-    logger.log("keyring", "Password changed successfully");
-    return shadowKey;
+    const shadowKeys = await Promise.all(result?.data?.changePassword.map(k => ShadowKey.fromJson(k)));
+    logger.log("keyring", "Password changed successfully", shadowKeys);
+    return shadowKeys;
   }
   else {
     return null;
