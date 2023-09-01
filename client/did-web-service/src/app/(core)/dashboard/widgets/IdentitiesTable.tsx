@@ -24,8 +24,8 @@ const useStyles = makeStyles((theme: Theme) => ({
     display: 'flex',
     alignItems: 'center',
     padding: '6px', // Add some horizontal padding for better spacing
-    backgroundColor: 'rgba(0, 0, 0, 0.03)',
-    color: '#A9A9A9', 
+    backgroundColor: '#f8fafc',
+    color: '#96a5b9', 
     fontWeight: 'bold', 
     fontSize: '12px', 
   },
