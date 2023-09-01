@@ -89,12 +89,11 @@ const CustomCell = ({ identity }) => {
         onClick={() => handleCellClick(identity)}
         onMouseDown={() => setCellClicked(true)} // Add the click effect when the mouse is pressed
         onMouseUp={() => setCellClicked(false)} // Remove the click effect when the mouse is released 
-        // style={{ pointerEvents: cellClicked ? 'none' : 'auto' }} 
         >
-        <div>
+        <div style={{ width: '50%'}}>
           <IdentityCellLeft identity={identity} />
         </div>
-        <div>
+        <div style={{width: '20%', padding: '0px' }}>
           <Typography variant="h6">
             {identity.createdAt.toLocaleDateString()}
           </Typography>

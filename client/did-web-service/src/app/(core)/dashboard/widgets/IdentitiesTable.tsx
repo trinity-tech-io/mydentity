@@ -17,6 +17,45 @@ const useStyles = makeStyles((theme: Theme) => ({
     marginRight: 2,
     height: 80,
     width: '100%',
+    background:'dark:text-slate-500 bg-slate-50 dark:bg-slate-700 dark:bg-opacity-50'
+  },
+
+  header: {
+    padding: theme.spacing(2),
+    border: `0.5px solid ${theme.palette.divider}`,
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    // textAlign: 'center',
+    justifyContent: 'space-between', 
+    marginRight: 10,
+    height: 60,
+    width: '100%',
+    background:'dark:text-slate-500 bg-slate-50 dark:bg-slate-700 dark:bg-opacity-50'
+  },
+
+  item: {
+    display: 'flex',
+    alignItems: 'center',
+    padding: '6px', // Add some horizontal padding for better spacing
+    backgroundColor: 'rgba(0, 0, 0, 0.03)',
+    color: '#A9A9A9', 
+    fontWeight: 'bold', 
+    fontSize: '12px', 
+  },
+  firstItem: {
+    width: '56%',
+    justifyContent: 'flex-start', // Align the first item to the left
+  },
+  secondItem: {
+    width: '24%',
+    justifyContent: 'center', // Align the second and third items to the right
+    // background: 'blue',
+  },
+  thirdItem: {
+    width: '20%',
+    justifyContent: 'flex-end',
+    // background: 'red',
   },
 }));
 
@@ -27,12 +66,12 @@ const HorizontalCellTable = ({identities }) => {
     <Grid container spacing={0}>
       <Grid item xs={12}>
         <Paper elevation={3} className={classes.cell}>
-          <div style={{ fontWeight: 'bold' }}> My Identities </div>
+          <Typography style={{ fontWeight: 'bold' }}> My Identities </Typography>
         </Paper>
-        <Paper elevation={3} className={classes.cell}>
-          <div style={{ width: '345px', fontWeight: 'Semi Bold' }}> Identity </div>
-          <div style={{ fontWeight: 'Semi Bold'}}> Creation Date </div>
-          <div style={{ fontWeight: 'Semi Bold' }}> Action </div>
+        <Paper elevation={3} className={classes.header}>
+          <div className={`${classes.item} ${classes.firstItem}`}> IDENTITY </div>
+          <div className={`${classes.item} ${classes.secondItem}`}> CREATION DATE </div>
+          <div className={`${classes.item} ${classes.thirdItem}`}> ACTION </div>
         </Paper>
       </Grid>
       {identities.map((identity, index) => (
