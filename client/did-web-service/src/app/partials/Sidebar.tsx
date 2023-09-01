@@ -12,10 +12,9 @@ import { activeIdentity$ } from '@services/identity/identity.events';
 import { shortenDID } from '@services/identity/identity.utils';
 import { authUser$ } from '@services/user/user.events';
 import clsx from 'clsx';
-import Image, { StaticImageData } from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { FC, useEffect, useRef, useState } from 'react';
+import { FC, ReactNode, useEffect, useRef, useState } from 'react';
 import ThemeToggle from '../components/generic/ThemeToggle';
 
 type LinkConfig = {
@@ -24,7 +23,7 @@ type LinkConfig = {
 }
 
 type GroupConfig = {
-  icon: StaticImageData;
+  icon: ReactNode;
   title: string;
   url?: string;
   links?: LinkConfig[];
@@ -33,12 +32,12 @@ type GroupConfig = {
 
 const groups: GroupConfig[] = [
   {
-    icon: DashboardIcon,
+    icon: <DashboardIcon />,
     title: "Dashboard",
     url: "/dashboard"
   },
   {
-    icon: AccountIcon,
+    icon: <AccountIcon />,
     title: "Profile",
     links: [
       { title: "My profile", url: "/profile" },
@@ -47,14 +46,14 @@ const groups: GroupConfig[] = [
     requiresAuth: true
   },
   {
-    icon: MarketplaceIcon,
+    icon: <MarketplaceIcon />,
     title: "Hub",
     links: [
       { title: "Get more credentials", url: "/marketplace" }
     ]
   },
   {
-    icon: LearnIcon,
+    icon: <LearnIcon />,
     title: "Learn",
     links: [
       { title: "DIDs", url: "/learn/dids" },
@@ -62,7 +61,7 @@ const groups: GroupConfig[] = [
     ]
   },
   {
-    icon: ManageIcon,
+    icon: <ManageIcon />,
     title: "Manage",
     links: [
       { title: "Export", url: "/manage/export" },
@@ -70,7 +69,7 @@ const groups: GroupConfig[] = [
     ]
   },
   {
-    icon: DiscoverIcon,
+    icon: <DiscoverIcon />,
     title: "Discover",
     links: [
       { title: "Essentials identity wallet", url: "/discover/essentials" },
@@ -79,7 +78,7 @@ const groups: GroupConfig[] = [
     ]
   },
   {
-    icon: SupportIcon,
+    icon: <SupportIcon />,
     title: "Support",
     links: [
       { title: "FAQ", url: "/support/faq" },
@@ -142,7 +141,9 @@ const GroupElement: FC<{
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <Image src={icon} alt="" className='shrink-0 h-6 w-6' />
+                <div className='shrink-0 h-6 w-6' >
+                  {icon}
+                </div>
                 <span className={clsx("text-sm font-medium ml-3 lg:opacity-0 2xl:opacity-100 duration-200", sidebarExpanded && "lg:!opacity-100")}>
                   {title}
                 </span>

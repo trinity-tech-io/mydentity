@@ -38,6 +38,7 @@ export async function bindKey(newKey: AuthKeyInput): Promise<ShadowKey> {
     return shadowKey;
   }
   else {
+    logger.error("keyring", "Failed to bind key");
     return null;
   }
 }

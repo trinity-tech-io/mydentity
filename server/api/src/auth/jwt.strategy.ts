@@ -25,9 +25,13 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   async validate(payload: JWTPayload) {
+    console.log("jwt validate", payload)
+
     // Fetch authenticated user object based on access token user id.
     // JWT signature validity has been checked earlier by passport-jwt
     const user = await this.prisma.user.findFirst({ where: { id: payload.sub } });
+    if (!user)
+      throw new AppException(AuthExceptionCode.InexistingUser, "User not found for the current access token", 401);
 
     if (!payload.browserId)
       throw new AppException(AuthExceptionCode.WrongAccessToken, "browserId not found in access token. Sign in again and retry.", 403);

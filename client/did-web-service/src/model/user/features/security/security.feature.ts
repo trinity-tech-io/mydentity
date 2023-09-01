@@ -7,7 +7,7 @@ import { ShadowKeyDTO } from "@model/shadow-key/shadow-key.dto";
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { AuthKeyInput } from "@services/keyring/auth-key.input";
-import { bindKey, changePassword, getPasskeyChallenge, unlockMasterKey } from "@services/keyring/keyring.service";
+import { bindKey, changePassword, getPasskeyChallenge } from "@services/keyring/keyring.service";
 import { logger } from "@services/logger";
 import { startAuthentication, startRegistration } from "@simplewebauthn/browser";
 import { PublicKeyCredentialCreationOptionsJSON, PublicKeyCredentialRequestOptionsJSON } from "@simplewebauthn/typescript-types";
@@ -129,22 +129,24 @@ export class SecurityFeature implements UserFeature {
   }
 
   /**
-  * Unlocks the currently signed in user's master key on the backend, from user's password.
-  */
-  public async unlockPasskey(): Promise<boolean> {
+   * Prepares passkey unlock process by requesting a challenge to the backend, then
+   * signing it with user's browser passkey. The generated auth input is returned and must
+   * later be processed with a call to unlockMasterKey(authKey) to actually unlock the key on the backend.
+   */
+  public async unlockPasskeyLocally(): Promise<AuthKeyInput> {
     logger.log("Keyring", "start unlock passkey...")
     const challengeInfo = await getPasskeyChallenge()
     const infos = await this.pkCredentialCreationOptions(challengeInfo, null)
     // true: Autofill account password will report an error
     const attResp = await startAuthentication(infos[0], false)
     const authKey = {
-      type: ShadowKeyType.WEBAUTHN,//-7
+      type: ShadowKeyType.WEBAUTHN, //-7
       keyId: attResp.id,
       key: JSON.stringify(attResp),
       challengeId: challengeInfo.id,
     };
     logger.log("Keyring", "start unlock passkey, attResp: ", attResp);
-    return await unlockMasterKey(authKey);
+    return authKey;
   }
 
   private async pkCredentialCreationOptions(challengeInfo: ChallengeEntity, userName?: string): Promise<[PublicKeyCredentialRequestOptionsJSON, PublicKeyCredentialCreationOptionsJSON]> {

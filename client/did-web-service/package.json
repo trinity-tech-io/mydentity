@@ -54,6 +54,7 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
+    "@svgr/webpack": "^8.1.0",
     "@types/react-flatpickr": "^3.8.8"
   }
 }

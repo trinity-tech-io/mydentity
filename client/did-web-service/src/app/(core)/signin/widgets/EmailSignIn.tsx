@@ -1,12 +1,12 @@
 import { MainButton } from '@components/generic/MainButton';
 import { Icon as ReactIcon } from '@iconify/react';
+import { EmailNotExistsException } from "@model/exceptions/email-not-exists-exception";
 import { Container, TextField } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { FlowOperation, setOnGoingFlowOperation } from "@services/flow.service";
 import { authenticateWithEmailAddress } from "@services/user/user.service";
 import clsx from 'clsx';
 import { FC, FormEvent, useRef, useState } from "react";
-import { EmailNotExistsException } from "@model/exceptions/email-not-exists-exception";
 
 const useStyles = makeStyles((theme) => ({
   centeredContainer: {
@@ -37,7 +37,7 @@ export const EmailSignIn: FC = () => {
         void await authenticateWithEmailAddress(emailAddress);
       } catch (error) {
         if (error instanceof EmailNotExistsException) {
-          setErrorMsg('Email not exists.');
+          setErrorMsg('This email address is unknown.');
         } else {
           setErrorMsg('Unknown error, please try again.');
         }
@@ -79,8 +79,8 @@ export const EmailSignIn: FC = () => {
         </MainButton>
       }
       {authEmailSent && <div className='text-center mt-10'>Magic link sent, please check your mailbox.</div>}
-      { errorMsg && <>
-        <div><font COLOR="#ff0000">{errorMsg}</font></div>
+      {errorMsg && <>
+        <div className='text-red-600'>{errorMsg}</div>
       </>
       }
     </Container>

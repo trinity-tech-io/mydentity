@@ -20,7 +20,8 @@ export function checkNewAccessTokenForBrowserId(accessToken: string) {
     return;
   }
 
-  console.log("decodedToken", decodedToken)
+  if (!decodedToken.browserId)
+    throw new Error("Abnormal state: no browser ID found in the access token!");
 
   const existingBrowserId = getBrowserId();
   if (existingBrowserId) {

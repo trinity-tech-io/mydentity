@@ -27,7 +27,7 @@ const MicrosoftSignIn = () => {
 
   useEffect(() => {
     if (error === 'oauthEmailNotExists') {
-      setErrorMsg('Email not exists.');
+      setErrorMsg('This email address is unknown.');
     }
   }, [])
 
@@ -44,8 +44,8 @@ const MicrosoftSignIn = () => {
       >
         Sign in with Microsoft
       </MainButton>
-      { errorMsg && <>
-        <div><font COLOR="#ff0000">{errorMsg}</font></div>
+      {errorMsg && <>
+        <div className='text-red-600'>{errorMsg}</div>
       </>
       }
     </div>

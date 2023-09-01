@@ -6,28 +6,33 @@ import { authUser$ } from "@services/user/user.events";
 import { useRouter } from "next/navigation";
 import { FC } from 'react';
 
-export const PasskeyAuth: FC = () => {
+export const PasskeyBind: FC = () => {
+  //   onConfirm: (password: string) => void;
+  // }> = ({ onConfirm }) => {
+  //   const onSubmit = () => {
+  //     onConfirm("");
+  //   }
   const router = useRouter();
   const [authUser] = useBehaviorSubject(authUser$());
   const securityFeature = authUser?.get("security");
   const { callWithUnlock } = useCallWithUnlock<boolean>();
   const { showSuccessToast } = useToast();
 
-  const unlockPasskeyConfirmation = async () => {
+  const bindPasskeyConfirmation = async () => {
     // Call the bind password API with auto-retry if user unlock method is required.
-    const bound = await callWithUnlock(() => securityFeature.unlockPasskey());
+    const bound = await callWithUnlock(() => securityFeature.bindPasskey());
     if (bound) {
-      showSuccessToast("Unlock passkey successfully");
+      showSuccessToast("Bind passkey successfully");
       setTimeout(() => {
         router.push("/account/security");
-      }, 2000);
+      }, 200);
     }
   }
 
   return (
     <div className='flex flex-row gap-4 mt-4 p-4 items-center' style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <MainButton onClick={unlockPasskeyConfirmation} >Unlock passkey</MainButton>
+      <MainButton onClick={bindPasskeyConfirmation} >bind passkey</MainButton>
     </div>
   );
 }
-export default PasskeyAuth;
+export default PasskeyBind;

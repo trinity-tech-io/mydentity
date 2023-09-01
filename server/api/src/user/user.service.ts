@@ -121,7 +121,7 @@ export class UserService {
     console.log("user", userEmail)
 
     if (!curUser && !userEmail) { // login
-      throw new AppException(AuthExceptionCode.InexistingEmail, 'Email not exists.', 404);
+      throw new AppException(AuthExceptionCode.InexistingEmail, 'This email address is unknown.', 404);
     } else if (curUser && userEmail) { // bind
       throw new AppException(AuthExceptionCode.EmailAlreadyExists, 'Email already exists.', 409);
     }

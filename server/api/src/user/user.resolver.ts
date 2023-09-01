@@ -30,11 +30,11 @@ export class UserResolver {
   ) { }
 
   @Mutation(() => LoggedUserOutput, { nullable: true })
-  async signUp(@Args('input') input: SignUpInput, @CurrentBrowser() browser: Browser, @UserAgent() userAgent: string) {
+  async signUp(@Args('input') input: SignUpInput, @HeaderBrowserId() browserId: string, @UserAgent() userAgent: string) {
     if (!input.name || input.name.trim() === '')
       throw new AppException(AuthExceptionCode.AuthError, 'User name must be provided.', 401);
 
-    return this.userService.signUp(input, browser?.id, userAgent);
+    return this.userService.signUp(input, browserId, userAgent);
   }
 
   /**
@@ -71,8 +71,8 @@ export class UserResolver {
    * @param authKey
    */
   @Mutation(() => LoggedUserOutput, { nullable: true })
-  async checkEmailAuthentication(@Args('authKey') authKey: string, @CurrentBrowser() browser: Browser, @UserAgent() userAgent: string) {
-    return this.userService.checkEmailAuthentication(null, authKey, browser?.id, userAgent);
+  async checkEmailAuthentication(@Args('authKey') authKey: string, @HeaderBrowserId() browserId: string, @UserAgent() userAgent: string) {
+    return this.userService.checkEmailAuthentication(null, authKey, browserId, userAgent);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -82,11 +82,11 @@ export class UserResolver {
   }
 
   @Mutation(() => RefreshTokenOutput)
-  async refreshToken(@Args('refreshTokenInput') refreshTokenInput: RefreshTokenInput, @CurrentBrowser() browser: Browser, @UserAgent() userAgent: string): Promise<RefreshTokenOutput> {
+  async refreshToken(@Args('refreshTokenInput') refreshTokenInput: RefreshTokenInput, @HeaderBrowserId() browserId: string, @UserAgent() userAgent: string): Promise<RefreshTokenOutput> {
     try {
-      console.log("refresh token browser", browser)
+      console.log("refresh token browser", browserId)
       const user = await this.userService.getUserByToken(refreshTokenInput.refreshToken);
-      return this.userService.refreshAccessToken(user, browser?.id, userAgent);
+      return this.userService.refreshAccessToken(user, browserId, userAgent);
     } catch (e) {
       throw new GraphQLError("Can't refresh token", {
         extensions: {

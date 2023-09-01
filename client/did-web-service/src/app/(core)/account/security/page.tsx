@@ -1,39 +1,16 @@
 "use client";
-import BrowserIcon from '@assets/images/browser.svg';
 import EmailIcon from '@assets/images/email.svg';
 import FingerprintIcon from '@assets/images/fingerprint.svg';
 import PasswordIcon from '@assets/images/password.svg';
 import { MainButton } from "@components/generic/MainButton";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useMounted } from "@hooks/useMounted";
-import { Browser } from '@model/browser/browser';
 import { Typography } from "@mui/material";
 import { authUser$ } from "@services/user/user.events";
-import Image from "next/image";
 import Link from 'next/link';
 import { useRouter, useSearchParams } from "next/navigation";
 import { FC, useEffect, useState } from "react";
-
-const BrowserRow: FC<{
-  browser: Browser;
-}> = ({ browser }) => {
-  const [shadowKey] = useBehaviorSubject(browser?.activeShadowKey$);
-  const isCurrentBrowser = browser?.isCurrentBrowser();
-
-  console.log("shadowKey", shadowKey)
-
-  return (
-    <div className='flex flex-row mt-4'>
-      <Image src={BrowserIcon} height={40} alt="Browser" />
-      <div className='flex flex-col ml-4'>
-        <div className='font-bold'>{browser.name}</div>
-        <div className='italic text-xs'>Last used: {browser.lastUsedAt.toLocaleString()}</div>
-        SKEY: {shadowKey?.keyId}<br />
-        CURRENT: {isCurrentBrowser ? "YES" : "NO"}
-      </div>
-    </div>
-  )
-}
+import { BrowserRow } from './components/BrowserRow';
 
 const Security: FC = () => {
   const { mounted } = useMounted();
@@ -96,10 +73,10 @@ const Security: FC = () => {
     {mounted && <>
       <div className='grid grid-cols-12 items-start gap-10'>
         <div className='col-span-full xl:col-span-6 flex flex-row gap-10 items-start'>
-          <Image src={EmailIcon} alt="Email" height={60} />
+          <EmailIcon width={60} />
           {
             !isEmailBound &&
-            <div className="flex flex-col">
+            <div className="flex flex-col flex-1">
               <div className="info mb-2">
                 Attaching your <b>email address</b> to your account allows you to sign in later. Without email,
                 you will be able to sign in using browser biometrics if configured.
@@ -112,7 +89,7 @@ const Security: FC = () => {
             </div>
           }
           {
-            isEmailBound && <div className='flex flex-col'>
+            isEmailBound && <div className='flex flex-col flex-1'>
               <div>Email addresses already bound</div>
               <div>
                 {userEmails.map(email => <div key={email.id} className="info mb-2">{email.email}</div>)}
@@ -124,10 +101,10 @@ const Security: FC = () => {
 
         {/* Password */}
         <div className='col-span-full xl:col-span-6 flex flex-row gap-10 items-start'>
-          <Image src={PasswordIcon} alt="Password" height={60} />
+          <PasswordIcon width={60} />
           {
             !isPasswordBound &&
-            <div className="flex flex-col">
+            <div className="flex flex-col flex-1">
               <div className="info mb-2">
                 By defining <b>master password</b>, all your personal information stored in our service gets encrypted and can only
                 be accessed with your approval. Note that this password can only changed if you have another encryption method
@@ -137,7 +114,7 @@ const Security: FC = () => {
             </div>
           }
           {
-            isPasswordBound && <div className='flex flex-col'>
+            isPasswordBound && <div className='flex flex-col flex-1'>
               <div>Your master password has been set</div>
               <Link href="/account/security/bind-password">Update password</Link>
             </div>
@@ -146,10 +123,10 @@ const Security: FC = () => {
 
         {/* Passkey */}
         <div className='col-span-full xl:col-span-6 flex flex-row gap-10 items-start'>
-          <Image src={FingerprintIcon} alt="Fingerprint" height={60} />
+          <FingerprintIcon width={60} />
           {
             !isThisBrowserBound &&
-            <div className="flex flex-col">
+            <div className="flex flex-col flex-1">
               <div className="info mb-2">
                 Binding your account to your <b>browser biometrics</b> allows you to sign in to this app (only from this browser)
                 but also to unlock the secret key that decrypts all the data you store on our servers. Without this key, we,
@@ -159,13 +136,12 @@ const Security: FC = () => {
             </div>
           }
           {
-            isThisBrowserBound && <div className='flex flex-col'>
+            isThisBrowserBound && <div className='flex flex-col flex-1'>
               <div>Your browser is bound to your account</div>
               <Link href="/account/security/bind-passkey">Bind again</Link>
             </div>
           }
         </div>
-
       </div>
 
       <br /><br />

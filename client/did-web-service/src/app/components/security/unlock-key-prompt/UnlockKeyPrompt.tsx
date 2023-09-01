@@ -65,8 +65,9 @@ const UnlockKeyPrompt: FC = () => {
     hideDialog();
   }
 
-  const onPasskeyConfirmation = () => {
-    // TODO
+  const onPasskeyConfirmation = (authKey: AuthKeyInput) => {
+    actions.onUnlockKey?.(authKey);
+    hideDialog();
   }
 
   return (

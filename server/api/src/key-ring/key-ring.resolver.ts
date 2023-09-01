@@ -16,18 +16,21 @@ export class KeyRingResolver {
   @UseGuards(JwtAuthGuard)
   @Mutation(() => Boolean)
   unlockMasterKey(@Args('authKey') authKey: AuthKeyInput, @CurrentBrowser() browser: Browser, @CurrentUser() user: User) {
+    console.log("unlockMasterKey");
     return this.keyRingService.unlockMasterKey(authKey, browser.id, user);
   }
 
   @UseGuards(JwtAuthGuard)
   @Mutation(() => ShadowKeyEntity)
   bindKey(@Args('newKey') newKey: AuthKeyInput, @CurrentBrowser() browser: Browser, @CurrentUser() user: User) {
+    console.log("bindKey");
     return this.keyRingService.bindKey(newKey, browser.id, user);
   }
 
   @UseGuards(JwtAuthGuard)
   @Mutation(() => [ShadowKeyEntity], { name: 'updatedKeys' })
   changePassword(@Args('newPassword') newPassword: string, @CurrentBrowser() browser: Browser, @CurrentUser() user: User) {
+    console.log("changePassword");
     return this.keyRingService.changePassword(newPassword, browser.id, user);
   }
 
