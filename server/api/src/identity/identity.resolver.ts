@@ -23,23 +23,29 @@ export class IdentityResolver {
 
   @UseGuards(JwtAuthGuard)
   @Mutation(() => Boolean)
-  deleteIdentity(@Args('identityDid') identityDid: string, @CurrentUser() user: User) {
+  async deleteIdentity(@Args('identityDid') identityDid: string, @CurrentUser() user: User) {
+    await this.identityService.ensureOwnedIdentity(identityDid, user);
     return this.identityService.deleteIdentity(identityDid, user);
   }
 
   @UseGuards(JwtAuthGuard)
   @Mutation(() => TransactionEntity)
-  createDIDPublishTransaction(@Args('identityDid') identityDid: string, @CurrentUser() user: User) {
+  async createDIDPublishTransaction(@Args('identityDid') identityDid: string, @CurrentUser() user: User) {
+    await this.identityService.ensureOwnedIdentity(identityDid, user);
     return this.identityService.createDIDPublishTransaction(identityDid, user);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Mutation(() => DIDPublishEntity)
-  publishIdentity(@Args('input') input: PublishIdentityInput) {
+  async publishIdentity(@Args('input') input: PublishIdentityInput, @CurrentUser() user: User) {
+    await this.identityService.ensureOwnedIdentity(input.identityDid, user);
     return this.identityService.publishIdentity(input.identityDid, JSON.parse(input.payload));
   }
 
+  @UseGuards(JwtAuthGuard)
   @Mutation(() => String)
-  getPublicationStatus(@Args('input') input: PublicationStatusInput) {
+  async getPublicationStatus(@Args('input') input: PublicationStatusInput, @CurrentUser() user: User) {
+    await this.identityService.ensureOwnedIdentity(input.identityDid, user);
     return this.identityService.getPublicationStatus(input.identityDid, input.publicationId);
   }
 

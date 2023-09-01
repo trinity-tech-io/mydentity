@@ -2,10 +2,12 @@ import { VerifiableCredential } from '@elastosfoundation/did-js-sdk';
 import { Injectable, Logger } from '@nestjs/common';
 import { Credential, User } from '@prisma/client';
 import { DidService } from 'src/did/did.service';
+import { AuthExceptionCode } from 'src/exceptions/exception-codes';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AddCredentialInput } from './dto/add-credential.input';
 import { CreateCredentialInput } from './dto/create-credential.input';
 import { CreateVerifiablePresentationInput } from './dto/create-verifiablePresentation.input';
+import { AppException } from 'src/exceptions/app-exception';
 
 @Injectable()
 export class CredentialsService {
@@ -20,9 +22,9 @@ export class CredentialsService {
     const storePassword = '123456'; // TODO: use account key
 
     const vc = await this.didService.createCredential(user.id, input.identityDid, input.credentialId,
-          input.types, input.expirationDate, input.properties, storePassword);
+      input.types, input.expirationDate, input.properties, storePassword);
 
-    const credentials= await this.prisma.credential.create({
+    const credentials = await this.prisma.credential.create({
       data: {
         identityDid: input.identityDid,
         credentialId: vc.id.toString(),
@@ -39,7 +41,7 @@ export class CredentialsService {
     this.logger.log("storeCredential")
     await this.didService.storeCredential(user.id, vc);
 
-    const credentials= await this.prisma.credential.create({
+    const credentials = await this.prisma.credential.create({
       data: {
         identityDid: input.identityDid,
         credentialId: vc.id.toString(),
@@ -84,10 +86,10 @@ export class CredentialsService {
 
     return Promise.all(credentials.map(async (c) => (
       await this.prisma.credential.deleteMany({
-      where: {
-        credentialId: c.credentialId,
-      }
-    }))));
+        where: {
+          credentialId: c.credentialId,
+        }
+      }))));
   }
 
   async createVerifiablePresentation(input: CreateVerifiablePresentationInput, user: User) {
@@ -95,13 +97,32 @@ export class CredentialsService {
     const storePassword = '123456'; // TODO: use account key
 
     const credentials = [];
-    input.credentials.forEach( c => {
+    input.credentials.forEach(c => {
       credentials.push(VerifiableCredential.parse(c))
     })
     const vp = await this.didService.createVerifiablePresentationFromCredentials(user.id, input.identityDid, credentials,
-          input.nonce, input.realm, storePassword);
+      input.nonce, input.realm, storePassword);
     return {
       verifiablePresentation: vp.toString(),
     }
+  }
+
+  /**
+  * Ensures that the credentialId credential is owned by user and returns the credential.
+  * If not, throws an exception.
+  */
+  public async ensureOwnedCredential(credentialId: string, user: User): Promise<Credential> {
+    const credential = await this.prisma.credential.findFirst({
+      where: {
+        id: credentialId,
+        identity: {
+          userId: user.id
+        }
+      }
+    })
+    if (!credential)
+      throw new AppException(AuthExceptionCode.CredenialNotOwned, `You are not owner of credential ${credentialId}`, 401);
+
+    return credential;
   }
 }

@@ -5,7 +5,7 @@ import { CredentialsService } from 'src/credentials/credentials.service';
 import { AssistTransactionStatus, DIDPublishingService } from 'src/did-publishing/did-publishing.service';
 import { DidService } from 'src/did/did.service';
 import { AppException } from 'src/exceptions/app-exception';
-import { DIDExceptionCode } from 'src/exceptions/exception-codes';
+import { AuthExceptionCode, DIDExceptionCode } from 'src/exceptions/exception-codes';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateIdentityInput } from './dto/create-identity.input';
 
@@ -20,8 +20,8 @@ export class IdentityService {
     private credentialsService: CredentialsService,
     private didPublishingService: DIDPublishingService,
     private didService: DidService) {
-      this.logger = new Logger("IdentityService");
-    }
+    this.logger = new Logger("IdentityService");
+  }
 
   async create(createIdentityInput: CreateIdentityInput, user: User): Promise<Identity> {
     this.logger.log('create');
@@ -76,7 +76,7 @@ export class IdentityService {
 
     // publish DID
     const payload = await this.didService.createDIDPublishTransaction(user.id, identityDid, storePassword);
-    const {publicationId} = await this.publishIdentity(identityDid, payload);
+    const { publicationId } = await this.publishIdentity(identityDid, payload);
     identity.publicationId = publicationId;
     this.logger.log('create identity:' + JSON.stringify(identity))
     return identity;
@@ -164,5 +164,22 @@ export class IdentityService {
         userId: user.id
       }
     })
+  }
+
+  /**
+   * Ensures that the identityDid identity is owned by user and returns the identity.
+   * If not, throws an exception.
+   */
+  public async ensureOwnedIdentity(identityDid: string, user: User): Promise<Identity> {
+    const identity = await this.prisma.identity.findFirst({
+      where: {
+        did: identityDid,
+        userId: user.id
+      }
+    })
+    if (!identity)
+      throw new AppException(AuthExceptionCode.IdentityNotOwned, `You are not owner of identity ${identityDid}`, 401);
+
+    return identity;
   }
 }

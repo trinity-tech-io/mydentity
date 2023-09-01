@@ -70,7 +70,7 @@ export class CustodialDIDProvider implements IdentityProvider {
   }
 
   async listIdentities(): Promise<Identity[]> {
-    const { data } = await withCaughtAppException(() => {
+    const result = await withCaughtAppException(() => {
       return getApolloClient().query<{ identities: IdentityDTO[] }>({
         query: gql`
         query ListIdentities {
@@ -82,8 +82,8 @@ export class CustodialDIDProvider implements IdentityProvider {
       });
     });
 
-    if (data && data.identities) {
-      const identities = await Promise.all(data!.identities.map(identity => Identity.fromJson(identity, this)));
+    if (result?.data?.identities) {
+      const identities = await Promise.all(result.data.identities.map(identity => Identity.fromJson(identity, this)));
       logger.log("custodial-provider", "Fetched identities:", identities);
       return identities;
     }

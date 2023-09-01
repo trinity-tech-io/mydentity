@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { AuthModule } from 'src/auth/auth.module';
 import { CredentialsModule } from 'src/credentials/credentials.module';
 import { DIDPublishingModule } from 'src/did-publishing/did-publishing.module';
@@ -14,7 +14,7 @@ import { IdentityService } from './identity.service';
   ],
   imports: [
     PrismaModule,
-    CredentialsModule,
+    forwardRef(() => CredentialsModule),
     DIDModule,
     DIDPublishingModule,
     AuthModule
