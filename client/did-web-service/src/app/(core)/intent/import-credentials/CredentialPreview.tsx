@@ -1,13 +1,12 @@
 // import { VerifiableCredential } from '@elastosfoundation/did-js-sdk';
-import { logger } from '@elastosfoundation/elastos-connectivity-sdk-js';
+import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { Credential } from '@model/credential/credential';
 import InfoIcon from '@mui/icons-material/Info';
 import { Avatar, Card, Stack, Typography } from "@mui/material";
 import Paper from '@mui/material/Paper';
 import { styled } from '@mui/material/styles';
-import { issuerService } from '@services/identity/issuer.service';
 import { shortenString } from '@utils/strings';
-import { FC, useEffect, useState } from "react";
+import { FC } from "react";
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: '#eeeeee',
@@ -21,32 +20,9 @@ interface Props {
 
 export const CredentialPreview: FC<Props> = (props: Props) => {
     const { credential } = props;
-    const [icon, setIcon] = useState<string>('');
     const valueItems = credential.getValueItems();
-    const [isPublished, setIsPublished] = useState<boolean>(false); // TODO
     const isSensitive = credential.isSensitiveCredential();
-    const [issuerName, setIssuerName] = useState<string>('');
-    // const displayableIssuer = ""; // TODO: credential.issuerxxx()
-
-    useEffect(() => {
-      fetchIssuerInfo();
-    }, [credential]);
-
-    const fetchIssuerInfo = async () => {
-      let issuer = credential.verifiableCredential.getIssuer().toString();
-
-      const isPublish = await issuerService.isPublished(issuer);
-      setIsPublished(isPublish);
-
-      if (isPublish) {
-        const issuerName = await issuerService.getIssuerName(issuer);
-        logger.log('credential', 'issuerName:', issuerName);
-        setIssuerName(issuerName);
-
-        const issuerIcon = await issuerService.getIssuerAvatar(issuer);
-        setIcon(issuerIcon);
-      }
-    }
+    const [issuerInfo] = useBehaviorSubject(credential?.issuerInfo$);
 
     return (
         <Stack alignItems={'center'}>
@@ -85,7 +61,7 @@ export const CredentialPreview: FC<Props> = (props: Props) => {
                                     <Avatar>T</Avatar>
                                 </Stack>
                                 <Stack sx={{ maxWidth: 400 }}>
-                                    <Typography fontSize={13} noWrap>{shortenString(issuerName, 30)}</Typography>
+                                    <Typography fontSize={13} noWrap>{shortenString(issuerInfo?.name, 30)}</Typography>
                                 </Stack>
                             </Stack>
                         </Item>

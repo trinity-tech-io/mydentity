@@ -1,8 +1,6 @@
-import { logger } from '@elastosfoundation/elastos-connectivity-sdk-js';
+import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { Credential } from '@model/credential/credential';
 import { Avatar, Box, Grid, Stack, Typography } from '@mui/material';
-import { issuerService } from '@services/identity/issuer.service';
-import { useEffect, useState } from 'react';
 import IdentityMenu from './IdentityMenu';
 
 interface Props {
@@ -10,29 +8,8 @@ interface Props {
 }
 export const CredentialDetailWidget = (props: Props) => {
   const { selectedCredential } = props;
-  const [isPublished, setIsPublished] = useState<boolean>(false);
-  const [issuerName, setIssuerName] = useState<string>('');
-  const [issuerIcon, setIssuerIcon] = useState<string>('');
+  const [issuerInfo] = useBehaviorSubject(selectedCredential?.issuerInfo$);
 
-  useEffect(() => {
-    fetchIssuerInfo();
-  }, [selectedCredential]);
-
-  const fetchIssuerInfo = async () => {
-    let issuer = selectedCredential.verifiableCredential.getIssuer().toString();
-
-    const isPublish = await issuerService.isPublished(issuer);
-    setIsPublished(isPublish);
-
-    if (isPublish) {
-      const issuerName = await issuerService.getIssuerName(issuer);
-      logger.log('credential', 'issuerName:', issuerName);
-      setIssuerName(issuerName);
-
-      const issuerIcon = await issuerService.getIssuerAvatar(issuer);
-      setIssuerIcon(issuerIcon);
-    }
-  }
 
   return (
     <div className="col-span-full xl:col-span-7 bg-white dark:bg-slate-800 shadow-lg rounded-sm border border-slate-200 dark:border-slate-700">
@@ -75,17 +52,20 @@ export const CredentialDetailWidget = (props: Props) => {
                   </Typography>
                 </Grid>
 
-                <Grid item xs={6}>
-                  <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-                    Issuer:
-                  </Typography>
-                </Grid>
-                {/* TODO Issuer avatar */}
-                <Grid item xs={6}>
-                  <Typography variant="body1" sx={{ color: 'text.secondary' }} noWrap>
-                    {issuerName}
-                  </Typography>
-                </Grid>
+                {
+                  (!selectedCredential.selfIssued() && issuerInfo.isPublished) && (
+                <><Grid item xs={6}>
+                    <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+                      Issuer:
+                    </Typography>
+                  </Grid>
+                    {/* TODO Issuer avatar */}
+                    <Grid item xs={6}>
+                      <Typography variant="body1" sx={{ color: 'text.secondary' }} noWrap>
+                        {issuerInfo?.name}
+                      </Typography>
+                    </Grid></>
+                )}
               </Grid>
             </Box>
           </Stack>

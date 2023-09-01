@@ -1,7 +1,12 @@
 import { VerifiableCredential } from "@elastosfoundation/did-js-sdk";
 import { JSONObject } from "@model/json";
+import { identityService } from "@services/identity/identity.service";
+import { issuerService } from "@services/identity/issuer.service";
+import { logger } from "@services/logger";
+import { LazyBehaviorSubjectWrapper } from "@utils/lazy-behavior-subject";
 import { evalObjectFieldPath } from "@utils/objects";
 import { capitalizeFirstLetter } from "@utils/strings";
+import { IssuerInfo } from "./issuerinfo";
 
 type ValueItem = {
   name: string,
@@ -9,6 +14,9 @@ type ValueItem = {
 };
 
 export class Credential {
+  private _issuerInfo$ = new LazyBehaviorSubjectWrapper<IssuerInfo>(null, () => this.fetchIssuerInfo());
+  public get issuerInfo$() { return this._issuerInfo$.getSubject(); }
+
   // Backend data
   public id: string = null;
   public createdAt: Date = null;
@@ -309,8 +317,31 @@ export class Credential {
     return this.verifiableCredential.getType().indexOf("SensitiveCredential") >= 0;
   }
 
+  /**
+  * Tells if the issuer of credential is the active user (self) or not
+  */
+  public selfIssued(): boolean {
+    return this.verifiableCredential.getIssuer().toString() === identityService.getActiveIdentityId();
+  }
+
   public getIssuer(): string {
     return this.verifiableCredential.getIssuer().toString();
+  }
+
+  private async fetchIssuerInfo(): Promise<IssuerInfo> {
+    let issuerDidString = this.verifiableCredential.getIssuer().toString();
+
+    let issuerName = null;
+    let issuerIcon = null;
+
+    const isPublished = await issuerService.isPublished(issuerDidString);
+    if (isPublished) {
+      issuerName = await issuerService.getIssuerName(issuerDidString);
+      issuerIcon = await issuerService.getIssuerAvatar(issuerDidString);
+    }
+    const issuerInfo = {avatarIcon: issuerIcon, didString: issuerDidString, name: issuerName, isPublished: isPublished};
+    logger.log('credential', 'fetchIssuerInfo:', issuerInfo)
+    return issuerInfo;
   }
 
   public equals(otherCredential: Credential): boolean {
