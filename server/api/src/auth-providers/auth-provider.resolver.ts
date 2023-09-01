@@ -59,9 +59,6 @@ export class AuthProviderResolver {
         if (!resultUser) {
             throw new AppException(AuthExceptionCode.EmailAlreadyExists, `Email ${email} already belongs to other user.`, 401);
         }
-
-        logger.log(`bind with oauth email successfully.`);
-
         return true;
     }
 }

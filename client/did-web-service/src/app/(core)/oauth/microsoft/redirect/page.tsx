@@ -29,9 +29,9 @@ const MicrosoftRedirect: FC = () => {
           clearOnGoingFlowOperation();
           oauthMSBindEmail(code).then(result => {
             if (result) {
-              router.push('/account/security?error=unknown');
-            } else {
               router.push('/account/security');
+            } else {
+              router.push('/account/security?error=unknown');
             }
           }).catch((e) => {
             if (e instanceof EmailExistsException) {
@@ -45,9 +45,9 @@ const MicrosoftRedirect: FC = () => {
           clearOnGoingFlowOperation();
           oauthMSSignIn(code).then(result => {
             if (result) {
-              router.push(`/signin?error=unknown`);
+              router.push(`/dashboard`);
             } else {
-              router.push(`/signin`);
+              router.push(`/signin?error=unknown`);
             }
           }).catch((e) => {
             if (e instanceof EmailNotExistsException) {

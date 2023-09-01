@@ -273,6 +273,7 @@ export class UserService {
     })
 
     if (userEmail && userEmail.user.id !== user.id) {
+      logger.log('user', 'failed to bind user email as exists on other user.', user, userEmail);
       return null;
     } else if (!userEmail) {
       await this.prisma.userEmail.upsert({

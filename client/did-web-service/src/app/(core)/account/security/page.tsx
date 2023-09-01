@@ -95,6 +95,10 @@ const Security: FC = () => {
                 {userEmails.map(email => <div key={email.id} className="info mb-2">{email.email}</div>)}
               </div>
               <Link href="/account/security/bind-email">Bind more</Link>
+                {errorMsg && <>
+                  <div className='text-red-500'>{errorMsg}</div>
+                </>
+                }
             </div>
           }
         </div>

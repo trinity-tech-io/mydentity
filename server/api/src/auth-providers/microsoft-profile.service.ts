@@ -29,11 +29,11 @@ export class MicrosoftProfileService {
       };
 
       request(tokenOptions, (error, response, body) => {
-        if (!error && response.statusCode === 200) {
+        if (!error && response.statusCode >= 200 && response.statusCode < 300) {
           const tokenData = JSON.parse(body);
           resolve(tokenData.access_token);
         } else {
-          console.error('Error exchanging authorization code for access token:', error);
+          console.error('Error exchanging authorization code for access token:', error, response.statusCode, body);
           reject(new Error('Can not get token by MS code.'));
         }
       });
