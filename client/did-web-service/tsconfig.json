@@ -13,7 +13,7 @@
     "noEmit": true,
     "strictNullChecks": false,
     "strictPropertyInitialization": false,
-    "noImplicitAny": false,
+    "noImplicitAny": true,
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",

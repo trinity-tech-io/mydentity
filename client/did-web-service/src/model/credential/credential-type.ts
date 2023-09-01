@@ -11,7 +11,7 @@ export class CredentialType {
     this.setup(type);
   }
 
-  private setup(type: string) {
+  private setup(type: string): void {
     // Make sure the given type is really a long type or throw an error
     if (type.indexOf("#") <= 0) {
       // short type

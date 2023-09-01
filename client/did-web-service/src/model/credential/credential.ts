@@ -6,6 +6,7 @@ import { logger } from "@services/logger";
 import { LazyBehaviorSubjectWrapper } from "@utils/lazy-behavior-subject";
 import { evalObjectFieldPath } from "@utils/objects";
 import { capitalizeFirstLetter } from "@utils/strings";
+import { BehaviorSubject } from "rxjs";
 import { IssuerInfo } from "./issuerinfo";
 
 type ValueItem = {
@@ -15,7 +16,7 @@ type ValueItem = {
 
 export class Credential {
   private _issuerInfo$ = new LazyBehaviorSubjectWrapper<IssuerInfo>(null, () => this.fetchIssuerInfo());
-  public get issuerInfo$() { return this._issuerInfo$.getSubject(); }
+  public get issuerInfo$(): BehaviorSubject<IssuerInfo> { return this._issuerInfo$.getSubject(); }
 
   // Backend data
   public id: string = null;
@@ -31,7 +32,7 @@ export class Credential {
   /**
    * Prepare all display data.
    */
-  public prepareForDisplay() {
+  public prepareForDisplay(): void {
     this.prepareDisplayTitle();
     this.prepareDisplayValue();
     void this.prepareIcon();
@@ -39,7 +40,7 @@ export class Credential {
 
   protected getDisplayableCredentialTitle(): string {
     // If the credential implements the DisplayableCredential type, get the title from there.
-    let credProps = this.verifiableCredential.getSubject();
+    const credProps = this.verifiableCredential.getSubject();
     if ("displayable" in credProps) {
       this.displayTitle = (credProps["displayable"] as JSONObject)["title"] as string;
     }
@@ -48,36 +49,36 @@ export class Credential {
     }
   }
 
-  protected prepareDisplayTitle() {
+  protected prepareDisplayTitle(): void {
     const displayableCredentialTitle = this.getDisplayableCredentialTitle();
     if (displayableCredentialTitle)
       this.displayTitle = displayableCredentialTitle;
     else {
       // Fallback try to guess a name, or use a default display
-      let fragment = this.verifiableCredential.getId().getFragment();
+      const fragment = this.verifiableCredential.getId().getFragment();
       this.displayTitle = capitalizeFirstLetter(fragment);
     }
   }
 
   protected getDisplayableCredentialDescription(): string {
-    let credProps = this.verifiableCredential.getSubject();
+    const credProps = this.verifiableCredential.getSubject();
     if ("displayable" in credProps) {
       // rawDescription sample: hello ${firstName} ${lastName.test}
-      let rawDescription = (credProps["displayable"] as JSONObject)["description"] as string;
+      const rawDescription = (credProps["displayable"] as JSONObject)["description"] as string;
 
       // From a raw description, find all special ${...} tags and replace them with values from the subject.
       if (rawDescription) {
-        let tagsMatch = rawDescription.match(/\${([a-zA-Z0-9.]+)}/g);
-        let keywordTags = tagsMatch ? Array.from(tagsMatch) : [];
+        const tagsMatch = rawDescription.match(/\${([a-zA-Z0-9.]+)}/g);
+        const keywordTags = tagsMatch ? Array.from(tagsMatch) : [];
 
         let description = rawDescription;
-        for (let tag of keywordTags) {
+        for (const tag of keywordTags) {
           // tag: ${xxx}
           // matchingGroup: ['${...}', '...'];
-          let matchingGroup = tag.match(/\${([a-zA-Z0-9.]+)}/);
+          const matchingGroup = tag.match(/\${([a-zA-Z0-9.]+)}/);
           if (matchingGroup && matchingGroup.length > 1) {
-            let jsonFieldPath = matchingGroup[1];
-            let evaluatedField = evalObjectFieldPath(credProps, jsonFieldPath);
+            const jsonFieldPath = matchingGroup[1];
+            const evaluatedField = evalObjectFieldPath(credProps, jsonFieldPath);
             description = description.replace(tag, evaluatedField);
           }
         }
@@ -93,7 +94,7 @@ export class Credential {
    * Tries to extract a user friendly "description" of the credential, ie a readable summary
    * of its content.
    */
-  protected prepareDisplayValue() {
+  protected prepareDisplayValue(): void {
     const displayableCredentialDescription = this.getDisplayableCredentialDescription();
     if (displayableCredentialDescription)
       this.displayValue = displayableCredentialDescription;
@@ -117,11 +118,11 @@ export class Credential {
    * Returns null if nothing can be displayed easily.
    */
   public getValueItems = (): ValueItem[] => {
-    let fragment = this.verifiableCredential.getId().getFragment();
+    const fragment = this.verifiableCredential.getId().getFragment();
     if (fragment === "avatar")
       return null;
 
-    let subject = this.verifiableCredential.getSubject().getProperties();
+    const subject = this.verifiableCredential.getSubject().getProperties();
     // TODO: rework with displayable credential - for now, display raw properties
     return Object.keys(subject)
       .filter((key) => key != "id")
@@ -217,19 +218,19 @@ export class Credential {
    * Tries to load the target picture, and in case of error, replaces the icon src with
    * a placeholder.
    */
-  private loadIconWithFallback() {
+  private loadIconWithFallback(): void {
     if (this.iconSrc == null) {
       this.iconSrc = this.getFallbackIcon();
     }
 
-    let image = new Image();
+    const image = new Image();
     image.crossOrigin = 'anonymous';
 
-    image.onload = () => {
+    image.onload = (): void => {
       this.iconSrc = image.src;
       this.onIconReadyCallback?.(this.iconSrc);
     };
-    image.onerror = () => {
+    image.onerror = (): void => {
       this.iconSrc = this.getFallbackIcon();
       this.onIconReadyCallback?.(this.iconSrc);
     };
@@ -251,7 +252,7 @@ export class Credential {
   // TODO - rework - basic way of checking if the credential is an avatar.
   // Rework using a specific avatar credential type.
   private hasRemotePictureToFetch(): boolean {
-    let fragment = this.verifiableCredential.getId().getFragment();
+    const fragment = this.verifiableCredential.getId().getFragment();
     if (fragment === "avatar") {
       return true;
     } else {
@@ -263,7 +264,7 @@ export class Credential {
   * Similar to hasRemotePictureToFetch() but more narrow (only for pictures representing faces)
   */
   private isUserAvatar(): boolean {
-    let fragment = this.verifiableCredential.getId().getFragment();
+    const fragment = this.verifiableCredential.getId().getFragment();
     return (fragment === "avatar");
   }
 
@@ -281,7 +282,7 @@ export class Credential {
     return this.displayTitle;
   }
 
-  public onIconReady(callback: (iconSrc: string) => void) {
+  public onIconReady(callback: (iconSrc: string) => void): void {
     this.onIconReadyCallback = callback;
   }
 
@@ -333,7 +334,7 @@ export class Credential {
   }
 
   private async fetchIssuerInfo(): Promise<IssuerInfo> {
-    let issuerDidString = this.verifiableCredential.getIssuer().toString();
+    const issuerDidString = this.verifiableCredential.getIssuer().toString();
 
     let issuerName = null;
     let issuerIcon = null;
@@ -343,7 +344,7 @@ export class Credential {
       issuerName = await issuerService.getIssuerName(issuerDidString);
       issuerIcon = await issuerService.getIssuerAvatar(issuerDidString);
     }
-    const issuerInfo = {avatarIcon: issuerIcon, didString: issuerDidString, name: issuerName, isPublished: isPublished};
+    const issuerInfo = { avatarIcon: issuerIcon, didString: issuerDidString, name: issuerName, isPublished: isPublished };
     logger.log('credential', 'fetchIssuerInfo:', issuerInfo)
     return issuerInfo;
   }

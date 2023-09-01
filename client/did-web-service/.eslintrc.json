@@ -1,6 +1,21 @@
 {
-  "extends": "next/core-web-vitals",
+  "extends": [
+    "next/core-web-vitals",
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "plugins": [
+    "@typescript-eslint"
+  ],
   "rules": {
-    "react/no-unescaped-entities": "off"
+    // Global
+    "prefer-const": "warn",
+    // React
+    "react/no-unescaped-entities": "off",
+    // Typescript
+    "@typescript-eslint/explicit-function-return-type": "warn", // make sure methods params and return types have types
+    "@typescript-eslint/no-explicit-any": "off", // allow casting to any
+    "@typescript-eslint/no-unused-vars": "off" // allow keeping unused vars for later use, without warning
   }
 }

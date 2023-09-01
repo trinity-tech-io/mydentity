@@ -88,7 +88,7 @@ class IdentityService {
   }
 
   private findIdentityByDID(did: string, identities: Identity[]): Identity {
-    const result = identities.find((identity) => {
+    const result = identities?.find((identity) => {
       return identity.did === did;
     });
     return result

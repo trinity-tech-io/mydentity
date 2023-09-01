@@ -112,7 +112,7 @@ export async function unlockMasterKey(authKey: AuthKeyInput): Promise<boolean> {
 export async function getPasskeyChallenge(): Promise<ChallengeEntity> {
   logger.log("passkey", "get challenge to generate passkey");
   const data = await withCaughtAppException(() => {
-    return getApolloClient().query<{}>({
+    return getApolloClient().query<unknown>({
       query: gql`
       query GenerateChallenge {
         generateChallenge{

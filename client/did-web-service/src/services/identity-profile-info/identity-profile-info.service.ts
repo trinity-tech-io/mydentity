@@ -7,7 +7,7 @@ import { CredentialValueConverterString } from "./converters/string-converter";
  * The UI uses those entries to let user select some of them for self VC creation to build
  * his "identity profile".
  */
-let availableProfileCredentialEntries: ProfileCredentialInfo[] = [
+const availableProfileCredentialEntries: ProfileCredentialInfo[] = [
   // Profile credentials
   new ProfileCredentialInfo("name",
     new CredentialType("https://ns.elastos.org/credentials/profile/name/v1#NameCredential"),

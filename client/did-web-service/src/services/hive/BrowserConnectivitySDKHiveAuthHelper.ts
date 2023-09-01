@@ -1,6 +1,4 @@
 import {
-  // Claims,
-  // DIDDocument,
   JWTHeader,
   JWTParserBuilder,
   // VerifiableCredential,
@@ -16,14 +14,8 @@ import {
 import dayjs from 'dayjs';
 import { config } from './config';
 
-/**
- * This is a sample hive auth helper that makes everything automatic for apps using hive to
- * authenticate on hive vaults.
- *
- * This authentication flow is for the connectivity SDK.
- */
 export class BrowserConnectivitySDKHiveAuthHelper {
-  #didAccess;
+  didAccess;
 
   constructor(didResolverUrl) {
     try {
@@ -35,7 +27,6 @@ export class BrowserConnectivitySDKHiveAuthHelper {
         console.error('AppContext.setupResolver() exception:', e);
       }
     }
-    // DIDBackend.initialize(new DefaultDIDAdapter(didResolverUrl));
     this.didAccess = new ConnDID.DIDAccess();
   }
 
@@ -88,8 +79,7 @@ export class BrowserConnectivitySDKHiveAuthHelper {
     return new VaultSubscriptionService(appContext, providerAddress);
   } */
 
-  // eslint-disable-next-line default-param-last
-  async getVaultServices(userDid, providerAddress = null, onAuthError) {
+  async getVaultServices(userDid, providerAddress = null, onAuthError?): Promise<Vault> {
     const appContext = await this.getAppContext(userDid, onAuthError);
     // if (!providerAddress)
     //   providerAddress = await AppContext.build(appContextProvider, userDid).getProviderAddress(userDid); // TODO: cache, don't resolve every time

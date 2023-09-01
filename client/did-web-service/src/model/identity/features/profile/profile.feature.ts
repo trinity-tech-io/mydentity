@@ -6,18 +6,18 @@ import { logger } from "@services/logger";
 import { LazyBehaviorSubjectWrapper } from "@utils/lazy-behavior-subject";
 import { randomIntString } from "@utils/random";
 import moment from "moment";
-import { map } from "rxjs";
+import { BehaviorSubject, map } from "rxjs";
 import { IdentityFeature } from "../identity-feature";
 
 export class ProfileFeature implements IdentityFeature {
-  public get profileCredentials$() { return this._profileCredentials$.getSubject(); }
+  public get profileCredentials$(): BehaviorSubject<ProfileCredential[]> { return this._profileCredentials$.getSubject(); }
   private _profileCredentials$ = new LazyBehaviorSubjectWrapper<ProfileCredential[]>(null, async () => {
     this.identity.get("credentials").credentials$.pipe(map((creds) => creds.filter(c => c instanceof ProfileCredential))).subscribe(creds => {
       this.profileCredentials$.next(<ProfileCredential[]>creds);
     });
   });
 
-  public get name$() { return this._name$.getSubject(); }
+  public get name$(): BehaviorSubject<string> { return this._name$.getSubject(); }
   private _name$ = new LazyBehaviorSubjectWrapper<string>(null, async () => {
     this.profileCredentials$.subscribe(creds => {
       this.name$.next(this.getName());
@@ -37,7 +37,7 @@ export class ProfileFeature implements IdentityFeature {
   }
 
   public async createProfileCredential(credentialId: string = null, fullTypes: string[], key: string, editionValue: any): Promise<boolean> {
-    let credentialType: string[] = [];
+    const credentialType: string[] = [];
     try {
       let finalCredentialId;
       if (!credentialId) {
@@ -52,7 +52,7 @@ export class ProfileFeature implements IdentityFeature {
 
       const expirationDate = moment().add(5, "years").toDate();
 
-      let credentialSubject = entry.options.converter.toSubject(editionValue);
+      const credentialSubject = entry.options.converter.toSubject(editionValue);
 
       await this.identity.get("credentials").createCredential(finalCredentialId, credentialType, expirationDate, credentialSubject);
       return true;
@@ -73,7 +73,7 @@ export class ProfileFeature implements IdentityFeature {
     }
   }
 
-  public async updateProfileCredential(credential: ProfileCredential, newValue: string) {
+  public async updateProfileCredential(credential: ProfileCredential, newValue: string): Promise<boolean> {
     const credentialId = credential.verifiableCredential.getId().toString();
     const profileInfoEntry = findProfileInfoByTypes(credential.verifiableCredential.getType());
 
