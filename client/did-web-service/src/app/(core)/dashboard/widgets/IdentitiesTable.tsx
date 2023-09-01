@@ -15,21 +15,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     // textAlign: 'center',
     justifyContent: 'space-between', 
     marginRight: 2,
-    height: 80,
-    width: '100%',
-    background:'dark:text-slate-500 bg-slate-50 dark:bg-slate-700 dark:bg-opacity-50'
-  },
-
-  header: {
-    padding: theme.spacing(2),
-    border: `0.5px solid ${theme.palette.divider}`,
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    // textAlign: 'center',
-    justifyContent: 'space-between', 
-    marginRight: 10,
-    height: 60,
+    height: 58,
     width: '100%',
     background:'dark:text-slate-500 bg-slate-50 dark:bg-slate-700 dark:bg-opacity-50'
   },
@@ -50,12 +36,10 @@ const useStyles = makeStyles((theme: Theme) => ({
   secondItem: {
     width: '24%',
     justifyContent: 'center', // Align the second and third items to the right
-    // background: 'blue',
   },
   thirdItem: {
     width: '20%',
     justifyContent: 'flex-end',
-    // background: 'red',
   },
 }));
 
@@ -68,7 +52,7 @@ const HorizontalCellTable = ({identities }) => {
         <Paper elevation={3} className={classes.cell}>
           <Typography style={{ fontWeight: 'bold' }}> My Identities </Typography>
         </Paper>
-        <Paper elevation={3} className={classes.header}>
+        <Paper elevation={3} className={classes.cell}>
           <div className={`${classes.item} ${classes.firstItem}`}> IDENTITY </div>
           <div className={`${classes.item} ${classes.secondItem}`}> CREATION DATE </div>
           <div className={`${classes.item} ${classes.thirdItem}`}> ACTION </div>
