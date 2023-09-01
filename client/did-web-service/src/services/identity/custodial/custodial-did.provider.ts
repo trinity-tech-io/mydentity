@@ -267,7 +267,7 @@ export class CustodialDIDProvider implements IdentityProvider {
   }
 
   public async createVerifiablePresentation(identityDid: string, credentialsArg: VerifiableCredential[], realm: string, nonce: string): Promise<VerifiablePresentation> {
-    let credentials = [];
+    const credentials = [];
     credentialsArg.forEach(c => {
       credentials.push(c.toJSON())
     })

@@ -1,14 +1,14 @@
 import { ApolloError, ServerError, ServerParseError } from "@apollo/client";
 import { AppException } from "@model/exceptions/app-exception";
+import { EmailExistsException } from "@model/exceptions/email-exists-exception";
+import { EmailNotExistsException } from "@model/exceptions/email-not-exists-exception";
 import { ClientError } from "@model/exceptions/exception-codes";
+import { isEmailAlreadyExistsException, isEmailNotExistsException } from "@model/user/features/email/user-email.feature";
 import { AxiosError } from "axios";
 import { GraphQLError, GraphQLErrorExtensions } from "graphql";
 import { Subject } from "rxjs";
 import { logger } from "./logger";
 import { isUnlockException } from "./security/security.service";
-import { isEmailAlreadyExistsException, isEmailNotExistsException } from "@model/user/features/email/user-email.feature";
-import { EmailExistsException } from "@model/exceptions/email-exists-exception";
-import { EmailNotExistsException } from "@model/exceptions/email-not-exists-exception";
 
 // Note: keep this as subject not behaviour subject, to not show the latest message every time.
 export const onNewError$ = new Subject<AppException>();
@@ -52,13 +52,13 @@ function handleGraphQLError(error: GraphQLError): AppException {
 }
 
 function handleApolloNetworkError(e: Error | ServerParseError | ServerError): AppException[] {
-  let exceptions: AppException[] = [];
+  const exceptions: AppException[] = [];
 
   if (e.name === "ServerError") {
     const serverError = <ServerError>e;
     if (typeof serverError.result === "object") {
-      serverError.result.forEach(r => {
-        r.errors?.forEach(re => {
+      serverError.result.forEach((r: any) => {
+        r.errors?.forEach((re: any) => {
           logger.error("graphql", "GraphQL server network error:", re.message);
           exceptions.push(AppException.newClientError(ClientError.OtherApolloError, re.message));
         });

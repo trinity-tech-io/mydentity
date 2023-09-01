@@ -15,7 +15,7 @@ class IssuerService {
       const didDocument = await this.fetchDIDDocument(didString);
 
       // Get the issuer icon
-      let representativeIconSubject = await didDocumentService.getRepresentativeIcon(didDocument);
+      const representativeIconSubject = await didDocumentService.getRepresentativeIcon(didDocument);
       if (representativeIconSubject) {
         representativeIconSubject.subscribe(async iconBuffer => {
           if (iconBuffer) {
@@ -42,7 +42,7 @@ class IssuerService {
     // for test
     // didString = "did:elastos:iqjN3CLRjd7a4jGCZe6B3isXyeLy7KKDuK"; // Kyc
 
-    let didDocumentStatus = await didDocumentService.fetchOrAwaitDIDDocumentWithStatus(
+    const didDocumentStatus = await didDocumentService.fetchOrAwaitDIDDocumentWithStatus(
       didString,
       forceRemote
     );

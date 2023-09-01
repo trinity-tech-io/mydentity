@@ -1,8 +1,9 @@
 'use client';
-import React from 'react';
+import { Identity } from '@model/identity/identity';
 import { makeStyles } from '@mui/styles';
-import { shortenDID } from '@services/identity/identity.utils';
 import { Theme } from '@mui/system';
+import { shortenDID } from '@services/identity/identity.utils';
+import { FC } from 'react';
 
 const useStyles = makeStyles((theme: Theme) => ({
   avatarContainer: {
@@ -20,7 +21,11 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-const DropdownIdentityList = ({ identities, setCurrentIdentity, setDropdownOpen }) => {
+const DropdownIdentityList: FC<{
+  identities: Identity[],
+  setCurrentIdentity: (identity: Identity) => void;
+  setDropdownOpen: (open: boolean) => void;
+}> = ({ identities, setCurrentIdentity, setDropdownOpen }) => {
   const classes = useStyles();
 
   return (

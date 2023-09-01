@@ -21,7 +21,7 @@ import { activeIdentity$ } from "@services/identity/identity.events";
 import { logger } from "@services/logger";
 import { filter } from 'lodash';
 import Link from "next/link";
-import { FC, forwardRef, useEffect, useState } from "react";
+import { ChangeEvent, FC, MouseEvent, forwardRef, useEffect, useState } from "react";
 
 const CREDENTIAL_LIST_HEAD = [
   { id: 'name', label: 'Name', alignRight: false },
@@ -35,6 +35,9 @@ const Alert = forwardRef<HTMLDivElement, AlertProps>(function Alert(
 ) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
+
+type OrderBy = "name";
+type ComparatorMethod = (a: ProfileCredential, b: ProfileCredential) => number;
 
 const Profile: FC = () => {
   const TAG = "ProfilePage";
@@ -55,19 +58,15 @@ const Profile: FC = () => {
   const { showSuccessToast, showErrorToast } = useToast();
   const [isOpenPopupMenu, setOpenPopupMenu] = useState(null);
   const [page, setPage] = useState(0);
-  const [order, setOrder] = useState('asc');
+  const [order, setOrder] = useState<"desc" | "asc">('asc');
   const [selected, setSelected] = useState([]);
-  const [orderBy, setOrderBy] = useState('name');
+  const [orderBy, setOrderBy] = useState<OrderBy>('name');
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const availableProfileEntries = getAvailableProfileEntries(); // List of addable profile items (that can produce credentials)
 
   const explorerDIDLink = activeIdentity && `https://eid.elastos.io/did?did=${encodeURIComponent(activeIdentity.did)}&is_did=true`;
-
-  useEffect(() => {
-    computeAvailableItems();
-  }, [credentials]);
 
   /**
    * Computes the list of available items a user can add to his profile.
@@ -84,6 +83,11 @@ const Profile: FC = () => {
 
     setAvailableItemsForAddition(availableEntries);
   }
+
+  useEffect(() => {
+    computeAvailableItems();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [credentials]);
 
   const showFeedbackToast = (isSuccess: boolean, successMessage: string, errorMessage: string) => {
     if (isSuccess) {
@@ -138,7 +142,7 @@ const Profile: FC = () => {
     }
   }
 
-  const handleOpenMenu = (event, credential: ProfileCredential) => {
+  const handleOpenMenu = (event: MouseEvent, credential: ProfileCredential) => {
     setOpenPopupMenu(event.currentTarget);
     setOriginCredential(credential);
   };
@@ -147,52 +151,51 @@ const Profile: FC = () => {
     setOpenPopupMenu(null);
   };
 
-  const handleRequestSort = (event, property) => {
+  const handleRequestSort = (event: MouseEvent, property: OrderBy) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
   };
 
-  const handleChangePage = (event, newPage) => {
+  const handleChangePage = (event: MouseEvent, newPage: number) => {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event) => {
+  const handleChangeRowsPerPage = (event: ChangeEvent<HTMLInputElement>) => {
     setPage(0);
     setRowsPerPage(parseInt(event.target.value, 10));
   };
 
-  const handleFilterByName = (event) => {
+  const handleFilterByName = (event: ChangeEvent<HTMLInputElement>) => {
     setPage(0);
     setFilterName(event.target.value);
   };
 
-  function descendingComparator(a, b, orderBy) {
-    if (b[orderBy] < a[orderBy]) {
-      return -1;
+  function descendingComparator(a: Credential, b: Credential, orderBy: OrderBy): number {
+    switch (orderBy) {
+      case "name":
+        return a.getDisplayableTitle().localeCompare(b.getDisplayableTitle());
     }
-    if (b[orderBy] > a[orderBy]) {
-      return 1;
-    }
-    return 0;
   }
 
-  function getComparator(order, orderBy) {
+  function getComparator(order: 'desc' | 'asc', orderBy: any): ComparatorMethod {
     return order === 'desc'
       ? (a, b) => descendingComparator(a, b, orderBy)
       : (a, b) => -descendingComparator(a, b, orderBy);
   }
 
-  function applySortFilter(array, comparator, query) {
-    const stabilizedThis = array?.map((el, index) => [el, index]);
+  function applySortFilter(array: ProfileCredential[], comparator: ComparatorMethod, query: string) {
+    const stabilizedThis: [ProfileCredential, number][] = array?.map((el, index) => [el, index]);
     stabilizedThis?.sort((a, b) => {
       const order = comparator(a[0], b[0]);
       if (order !== 0) return order;
       return a[1] - b[1];
     });
+
     if (query) {
-      return filter(array, (_credential: Credential) => _credential.verifiableCredential.getId().getFragment().toLowerCase().indexOf(query.toLowerCase()) !== -1);
+      return filter(array, (_credential: ProfileCredential) => _credential.verifiableCredential.getId().getFragment().toLowerCase().indexOf(query.toLowerCase()) !== -1);
     }
+
     return stabilizedThis?.map((el) => el[0]);
   }
 

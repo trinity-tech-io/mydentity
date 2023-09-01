@@ -10,7 +10,7 @@ import { PublicationStatus } from "@model/publication/publish.dto";
  */
 export interface IdentityProvider {
   createIdentity(name: string): Promise<Identity>;
-  deleteIdentity(identityDid: String): Promise<boolean>;
+  deleteIdentity(identityDid: string): Promise<boolean>;
   listIdentities(): Promise<Identity[]>;
   createCredential(identityDid: string, credentialId: string, types: string[], expirationDate: Date, prop: any): Promise<Credential>;
   addCredential(identityDid: string, credential: VerifiableCredential): Promise<Credential>;
@@ -18,8 +18,8 @@ export interface IdentityProvider {
   deleteCredential(credentialId): Promise<boolean>;
   createVerifiablePresentation(identityDid: string, credentials: VerifiableCredential[], realm: string, nonce: string): Promise<VerifiablePresentation>;
   // get the DID transaction payload
-  createDIDPublishTransaction(identityDid: String): Promise<string>;
+  createDIDPublishTransaction(identityDid: string): Promise<string>;
   // publish Identity to did chain.
-  publishIdentity(identityDid: string, payload: String): Promise<string>;
-  getPublicationStatus(identityDid: string, publicationId: String): Promise<PublicationStatus>;
+  publishIdentity(identityDid: string, payload: string): Promise<string>;
+  getPublicationStatus(identityDid: string, publicationId: string): Promise<PublicationStatus>;
 }

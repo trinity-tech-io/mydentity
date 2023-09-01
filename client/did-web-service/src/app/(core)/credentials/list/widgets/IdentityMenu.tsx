@@ -11,22 +11,25 @@ import { findProfileInfoByTypes, } from "@services/identity-profile-info/identit
 import { ProfileCredentialInfo } from "@services/identity-profile-info/profile-credential-info";
 import { activeIdentity$ } from "@services/identity/identity.events";
 import { logger } from "@services/logger";
-import { useState } from 'react';
+import { FC, MouseEvent, useState } from 'react';
 
-const IdentityMenu = ({ onEdit, onDelete }) => {
+const IdentityMenu: FC<{
+  onEdit: ProfileCredential;
+  onDelete: ProfileCredential;
+}> = ({ onEdit, onDelete }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const identityProfileFeature = activeIdentity?.get("profile");
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [openEditCredentialDialog, setOpenEditCredentialDialog] = useState(false);
-  const [preEditCredentialInfo, setPreEditCredentialInfo] = useState<ProfileCredentialInfo>(onEdit);
+  const [preEditCredentialInfo, setPreEditCredentialInfo] = useState<ProfileCredentialInfo>(null);
   const [preEditCredentialValue, setPreEditCredentialValue] = useState<string>(null);
   const [editType, setEditType] = useState(EditionMode.EDIT); // Set your default edit type
   const [originCredential, setOriginCredential] = useState<ProfileCredential>(onEdit);
   const { showSuccessToast, showErrorToast } = useToast();
   const TAG = 'IdentityMenu';
 
-  const handleClick = (event) => {
+  const handleClick = (event: MouseEvent) => {
     setAnchorEl(event.currentTarget);
   };
 
@@ -93,7 +96,7 @@ const IdentityMenu = ({ onEdit, onDelete }) => {
       } else {
         showErrorToast('Failed to update the entry...');
       }
-    };
+    }
   }
 
   return (

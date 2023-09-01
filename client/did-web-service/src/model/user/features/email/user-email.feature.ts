@@ -92,8 +92,6 @@ export class UserEmailFeature implements UserFeature {
         const result = data && data.bindOauthEmail;
         if (!result) {
             logger.error('user', 'Failed from bindOauthEmail api.');
-        } else {
-
         }
         return result;
     }
@@ -135,7 +133,7 @@ export class UserEmailFeature implements UserFeature {
         logger.log("user", "Sending request to authentication by email");
 
         await withCaughtAppException(() => {
-            return getApolloClient().mutate<{}>({
+            return getApolloClient().mutate<unknown>({
                 mutation: gql`
                     mutation BindWithEmailAddress($emailAddress: String!) {
                         bindWithEmailAddress(emailAddress: $emailAddress) { success }

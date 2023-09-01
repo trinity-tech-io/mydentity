@@ -1,8 +1,8 @@
 import { FC } from 'react';
-import Flatpickr from 'react-flatpickr';
+import Flatpickr, { DateTimePickerProps } from 'react-flatpickr';
 
 export const Datepicker: FC<{ align?: any }> = ({ align }) => {
-  const options = {
+  const options: DateTimePickerProps["options"] = {
     mode: 'range',
     static: true,
     monthSelectorType: 'static',

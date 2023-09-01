@@ -178,7 +178,7 @@ const Sidebar: FC<{
   const trigger = useRef<any>(null);
   const sidebar = useRef<any>(null);
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
-  let [activeIdentity] = useBehaviorSubject(activeIdentity$);
+  const [activeIdentity] = useBehaviorSubject(activeIdentity$);
 
   // close on click outside
   useEffect(() => {

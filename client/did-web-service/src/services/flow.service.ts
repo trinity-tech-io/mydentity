@@ -8,7 +8,7 @@ export enum FlowOperation {
 const ONGOING_FLOW_OPERATION = 'ongoingflowoperation';
 
 export function getOnGoingFlowOperation(): FlowOperation {
-  return FlowOperation[localStorage.getItem(ONGOING_FLOW_OPERATION)];
+  return FlowOperation[localStorage.getItem(ONGOING_FLOW_OPERATION) as keyof typeof FlowOperation];
 }
 
 export function setOnGoingFlowOperation(operation: FlowOperation) {

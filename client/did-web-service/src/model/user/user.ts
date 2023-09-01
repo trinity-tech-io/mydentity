@@ -87,7 +87,7 @@ export class User {
     return this.id === anotherUser.id;
   }
 
-  public async updateUserName(name: string): Promise<Boolean> {
+  public async updateUserName(name: string): Promise<boolean> {
     logger.log("user", "update user name.");
 
     const { data } = await withCaughtAppException(() => {

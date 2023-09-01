@@ -11,7 +11,7 @@ class IdentityService {
   /**
    * Creates a new identity (DID) for the signed in user
    */
-  public createIdentity(name): Promise<Identity> {
+  public createIdentity(name: string): Promise<Identity> {
     return this.provider.createIdentity(name);
   }
 

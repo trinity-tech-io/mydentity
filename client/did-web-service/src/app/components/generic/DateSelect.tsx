@@ -34,7 +34,7 @@ function DateSelect() {
 
   // close on click outside
   useEffect(() => {
-    const clickHandler = ({ target }) => {
+    const clickHandler: ((ev: MouseEvent) => void) = ({ target }) => {
       if (!dropdown.current) return;
       if (!dropdownOpen || dropdown.current.contains(target) || trigger.current.contains(target)) return;
       setDropdownOpen(false);
@@ -45,7 +45,7 @@ function DateSelect() {
 
   // close if the esc key is pressed
   useEffect(() => {
-    const keyHandler = ({ keyCode }) => {
+    const keyHandler: ((ev: KeyboardEvent) => void) = ({ keyCode }) => {
       if (!dropdownOpen || keyCode !== 27) return;
       setDropdownOpen(false);
     };

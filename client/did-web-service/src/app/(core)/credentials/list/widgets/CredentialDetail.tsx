@@ -1,5 +1,6 @@
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { Credential } from '@model/credential/credential';
+import { ProfileCredential } from '@model/credential/profile-credential';
 import { Avatar, Box, Grid, Stack, Typography } from '@mui/material';
 import IdentityMenu from './IdentityMenu';
 
@@ -8,6 +9,7 @@ interface Props {
 }
 export const CredentialDetailWidget = (props: Props) => {
   const { selectedCredential } = props;
+  const isProfileCredential = selectedCredential instanceof ProfileCredential;
   const [issuerInfo] = useBehaviorSubject(selectedCredential?.issuerInfo$);
 
   return (
@@ -15,7 +17,7 @@ export const CredentialDetailWidget = (props: Props) => {
       {selectedCredential &&
         (<Box sx={{ px: 2.5, pb: 3 }}>
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '24px' }}>
-            <IdentityMenu onEdit={selectedCredential} onDelete={selectedCredential} />
+            {isProfileCredential && <IdentityMenu onEdit={selectedCredential} onDelete={selectedCredential} />}
           </div>
           <Stack alignItems="center" spacing={3} sx={{ pt: 5, borderRadius: 2, position: 'relative' }}>
             <Avatar src="/assets/images/account.svg" sx={{ ml: 2, width: 120, height: 120 }} />

@@ -1,9 +1,10 @@
 'use client';
-import React from 'react';
 import { Grid, Paper, Typography } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { Theme } from '@mui/system';
 import IdentitiesCell from './IdentitiesCell';
+import { Identity } from '@model/identity/identity';
+import { FC } from 'react';
 
 const useStyles = makeStyles((theme: Theme) => ({
   cell: {
@@ -13,11 +14,11 @@ const useStyles = makeStyles((theme: Theme) => ({
     flexDirection: 'row',
     alignItems: 'center',
     // textAlign: 'center',
-    justifyContent: 'space-between', 
+    justifyContent: 'space-between',
     marginRight: 2,
     height: 58,
     width: '100%',
-    background:'dark:text-slate-500 bg-slate-50 dark:bg-slate-700 dark:bg-opacity-50'
+    background: 'dark:text-slate-500 bg-slate-50 dark:bg-slate-700 dark:bg-opacity-50'
   },
 
   item: {
@@ -25,9 +26,9 @@ const useStyles = makeStyles((theme: Theme) => ({
     alignItems: 'center',
     padding: '6px', // Add some horizontal padding for better spacing
     backgroundColor: '#f8fafc',
-    color: '#96a5b9', 
-    fontWeight: 'bold', 
-    fontSize: '12px', 
+    color: '#96a5b9',
+    fontWeight: 'bold',
+    fontSize: '12px',
   },
   firstItem: {
     width: '56%',
@@ -43,7 +44,9 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-const HorizontalCellTable = ({identities }) => {
+const HorizontalCellTable: FC<{
+  identities: Identity[]
+}> = ({ identities }) => {
   const classes = useStyles();
 
   return (

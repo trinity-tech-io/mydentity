@@ -13,9 +13,9 @@ import { initialsString } from "@utils/strings";
 import { useRouter } from 'next/navigation';
 import { FC, useEffect, useRef, useState } from 'react';
 import CircleComponent from './CircleComponent';
+import DropdownIdentityList from './DropdownIdentityList';
 import { MainButton } from './generic/MainButton';
 import Transition from './generic/Transition';
-import DropdownIdentityList from './DropdownIdentityList';
 
 const useStyles = makeStyles((theme: Theme) => ({
   button: {
@@ -53,8 +53,8 @@ export const DropdownIdentity: FC<{
   const dropdown = useRef(null);
 
   const [authUser] = useBehaviorSubject(authUser$());
-  let [identities] = useBehaviorSubject(authUser?.get("identity").identities$);
-  let [currentIdentity] = useBehaviorSubject(activeIdentity$);
+  const [identities] = useBehaviorSubject(authUser?.get("identity").identities$);
+  const [currentIdentity] = useBehaviorSubject(activeIdentity$);
   //const [createDidModalOpen, setCreateDidModalOpen] = useState(false);
   const [name] = useBehaviorSubject(currentIdentity?.get("profile").name$)
   const [DID, setDID] = useState('No active identity');
@@ -83,7 +83,7 @@ export const DropdownIdentity: FC<{
 
   // close on click outside
   useEffect(() => {
-    const clickHandler = ({ target }) => {
+    const clickHandler: ((ev: MouseEvent) => void) = ({ target }) => {
       if (!dropdown.current) return;
       if (!dropdownOpen || dropdown.current.contains(target) || trigger.current.contains(target)) return;
       setDropdownOpen(false);
@@ -93,7 +93,7 @@ export const DropdownIdentity: FC<{
   });
 
   useEffect(() => {
-    const keyHandler = ({ keyCode }) => {
+    const keyHandler: ((ev: KeyboardEvent) => void) = ({ keyCode }) => {
       if (!dropdownOpen || keyCode !== 27) return;
       setDropdownOpen(false);
     };

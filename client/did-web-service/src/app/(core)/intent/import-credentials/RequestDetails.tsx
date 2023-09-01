@@ -67,15 +67,15 @@ export const RequestDetails: FC<{
     if (!credentialObjList)
       return [];
 
-    let displayableCredentials = [];
+    const displayableCredentials = [];
     for (const credentialObj of credentialObjList) {
       const verifiableCredential = VerifiableCredential.parse(credentialObj.toString());
-      let credentialSubject = verifiableCredential.getSubject().getProperties();
+      const credentialSubject = verifiableCredential.getSubject().getProperties();
 
       // Generate a displayable version of each entry found in the credential subject
-      let displayableEntries: ImportedCredentialItem[] = [];
-      for (let subjectEntryKey of Object.keys(credentialSubject)) {
-        let subjectEntryValue = credentialSubject[subjectEntryKey];
+      const displayableEntries: ImportedCredentialItem[] = [];
+      for (const subjectEntryKey of Object.keys(credentialSubject)) {
+        const subjectEntryValue = credentialSubject[subjectEntryKey];
 
         if (subjectEntryKey == "id") // Don't display the special subject id entry
           continue;
@@ -83,7 +83,7 @@ export const RequestDetails: FC<{
         if (subjectEntryKey == "displayable") // Don't display the special subject displayable entry
           continue;
 
-        let displayableEntry: ImportedCredentialItem = {
+        const displayableEntry: ImportedCredentialItem = {
           name: subjectEntryKey,
           value: subjectEntryValue.toString(),
         }
@@ -91,7 +91,7 @@ export const RequestDetails: FC<{
         displayableEntries.push(displayableEntry);
       }
 
-      let displayableCredential: ImportedCredential = {
+      const displayableCredential: ImportedCredential = {
         name: verifiableCredential.getId().getFragment(),
         values: displayableEntries,
         credential: await credentialFromVerifiableCredential(verifiableCredential),
@@ -109,13 +109,13 @@ export const RequestDetails: FC<{
 
     // Now fulfil the intent. The connector will then be able to
     // grab the result from the API.
-    let responsePayload: string[] = [];
+    const responsePayload: string[] = [];
     importedCredentials.map(importedCredential => { responsePayload.push(importedCredential.credential.getId().toString()) });
     // const responsePayload = ["did:elastos:mydid#mycredid-todo"]; // TODO: list of DIDURLs of the imported VCs.
 
     let fulfilled = false;
     try {
-      for (let importedCredential of importedCredentials) {
+      for (const importedCredential of importedCredentials) {
         await identityProfileFeature.addProfileCredential(importedCredential);
       }
 

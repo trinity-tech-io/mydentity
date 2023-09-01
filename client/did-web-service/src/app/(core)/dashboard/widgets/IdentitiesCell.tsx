@@ -1,18 +1,18 @@
 'use client';
-import React from 'react';
-import { useState } from 'react';
+import ComfirmDialog from '@components/generic/ComfirmDialog';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
+import { Identity } from '@model/identity/identity';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { Grid, Paper, Typography } from '@mui/material';
+import IconButton from '@mui/material/IconButton';
 import { makeStyles } from '@mui/styles';
 import { Theme } from '@mui/system';
-import DeleteIcon from '@mui/icons-material/Delete';
-import IconButton from '@mui/material/IconButton';
-import IdentityCellLeft from './CellLeft';
-import ComfirmDialog from '@components/generic/ComfirmDialog';
 import { activeIdentity$ } from '@services/identity/identity.events';
-import { authUser$ } from '@services/user/user.events';
 import { identityService } from '@services/identity/identity.service';
 import { logger } from '@services/logger';
+import { authUser$ } from '@services/user/user.events';
+import { FC, useState } from 'react';
+import IdentityCellLeft from './CellLeft';
 
 const useStyles = makeStyles((theme: Theme) => ({
   cell: {
@@ -46,7 +46,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-const CustomCell = ({ identity }) => {
+const CustomCell: FC<{ identity: Identity }> = ({ identity }) => {
   const TAG = 'CustomCell'
   const classes = useStyles();
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
@@ -69,7 +69,7 @@ const CustomCell = ({ identity }) => {
     return
   }
 
-  const handleCellClick = (identity) => {
+  const handleCellClick = (identity: Identity) => {
     // TODO:
     console.log("click Cell ==========================")
   }
@@ -81,19 +81,19 @@ const CustomCell = ({ identity }) => {
           title='Delete this identity?'
           content='Do you want to delete this Identity?'
           open={openConfirmDialog}
-          onClose={(isAgree: boolean) => handleCloseDialog(isAgree)}/>
+          onClose={(isAgree: boolean) => handleCloseDialog(isAgree)} />
       </div>
-      <Paper 
-        elevation={3} 
+      <Paper
+        elevation={3}
         className={`${classes.cell} ${classes.hoverCell} `}
         onClick={() => handleCellClick(identity)}
         onMouseDown={() => setCellClicked(true)} // Add the click effect when the mouse is pressed
-        onMouseUp={() => setCellClicked(false)} // Remove the click effect when the mouse is released 
-        >
-        <div style={{ width: '50%'}}>
+        onMouseUp={() => setCellClicked(false)} // Remove the click effect when the mouse is released
+      >
+        <div style={{ width: '50%' }}>
           <IdentityCellLeft identity={identity} />
         </div>
-        <div style={{width: '20%', padding: '0px' }}>
+        <div style={{ width: '20%', padding: '0px' }}>
           <Typography variant="h6">
             {identity.createdAt.toLocaleDateString()}
           </Typography>
@@ -102,19 +102,19 @@ const CustomCell = ({ identity }) => {
           <IconButton
             aria-label="delete"
             onClick={(event) => {
-            event.stopPropagation(); // Prevent event propagation to the cell
-            event.preventDefault(); // 
-            setOpenConfirmDialog(true);
-            setPrepareDeleteDid(identity.did);
-            return false; // NO user： Return false to prevent triggering the click effect of the cell
+              event.stopPropagation(); // Prevent event propagation to the cell
+              event.preventDefault(); //
+              setOpenConfirmDialog(true);
+              setPrepareDeleteDid(identity.did);
+              return false; // NO user： Return false to prevent triggering the click effect of the cell
             }}
-            >
+          >
             <DeleteIcon style={{ color: 'red' }} />
           </IconButton>
         </div>
       </Paper>
     </Grid>
-  );  
+  );
 };
 
 export default CustomCell;

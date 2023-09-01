@@ -8,9 +8,14 @@
   "plugins": [
     "@typescript-eslint"
   ],
+  "ignorePatterns": [
+    ".eslintrc.js",
+    "tailwind.config.js"
+  ],
   "rules": {
     // Global
     "prefer-const": "warn",
+    "no-async-promise-executor": "off", // ability to use async for promise resolve functions
     // React
     "react/no-unescaped-entities": "off",
     // Typescript

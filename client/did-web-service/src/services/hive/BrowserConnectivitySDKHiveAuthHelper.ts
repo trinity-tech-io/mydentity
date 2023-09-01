@@ -1,6 +1,7 @@
 import {
   JWTHeader,
   JWTParserBuilder,
+  VerifiableCredential,
   // VerifiableCredential,
   VerifiablePresentation
 } from '@elastosfoundation/did-js-sdk';
@@ -10,14 +11,14 @@ import {
   // AppContextProvider,
   DIDResolverAlreadySetupException,
   Vault
-} from '@elastosfoundation/hive-js-sdk';
+} from '@elastosfoundation/hive-js-sdk'; // TODO: like for DID SDK, need to change the sdk's package.json to solve this import not found
 import dayjs from 'dayjs';
 import { config } from './config';
 
 export class BrowserConnectivitySDKHiveAuthHelper {
   didAccess;
 
-  constructor(didResolverUrl) {
+  constructor(didResolverUrl: string) {
     try {
       AppContext.setupResolver(didResolverUrl, '/anyfakedir/browserside/for/didstores');
     } catch (e) {
@@ -30,7 +31,7 @@ export class BrowserConnectivitySDKHiveAuthHelper {
     this.didAccess = new ConnDID.DIDAccess();
   }
 
-  async getAppContext(userDid, onAuthError) {
+  async getAppContext(userDid: string, onAuthError): Promise<AppContext> {
     const appInstanceDIDInfo = await this.didAccess.getOrCreateAppInstanceDID();
 
     console.log('hiveauthhelper', 'Getting app instance DID document');
@@ -47,7 +48,7 @@ export class BrowserConnectivitySDKHiveAuthHelper {
     const appContextProvider = {
       getLocalDataDir: () => '/',
       getAppInstanceDocument: () => Promise.resolve(didDocument),
-      getAuthorization: (authenticationChallengeJWtCode) => {
+      getAuthorization: (authenticationChallengeJWtCode: string): Promise<string> => {
         /**
          * Called by the Hive plugin when a hive backend needs to authenticate the user and app.
          * The returned data must be a verifiable presentation, signed by the app instance DID, and
@@ -79,7 +80,7 @@ export class BrowserConnectivitySDKHiveAuthHelper {
     return new VaultSubscriptionService(appContext, providerAddress);
   } */
 
-  async getVaultServices(userDid, providerAddress = null, onAuthError?): Promise<Vault> {
+  async getVaultServices(userDid: string, providerAddress: string = null, onAuthError?): Promise<Vault> {
     const appContext = await this.getAppContext(userDid, onAuthError);
     // if (!providerAddress)
     //   providerAddress = await AppContext.build(appContextProvider, userDid).getProviderAddress(userDid); // TODO: cache, don't resolve every time
@@ -110,7 +111,7 @@ export class BrowserConnectivitySDKHiveAuthHelper {
     - verify jwt (using local app instance did public key provided before)
     - generate access token
   */
-  handleVaultAuthenticationChallenge(jwtToken) {
+  handleVaultAuthenticationChallenge(jwtToken: string): Promise<string> {
     return this.generateAuthPresentationJWT(jwtToken);
   }
 
@@ -119,7 +120,7 @@ export class BrowserConnectivitySDKHiveAuthHelper {
    * That JWT contains a verifiable presentation that contains server challenge info, and the app id credential
    * issued by the end user earlier.
    */
-  generateAuthPresentationJWT(authChallengeJwttoken) {
+  generateAuthPresentationJWT(authChallengeJwttoken: string): Promise<string> {
     console.log('hiveauthhelper', 'Starting process to generate hive auth presentation JWT');
 
     // eslint-disable-next-line no-async-promise-executor
@@ -233,7 +234,7 @@ export class BrowserConnectivitySDKHiveAuthHelper {
     });
   }
 
-  generateAppIdCredential() {
+  generateAppIdCredential(): Promise<VerifiableCredential> {
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {
       const storedAppInstanceDID = await this.didAccess.getOrCreateAppInstanceDID();
@@ -261,7 +262,7 @@ export class BrowserConnectivitySDKHiveAuthHelper {
     });
   }
 
-  async getBackupCredential(srcDid, targetDid, targetHost) {
+  async getBackupCredential(srcDid: string, targetDid: string, targetHost: string): Promise<string> {
     const credential = await this.didAccess.generateHiveBackupCredential(
       srcDid,
       targetDid,

@@ -1,17 +1,18 @@
 'use client';
 import Transition from "@components/generic/Transition";
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
+import { User } from "@model/user/user";
 import Avatar from '@mui/material/Avatar';
 import { authUser$, getActiveUser } from "@services/user/user.events";
 import { signOut } from "@services/user/user.service";
 import Link from 'next/link';
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import CircleComponent from './CircleComponent';
 
-export function DropdownUserProfile({
-  align
-}) {
+export const DropdownUserProfile: FC<{
+  align: "left" | "right"
+}> = ({ align }) => {
   const router = useRouter();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [activeUser] = useBehaviorSubject(authUser$());
@@ -31,7 +32,7 @@ export function DropdownUserProfile({
   // close on click outside
   useEffect(() => {
     // console.log('>>>>>> enter useEffect')
-    const updateUserDesc = (user) => {
+    const updateUserDesc = (user: User) => {
       if (user.type === 'MICROSOFT') {
         setUserTypeDesc('Microsoft');
       } else if (user.type === 'EMAIL') {
@@ -45,7 +46,7 @@ export function DropdownUserProfile({
       updateUserDesc(user);
     }
 
-    const clickHandler = ({ target }) => {
+    const clickHandler: ((ev: MouseEvent) => void) = ({ target }) => {
       if (!dropdown.current) return;
       if (!dropdownOpen || dropdown.current.contains(target) || trigger.current.contains(target)) return;
       setDropdownOpen(false);
@@ -70,7 +71,7 @@ export function DropdownUserProfile({
 
   // close if the esc key is pressed
   useEffect(() => {
-    const keyHandler = ({ keyCode }) => {
+    const keyHandler: ((ev: KeyboardEvent) => void) = ({ keyCode }) => {
       if (!dropdownOpen || keyCode !== 27) return;
       setDropdownOpen(false);
     };

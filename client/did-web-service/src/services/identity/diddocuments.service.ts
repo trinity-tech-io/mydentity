@@ -16,7 +16,7 @@ class OnlineDIDDocumentsStatus {
   public get(didString: string): BehaviorSubject<OnlineDIDDocumentStatus> {
     if (!this.documentsSubjects.has(didString)) {
       // Document subject not cached yet, so we create one for it, with a null document (not yet fetched)
-      let subject = new BehaviorSubject<OnlineDIDDocumentStatus>({
+      const subject = new BehaviorSubject<OnlineDIDDocumentStatus>({
         checking: false,
         checked: false,
         document: null
@@ -51,8 +51,8 @@ class DIDDocumentsService {
    * Fetches the DID Document and notifies listeners when this is ready
    */
   public async fetchActiveUserOnlineDIDDocument(forceRemote = false): Promise<DIDDocument> {
-    let didString = identityService.getActiveIdentityId();
-    let currentOnChainDIDDocument = await this.resolveDIDWithoutDIDStore(
+    const didString = identityService.getActiveIdentityId();
+    const currentOnChainDIDDocument = await this.resolveDIDWithoutDIDStore(
       didString,
       forceRemote
     );
@@ -70,7 +70,7 @@ class DIDDocumentsService {
   ): Promise<DIDDocument> {
     return this.resolveDIDQueue.add(async () => {
       logger.log("Identity", "Resolving DID without DID store", didString, forceRemote);
-      let did = new DID(didString);
+      const did = new DID(didString);
       return DIDBackend.getInstance().resolveDid(did, forceRemote);
     })
   }
@@ -83,11 +83,11 @@ class DIDDocumentsService {
    * without fetching again.
    */
   public fetchOrAwaitDIDDocumentWithStatus(didString: string, forceRemote = false): Promise<OnlineDIDDocumentStatus> {
-    let cachedDocumentSubject = this.onlineDIDDocumentsStatus.get(didString);
+    const cachedDocumentSubject = this.onlineDIDDocumentsStatus.get(didString);
 
     return new Promise(async resolve => {
       if (cachedDocumentSubject.value.checking) {
-        let subscription = cachedDocumentSubject.subscribe(status => {
+        const subscription = cachedDocumentSubject.subscribe(status => {
           if (status.checked) {
             subscription.unsubscribe();
             resolve(status);
@@ -98,7 +98,7 @@ class DIDDocumentsService {
         if (!cachedDocumentSubject.value.checked || forceRemote) {
           // Not checked yet, or force remote: fetched for real
           this.onlineDIDDocumentsStatus.set(didString, true, false, null);
-          let resolvedDocument = await this.resolveDIDWithoutDIDStore(didString, forceRemote);
+          const resolvedDocument = await this.resolveDIDWithoutDIDStore(didString, forceRemote);
           logger.log("Identity", "Resolved on chain document: ", resolvedDocument);
 
           this.onlineDIDDocumentsStatus.set(didString, false, true, resolvedDocument);
@@ -124,32 +124,32 @@ class DIDDocumentsService {
 
     let hiveIconUrl: string = null;
 
-    let credentials = document.getCredentials();
+    const credentials = document.getCredentials();
 
     // Try to find suitable credentials in the document - start with the application credential type
-    let applicationCredentials = this.getCredentialsByType(credentials, "ApplicationCredential");
+    const applicationCredentials = this.getCredentialsByType(credentials, "ApplicationCredential");
     //console.log("getRepresentativeIcon applicationCredentials", applicationCredentials)
     if (applicationCredentials && applicationCredentials.length > 0) {
-      let props = applicationCredentials[0].getSubject().getProperties();
+      const props = applicationCredentials[0].getSubject().getProperties();
       if ("iconUrl" in props)
         hiveIconUrl = props["iconUrl"] as string;
     }
 
     // Check the "avatar" standard
     if (!hiveIconUrl) {
-      let avatarCredentials = this.getCredentialsByType(credentials, "AvatarCredential");
+      const avatarCredentials = this.getCredentialsByType(credentials, "AvatarCredential");
       //console.log("getRepresentativeIcon avatarCredentials", avatarCredentials)
       if (!avatarCredentials || avatarCredentials.length === 0) {
         // Could not find the more recent avatarcredential type. Try the legacy #avatar name
-        let avatarCredential = this.getCredentialById(credentials, new DIDURL("#avatar"));
+        const avatarCredential = this.getCredentialById(credentials, new DIDURL("#avatar"));
         if (avatarCredential)
           avatarCredentials.push(avatarCredential);
       }
 
       if (avatarCredentials && avatarCredentials.length > 0) {
-        let props = avatarCredentials[0].getSubject().getProperties();
+        const props = avatarCredentials[0].getSubject().getProperties();
         if ("avatar" in props && typeof props["avatar"] === "object") {
-          let avatar = props["avatar"];
+          const avatar = props["avatar"];
           if ("type" in avatar && avatar["type"] === "elastoshive")
             hiveIconUrl = avatar["data"] as string;
         }
@@ -174,21 +174,21 @@ class DIDDocumentsService {
 
     let name: string = null;
 
-    let credentials = document.getCredentials();
+    const credentials = document.getCredentials();
 
     // Try to find suitable credentials in the document - start with the application credential type
-    let applicationCredentials = this.getCredentialsByType(credentials, "ApplicationCredential");
+    const applicationCredentials = this.getCredentialsByType(credentials, "ApplicationCredential");
     if (applicationCredentials && applicationCredentials.length > 0) {
-      let props = applicationCredentials[0].getSubject().getProperties();
+      const props = applicationCredentials[0].getSubject().getProperties();
       if ("name" in props)
         name = props["name"] as string;
     }
 
     // Check the "name" standard
     if (!name) {
-      let nameCredentials = this.getCredentialsByType(credentials, "NameCredential");
+      const nameCredentials = this.getCredentialsByType(credentials, "NameCredential");
       if (nameCredentials && nameCredentials.length > 0) {
-        let props = nameCredentials[0].getSubject().getProperties();
+        const props = nameCredentials[0].getSubject().getProperties();
         if ("name" in props)
           name = props["name"] as string;
       }
@@ -196,9 +196,9 @@ class DIDDocumentsService {
 
     // Check the legacy "name"
     if (!name) {
-      let nameCredential = this.getCredentialById(credentials, new DIDURL("#name"));
+      const nameCredential = this.getCredentialById(credentials, new DIDURL("#name"));
       if (nameCredential) {
-        let props = nameCredential.getSubject().getProperties();
+        const props = nameCredential.getSubject().getProperties();
         if ("name" in props)
           name = props["name"] as string;
       }

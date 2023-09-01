@@ -129,7 +129,7 @@ export async function authenticateWithEmailAddress(emailAddress: string): Promis
   logger.log("user", "Sending request to authentication by email");
 
   await withCaughtAppException(() => {
-    return getApolloClient().mutate<{}>({
+    return getApolloClient().mutate<unknown>({
       mutation: gql`
       mutation RequestEmailAuthentication($emailAddress: String!) {
         requestEmailAuthentication(emailAddress: $emailAddress) { success }

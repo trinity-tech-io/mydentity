@@ -1,7 +1,7 @@
 'use client';
-import React from 'react';
+import { FC } from 'react';
 
-const CircleComponent = ({ text }) => {
+const CircleComponent: FC<{ text: string }> = ({ text }) => {
   const circleStyle = {
     width: '39px',
     height: '39px',

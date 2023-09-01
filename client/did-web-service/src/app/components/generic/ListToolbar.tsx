@@ -1,9 +1,9 @@
-import PropTypes from 'prop-types';
 // @mui
-import { styled, alpha } from '@mui/material/styles';
-import { Toolbar, Tooltip, IconButton, Typography, OutlinedInput, InputAdornment } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
 import DeleteIcon from '@mui/icons-material/Delete';
+import SearchIcon from '@mui/icons-material/Search';
+import { IconButton, InputAdornment, OutlinedInput, Toolbar, Tooltip, Typography } from '@mui/material';
+import { alpha, styled } from '@mui/material/styles';
+import { ChangeEvent, FC } from 'react';
 
 // ----------------------------------------------------------------------
 
@@ -32,13 +32,11 @@ const StyledSearch = styled(OutlinedInput)(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
-UserListToolbar.propTypes = {
-  numSelected: PropTypes.number,
-  filterName: PropTypes.string,
-  onFilterName: PropTypes.func,
-};
-
-export default function UserListToolbar({ numSelected, filterName, onFilterName }) {
+const UserListToolbar: FC<{
+  numSelected: number,
+  filterName: string,
+  onFilterName: (event: ChangeEvent<HTMLInputElement>) => void,
+}> = ({ numSelected, filterName, onFilterName }) => {
   return (
     <StyledRoot
       sx={{
@@ -59,14 +57,14 @@ export default function UserListToolbar({ numSelected, filterName, onFilterName 
           placeholder="Search user..."
           startAdornment={
             <InputAdornment position="start">
-                <SearchIcon/>
+              <SearchIcon />
             </InputAdornment>
           }
         />
       )}
 
       {numSelected > 0 ? (
-        <Tooltip title="Delete" onClick={()=>{}}>
+        <Tooltip title="Delete" onClick={() => { }}>
           <IconButton>
             <DeleteIcon />
           </IconButton>
@@ -77,3 +75,5 @@ export default function UserListToolbar({ numSelected, filterName, onFilterName 
     </StyledRoot>
   );
 }
+
+export default UserListToolbar;

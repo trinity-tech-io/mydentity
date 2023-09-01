@@ -6,7 +6,7 @@ import { getVault } from "./hive.service";
  *
  * Ex: hive://user_did@app_did/getMainIdentityAvatar ---> âPNGIHDR...
  */
-export const fetchHiveScriptPicture = async (hiveScriptUrl, did) => {
+export const fetchHiveScriptPicture = async (hiveScriptUrl: string, did: string) => {
   // DIRTY HACK START - delete this after a while. Reason: Essentials 2.1 android generates invalid script urls such as
   // ...&params={empty:0} // invalid json. - should be &params={\"empty\"":0}. DELETE this hack after a while.
   hiveScriptUrl = hiveScriptUrl.replace('params={empty:0}', 'params={"empty":0}');
