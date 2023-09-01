@@ -26,7 +26,7 @@ export class KeyRingResolver {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Mutation(() => Boolean)
+  @Mutation(() => [ShadowKeyEntity], { name: 'updatedKeys' })
   changePassword(@Args('newPassword') newPassword: string, @CurrentBrowser() browser: Browser, @CurrentUser() user: User) {
     return this.keyRingService.changePassword(newPassword, browser.id, user);
   }

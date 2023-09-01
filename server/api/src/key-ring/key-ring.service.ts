@@ -305,7 +305,7 @@ export class KeyRingService {
     return (await this.removeShadowKey(user.id, keyId)) != null;
   }
 
-  async changePassword(newPassword: string, browserId: string, user: User): Promise<boolean> {
+  async changePassword(newPassword: string, browserId: string, user: User): Promise<UserShadowKey[]>  {
     // get the cached secret key if authorized
     const masterKey = this.getMasterKey(user.id, browserId);
     if (masterKey === undefined)
@@ -329,12 +329,14 @@ export class KeyRingService {
     // IMPORTANT: should re-encrypt one by one for the security reason
     // Prisma transaction with code block:
     //   https://www.prisma.io/docs/concepts/components/prisma-client/transactions#interactive-transactions
-    const success = await this.prisma.$transaction<boolean>(async (tx) => {
+    const keys = await this.prisma.$transaction<UserShadowKey[]>(async (tx) => {
+      const shadowKeys: UserShadowKey[] = [];
+
       for (const shadow of shadows) {
         const authKey = PasswordHash.hash(newPassword);
         const encryptedSecretKey = SecretBox.encryptWithPassword(secretKey, newPassword);
 
-        await tx.userShadowKey.update({
+        const newKey = await tx.userShadowKey.update({
           where: {
             userId_keyId: {
               userId: user.id,
@@ -346,14 +348,17 @@ export class KeyRingService {
             secretKey: Buffer.from(encryptedSecretKey).toString('hex')
           }
         });
+
+        newKey.key = "";
+        shadowKeys.push(newKey);
       }
 
-      return true;
+      return shadowKeys;
     }, {
       isolationLevel: Prisma.TransactionIsolationLevel.Serializable
     });
 
-    return success;
+    return keys;
   }
 
   async getAllKeys(user: User): Promise<UserShadowKey[]> {
