@@ -98,8 +98,12 @@ export class Credential {
     if (displayableCredentialDescription)
       this.displayValue = displayableCredentialDescription;
     else {
-      // TODO: if only one field, show the field value instead of a json data
-      this.displayValue = JSON.stringify(this.getValueItems());
+      const valueItems = this.getValueItems();
+      if (valueItems.length <= 1) {
+        this.displayValue = valueItems[0]?.value;
+      } else {
+        this.displayValue = JSON.stringify(valueItems);
+      }
     }
   }
 

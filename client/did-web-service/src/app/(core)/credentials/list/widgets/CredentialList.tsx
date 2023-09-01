@@ -1,4 +1,5 @@
 'use client';
+import CredentialBasicInfo from '@components/credential/credentialBasicInfo';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { Credential } from '@model/credential/credential';
 import PersonIcon from '@mui/icons-material/Person';
@@ -8,7 +9,6 @@ import Divider from '@mui/material/Divider';
 import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
 import { activeIdentity$ } from '@services/identity/identity.events';
 import { useEffect, useState } from 'react';
 
@@ -52,7 +52,9 @@ export const CredentialListWidget = (props: ConfirmDialogProps) => {
                   <ListItemIcon>
                     <PersonIcon />
                   </ListItemIcon>
-                  <ListItemText primary={c.getDisplayableTitle()} secondary={c.getDisplayValue()} />
+                  <CredentialBasicInfo
+                    credential={c}
+                  />
                 </ListItemButton>
                 <Divider />
               </div>

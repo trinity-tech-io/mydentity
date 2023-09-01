@@ -1,0 +1,45 @@
+import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
+import { Credential } from '@model/credential/credential';
+import { Box, Grid, Typography } from "@mui/material";
+
+interface Props {
+    credential: Credential;
+}
+
+function CredentialBasicInfo(props: Props) {
+    const { credential } = props;
+    const [issuerInfo] = useBehaviorSubject(credential?.issuerInfo$);
+
+  return (
+    <Box sx={{ textAlign: 'left', width: '50%' }}>
+      <Typography gutterBottom variant="h6">
+        {credential.getDisplayableTitle()}
+      </Typography>
+
+      <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+        {credential.getDisplayValue()}
+      </Typography>
+
+      <Grid container spacing={2} sx={{ mt: 1 }}>
+        {credential.isSensitiveCredential() &&
+            <Typography fontSize={14} color={"#FF6347"}>
+              Sensitive
+            </Typography>
+        }
+
+        {
+          (!credential.selfIssued() && issuerInfo?.isPublished) && (
+        <><Grid item>
+            {/* TODO Issuer avatar */}
+            <Typography fontSize={14} variant="body1" sx={{ color: 'text.secondary' }}>
+              Created by {issuerInfo?.name}
+            </Typography>
+          </Grid></>
+        )}
+      </Grid>
+    </Box>
+  )
+
+}
+
+export default CredentialBasicInfo;
