@@ -96,13 +96,16 @@ export class UserService {
     });
   }
 
-  async signInByEmail(email: string) {
+  /**
+   * Just execute with oauth email.
+   */
+  async signInByOauthEmail(email: string, browserId: string, userAgent: string) {
     const userEmail: UserEmail & { user: User } = await this.getUserEmailByEmail(email);
     if (!userEmail) {
       return null;
     }
 
-    return await this.authService.generateUserCredentials(userEmail.user, null, "TODO USER AGENT");
+    return await this.authService.generateUserCredentials(userEmail.user, browserId, userAgent);
   }
 
   /**

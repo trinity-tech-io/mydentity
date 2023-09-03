@@ -11,6 +11,8 @@ import {AppException} from "../exceptions/app-exception";
 import {AuthExceptionCode} from "../exceptions/exception-codes";
 import {MicrosoftProfileService} from "./microsoft-profile.service";
 import {logger} from "../logger";
+import {HeaderBrowserId} from "../browsers/browser-id-header.decorator";
+import {UserAgent} from "../browsers/user-agent-decorator";
 
 @Resolver(() => UserEntity)
 export class AuthProviderResolver {
@@ -39,9 +41,9 @@ export class AuthProviderResolver {
     }
 
     @Mutation(() => LoggedUserOutput, {nullable: true})
-    async oauthMSSignIn(@Args('input') input: MsSignInInput) {
+    async oauthMSSignIn(@HeaderBrowserId() browserId: string, @UserAgent() userAgent: string, @Args('input') input: MsSignInInput) {
         const email = await this.getEmailByMsCode(input.code);
-        const result = await this.userService.signInByEmail(email);
+        const result = await this.userService.signInByOauthEmail(email, browserId, userAgent);
         if (!result) {
             throw new AppException(AuthExceptionCode.InexistingEmail, `Email ${email} already belongs to other user.`, 401);
         }
