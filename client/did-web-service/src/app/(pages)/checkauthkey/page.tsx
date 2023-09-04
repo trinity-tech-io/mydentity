@@ -7,7 +7,6 @@ import { checkRawEmailAuthenticationKey, isSignedIn } from "@services/user/user.
 import { decode } from '@utils/slugid';
 import { useRouter, useSearchParams } from "next/navigation";
 import { FC, useEffect, useState } from 'react';
-import { createActivity } from "@services/activity.service";
 import { ActivityType } from "@model/activity/activity-type";
 
 const CheckAuthKey: FC = () => {
@@ -24,7 +23,7 @@ const CheckAuthKey: FC = () => {
       if (!isSignedIn()) {
         void checkRawEmailAuthenticationKey(authKey).then(authenticated => {
           if (authenticated) {
-            createActivity(ActivityType.SIGNED_IN, {message: 'User signed in with raw email.'}).then(activity => {
+            activeUser?.get('activity').createActivity(ActivityType.SIGNED_IN, {message: 'User signed in with raw email.'}).then(activity => {
               router.push('/dashboard');
             }).catch(e => {
               router.push('/dashboard'); // Still means success.

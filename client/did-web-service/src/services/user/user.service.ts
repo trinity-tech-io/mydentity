@@ -324,7 +324,7 @@ export async function authenticateWithPasskey(): Promise<boolean> {
   }
 }
 
-export async function oauthMSSignIn(code: string): Promise<boolean> {
+export async function oauthMSSignIn(code: string): Promise<User> {
   logger.log("user", "oauth MS sign in.");
 
   const input: MsSignUpInput = { code };
@@ -342,13 +342,12 @@ export async function oauthMSSignIn(code: string): Promise<boolean> {
 
   if (response?.data && response.data.oauthMSSignIn) {
     const { accessToken, refreshToken } = response.data.oauthMSSignIn;
-    void updateUserByToken(accessToken, refreshToken);
-    return true;
+    return updateUserByToken(accessToken, refreshToken);
   }
   else {
     // TODO: print error
     logger.error('user', 'failed to oauth MS sign in.');
-    return false;
+    return null;
   }
 }
 

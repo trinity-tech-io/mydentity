@@ -12,6 +12,8 @@ import { SecurityFeature } from "./features/security/security.feature";
 import { UserFeature } from "./features/user-feature";
 import { usersCache } from "./user.cache";
 import { UserDTO } from "./user.dto";
+import { initialsString } from "@utils/strings";
+import { ActivityFeature } from "@model/user/features/activity/activity.feature";
 
 export type FeatureExtensionRegistrationCb = (user: User) => UserFeature;
 
@@ -30,6 +32,7 @@ export class User {
     this.addFeature("identity", new IdentityFeature(this));
     this.addFeature("browser", new BrowserFeature(this));
     this.addFeature("security", new SecurityFeature(this));
+    this.addFeature("activity", new ActivityFeature(this));
   }
 
   public static async fromJson(json: UserDTO, useCache = true): Promise<User> {
@@ -60,7 +63,8 @@ export class User {
   public get(feature: "identity"): IdentityFeature;
   public get(feature: "browser"): BrowserFeature;
   public get(feature: "security"): SecurityFeature;
-  public get(feature: "email" | "identity" | "browser" | "security"): UserFeature {
+  public get(feature: "activity"): ActivityFeature;
+  public get(feature: "email" | "identity" | "browser" | "security" | "activity"): UserFeature {
     if (!this.features.has(feature)) {
       throw new Error(`Unhandled user feature '${feature}'`);
     }
@@ -76,7 +80,7 @@ export class User {
     return feature;
   }
 
-  protected fillFromJson(json: UserDTO) {
+  protected fillFromJson(json: UserDTO): void {
     Object.assign(this, json);
   }
 

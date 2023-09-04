@@ -25,15 +25,17 @@ const MicrosoftRedirect: FC = () => {
     switch (op) {
       case FlowOperation.OnBoardingEmailBinding:
         {
-          clearOnGoingFlowOperation();
           oauthMSBindEmail(code).then(result => {
             if (result) {
+              clearOnGoingFlowOperation();
               router.push('/account/security');
             } else {
+              clearOnGoingFlowOperation();
               router.push('/account/security?error=unknown');
             }
           }).catch((e) => {
             if (e instanceof ExistingEmailException) {
+              clearOnGoingFlowOperation();
               router.push('/account/security?error=emailExists');
             }
           });
@@ -41,19 +43,22 @@ const MicrosoftRedirect: FC = () => {
         break;
       case FlowOperation.EmailSignIn:
         {
-          clearOnGoingFlowOperation();
-          oauthMSSignIn(code).then(result => {
-            if (result) {
-              createActivity(ActivityType.SIGNED_IN, {message: 'Signed in with Microsoft oauth email.'}).then(activity => {
+          oauthMSSignIn(code).then(user => {
+            if (user) {
+              user.get('activity').createActivity(ActivityType.SIGNED_IN, {message: 'Signed in with Microsoft oauth email.'}).then(activity => {
+                clearOnGoingFlowOperation();
                 router.push(`/dashboard`);
               }).catch(e => {
+                clearOnGoingFlowOperation();
                 router.push(`/dashboard`);
               })
             } else {
+              clearOnGoingFlowOperation();
               router.push(`/signin?error=unknown`);
             }
           }).catch((e) => {
             if (e instanceof InexistingEmailException) {
+              clearOnGoingFlowOperation();
               router.push(`/signin?error=oauthEmailNotExists`);
             }
           });

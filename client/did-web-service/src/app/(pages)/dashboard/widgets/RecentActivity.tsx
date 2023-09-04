@@ -1,15 +1,10 @@
-import {FC, useEffect, useState} from 'react';
-import {getActivities} from "@services/activity.service";
-import {Activity} from "@model/activity/activity";
+import { FC, useEffect, useState } from 'react';
+import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
+import { authUser$ } from "@services/user/user.events";
 
 export const RecentActivityWidget: FC = _ => {
-  const [activities, setActivities] = useState<Activity[]>([]);
-
-  useEffect(() => {
-    getActivities().then(activities => {
-      setActivities(activities);
-    })
-  }, []);
+  const [activeUser] = useBehaviorSubject(authUser$());
+  const [activities] = useBehaviorSubject(activeUser?.get('activity').activities$);
 
   return (
     <div className="col-span-full xl:col-span-6 bg-white dark:bg-slate-800 shadow-lg rounded-sm border border-slate-200 dark:border-slate-700">
