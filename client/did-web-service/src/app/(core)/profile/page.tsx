@@ -4,6 +4,7 @@ import ListHead from "@components/generic/ListHead";
 import ListToolbar from "@components/generic/ListToolbar";
 import CreateCredentialDialog from "@components/identity-profile/CreateCredentialDialog";
 import EditCredentialDialog, { EditionMode } from "@components/identity-profile/EditCredentialDialog";
+import { VerticalStackLoadingCard } from "@components/loading-cards/vertical-stack-loading-card/VerticalStackLoadingCard";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useMounted } from "@hooks/useMounted";
 import { Credential } from "@model/credential/credential";
@@ -286,7 +287,8 @@ const Profile: FC = () => {
         <i>Good to know</i>: every item in the list below is stored in your identity as an individual <b>credential</b>. Credentials can later be shared to apps that request them, with your consent. Credentials are always signed with your own signature so no matter where they are shared, one can always make sure that <b>the information inside was created by you, and not modified</b>.
       </Typography>
 
-      {mounted &&
+      {(!credentials || !mounted) && <VerticalStackLoadingCard />}
+      {credentials && mounted &&
         <Card>
           <ListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
           <TableContainer sx={{ maxWidth: 1200 }}>

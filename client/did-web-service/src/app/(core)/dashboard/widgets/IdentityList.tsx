@@ -1,16 +1,17 @@
 'use client';
-import { FC, useState } from 'react';
 import ComfirmDialog from '@components/generic/ComfirmDialog';
+import { VerticalStackLoadingCard } from '@components/loading-cards/vertical-stack-loading-card/VerticalStackLoadingCard';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
-import IconButton from '@mui/material/IconButton';
+import { Identity } from '@model/identity/identity';
 import DeleteIcon from '@mui/icons-material/Delete';
+import IconButton from '@mui/material/IconButton';
 import { useToast } from "@services/feedback.service";
+import { activeIdentity$ } from '@services/identity/identity.events';
 import { identityService } from '@services/identity/identity.service';
 import { logger } from '@services/logger';
 import { authUser$ } from '@services/user/user.events';
-import { activeIdentity$ } from '@services/identity/identity.events';
-import { Identity } from '@model/identity/identity';
 import { useRouter } from "next/navigation";
+import { FC, useState } from 'react';
 import IdentityCellLeft from './CellLeft';
 
 export const IdentityListWidget: FC = _ => {
@@ -25,10 +26,11 @@ export const IdentityListWidget: FC = _ => {
 
   const TAG = 'IdentityListWidget'
 
-  const handleCloseDialog = async (isAgree: boolean) => {
+  const handleCloseDialog = async (isAgree: boolean): Promise<void> => {
     setOpenConfirmDialog(false);
     if (!isAgree)
       return
+
     try {
       await authUser.get("identity").deleteIdentity(prepareDeleteDid)
       if (activeIdentity.did == prepareDeleteDid)
@@ -39,7 +41,7 @@ export const IdentityListWidget: FC = _ => {
     return
   }
 
-  const handleCellClick = (identity: Identity) => {
+  const handleCellClick = (identity: Identity): void => {
     identityService.setActiveIdentity(identity);
     const text = 'Your current active identity is: ' + identity.did
     showSuccessToast(text);
@@ -74,50 +76,55 @@ export const IdentityListWidget: FC = _ => {
       <div>
 
         {/* Table body */}
-        <div className="overflow-x-auto">
-          <table className="table-auto w-full">
-            <tbody className="text-sm divide-y divide-slate-100 dark:divide-slate-700">
-              {
-                identities.map(identity => {
-                  return (
-                    <tr key={identity.did} 
-                      className="hover:bg-gray-100 hover:text-black dark:hover:bg-slate-500 dark:hover:text-slate-1000" 
-                      onClick={() => handleCellClick(identity)}>
-                      <td className="p-2 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="font-medium text-slate-800 dark:text-slate-100">
-                            <IdentityCellLeft identity={identity} />
+        {!identities && <VerticalStackLoadingCard />}
+        {
+          identities &&
+          <div className="overflow-x-auto">
+            <table className="table-auto w-full">
+              <tbody className="text-sm divide-y divide-slate-100 dark:divide-slate-700">
+                {
+                  identities.map(identity => {
+                    return (
+                      <tr key={identity.did}
+                        className="hover:bg-gray-100 hover:text-black dark:hover:bg-slate-500 dark:hover:text-slate-1000"
+                        onClick={(): void => handleCellClick(identity)}>
+                        <td className="p-2 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="font-medium text-slate-800 dark:text-slate-100">
+                              <IdentityCellLeft identity={identity} />
+                            </div>
                           </div>
-                        </div>
-                      </td>
-                      <td className="p-2 whitespace-nowrap">
-                        <div className="text-left">{identity.createdAt.toLocaleDateString()}</div>
-                      </td>
-                      <td className="p-2 whitespace-nowrap">
-                        <div className="text-right">
-                          <IconButton aria-label="delete" onClick={(event) => {
-                            event.stopPropagation(); // Prevent event propagation to the cell
-                            event.preventDefault(); //
-                            setOpenConfirmDialog(true);
-                            setPrepareDeleteDid(identity.did);
-                            return false; // NO user： Return false to prevent triggering the click effect of the cell
+                        </td>
+                        <td className="p-2 whitespace-nowrap">
+                          <div className="text-left">{identity.createdAt.toLocaleDateString()}</div>
+                        </td>
+                        <td className="p-2 whitespace-nowrap">
+                          <div className="text-right">
+                            <IconButton aria-label="delete" onClick={(event): boolean => {
+                              event.stopPropagation(); // Prevent event propagation to the cell
+                              event.preventDefault(); //
+                              setOpenConfirmDialog(true);
+                              setPrepareDeleteDid(identity.did);
+                              return false; // NO user： Return false to prevent triggering the click effect of the cell
                             }}>
-                            <DeleteIcon style={{ color: 'red' }} />
-                          </IconButton>
-                        </div>
-                      </td>
-                    </tr>)})
-              }
-            </tbody>
-          </table>
-        </div>
+                              <DeleteIcon style={{ color: 'red' }} />
+                            </IconButton>
+                          </div>
+                        </td>
+                      </tr>)
+                  })
+                }
+              </tbody>
+            </table>
+          </div>
+        }
       </div>
       <div>
         <ComfirmDialog
           title='Delete this identity?'
           content='Do you want to delete this Identity?'
           open={openConfirmDialog}
-          onClose={(isAgree: boolean) => handleCloseDialog(isAgree)} />
+          onClose={handleCloseDialog} />
       </div>
     </div>
   );

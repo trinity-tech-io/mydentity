@@ -3,6 +3,8 @@ import { Credential } from '@model/credential/credential';
 import { ProfileCredential } from '@model/credential/profile-credential';
 import { Avatar, Box, Grid, Stack, Typography } from '@mui/material';
 import IdentityMenu from './IdentityMenu';
+import { VerticalStackLoadingCard } from '@components/loading-cards/vertical-stack-loading-card/VerticalStackLoadingCard';
+import { useMounted } from '@hooks/useMounted';
 
 interface Props {
   selectedCredential: Credential
@@ -11,10 +13,12 @@ export const CredentialDetailWidget = (props: Props) => {
   const { selectedCredential } = props;
   const isProfileCredential = selectedCredential instanceof ProfileCredential;
   const [issuerInfo] = useBehaviorSubject(selectedCredential?.issuerInfo$);
+  const mounted = useMounted();
 
   return (
     <div className="col-span-full xl:col-span-7 bg-white dark:bg-slate-800 shadow-lg rounded-sm border border-slate-200 dark:border-slate-700">
-      {selectedCredential &&
+      {(!selectedCredential || !mounted) && <VerticalStackLoadingCard />}
+      {mounted && selectedCredential &&
         (<Box sx={{ px: 2.5, pb: 3 }}>
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '24px' }}>
             {isProfileCredential && <IdentityMenu onEdit={selectedCredential} onDelete={selectedCredential} />}

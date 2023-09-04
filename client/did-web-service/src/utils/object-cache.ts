@@ -9,7 +9,7 @@ type CacheLoadMethod<T> = {
 }
 
 /**
- * Cache that holds various object types such as User, Meeting, Project, etc, fetched
+ * Cache that holds various object types such as User, etc, fetched
  * from the backend.
  * It's responsible to make sure we never duplicate instances of those objects, as duplicating them would
  * result in behavior subjects not triggering for example.

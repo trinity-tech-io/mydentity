@@ -1,5 +1,6 @@
 'use client'
 import { MainButton } from "@components/generic/MainButton";
+import { VerticalStackLoadingCard } from "@components/loading-cards/vertical-stack-loading-card/VerticalStackLoadingCard";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useMounted } from "@hooks/useMounted";
 import { clearOnGoingFlowOperation } from "@services/flow.service";
@@ -48,6 +49,8 @@ const Dashboard: FC = () => {
         </div> */}
       </div>
     </div>
+
+    {!mounted && <VerticalStackLoadingCard className="col-span-full" />}
 
     {mounted && <>
       {/* Widgets */}
