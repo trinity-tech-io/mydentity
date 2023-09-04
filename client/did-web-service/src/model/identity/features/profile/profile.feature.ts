@@ -78,13 +78,17 @@ export class ProfileFeature implements IdentityFeature {
     const profileInfoEntry = findProfileInfoByTypes(credential.verifiableCredential.getType());
 
     try {
-      await this.deleteProfileCredential(credentialId);
-      await this.createProfileCredential(
+      const deleted = await this.deleteProfileCredential(credentialId);
+      if (!deleted)
+        return false;
+
+      const created = await this.createProfileCredential(
         credentialId,
         profileInfoEntry.typesForCreation(),
         profileInfoEntry.key,
         newValue);
-      return true;
+
+      return created;
     } catch (error) {
       logger.error("profile", error);
       return false;

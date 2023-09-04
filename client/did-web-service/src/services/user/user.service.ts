@@ -230,7 +230,7 @@ export async function refreshToken(): Promise<string> {
   });
 
   if (data) {
-    logger.log("user", "Refresh token", data.refreshToken);
+    logger.log("user", "Got refreshed access token");
 
     const { accessToken } = data.refreshToken;
 

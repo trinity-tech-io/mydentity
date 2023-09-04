@@ -15,7 +15,7 @@ export interface IdentityProvider {
   createCredential(identityDid: string, credentialId: string, types: string[], expirationDate: Date, prop: any): Promise<Credential>;
   addCredential(identityDid: string, credential: VerifiableCredential): Promise<Credential>;
   listCredentials(identityDid: string): Promise<Credential[]>;
-  deleteCredential(credentialId): Promise<boolean>;
+  deleteCredential(credentialId: string): Promise<boolean>;
   createVerifiablePresentation(identityDid: string, credentials: VerifiableCredential[], realm: string, nonce: string): Promise<VerifiablePresentation>;
   // get the DID transaction payload
   createDIDPublishTransaction(identityDid: string): Promise<string>;

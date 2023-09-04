@@ -2,12 +2,12 @@ import { VerifiableCredential } from '@elastosfoundation/did-js-sdk';
 import { Injectable, Logger } from '@nestjs/common';
 import { Credential, User } from '@prisma/client';
 import { DidService } from 'src/did/did.service';
+import { AppException } from 'src/exceptions/app-exception';
 import { AuthExceptionCode } from 'src/exceptions/exception-codes';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AddCredentialInput } from './dto/add-credential.input';
 import { CreateCredentialInput } from './dto/create-credential.input';
 import { CreateVerifiablePresentationInput } from './dto/create-verifiablePresentation.input';
-import { AppException } from 'src/exceptions/app-exception';
 
 @Injectable()
 export class CredentialsService {
@@ -114,7 +114,7 @@ export class CredentialsService {
   public async ensureOwnedCredential(credentialId: string, user: User): Promise<Credential> {
     const credential = await this.prisma.credential.findFirst({
       where: {
-        id: credentialId,
+        credentialId,
         identity: {
           userId: user.id
         }
