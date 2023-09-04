@@ -175,6 +175,9 @@ const Profile: FC = () => {
     switch (orderBy) {
       case "name":
         return a.getDisplayableTitle().localeCompare(b.getDisplayableTitle());
+
+      default :
+        return a.getDisplayValue().localeCompare(b.getDisplayableTitle());
     }
   }
 
