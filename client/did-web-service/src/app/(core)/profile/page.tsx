@@ -255,6 +255,13 @@ const Profile: FC = () => {
       return JSON.stringify(credential.verifiableCredential.getSubject());
   } */
 
+  const handleCellClick = (credential: ProfileCredential) => {
+    const text = 'Your current credential is: ' + credential.getDisplayValue()
+    showSuccessToast(text);
+    identityProfileFeature.setActiveCredential(credential)
+    router.replace("/credentials/list");
+  }
+
   return (<div className="col-span-full">
     <Box
       mt={2}
@@ -309,7 +316,7 @@ const Profile: FC = () => {
                   const value = credential.getDisplayValue();
 
                   return (
-                    <TableRow hover key={id} tabIndex={-1} >
+                    <TableRow hover key={id} tabIndex={-1} onClick={() => handleCellClick(credential)}>
                       <TableCell component="th" scope="row" padding="none">
                         <Stack ml={1} direction="row" alignItems="center" spacing={2}>
                           <Avatar src={"/assets/images/account.svg"} />

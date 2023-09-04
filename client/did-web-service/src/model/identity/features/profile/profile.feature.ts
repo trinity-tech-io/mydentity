@@ -6,10 +6,12 @@ import { logger } from "@services/logger";
 import { LazyBehaviorSubjectWrapper } from "@utils/lazy-behavior-subject";
 import { randomIntString } from "@utils/random";
 import moment from "moment";
-import { BehaviorSubject, map } from "rxjs";
+import { Observable, BehaviorSubject, map } from "rxjs";
 import { IdentityFeature } from "../identity-feature";
 
 export class ProfileFeature implements IdentityFeature {
+  private activeCredentialSubject: BehaviorSubject<ProfileCredential | null> = new BehaviorSubject<ProfileCredential | null>(null);
+
   public get profileCredentials$(): BehaviorSubject<ProfileCredential[]> { return this._profileCredentials$.getSubject(); }
   private _profileCredentials$ = new LazyBehaviorSubjectWrapper<ProfileCredential[]>(null, async () => {
     this.identity.get("credentials").credentials$.pipe(map((creds) => creds.filter(c => c instanceof ProfileCredential))).subscribe(creds => {
@@ -23,6 +25,14 @@ export class ProfileFeature implements IdentityFeature {
       this.name$.next(this.getName());
     });
   });
+
+  public setActiveCredential(credential: ProfileCredential): void {
+    this.activeCredentialSubject.next(credential);
+  }
+
+  public activeCredentialChanges$(): Observable<ProfileCredential | null> {
+    return this.activeCredentialSubject.asObservable();
+  }
 
   constructor(protected identity: Identity) { }
 

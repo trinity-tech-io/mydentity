@@ -1,15 +1,31 @@
 "use client"
+import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { Credential } from "@model/credential/credential";
 import { Typography } from "@mui/material";
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
+import { activeIdentity$ } from "@services/identity/identity.events";
 import { CredentialDetailWidget } from "./widgets/CredentialDetail";
 import { CredentialListWidget } from "./widgets/CredentialList";
 
 const CredentialsList: FC = () => {
   const [selectedCredential, setSelectedCredential] = useState<Credential>(null);
+  const [activeIdentity] = useBehaviorSubject(activeIdentity$);
+  const identityProfileFeature = activeIdentity?.get("profile");
   const handleSelectCredential = (credential: Credential) => {
     setSelectedCredential(credential);
   }
+  useEffect(() => {
+    if (identityProfileFeature) {
+      const subscription = identityProfileFeature.activeCredentialChanges$().subscribe(newCredential => {
+        if (newCredential) {
+          handleSelectCredential(newCredential);
+        }
+      });
+        return () => {
+        subscription.unsubscribe();
+      };
+    }
+  }, [identityProfileFeature]);
 
   return (<>
     <div className="col-span-full">

@@ -12,7 +12,7 @@ import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import { activeIdentity$ } from '@services/identity/identity.events';
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useState, useRef } from 'react';
 
 interface ConfirmDialogProps {
   onSelected: (credential: Credential) => void;
@@ -25,6 +25,8 @@ export const CredentialListWidget: FC<ConfirmDialogProps> = (props) => {
   const [credentials] = useBehaviorSubject(activeIdentity?.get("credentials").credentials$);
   const [selectedIndex, setSelectedIndex] = useState("");
   const mounted = useMounted();
+  const identityProfileFeature = activeIdentity?.get("profile");
+  const isExecutedRef = useRef(false);
 
   const handleListItemClick = (
     credential: Credential,
@@ -34,9 +36,25 @@ export const CredentialListWidget: FC<ConfirmDialogProps> = (props) => {
   };
 
   useEffect(() => {
-    if (credentials?.[0]) {
-      onSelected(credentials[0]);
-      setSelectedIndex(credentials[0].id);
+    if (isExecutedRef.current) return
+    if (identityProfileFeature) {
+  
+      const subscription = identityProfileFeature.activeCredentialChanges$().subscribe(newCredential => {
+        if (newCredential) {
+          for (let i = 0; i < credentials.length; i++) {
+            const credential = credentials[i];
+            if (newCredential.id === credential.id) {  
+              onSelected(credential);
+              setSelectedIndex(credential.id);
+              isExecutedRef.current = true;
+            }
+          }
+        }
+      });
+  
+      return () => {
+        subscription.unsubscribe();
+      };
     }
   }, [credentials, activeIdentity, onSelected]);
 
