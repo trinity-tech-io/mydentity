@@ -15,7 +15,7 @@ export const CredentialDetailWidget = (props: Props) => {
   const isProfileCredential = selectedCredential instanceof ProfileCredential;
   const [issuerInfo] = useBehaviorSubject(selectedCredential?.issuerInfo$);
   const mounted = useMounted();
-  const [isConfirmed] = useBehaviorSubject(selectedCredential?.isConfirm$);
+  const [isConformed] = useBehaviorSubject(selectedCredential?.isConform$);
 
   return (
     <div className="col-span-full xl:col-span-7 bg-white dark:bg-slate-800 shadow-lg rounded-sm border border-slate-200 dark:border-slate-700">
@@ -75,13 +75,13 @@ export const CredentialDetailWidget = (props: Props) => {
                     <WarningIcon width={30} />
                   </ListItemIcon>
                   {
-                    (isConfirmed) && (
+                    (isConformed) && (
                     <Typography variant="body1" sx={{ color: 'text.secondary' }}>
                         This credential is conform to a known type that can be shared by any application.
                     </Typography>
                   )}
                   {
-                    (!isConfirmed) && (
+                    (!isConformed) && (
                     <Typography variant="body1" sx={{ color: 'text.secondary' }}>
                       This credential doesn't conform to known credential formats and can hardly be reused by many applications.
                     </Typography>

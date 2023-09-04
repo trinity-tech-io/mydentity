@@ -19,8 +19,8 @@ export class Credential {
   private _issuerInfo$ = new LazyBehaviorSubjectWrapper<IssuerInfo>(null, () => this.fetchIssuerInfo());
   public get issuerInfo$(): BehaviorSubject<IssuerInfo> { return this._issuerInfo$.getSubject(); }
 
-  private _isConfirm$ = new LazyBehaviorSubjectWrapper<Boolean>(null, () => this.verifyCredential());
-  public get isConfirm$(): BehaviorSubject<Boolean> { return this._isConfirm$.getSubject(); }
+  private _isConform$ = new LazyBehaviorSubjectWrapper<Boolean>(null, () => this.verifyCredential());
+  public get isConform$(): BehaviorSubject<Boolean> { return this._isConform$.getSubject(); }
 
   // Backend data
   public id: string = null;
