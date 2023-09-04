@@ -21,9 +21,10 @@ import { activeIdentity$ } from "@services/identity/identity.events";
 import { logger } from "@services/logger";
 import { filter } from 'lodash';
 import Link from "next/link";
-import { ChangeEvent, FC, MouseEvent, forwardRef, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ChangeEvent, FC, MouseEvent, forwardRef, useEffect, useState } from "react";
 import { OrderBy } from "./widgets/OrderBy";
+
 const CREDENTIAL_LIST_HEAD = [
   { id: 'name', label: 'Name', alignRight: false },
   { id: 'value', label: 'Value', alignRight: false },
@@ -74,7 +75,7 @@ const Profile: FC = () => {
    * This list is based on the global list of available profile items, minus the profile items that are
    * already added and that can't be added more than once.
    */
-  const computeAvailableItems = () => {
+  const computeAvailableItems = (): void => {
     const availableEntries = availableProfileEntries?.filter((entry) => {
       // Condition to keep the entry available for addition?
       // - Be of kind "multipleInstancesAllowed"
@@ -90,7 +91,7 @@ const Profile: FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [credentials]);
 
-  const showFeedbackToast = (isSuccess: boolean, successMessage: string, errorMessage: string) => {
+  const showFeedbackToast = (isSuccess: boolean, successMessage: string, errorMessage: string): void => {
     if (isSuccess) {
       showSuccessToast(successMessage);
     } else {
@@ -102,7 +103,7 @@ const Profile: FC = () => {
      return credentials.map(c => (c.verifiableCredential.getId().getFragment()));
    }; */
 
-  const handleCreateCredentialDialogClose = (selectedItem: ProfileCredentialInfo) => {
+  const handleCreateCredentialDialogClose = (selectedItem: ProfileCredentialInfo): void => {
     setOpenCreateCredential(false);
     console.log("selected item", selectedItem);
     if (selectedItem) {
@@ -114,7 +115,7 @@ const Profile: FC = () => {
     }
   };
 
-  const handleEditCredentialDialogClose = async (editCredentialValue: { info: ProfileCredentialInfo, value: string, type: EditionMode, originCredential: ProfileCredential }) => {
+  const handleEditCredentialDialogClose = async (editCredentialValue: { info: ProfileCredentialInfo, value: string, type: EditionMode, originCredential: ProfileCredential }): Promise<void> => {
     setOpenEditCredentialDialog(false);
     if (!editCredentialValue)
       return;
@@ -143,31 +144,31 @@ const Profile: FC = () => {
     }
   }
 
-  const handleOpenMenu = (event: MouseEvent, credential: ProfileCredential) => {
+  const handleOpenMenu = (event: MouseEvent, credential: ProfileCredential): void => {
     setOpenPopupMenu(event.currentTarget);
     setOriginCredential(credential);
   };
 
-  const handleCloseMenu = () => {
+  const handleCloseMenu = (): void => {
     setOpenPopupMenu(null);
   };
 
-  const handleRequestSort = (event: MouseEvent, property: OrderBy) => {
+  const handleRequestSort = (event: MouseEvent, property: OrderBy): void => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
   };
 
-  const handleChangePage = (event: MouseEvent, newPage: number) => {
+  const handleChangePage = (event: MouseEvent, newPage: number): void => {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleChangeRowsPerPage = (event: ChangeEvent<HTMLInputElement>): void => {
     setPage(0);
     setRowsPerPage(parseInt(event.target.value, 10));
   };
 
-  const handleFilterByName = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleFilterByName = (event: ChangeEvent<HTMLInputElement>): void => {
     setPage(0);
     setFilterName(event.target.value);
   };
@@ -179,19 +180,18 @@ const Profile: FC = () => {
 
       case "value":
         return a.getDisplayValue().localeCompare(b.getDisplayValue());
-  
-      default :
-        
+
+      default:
     }
   }
 
   function getComparator(order: 'desc' | 'asc', orderBy: any): ComparatorMethod {
     return order === 'desc'
-      ? (a, b) => descendingComparator(a, b, orderBy)
-      : (a, b) => -descendingComparator(a, b, orderBy);
+      ? (a, b): number => descendingComparator(a, b, orderBy)
+      : (a, b): number => -descendingComparator(a, b, orderBy);
   }
 
-  function applySortFilter(array: ProfileCredential[], comparator: ComparatorMethod, query: string) {
+  function applySortFilter(array: ProfileCredential[], comparator: ComparatorMethod, query: string): ProfileCredential[] {
     const stabilizedThis: [ProfileCredential, number][] = array?.map((el, index) => [el, index]);
     stabilizedThis?.sort((a, b) => {
       const order = comparator(a[0], b[0]);
@@ -212,12 +212,12 @@ const Profile: FC = () => {
 
   const isNotFound = !filteredCredentials?.length && !!filterName;
 
-  const handleClickDeleteCredential = () => {
+  const handleClickDeleteCredential = (): void => {
     handleCloseMenu();
     setOpenConfirmDialog(true)
   }
 
-  const handleClickEditCredential = () => {
+  const handleClickEditCredential = (): void => {
     handleCloseMenu();
     setOpenEditCredentialDialog(true);
     const entry = findProfileInfoByTypes(originCredential.verifiableCredential.getType());
@@ -227,7 +227,7 @@ const Profile: FC = () => {
     setEditType(EditionMode.EDIT);
   }
 
-  const handleCloseDialog = async (isAgree: boolean) => {
+  const handleCloseDialog = async (isAgree: boolean): Promise<void> => {
     setOpenConfirmDialog(false);
     if (!isAgree)
       return;
@@ -276,7 +276,7 @@ const Profile: FC = () => {
         </Typography>
         <Button variant="contained"
           startIcon={<AddIcon />}
-          onClick={() => { setOpenCreateCredential(true) }}
+          onClick={(): void => { setOpenCreateCredential(true) }}
         >
           New profile item
         </Button>
@@ -298,7 +298,7 @@ const Profile: FC = () => {
                 rowCount={credentials ? credentials.length : 0}
                 numSelected={selected ? selected.length : 0}
                 onRequestSort={handleRequestSort}
-                onSelectAllClick={() => { }}
+                onSelectAllClick={(): void => { }}
               />
               <TableBody>
                 {filteredCredentials?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((credential: ProfileCredential) => {
@@ -320,7 +320,7 @@ const Profile: FC = () => {
                       <TableCell align="left">{value}</TableCell>
 
                       <TableCell align="right">
-                        <IconButton size="large" color="inherit" onClick={(event) => { handleOpenMenu(event, credential) }}>
+                        <IconButton size="large" color="inherit" onClick={(event): void => { handleOpenMenu(event, credential) }}>
                           <MoreVertIcon />
                         </IconButton>
                       </TableCell>
@@ -408,7 +408,7 @@ const Profile: FC = () => {
       title='Delete this Credential?'
       content='Do you want to delete this Credential?'
       open={openConfirmDialog}
-      onClose={(isAgree: boolean) => handleCloseDialog(isAgree)}
+      onClose={handleCloseDialog}
     />
 
     <CreateCredentialDialog

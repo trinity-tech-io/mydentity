@@ -1,11 +1,9 @@
-// @mui
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import DeleteIcon from '@mui/icons-material/Delete';
 import SearchIcon from '@mui/icons-material/Search';
 import { IconButton, InputAdornment, OutlinedInput, Toolbar, Tooltip, Typography } from '@mui/material';
 import { alpha, styled } from '@mui/material/styles';
 import { ChangeEvent, FC } from 'react';
-
-// ----------------------------------------------------------------------
 
 const StyledRoot = styled(Toolbar)(({ theme }) => ({
   height: 96,

@@ -15,7 +15,7 @@ const BindEmailPassword: FC = () => {
   const { showSuccessToast } = useToast();
   const router = useRouter();
 
-  const bindPassword = async (password: string) => {
+  const bindPassword = async (password: string): Promise<void> => {
     const bound = await securityFeature.bindPassword(password);
     if (bound) {
       showSuccessToast("Master password successfully created");

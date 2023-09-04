@@ -27,7 +27,7 @@ export const UnlockKeyPromptContext = createContext<UnlockKeyPromptContextType>(
   setActions: null
 });
 
-export function UnlockKeyPromptContextProvider(props: any) {
+export function UnlockKeyPromptContextProvider(props: any): JSX.Element {
   const [actions, setActions] = useState<UnlockKeyPromptActions>(null);
 
   return (
@@ -46,17 +46,17 @@ const UnlockKeyPrompt: FC = () => {
   const [passwordKeys] = useBehaviorSubject(securityFeature?.passwordKeys$);
   const [passkeyKeys] = useBehaviorSubject(securityFeature?.passkeyKeys$);
 
-  const hideDialog = () => {
+  const hideDialog = (): void => {
     setActions(null) // Hides the dialog
   }
 
   // User closing
-  const onClose = () => {
+  const onClose = (): void => {
     actions.onUnlockKey?.(null); // Notify that unlock was completed but with no result
     hideDialog();
   }
 
-  const onPasswordConfirmation = (password: string) => {
+  const onPasswordConfirmation = (password: string): void => {
     actions.onUnlockKey?.({
       type: ShadowKeyType.PASSWORD,
       keyId: "unused-for-now-for-passwords",
@@ -65,7 +65,7 @@ const UnlockKeyPrompt: FC = () => {
     hideDialog();
   }
 
-  const onPasskeyConfirmation = (authKey: AuthKeyInput) => {
+  const onPasskeyConfirmation = (authKey: AuthKeyInput): void => {
     actions.onUnlockKey?.(authKey);
     hideDialog();
   }
@@ -101,7 +101,9 @@ const UnlockKeyPrompt: FC = () => {
 
 export default React.memo(UnlockKeyPrompt);
 
-export const useUnlockKeyPrompt = () => {
+export const useUnlockKeyPrompt = (): {
+  promptMasterKeyUnlock: () => Promise<AuthKeyInput>;
+} => {
   const { setActions } = useContext(UnlockKeyPromptContext);
 
   const promptMasterKeyUnlock = (): Promise<AuthKeyInput> => {

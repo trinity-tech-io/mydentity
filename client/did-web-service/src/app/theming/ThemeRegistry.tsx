@@ -4,7 +4,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import NextAppDirEmotionCacheProvider from './EmotionCache';
 import { theme } from './material-ui.theme';
 
-export default function ThemeRegistry(props: any) {
+export default function ThemeRegistry(props: any): JSX.Element {
   return (
     <NextAppDirEmotionCacheProvider options={{ key: 'mui' }}>
       <ThemeProvider theme={theme}>

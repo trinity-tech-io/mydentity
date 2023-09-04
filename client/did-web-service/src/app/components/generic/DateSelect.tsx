@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { useEffect, useRef, useState } from 'react';
 import Transition from './Transition';
 

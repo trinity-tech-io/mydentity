@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 'use client'
 import AccountIcon from '@assets/images/account.svg';
 import DashboardIcon from '@assets/images/dashboard.svg';

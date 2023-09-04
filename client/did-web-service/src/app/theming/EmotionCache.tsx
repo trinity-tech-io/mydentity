@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 'use client';
 import createCache from '@emotion/cache';
 import { CacheProvider as DefaultCacheProvider } from '@emotion/react';

@@ -11,7 +11,7 @@ export const PasskeyPrompt: FC<{
   const [authUser] = useBehaviorSubject(authUser$());
   const securityFeature = authUser?.get("security");
 
-  const onSubmit = async () => {
+  const onSubmit = async (): Promise<void> => {
     const authKey = await securityFeature.unlockPasskeyLocally();
     onConfirm(authKey);
   }

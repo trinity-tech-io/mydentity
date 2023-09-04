@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 'use client';
 import { Identity } from '@model/identity/identity';
 import { makeStyles } from '@mui/styles';

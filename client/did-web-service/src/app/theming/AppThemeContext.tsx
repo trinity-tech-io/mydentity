@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { createContext, useContext, useEffect, useState } from 'react';
 
 type Theme = "light" | "dark";
