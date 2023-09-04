@@ -5,7 +5,7 @@ import {
   VerifiablePresentation
 } from '@elastosfoundation/did-js-sdk';
 import { DID as ConnDID, DID } from '@elastosfoundation/elastos-connectivity-sdk-js';
-import { AppContext, DIDResolverAlreadySetupException, Vault } from '@elastosfoundation/hive-js-sdk';
+import { AppContext, AppContextProvider, DIDResolverAlreadySetupException, Vault } from '@elastosfoundation/hive-js-sdk';
 import { logger } from '@services/logger';
 import dayjs from 'dayjs';
 import process from 'process';
@@ -40,9 +40,9 @@ export async function getHiveAppContext(userDid: string, onAuthError: HiveAuthEr
   // appInstanceDIDInfo.didStore.loadDidDocument(appInstanceDIDInfo.did.getDIDString(), async (didDocument) => {
   logger.log('hive', 'Got app instance DID document. Now creating the Hive client', didDocument.toJSON());
 
-  const appContextProvider = {
+  const appContextProvider: AppContextProvider = {
     getLocalDataDir: () => '/',
-    getAppInstanceDocument: () => Promise.resolve(didDocument),
+    getAppInstanceDocument: () => didDocument,
     getAuthorization: (authenticationChallengeJWtCode: string): Promise<string> => {
       /**
        * Called by the Hive plugin when a hive backend needs to authenticate the user and app.

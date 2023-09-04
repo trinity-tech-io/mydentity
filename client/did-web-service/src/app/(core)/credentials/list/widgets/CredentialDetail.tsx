@@ -1,10 +1,10 @@
+import { VerticalStackLoadingCard } from '@components/loading-cards/vertical-stack-loading-card/VerticalStackLoadingCard';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
+import { useMounted } from '@hooks/useMounted';
 import { Credential } from '@model/credential/credential';
 import { ProfileCredential } from '@model/credential/profile-credential';
 import { Avatar, Box, Grid, Stack, Typography } from '@mui/material';
 import IdentityMenu from './IdentityMenu';
-import { VerticalStackLoadingCard } from '@components/loading-cards/vertical-stack-loading-card/VerticalStackLoadingCard';
-import { useMounted } from '@hooks/useMounted';
 
 interface Props {
   selectedCredential: Credential
