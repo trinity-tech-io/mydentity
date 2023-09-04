@@ -14,7 +14,7 @@ import { isUnlockException } from "./security/security.service";
 export const onNewError$ = new Subject<AppException>();
 let mostRecentError: AppException = null;
 
-function emitGlobalError(error: AppException) {
+function emitGlobalError(error: AppException): void {
   mostRecentError = error;
   onNewError$.next(error);
 }

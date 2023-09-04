@@ -1,6 +1,29 @@
 import { logger } from "@services/logger";
+import { ObjectCache } from "@utils/object-cache";
 import { rawImageToBase64DataUrl } from "@utils/pictures";
+import { BehaviorSubject } from "rxjs";
 import { getHiveVault } from "./hive.service";
+
+const dataUrlPictureCache = new ObjectCache<BehaviorSubject<string>>();
+
+/**
+ * Returns a subject that contains the latest version of a data url hive script picture.
+ * For example, credential issuers avatar pictures.
+ *
+ * Those subjects are queued and cached in momery so that hive is called only once even
+ * if the UI calls the get method often at once.
+ */
+export function getHiveScriptPictureDataUrl(hiveScriptUrl: string, did: string): Promise<BehaviorSubject<string>> {
+  return dataUrlPictureCache.get(hiveScriptUrl + did, {
+    async create() {
+      return new BehaviorSubject<string>(null);
+    },
+    async fill(subject: BehaviorSubject<string>) {
+      const dataUrl = await fetchHiveScriptPictureToDataUrl(hiveScriptUrl, did);
+      subject.next(dataUrl);
+    },
+  });
+}
 
 /**
  * Calls a hive script that contains a downloadable picture file, for instance a identity avatar.
@@ -8,7 +31,7 @@ import { getHiveVault } from "./hive.service";
  *
  * Ex: hive://user_did@app_did/getMainIdentityAvatar ---> âPNGIHDR...
  */
-export const fetchHiveScriptPicture = async (hiveScriptUrl: string, did: string): Promise<Buffer> => {
+async function fetchHiveScriptPicture(hiveScriptUrl: string, did: string): Promise<Buffer> {
   // DIRTY HACK START - delete this after a while. Reason: Essentials 2.1 android generates invalid script urls such as
   // ...&params={empty:0} // invalid json. - should be &params={\"empty\"":0}. DELETE this hack after a while.
   hiveScriptUrl = hiveScriptUrl.replace('params={empty:0}', 'params={"empty":0}');
@@ -33,7 +56,7 @@ export const fetchHiveScriptPicture = async (hiveScriptUrl: string, did: string)
     logger.warn('hive', 'Failed to download hive asset at ', hiveScriptUrl, e);
     return null;
   }
-};
+}
 
 /**
  * Calls a hive script that contains a downloadable picture file, for instance a identity avatar.
@@ -41,10 +64,10 @@ export const fetchHiveScriptPicture = async (hiveScriptUrl: string, did: string)
  *
  * Ex: hive://user_did@app_did/getMainIdentityAvatar ---> "data:image/png;base64,iVe89...."
  */
-export const fetchHiveScriptPictureToDataUrl = async (hiveScriptUrl: string, did: string): Promise<string> => {
+async function fetchHiveScriptPictureToDataUrl(hiveScriptUrl: string, did: string): Promise<string> {
   if (!hiveScriptUrl)
     return null;
 
   const rawPicture = await fetchHiveScriptPicture(hiveScriptUrl, did);
   return rawPicture ? rawImageToBase64DataUrl(rawPicture) : '';
-};
+}
