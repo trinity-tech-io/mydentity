@@ -1,5 +1,6 @@
 import { VerifiableCredential } from "@elastosfoundation/did-js-sdk";
 import { JSONObject } from "@model/json";
+import { credentialTypesService } from "@services/credential-types/credential.types.service";
 import { identityService } from "@services/identity/identity.service";
 import { issuerService } from "@services/identity/issuer.service";
 import { logger } from "@services/logger";
@@ -17,6 +18,9 @@ type ValueItem = {
 export class Credential {
   private _issuerInfo$ = new LazyBehaviorSubjectWrapper<IssuerInfo>(null, () => this.fetchIssuerInfo());
   public get issuerInfo$(): BehaviorSubject<IssuerInfo> { return this._issuerInfo$.getSubject(); }
+
+  private _isConfirm$ = new LazyBehaviorSubjectWrapper<Boolean>(null, () => this.verifyCredential());
+  public get isConfirm$(): BehaviorSubject<Boolean> { return this._isConfirm$.getSubject(); }
 
   // Backend data
   public id: string = null;
@@ -347,6 +351,10 @@ export class Credential {
     const issuerInfo = { avatarIcon: issuerIcon, didString: issuerDidString, name: issuerName, isPublished: isPublished };
     logger.log('credential', 'fetchIssuerInfo:', issuerInfo)
     return issuerInfo;
+  }
+
+  private async verifyCredential() {
+    return await credentialTypesService.verifyCredential(this.verifiableCredential);
   }
 
   public equals(otherCredential: Credential): boolean {
