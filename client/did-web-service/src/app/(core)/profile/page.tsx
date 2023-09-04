@@ -22,7 +22,8 @@ import { logger } from "@services/logger";
 import { filter } from 'lodash';
 import Link from "next/link";
 import { ChangeEvent, FC, MouseEvent, forwardRef, useEffect, useState } from "react";
-
+import { useRouter } from "next/navigation";
+import { OrderBy } from "./widgets/OrderBy";
 const CREDENTIAL_LIST_HEAD = [
   { id: 'name', label: 'Name', alignRight: false },
   { id: 'value', label: 'Value', alignRight: false },
@@ -36,7 +37,6 @@ const Alert = forwardRef<HTMLDivElement, AlertProps>(function Alert(
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
-type OrderBy = "name";
 type ComparatorMethod = (a: ProfileCredential, b: ProfileCredential) => number;
 
 const Profile: FC = () => {
@@ -45,6 +45,7 @@ const Profile: FC = () => {
   const identityProfileFeature = activeIdentity?.get("profile");
   const [credentials] = useBehaviorSubject(activeIdentity?.get("profile").profileCredentials$); // All profile credentials of this identity
   const { mounted } = useMounted();
+  const router = useRouter()
 
   const [originCredential, setOriginCredential] = useState<ProfileCredential>(null);
   const [availableItemsForAddition, setAvailableItemsForAddition] = useState<ProfileCredentialInfo[]>([]);
@@ -60,7 +61,7 @@ const Profile: FC = () => {
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState<"desc" | "asc">('asc');
   const [selected, setSelected] = useState([]);
-  const [orderBy, setOrderBy] = useState<OrderBy>('name');
+  const [orderBy, setOrderBy] = useState<OrderBy>(OrderBy.NAME);
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
@@ -176,8 +177,11 @@ const Profile: FC = () => {
       case "name":
         return a.getDisplayableTitle().localeCompare(b.getDisplayableTitle());
 
+      case "value":
+        return a.getDisplayValue().localeCompare(b.getDisplayValue());
+  
       default :
-        return a.getDisplayValue().localeCompare(b.getDisplayableTitle());
+        
     }
   }
 
