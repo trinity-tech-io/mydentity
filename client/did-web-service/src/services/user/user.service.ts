@@ -4,22 +4,20 @@ import { ChallengeEntity } from "@model/shadow-key/challenge-entity";
 import { ShadowKeyType } from "@model/shadow-key/shadow-key-type";
 import { User } from "@model/user/user";
 import { UserDTO } from "@model/user/user.dto";
-import {checkNewAccessTokenForBrowserId, deleteBrowserId} from "@services/browser.service";
+import { checkNewAccessTokenForBrowserId, deleteBrowserId } from "@services/browser.service";
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { getPasskeyChallenge } from "@services/keyring/keyring.service";
 import { logger } from "@services/logger";
+import { MsSignUpInput } from "@services/user/ms-sign-up.input";
 import { startAuthentication } from "@simplewebauthn/browser";
 import { PublicKeyCredentialRequestOptionsJSON } from "@simplewebauthn/typescript-types";
 import Queue from "promise-queue";
 import { LoggedUserOutput } from "./logged-user.output";
 import { SignUpInput } from "./sign-up.input";
 import { authUser$, getActiveUser } from "./user.events";
-import { MsSignUpInput } from "@services/user/ms-sign-up.input";
 
 const fetchUserQueue = new Queue(1); // Execute user retrieval from the backend one by one to avoid duplicates
-
-export async function userServiceInit() { }
 
 export async function signUp(name: string): Promise<boolean> {
   logger.log("user", "Sign up user, creating new user entry");
@@ -57,7 +55,7 @@ async function saveAuthenticatedUser(json: UserDTO): Promise<void> {
   authUser$().next(await User.fromJson(json) as User);
 }
 
-export async function saveAuthUser(user: User) {
+export async function saveAuthUser(user: User): Promise<void> {
   return saveAuthenticatedUser(user.toJson());
 }
 
@@ -145,7 +143,7 @@ export async function authenticateWithEmailAddress(emailAddress: string): Promis
  * Method called after a successful authentication, with new access and refresh tokens from the backend.
  * those tokens are saved as new active tokens to identity the active user and call APIs later.
  */
-export async function updateUserByToken(accessToken: string, refreshToken: string) {
+export async function updateUserByToken(accessToken: string, refreshToken: string): Promise<User> {
   const curAccessToken = localStorage.getItem('access_token');
   const curRefreshToken = localStorage.getItem('refresh_token');
   localStorage.setItem("access_token", accessToken);
@@ -161,10 +159,11 @@ export async function updateUserByToken(accessToken: string, refreshToken: strin
     logger.error('userService', 'failed to fetch user info.: ', e);
     localStorage.setItem("access_token", curAccessToken);
     localStorage.setItem("refresh_token", curRefreshToken);
+    return null;
   }
 }
 
-export function signOut() {
+export function signOut(): void {
   localStorage.removeItem("authenticated_user")
   localStorage.removeItem("access_token");
   localStorage.removeItem("refresh_token");
@@ -250,7 +249,7 @@ export async function refreshToken(): Promise<string> {
   }
 }
 
-export function onRefreshTokenFailed() {
+export function onRefreshTokenFailed(): void {
   localStorage.removeItem("access_token");
   localStorage.removeItem("refresh_token");
   localStorage.removeItem("authenticated_user");
@@ -258,7 +257,7 @@ export function onRefreshTokenFailed() {
   window.location.href = '/dashboard';
 }
 
-export function isSignedIn() {
+export function isSignedIn(): boolean {
   const accessToken = localStorage.getItem('access_token');
   return accessToken && accessToken !== '';
 }

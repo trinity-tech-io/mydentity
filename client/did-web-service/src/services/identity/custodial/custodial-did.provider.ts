@@ -1,5 +1,5 @@
 import { gql } from "@apollo/client";
-import { VerifiableCredential, VerifiablePresentation } from "@elastosfoundation/did-js-sdk";
+import { JSONObject, VerifiableCredential, VerifiablePresentation } from "@elastosfoundation/did-js-sdk";
 import { gqlCredentialFields } from "@graphql/credential.fields";
 import { gqlIdentityFields } from "@graphql/identity.fields";
 import { gqlPresentationFields } from "@graphql/presentation.fields";
@@ -267,7 +267,7 @@ export class CustodialDIDProvider implements IdentityProvider {
   }
 
   public async createVerifiablePresentation(identityDid: string, credentialsArg: VerifiableCredential[], realm: string, nonce: string): Promise<VerifiablePresentation> {
-    const credentials = [];
+    const credentials: JSONObject[] = [];
     credentialsArg.forEach(c => {
       credentials.push(c.toJSON())
     })

@@ -3,7 +3,7 @@ import { didDocumentService } from "./diddocuments.service";
 import { rawImageToBase64DataUrl } from "./picture.helpers";
 
 class IssuerService {
-  async getIssuerName(didString: string) {
+  async getIssuerName(didString: string): Promise<string> {
     const didDocument = await this.fetchDIDDocument(didString);
 
     // Get the issuer name
@@ -29,7 +29,7 @@ class IssuerService {
     });
   }
 
-  async isPublished(didString: string) {
+  async isPublished(didString: string): Promise<boolean> {
     const didDocument = await this.fetchDIDDocument(didString);
 
     return didDocument != null;

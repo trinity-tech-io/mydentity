@@ -26,7 +26,7 @@ class OnlineDIDDocumentsStatus {
     return this.documentsSubjects.get(didString);
   }
 
-  public set(didString: string, checking: boolean, checked: boolean, document: DIDDocument) {
+  public set(didString: string, checking: boolean, checked: boolean, document: DIDDocument): void {
     // Create the subject if needed, and emit an update event.
     this.documentsSubjects.get(didString).next({ checking, checked, document });
   }
@@ -212,7 +212,7 @@ class DIDDocumentsService {
    */
   getCredentialsByType(credentials: VerifiableCredential[], credentialType: string): VerifiableCredential[] {
     return credentials?.filter((c) => {
-        return c.getType().indexOf(credentialType) >= 0;
+      return c.getType().indexOf(credentialType) >= 0;
     });
   }
 

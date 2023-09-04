@@ -1,10 +1,9 @@
 import { configService } from "./config/config.service";
 import { graphQLService } from "./graphql.service";
 import { logger } from "./logger";
-import { userServiceInit } from "./user/user.service";
 
 // Services initialization
-export const initApp = async () => {
+export const initApp = async (): Promise<void> => {
   logger.init(console);
 
   configService.init({
@@ -13,5 +12,4 @@ export const initApp = async () => {
   });
 
   await graphQLService.init();
-  await userServiceInit();
 }

@@ -27,7 +27,9 @@ export function isUnlockException(e: AppException): boolean {
  * on the UI, and automatically retry calling the API until the call succeeds or gets cancelled by
  * the user.
  */
-export function useCallWithUnlock<T>() {
+export function useCallWithUnlock<T>(): {
+  callWithUnlock: (method: CallWithUnlockCallback<T>) => Promise<T>;
+} {
   const [authUser] = useBehaviorSubject(authUser$());
   const { promptMasterKeyUnlock } = useUnlockKeyPrompt();
 

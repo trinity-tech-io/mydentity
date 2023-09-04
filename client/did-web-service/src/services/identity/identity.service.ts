@@ -48,7 +48,7 @@ class IdentityService {
    * Sets the newly active identity for the whole app. This identity is the one used
    * to list credentials, and do all DID related operations.
    */
-  public setActiveIdentity(identity: Identity) {
+  public setActiveIdentity(identity: Identity): void {
     if (!identity) {
       activeIdentity$.next(null);
       this.activeIdentityId = "";
@@ -71,7 +71,7 @@ class IdentityService {
     return localStorage.getItem("activeIdentityId");
   }
 
-  private restoreActiveIdentity(identities: Identity[]) {
+  private restoreActiveIdentity(identities: Identity[]): void {
     // 1.load local cached active identity,
     // 2.if no cached data found, set a default identity for convenience
     if (activeIdentity$.value)

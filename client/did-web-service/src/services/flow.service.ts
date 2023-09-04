@@ -11,10 +11,10 @@ export function getOnGoingFlowOperation(): FlowOperation {
   return FlowOperation[localStorage.getItem(ONGOING_FLOW_OPERATION) as keyof typeof FlowOperation];
 }
 
-export function setOnGoingFlowOperation(operation: FlowOperation) {
+export function setOnGoingFlowOperation(operation: FlowOperation): void {
   localStorage.setItem(ONGOING_FLOW_OPERATION, FlowOperation[operation]);
 }
 
-export function clearOnGoingFlowOperation() {
+export function clearOnGoingFlowOperation(): void {
   localStorage.removeItem(ONGOING_FLOW_OPERATION);
 }
