@@ -7,6 +7,8 @@ import { clearOnGoingFlowOperation, FlowOperation, getOnGoingFlowOperation } fro
 import { oauthMSBindEmail, oauthMSSignIn } from "@services/user/user.service";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FC, useEffect } from "react";
+import { createActivity } from "@services/activity.service";
+import { ActivityType } from "@model/activity/activity-type";
 
 const MicrosoftRedirect: FC = () => {
   const router = useRouter();
@@ -42,7 +44,11 @@ const MicrosoftRedirect: FC = () => {
           clearOnGoingFlowOperation();
           oauthMSSignIn(code).then(result => {
             if (result) {
-              router.push(`/dashboard`);
+              createActivity(ActivityType.SIGNED_IN, {message: 'Signed in with Microsoft oauth email.'}).then(activity => {
+                router.push(`/dashboard`);
+              }).catch(e => {
+                router.push(`/dashboard`);
+              })
             } else {
               router.push(`/signin?error=unknown`);
             }

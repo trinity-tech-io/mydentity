@@ -3,10 +3,12 @@
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { Typography } from "@mui/material";
 import { authUser$ } from "@services/user/user.events";
-import { checkEmailAuthenticationKey, isSignedIn } from "@services/user/user.service";
+import { checkRawEmailAuthenticationKey, isSignedIn } from "@services/user/user.service";
 import { decode } from '@utils/slugid';
 import { useRouter, useSearchParams } from "next/navigation";
 import { FC, useEffect, useState } from 'react';
+import { createActivity } from "@services/activity.service";
+import { ActivityType } from "@model/activity/activity-type";
 
 const CheckAuthKey: FC = () => {
   const searchParams = useSearchParams();
@@ -20,15 +22,19 @@ const CheckAuthKey: FC = () => {
   useEffect(() => {
     if (authKey) {
       if (!isSignedIn()) {
-        void checkEmailAuthenticationKey(authKey).then(authenticated => {
+        void checkRawEmailAuthenticationKey(authKey).then(authenticated => {
           if (authenticated) {
-            router.push('/dashboard');
+            createActivity(ActivityType.SIGNED_IN, {message: 'User signed in with raw email.'}).then(activity => {
+              router.push('/dashboard');
+            }).catch(e => {
+              router.push('/dashboard'); // Still means success.
+            })
           } else
             setAuthError(true);
         });
       } else {
         setLogined(true);
-        void activeUser?.get('email').checkEmailBind(authKey).then(bound => {
+        void activeUser?.get('email').checkRawEmailBind(authKey).then(bound => {
           if (bound) {
             router.push('/account/security');
           } else

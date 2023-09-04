@@ -173,7 +173,7 @@ export function signOut(): void {
 /**
  * Checks the given temporary authentication key and signs the user in if successful
  */
-export async function checkEmailAuthenticationKey(authKey: string): Promise<boolean> {
+export async function checkRawEmailAuthenticationKey(authKey: string): Promise<boolean> {
   logger.log("user", "Checking temporary authentication key");
 
   try {

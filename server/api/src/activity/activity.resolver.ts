@@ -16,8 +16,8 @@ export class ActivityResolver {
      * Query all activities.
      */
     @UseGuards(JwtAuthGuard)
-    @Query(() => [ActivityEntity])
-    listActivities(@CurrentUser() user: UserEntity) {
+    @Query(() => [ActivityEntity], {name: 'activities'})
+    findAll(@CurrentUser() user: UserEntity) {
         return this.activityService.findAll(user.id);
     }
 
