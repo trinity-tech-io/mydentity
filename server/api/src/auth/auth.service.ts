@@ -55,7 +55,7 @@ export class AuthService {
   async refreshAccessToken(user: User, existingBrowserId?: string, userAgent?: string) {
     const browserId = await this.browsersService.validateOrCreateBrowserId(user, userAgent, existingBrowserId);
 
-    const payload = { sub: user.id, browserId: existingBrowserId };
+    const payload = { sub: user.id, browserId };
 
     return {
       accessToken: this.jwtTokenService.sign(payload, {

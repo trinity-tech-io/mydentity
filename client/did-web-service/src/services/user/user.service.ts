@@ -4,7 +4,7 @@ import { ChallengeEntity } from "@model/shadow-key/challenge-entity";
 import { ShadowKeyType } from "@model/shadow-key/shadow-key-type";
 import { User } from "@model/user/user";
 import { UserDTO } from "@model/user/user.dto";
-import { checkNewAccessTokenForBrowserId, deleteBrowserId } from "@services/browser.service";
+import { checkNewAccessTokenForBrowserId } from "@services/browser.service";
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { getPasskeyChallenge } from "@services/keyring/keyring.service";
@@ -167,7 +167,6 @@ export function signOut(): void {
   localStorage.removeItem("authenticated_user")
   localStorage.removeItem("access_token");
   localStorage.removeItem("refresh_token");
-  deleteBrowserId();
   authUser$().next(null);
 }
 

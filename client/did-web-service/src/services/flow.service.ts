@@ -1,8 +1,8 @@
 export enum FlowOperation {
-  // During the on boarding process right after creating an
-  // account, binding email to user account for the first time.
-  OnBoardingEmailBinding = 0,
-  OnBoardingEmailSignIn = 1
+  OnBoardingEmailBinding = 0, // We are binding user's email during the initial user creation on boarding
+  OnBoardingBrowserBinding = 1, // We are binding the browser (passkey) during the initial user creation on boarding
+  EmailSignIn = 2, // We are signing in with an email address (oauth, magic link)
+
 }
 
 const ONGOING_FLOW_OPERATION = 'ongoingflowoperation';

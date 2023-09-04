@@ -1,6 +1,6 @@
 import { MainButton } from '@components/generic/MainButton';
 import { Icon as ReactIcon } from '@iconify/react';
-import { EmailNotExistsException } from "@model/exceptions/email-not-exists-exception";
+import { InexistingEmailException } from "@model/exceptions/inexisting-email-exception";
 import { Container, TextField } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { FlowOperation, setOnGoingFlowOperation } from "@services/flow.service";
@@ -31,12 +31,12 @@ export const EmailSignIn: FC = () => {
     if (emailAddress !== "") {
       setAuthEmailSent(true);
 
-      setOnGoingFlowOperation(FlowOperation.OnBoardingEmailSignIn);
+      setOnGoingFlowOperation(FlowOperation.EmailSignIn);
 
       try {
         void await authenticateWithEmailAddress(emailAddress);
       } catch (error) {
-        if (error instanceof EmailNotExistsException) {
+        if (error instanceof InexistingEmailException) {
           setErrorMsg('This email address is unknown.');
         } else {
           setErrorMsg('Unknown error, please try again.');

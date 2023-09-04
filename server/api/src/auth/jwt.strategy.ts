@@ -40,7 +40,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       data: {
         lastUsedAt: new Date()
       }
-    })
+    });
 
     return {
       user,

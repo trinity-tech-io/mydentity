@@ -121,8 +121,6 @@ export class UserService {
       }
     })
 
-    console.log("user", userEmail)
-
     if (!curUser && !userEmail) { // login
       throw new AppException(AuthExceptionCode.InexistingEmail, 'This email address is unknown.', 404);
     } else if (curUser && userEmail) { // bind
@@ -208,8 +206,6 @@ export class UserService {
       // } else if (user.id !== curUser.id) {
       //   throw new AppException(AuthExceptionCode.EmailNotExists, "This temporary authentication key is expired or invalid..", 401);
     }
-
-    console.log('checkEmailAuthentication', user);
 
     if (!curUser) // login
       await this.maybeSendWelcomeEmail(user, user.temporaryEmail);

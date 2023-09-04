@@ -14,7 +14,7 @@ import { configService } from './config/config.service';
 class GraphQLService {
   public apolloClient: ApolloClient<any>;
 
-  public async init() {
+  public async init(): Promise<void> {
     // Batch requests into small duration chunks to avoid too many round trips
     const httpLink = new BatchHttpLink({
       uri: `${configService.get("backendUrl")}/graphql`,
@@ -74,6 +74,7 @@ class GraphQLService {
       const token = localStorage.getItem('access_token');
 
       // Return the modified headers to the context so httpLink can read them
+
       const browserId = getBrowserId();
       return {
         headers: {

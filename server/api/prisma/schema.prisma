@@ -136,6 +136,7 @@ model UserShadowKey {
 }
 
 // Browser used to access the service
+// The same browser used by 2 different users are seen as 2 different browsers here.
 model Browser {
   id String @id @unique @default(uuid())
 

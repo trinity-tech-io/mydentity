@@ -40,7 +40,7 @@ export class BrowsersService {
   public async validateOrCreateBrowserId(user: User, userAgent: string, existingBrowserId?: string): Promise<string> {
     let browserId = existingBrowserId;
     if (existingBrowserId) {
-      const existingBrowser = await this.findOne(existingBrowserId);
+      const existingBrowser = await this.findOne(existingBrowserId, user);
       if (!existingBrowser)
         browserId = null; // Consider we have no existing id, to create a new one
     }
@@ -65,10 +65,11 @@ export class BrowsersService {
     });
   }
 
-  public findOne(browserId: string) {
+  public findOne(browserId: string, user?: User) {
     return this.prisma.browser.findUnique({
       where: {
-        id: browserId
+        id: browserId,
+        ...(user && { userId: user.id })
       }
     });
   }

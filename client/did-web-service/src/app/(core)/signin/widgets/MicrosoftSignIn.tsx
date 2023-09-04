@@ -5,7 +5,7 @@ import { makeStyles } from '@mui/styles';
 import { FlowOperation, setOnGoingFlowOperation } from "@services/flow.service";
 import clsx from 'clsx';
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { FC, useEffect, useState } from "react";
 
 const useStyles = makeStyles((theme) => ({
   centeredContainer: {
@@ -17,7 +17,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const MicrosoftSignIn = () => {
+const MicrosoftSignIn: FC = () => {
   const classes = useStyles();
   const router = useRouter();
 
@@ -31,10 +31,10 @@ const MicrosoftSignIn = () => {
     } else if (error === 'unknown') {
       setErrorMsg('Failed to sign in with MS account.');
     }
-  }, [])
+  }, [error])
 
-  const signInWithMicrosoft = () => {
-    setOnGoingFlowOperation(FlowOperation.OnBoardingEmailSignIn);
+  const signInWithMicrosoft = (): void => {
+    setOnGoingFlowOperation(FlowOperation.EmailSignIn);
     router.push(`${process.env.NEXT_PUBLIC_BACKEND_URL}/microsoft`);
   };
 

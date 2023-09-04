@@ -1,14 +1,14 @@
 import { MainButton } from '@components/generic/MainButton';
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { Icon as ReactIcon } from '@iconify/react';
+import { ExistingEmailException } from "@model/exceptions/existing-email-exception";
 import { Container, InputBase } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { FlowOperation, setOnGoingFlowOperation } from "@services/flow.service";
 import { authUser$ } from "@services/user/user.events";
 import clsx from 'clsx';
-import { FC, FormEvent, useRef, useState } from "react";
-import { EmailExistsException } from "@model/exceptions/email-exists-exception";
 import { useRouter } from "next/navigation";
+import { FC, FormEvent, useRef, useState } from "react";
 
 const useStyles = makeStyles((theme) => ({
   centeredContainer: {
@@ -39,7 +39,7 @@ export const BindEmailOnly: FC = () => {
       try {
         void await activeUser?.get('email').bindWithEmailAddress(emailAddress);
       } catch (error) {
-        if (error instanceof EmailExistsException) {
+        if (error instanceof ExistingEmailException) {
           router.push('/account/security?error=emailExists')
         } else {
           router.push('/account/security?error=unknown')

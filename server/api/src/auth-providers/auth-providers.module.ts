@@ -5,9 +5,9 @@ import { AuthModule } from '../auth/auth.module';
 import { PrismaModule } from '../prisma/prisma.module';
 import { UserModule } from '../user/user.module';
 import { AuthProvidersController } from './auth-providers.controller';
+import { AuthProviderResolver } from "./auth-providers.resolver";
 import { MicrosoftProfileService } from './microsoft-profile.service';
 import { MicrosoftStrategy } from './microsoft.strategy';
-import { AuthProviderResolver } from "./auth-provider.resolver";
 
 @Module({
   imports: [

@@ -29,7 +29,7 @@ const SignUp: FC = () => {
   }
 
   return (
-    <div className="col-span-4">
+    <div className="col-span-full">
       <Typography variant="h5" className='w-full text-center font-semibold mt-32 mb-24 leading-9'>
         Welcome! Create your main account
       </Typography>

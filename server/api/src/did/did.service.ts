@@ -27,7 +27,7 @@ export class DidService {
     }
   }
 
-  async openStore(didStorePath: string) : Promise<DIDStore> {
+  async openStore(didStorePath: string): Promise<DIDStore> {
     if (didStorePath in this.didStoreCache)
       return this.didStoreCache[didStorePath];
 
@@ -55,10 +55,10 @@ export class DidService {
     let rootIdentity: RootIdentity = null;
     if (!didStore.containsRootIdentities()) {
       // Create DID SDK root identity
-      this.logger.log('not contains rootIdentities, create rootIdentity');
+      this.logger.log('No root identities, creating a root identity');
       rootIdentity = this.initPrivateIdentity(didStore, storePassword);
     } else {
-      this.logger.log('contains rootIdentities, use the exist rootIdentity');
+      this.logger.log('Root identities found - reusing the existing root identity');
       rootIdentity = await didStore.loadRootIdentity();
     }
 
@@ -82,7 +82,7 @@ export class DidService {
 
     // Delete all credentials belonging to this did
     const credentials = await didStore.listCredentials(didString);
-    credentials.forEach( c => {
+    credentials.forEach(c => {
       didStore.deleteCredential(c);
     })
 
@@ -148,7 +148,7 @@ export class DidService {
   }
 
   async createVerifiablePresentationFromCredentials(didStorePath: string, didString: string,
-        vc: VerifiableCredential[], nonce: string, realm: string, storepass: string) {
+    vc: VerifiableCredential[], nonce: string, realm: string, storepass: string) {
     const didStore = await this.openStore(didStorePath);
 
     try {
@@ -169,7 +169,7 @@ export class DidService {
     const didStore = await this.openStore(didStorePath);
     const didDocument = await didStore.loadDid(didString);
     if (!didDocument)
-        throw new AppException(DIDExceptionCode.DIDNotExists, "Can't load did:" + didString, HttpStatus.NOT_FOUND);
+      throw new AppException(DIDExceptionCode.DIDNotExists, "Can't load did:" + didString, HttpStatus.NOT_FOUND);
 
     const isExpired = didDocument.isExpired();
 

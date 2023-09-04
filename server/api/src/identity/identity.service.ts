@@ -38,13 +38,13 @@ export class IdentityService {
       didDocument = await rootIdentity.newDid(storePassword);
       identityDid = didDocument.getSubject().toString();
     } catch (e) {
-      this.logger.log(`create exception: ${e}`)
+      this.logger.log(`DID creation exception: ${e}`)
       throw new AppException(DIDExceptionCode.DIDStorageError, e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     // One user can create multiple dids, so we save the derivation index.
     const derivationIndex = rootIdentity.getIndex() - 1;
-    this.logger.log('create did index' + derivationIndex);
+    this.logger.log('Creating DID at index ' + derivationIndex);
 
     const identityRoot = await this.prisma.identityRoot.create({
       data: {

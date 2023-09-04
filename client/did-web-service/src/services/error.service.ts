@@ -1,8 +1,8 @@
 import { ApolloError, ServerError, ServerParseError } from "@apollo/client";
 import { AppException } from "@model/exceptions/app-exception";
-import { EmailExistsException } from "@model/exceptions/email-exists-exception";
-import { EmailNotExistsException } from "@model/exceptions/email-not-exists-exception";
 import { ClientError } from "@model/exceptions/exception-codes";
+import { ExistingEmailException } from "@model/exceptions/existing-email-exception";
+import { InexistingEmailException } from "@model/exceptions/inexisting-email-exception";
 import { isEmailAlreadyExistsException, isEmailNotExistsException } from "@model/user/features/email/user-email.feature";
 import { AxiosError } from "axios";
 import { GraphQLError, GraphQLErrorExtensions } from "graphql";
@@ -140,11 +140,11 @@ export async function withCaughtAppException<T>(call: () => Promise<T>, errorRet
 
     const emailAlreadyExistsException = caughtExceptions.find(e => isEmailAlreadyExistsException(e));
     if (emailAlreadyExistsException)
-      throw new EmailExistsException();
+      throw new ExistingEmailException();
 
     const emailNotExistsException = caughtExceptions.find(e => isEmailNotExistsException(e));
     if (emailNotExistsException)
-      throw new EmailNotExistsException();
+      throw new InexistingEmailException();
 
     // Return default value expected by the original method call
     return errorReturnValue || null;

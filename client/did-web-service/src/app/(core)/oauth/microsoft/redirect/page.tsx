@@ -1,12 +1,12 @@
 'use client';
 
-import {LinearProgress} from "@mui/material";
-import {clearOnGoingFlowOperation, FlowOperation, getOnGoingFlowOperation} from "@services/flow.service";
-import {useRouter, useSearchParams} from "next/navigation";
-import {FC, useEffect} from "react";
-import {oauthMSBindEmail, oauthMSSignIn} from "@services/user/user.service";
-import {EmailExistsException} from "@model/exceptions/email-exists-exception";
-import {EmailNotExistsException} from "@model/exceptions/email-not-exists-exception";
+import { ExistingEmailException } from "@model/exceptions/existing-email-exception";
+import { InexistingEmailException } from "@model/exceptions/inexisting-email-exception";
+import { LinearProgress } from "@mui/material";
+import { clearOnGoingFlowOperation, FlowOperation, getOnGoingFlowOperation } from "@services/flow.service";
+import { oauthMSBindEmail, oauthMSSignIn } from "@services/user/user.service";
+import { useRouter, useSearchParams } from "next/navigation";
+import { FC, useEffect } from "react";
 
 const MicrosoftRedirect: FC = () => {
   const router = useRouter();
@@ -20,9 +20,6 @@ const MicrosoftRedirect: FC = () => {
     }
 
     const op = getOnGoingFlowOperation();
-
-    console.log('oauth', 'op', op);
-
     switch (op) {
       case FlowOperation.OnBoardingEmailBinding:
         {
@@ -34,13 +31,13 @@ const MicrosoftRedirect: FC = () => {
               router.push('/account/security?error=unknown');
             }
           }).catch((e) => {
-            if (e instanceof EmailExistsException) {
+            if (e instanceof ExistingEmailException) {
               router.push('/account/security?error=emailExists');
             }
           });
         }
         break;
-      case FlowOperation.OnBoardingEmailSignIn:
+      case FlowOperation.EmailSignIn:
         {
           clearOnGoingFlowOperation();
           oauthMSSignIn(code).then(result => {
@@ -50,7 +47,7 @@ const MicrosoftRedirect: FC = () => {
               router.push(`/signin?error=unknown`);
             }
           }).catch((e) => {
-            if (e instanceof EmailNotExistsException) {
+            if (e instanceof InexistingEmailException) {
               router.push(`/signin?error=oauthEmailNotExists`);
             }
           });

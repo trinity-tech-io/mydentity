@@ -1,6 +1,7 @@
 import jwtDecode from "jwt-decode";
 import { logger } from "./logger";
 import { AccessTokenPayload } from "./user/access-token-payload";
+import { getActiveUser } from "./user/user.events";
 import { signOut } from "./user/user.service";
 
 const BROWSER_ID_STORAGE_KEY = "browser-client-id";
@@ -40,13 +41,25 @@ export function checkNewAccessTokenForBrowserId(accessToken: string): void {
 }
 
 export function getBrowserId(): string {
-  return localStorage.getItem(BROWSER_ID_STORAGE_KEY);
+  const user = getActiveUser();
+  if (!user)
+    return null;
+
+  return localStorage.getItem(user.id + BROWSER_ID_STORAGE_KEY);
 }
 
 export function setBrowserId(browserId: string): void {
-  localStorage.setItem(BROWSER_ID_STORAGE_KEY, browserId);
+  const user = getActiveUser();
+  if (!user)
+    throw new Error("Cannot set the browser ID without active user!");
+
+  localStorage.setItem(user.id + BROWSER_ID_STORAGE_KEY, browserId);
 }
 
 export function deleteBrowserId(): void {
-  localStorage.removeItem(BROWSER_ID_STORAGE_KEY);
+  const user = getActiveUser();
+  if (!user)
+    throw new Error("Cannot delete the browser ID without active user!");
+
+  localStorage.removeItem(user.id + BROWSER_ID_STORAGE_KEY);
 }
