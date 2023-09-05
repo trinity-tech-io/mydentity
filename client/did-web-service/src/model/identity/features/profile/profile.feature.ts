@@ -1,4 +1,5 @@
 import { ImportedCredential } from "@/app/(core)/intent/import-credentials/page";
+import { Credential } from "@model/credential/credential";
 import { ProfileCredential } from "@model/credential/profile-credential";
 import { Identity } from "@model/identity/identity";
 import { findProfileInfoByTypes } from "@services/identity-profile-info/identity-profile-info.service";
@@ -10,7 +11,7 @@ import { BehaviorSubject, map } from "rxjs";
 import { IdentityFeature } from "../identity-feature";
 
 export class ProfileFeature implements IdentityFeature {
-  public activeCredential$ = new BehaviorSubject<ProfileCredential>(null);
+  public activeCredential$ = new BehaviorSubject<Credential>(null);
 
   public get profileCredentials$(): BehaviorSubject<ProfileCredential[]> { return this._profileCredentials$.getSubject(); }
   private _profileCredentials$ = new LazyBehaviorSubjectWrapper<ProfileCredential[]>(null, async () => {
