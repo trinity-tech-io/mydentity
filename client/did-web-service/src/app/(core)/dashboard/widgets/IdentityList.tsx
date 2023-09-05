@@ -1,5 +1,4 @@
 'use client';
-import ComfirmDialog from '@components/generic/ComfirmDialog';
 import { VerticalStackLoadingCard } from '@components/loading-cards/vertical-stack-loading-card/VerticalStackLoadingCard';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { Identity } from '@model/identity/identity';
@@ -8,38 +7,20 @@ import IconButton from '@mui/material/IconButton';
 import { useToast } from "@services/feedback.service";
 import { activeIdentity$ } from '@services/identity/identity.events';
 import { identityService } from '@services/identity/identity.service';
-import { logger } from '@services/logger';
 import { authUser$ } from '@services/user/user.events';
 import { useRouter } from "next/navigation";
-import { FC, useState } from 'react';
+import { FC, MouseEvent } from 'react';
 import IdentityCellLeft from './CellLeft';
+
+const TAG = 'IdentityListWidget'
 
 export const IdentityListWidget: FC = _ => {
   const [authUser] = useBehaviorSubject(authUser$());
   let [identities] = useBehaviorSubject(authUser?.get("identity").identities$);
-  const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
-  const [prepareDeleteDid, setPrepareDeleteDid] = useState('');
   const router = useRouter()
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const { showSuccessToast } = useToast()
   identities = identities?.slice(0, 5);
-
-  const TAG = 'IdentityListWidget'
-
-  const handleCloseDialog = async (isAgree: boolean): Promise<void> => {
-    setOpenConfirmDialog(false);
-    if (!isAgree)
-      return
-
-    try {
-      await authUser.get("identity").deleteIdentity(prepareDeleteDid)
-      if (activeIdentity.did == prepareDeleteDid)
-        identityService.setActiveIdentity(null)
-    } catch (error) {
-      logger.error(TAG, error)
-    }
-    return
-  }
 
   const handleCellClick = (identity: Identity): void => {
     if (identity !== activeIdentity) {
@@ -49,6 +30,13 @@ export const IdentityListWidget: FC = _ => {
     identityService.setActiveIdentity(identity);
     router.replace("/profile");
   }
+
+  const onDeleteClicked = (event: MouseEvent, identity: Identity): void => {
+    event.stopPropagation(); // Prevent event propagation to the cell
+    event.preventDefault(); //
+    router.push("/delete-identity");
+  }
+
   return (
     <div className="col-span-full xl:col-span-6 bg-white dark:bg-slate-800 shadow-lg rounded-sm border border-slate-200 dark:border-slate-700">
       <header className="px-5 py-4 border-b border-slate-100 dark:border-slate-700">
@@ -102,13 +90,7 @@ export const IdentityListWidget: FC = _ => {
                         </td>
                         <td className="p-2 whitespace-nowrap">
                           <div className="text-right">
-                            <IconButton aria-label="delete" onClick={(event): boolean => {
-                              event.stopPropagation(); // Prevent event propagation to the cell
-                              event.preventDefault(); //
-                              setOpenConfirmDialog(true);
-                              setPrepareDeleteDid(identity.did);
-                              return false; // NO user： Return false to prevent triggering the click effect of the cell
-                            }}>
+                            <IconButton aria-label="delete" onClick={(e): void => onDeleteClicked(e, identity)}>
                               <DeleteIcon style={{ color: 'red' }} />
                             </IconButton>
                           </div>
@@ -120,13 +102,6 @@ export const IdentityListWidget: FC = _ => {
             </table>
           </div>
         }
-      </div>
-      <div>
-        <ComfirmDialog
-          title='Delete this identity?'
-          content='Do you want to delete this Identity?'
-          open={openConfirmDialog}
-          onClose={handleCloseDialog} />
       </div>
     </div>
   );

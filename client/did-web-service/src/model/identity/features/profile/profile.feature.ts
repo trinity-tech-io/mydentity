@@ -10,7 +10,7 @@ import { BehaviorSubject, map } from "rxjs";
 import { IdentityFeature } from "../identity-feature";
 
 export class ProfileFeature implements IdentityFeature {
-  public activeCredential$: BehaviorSubject<ProfileCredential | null> = new BehaviorSubject<ProfileCredential>(null);
+  public activeCredential$ = new BehaviorSubject<ProfileCredential>(null);
 
   public get profileCredentials$(): BehaviorSubject<ProfileCredential[]> { return this._profileCredentials$.getSubject(); }
   private _profileCredentials$ = new LazyBehaviorSubjectWrapper<ProfileCredential[]>(null, async () => {
@@ -29,7 +29,7 @@ export class ProfileFeature implements IdentityFeature {
   constructor(protected identity: Identity) { }
 
   public setActiveCredential(credential: ProfileCredential): void {
-    this.activeCredential$.next(credential)
+    this.activeCredential$.next(credential);
   }
 
   public async deleteProfileCredential(credentialId: string): Promise<boolean> {

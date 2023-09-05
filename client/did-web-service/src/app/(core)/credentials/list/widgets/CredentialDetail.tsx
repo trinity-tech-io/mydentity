@@ -6,16 +6,17 @@ import { Credential } from '@model/credential/credential';
 import { ProfileCredential } from '@model/credential/profile-credential';
 import { Avatar, Box, Grid, ListItemButton, ListItemIcon, Stack, Typography } from '@mui/material';
 import IdentityMenu from './IdentityMenu';
+import { FC } from 'react';
 
 interface Props {
   selectedCredential: Credential
 }
-export const CredentialDetailWidget = (props: Props) => {
+export const CredentialDetailWidget: FC<Props> = (props) => {
   const { selectedCredential } = props;
   const isProfileCredential = selectedCredential instanceof ProfileCredential;
   const [issuerInfo] = useBehaviorSubject(selectedCredential?.issuerInfo$);
   const mounted = useMounted();
-  const [isConformed] = useBehaviorSubject(selectedCredential?.isConform$);
+  const [isConform] = useBehaviorSubject(selectedCredential?.isConform$);
 
   return (
     <div className="col-span-full xl:col-span-7 bg-white dark:bg-slate-800 shadow-lg rounded-sm border border-slate-200 dark:border-slate-700">
@@ -67,25 +68,25 @@ export const CredentialDetailWidget = (props: Props) => {
                       </Typography>
                     </Grid>
                       {/* TODO Issuer avatar */}
-                      </>
-                )}
+                    </>
+                  )}
 
                 <ListItemButton>
                   <ListItemIcon>
                     <WarningIcon width={30} />
                   </ListItemIcon>
                   {
-                    (isConformed) && (
-                    <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+                    (isConform) && (
+                      <Typography variant="body1" sx={{ color: 'text.secondary' }}>
                         This credential is conform to a known type that can be shared by any application.
-                    </Typography>
-                  )}
+                      </Typography>
+                    )}
                   {
-                    (!isConformed) && (
-                    <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-                      This credential doesn't conform to known credential formats and can hardly be reused by many applications.
-                    </Typography>
-                  )}
+                    (!isConform) && (
+                      <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+                        This credential doesn't conform to known credential formats and can hardly be reused by many applications.
+                      </Typography>
+                    )}
                 </ListItemButton>
               </Grid>
             </Box>

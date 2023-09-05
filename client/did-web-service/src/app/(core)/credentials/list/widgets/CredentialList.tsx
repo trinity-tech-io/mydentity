@@ -12,7 +12,7 @@ import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import { activeIdentity$ } from '@services/identity/identity.events';
-import { FC, useEffect, useState, useRef } from 'react';
+import { FC, useEffect, useState } from 'react';
 
 interface ConfirmDialogProps {
   onSelected: (credential: Credential) => void;
@@ -23,7 +23,8 @@ export const CredentialListWidget: FC<ConfirmDialogProps> = (props) => {
   const TAG = "CredentialList";
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const [credentials] = useBehaviorSubject(activeIdentity?.get("credentials").credentials$);
-  const [selectedID, setSelectedID] = useState<string>(null);  const mounted = useMounted();
+  const [selectedID, setSelectedID] = useState<string>(null);
+  const mounted = useMounted();
   const identityProfileFeature = activeIdentity?.get("profile");
   const [activeCredential] = useBehaviorSubject(identityProfileFeature?.activeCredential$);
 
@@ -36,8 +37,8 @@ export const CredentialListWidget: FC<ConfirmDialogProps> = (props) => {
 
   useEffect(() => {
     if (activeCredential && !selectedID) {
-      for (let i = 0; i < credentials.length; i++ ) {
-        const credential =  credentials[i]
+      for (let i = 0; i < credentials.length; i++) {
+        const credential = credentials[i]
         if (activeCredential.id == credential.id) {
           onSelected(credential)
           setSelectedID(credential.id)

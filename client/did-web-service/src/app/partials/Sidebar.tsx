@@ -39,10 +39,11 @@ const groups: GroupConfig[] = [
   },
   {
     icon: <AccountIcon />,
-    title: "Profile",
+    title: "Active identity",
     links: [
       { title: "My profile", url: "/profile" },
-      { title: "All credentials", url: "/credentials/list" }
+      { title: "All credentials", url: "/credentials/list" },
+      { title: "Delete identity", url: "/delete-identity" }
     ],
     requiresAuth: true
   },
@@ -66,7 +67,6 @@ const groups: GroupConfig[] = [
     title: "Manage",
     links: [
       { title: "Export", url: "/manage/export" },
-      { title: "Delete this identity", url: "/manage/delete" }
     ]
   },
   {
