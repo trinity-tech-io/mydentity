@@ -1,6 +1,6 @@
 import { DIDDocument } from "@elastosfoundation/did-js-sdk";
+import { logger } from "@services/logger";
 import { didDocumentService } from "./diddocuments.service";
-import { rawImageToBase64DataUrl } from "./picture.helpers";
 
 class IssuerService {
   async getIssuerName(didString: string): Promise<string> {
@@ -17,10 +17,10 @@ class IssuerService {
       // Get the issuer icon
       const representativeIconSubject = await didDocumentService.getRepresentativeIcon(didDocument);
       if (representativeIconSubject) {
-        representativeIconSubject.subscribe(async iconBuffer => {
-          if (iconBuffer) {
-            const issuerIcon = await rawImageToBase64DataUrl(iconBuffer);
-            resolve(issuerIcon);
+        representativeIconSubject.subscribe(dataUrl => {
+          if (dataUrl) {
+            logger.log('identity', 'dataUrl', dataUrl)
+            resolve(dataUrl);
           } else
             resolve(null);
         });

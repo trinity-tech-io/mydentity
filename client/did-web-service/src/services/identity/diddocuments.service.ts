@@ -1,4 +1,5 @@
 import { DID, DIDBackend, DIDDocument, DIDURL, DefaultDIDAdapter, VerifiableCredential } from "@elastosfoundation/did-js-sdk";
+import { getHiveScriptPictureDataUrl } from "@services/hive/hive-pictures.service";
 import { logger } from "@services/logger";
 import Queue from "promise-queue";
 import { BehaviorSubject } from "rxjs";
@@ -119,7 +120,7 @@ class DIDDocumentsService {
    * - An "avatar", if the did document represents a regular user
    * - An "app icon", if the did document is an application DID
    */
-  public getRepresentativeIcon(document: DIDDocument): BehaviorSubject<Buffer> {
+  public getRepresentativeIcon(document: DIDDocument): Promise<BehaviorSubject<string>> {
     if (!document) return null;
 
     let hiveIconUrl: string = null;
@@ -138,7 +139,6 @@ class DIDDocumentsService {
     // Check the "avatar" standard
     if (!hiveIconUrl) {
       const avatarCredentials = this.getCredentialsByType(credentials, "AvatarCredential");
-      //console.log("getRepresentativeIcon avatarCredentials", avatarCredentials)
       if (!avatarCredentials || avatarCredentials.length === 0) {
         // Could not find the more recent avatarcredential type. Try the legacy #avatar name
         const avatarCredential = this.getCredentialById(credentials, new DIDURL("#avatar"));
@@ -159,8 +159,7 @@ class DIDDocumentsService {
     if (!hiveIconUrl)
       return null;
 
-    // TODO: Wait for Hive service
-    // return GlobalHiveCacheService.instance.getAssetByUrl(hiveIconUrl, hiveIconUrl);
+    return getHiveScriptPictureDataUrl(hiveIconUrl, document.getSubject().toString());
   }
 
   /**
