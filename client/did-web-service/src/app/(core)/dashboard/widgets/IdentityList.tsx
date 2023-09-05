@@ -42,9 +42,11 @@ export const IdentityListWidget: FC = _ => {
   }
 
   const handleCellClick = (identity: Identity): void => {
+    if (identity !== activeIdentity) {
+      const text = 'Your current active identity is: ' + identity.did
+      showSuccessToast(text);
+    }
     identityService.setActiveIdentity(identity);
-    const text = 'Your current active identity is: ' + identity.did
-    showSuccessToast(text);
     router.replace("/profile");
   }
   return (
