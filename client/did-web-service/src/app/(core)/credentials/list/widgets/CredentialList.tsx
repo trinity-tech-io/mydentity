@@ -44,9 +44,7 @@ export const CredentialListWidget: FC<ConfirmDialogProps> = (props) => {
         }
       }
     }
-    
-
-  }, [activeCredential]);
+  }, [activeCredential, credentials, onSelected, selectedID]);
 
   return (
     <div className="col-span-full xl:col-span-5 bg-white dark:bg-slate-800 shadow-lg rounded-sm border border-slate-200 dark:border-slate-700">
