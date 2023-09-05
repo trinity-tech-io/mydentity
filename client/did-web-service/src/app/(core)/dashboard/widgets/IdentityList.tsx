@@ -4,12 +4,11 @@ import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { Identity } from '@model/identity/identity';
 import DeleteIcon from '@mui/icons-material/Delete';
 import IconButton from '@mui/material/IconButton';
-import { useToast } from "@services/feedback.service";
 import { activeIdentity$ } from '@services/identity/identity.events';
 import { identityService } from '@services/identity/identity.service';
 import { authUser$ } from '@services/user/user.events';
 import { useRouter } from "next/navigation";
-import { FC, MouseEvent } from 'react';
+import { FC, useState,MouseEvent } from 'react';
 import IdentityCellLeft from './CellLeft';
 
 const TAG = 'IdentityListWidget'
@@ -19,13 +18,15 @@ export const IdentityListWidget: FC = _ => {
   let [identities] = useBehaviorSubject(authUser?.get("identity").identities$);
   const router = useRouter()
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
-  const { showSuccessToast } = useToast()
+  const [showTost, setShowTost] = useState<boolean>(false);
   identities = identities?.slice(0, 5);
 
   const handleCellClick = (identity: Identity): void => {
     if (identity !== activeIdentity) {
-      const text = 'Your current active identity is: ' + identity.did
-      showSuccessToast(text);
+      setShowTost(true)
+    }
+    else {
+      setShowTost(false)
     }
     identityService.setActiveIdentity(identity);
     router.replace("/profile");
@@ -81,7 +82,7 @@ export const IdentityListWidget: FC = _ => {
                         <td className="p-2 whitespace-nowrap">
                           <div className="flex items-center">
                             <div className="font-medium text-slate-800 dark:text-slate-100">
-                              <IdentityCellLeft identity={identity} />
+                              <IdentityCellLeft identity={identity} show={showTost} />
                             </div>
                           </div>
                         </td>
