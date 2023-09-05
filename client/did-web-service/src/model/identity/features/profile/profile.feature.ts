@@ -28,8 +28,8 @@ export class ProfileFeature implements IdentityFeature {
 
   constructor(protected identity: Identity) { }
 
-  public setActiveCredential(credential: ProfileCredential): void {
-    this.activeCredential$.next(credential);
+  public setActiveCredential(credential: Credential): void {
+    this.activeCredential$.next(credential)
   }
 
   public async deleteProfileCredential(credentialId: string): Promise<boolean> {
