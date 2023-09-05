@@ -22,7 +22,7 @@ export const useBehaviorSubject = <T>(observable: BehaviorSubject<T>, callback?:
     });
 
     return () => subscription.unsubscribe()
-  }, [observable]);
+  }, [observable, callback]);
 
   return [value];
 }

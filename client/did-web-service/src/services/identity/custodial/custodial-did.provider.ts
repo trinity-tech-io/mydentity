@@ -20,8 +20,8 @@ import { IdentityProvider } from "../did.provider";
 
 export class CustodialDIDProvider implements IdentityProvider {
   async createIdentity(name: string): Promise<Identity> {
-    const { data } = await withCaughtAppException(() => {
-      return getApolloClient().mutate<{ createIdentity: IdentityDTO }>({
+    const { data } = await withCaughtAppException(async () => {
+      return (await getApolloClient()).mutate<{ createIdentity: IdentityDTO }>({
         mutation: gql`
         mutation createIdentity($name: String!) {
           createIdentity(input: { name: $name }) {
@@ -46,8 +46,8 @@ export class CustodialDIDProvider implements IdentityProvider {
   }
 
   async deleteIdentity(identityDid: string): Promise<boolean> {
-    const { data } = await withCaughtAppException(() => {
-      return getApolloClient().mutate<{ deleteIdentity: boolean }>({
+    const { data } = await withCaughtAppException(async () => {
+      return (await getApolloClient()).mutate<{ deleteIdentity: boolean }>({
         mutation: gql`
         mutation deleteIdentity($identityDid: String!) {
           deleteIdentity(identityDid: $identityDid)
@@ -70,8 +70,8 @@ export class CustodialDIDProvider implements IdentityProvider {
   }
 
   async listIdentities(): Promise<Identity[]> {
-    const result = await withCaughtAppException(() => {
-      return getApolloClient().query<{ identities: IdentityDTO[] }>({
+    const result = await withCaughtAppException(async () => {
+      return (await getApolloClient()).query<{ identities: IdentityDTO[] }>({
         query: gql`
         query ListIdentities {
           identities {
@@ -92,8 +92,8 @@ export class CustodialDIDProvider implements IdentityProvider {
   }
 
   async createDIDPublishTransaction(identityDid: string): Promise<string> {
-    const { data } = await withCaughtAppException(() => {
-      return getApolloClient().mutate<{ createDIDPublishTransaction: TransactionDTO }>({
+    const { data } = await withCaughtAppException(async () => {
+      return (await getApolloClient()).mutate<{ createDIDPublishTransaction: TransactionDTO }>({
         mutation: gql`
         mutation createDIDPublishTransaction($identityDid: String!) {
           createDIDPublishTransaction(identityDid: $identityDid) {
@@ -118,8 +118,8 @@ export class CustodialDIDProvider implements IdentityProvider {
   }
 
   async publishIdentity(identityDid: string, payload: string): Promise<string> {
-    const { data } = await withCaughtAppException(() => {
-      return getApolloClient().mutate<{ publishIdentity: PublishDTO }>({
+    const { data } = await withCaughtAppException(async () => {
+      return (await getApolloClient()).mutate<{ publishIdentity: PublishDTO }>({
         mutation: gql`
         mutation publishIdentity($identityDid: String!, $payload: String!) {
           publishIdentity(input: { identityDid: $identityDid, payload: $payload}) {
@@ -145,8 +145,8 @@ export class CustodialDIDProvider implements IdentityProvider {
   }
 
   async getPublicationStatus(identityDid: string, publicationId: string): Promise<PublicationStatus> {
-    const { data } = await withCaughtAppException(() => {
-      return getApolloClient().mutate<{ getPublicationStatus: string }>({
+    const { data } = await withCaughtAppException(async () => {
+      return (await getApolloClient()).mutate<{ getPublicationStatus: string }>({
         mutation: gql`
         mutation getPublicationStatus($identityDid: String!, $publicationId: String!) {
           getPublicationStatus(input: { identityDid: $identityDid, publicationId: $publicationId})
@@ -171,8 +171,8 @@ export class CustodialDIDProvider implements IdentityProvider {
 
   async createCredential(identityDid: string, credentialId: string, types: string[],
     expirationDate: Date, properties: any): Promise<Credential> {
-    const { data } = await withCaughtAppException(() => {
-      return getApolloClient().mutate<{ createCredential: CredentialDTO }>({
+    const { data } = await withCaughtAppException(async () => {
+      return (await getApolloClient()).mutate<{ createCredential: CredentialDTO }>({
         mutation: gql`
         mutation createCredential($identityDid: String!, $credentialId: String!, $types: Json!, $expirationDate: String!, $properties: Json!) {
           createCredential(input: { identityDid: $identityDid, credentialId: $credentialId, types: $types, expirationDate: $expirationDate, properties: $properties}) {
@@ -197,8 +197,8 @@ export class CustodialDIDProvider implements IdentityProvider {
   }
 
   async addCredential(identityDid: string, credential: VerifiableCredential): Promise<Credential> {
-    const { data } = await withCaughtAppException(() => {
-      return getApolloClient().mutate<{ addCredential: CredentialDTO }>({
+    const { data } = await withCaughtAppException(async () => {
+      return (await getApolloClient()).mutate<{ addCredential: CredentialDTO }>({
         mutation: gql`
         mutation addCredential($identityDid: String!, $credentialString: String!) {
           addCredential(input: { identityDid: $identityDid, credentialString: $credentialString}) {
@@ -220,8 +220,8 @@ export class CustodialDIDProvider implements IdentityProvider {
   }
 
   async listCredentials(identityDid: string): Promise<Credential[]> {
-    const { data } = await withCaughtAppException(() => {
-      return getApolloClient().query<{ credentials: CredentialDTO[] }>({
+    const { data } = await withCaughtAppException(async () => {
+      return (await getApolloClient()).query<{ credentials: CredentialDTO[] }>({
         query: gql`
         query ListCredentials($identityDid: String!) {
           credentials(identityDid: $identityDid) {
@@ -245,8 +245,8 @@ export class CustodialDIDProvider implements IdentityProvider {
   }
 
   async deleteCredential(credentialId: string): Promise<boolean> {
-    const { data } = await withCaughtAppException(() => {
-      return getApolloClient().mutate<{ deleteCredential: boolean }>({
+    const { data } = await withCaughtAppException(async () => {
+      return (await getApolloClient()).mutate<{ deleteCredential: boolean }>({
         mutation: gql`
         mutation deleteCredential($credentialId: String!) {
           deleteCredential(credentialId: $credentialId)
@@ -272,8 +272,8 @@ export class CustodialDIDProvider implements IdentityProvider {
       credentials.push(c.toJSON())
     })
 
-    const { data } = await withCaughtAppException(() => {
-      return getApolloClient().mutate<{ createVerifiablePresentation: PresentationDTO }>({
+    const { data } = await withCaughtAppException(async () => {
+      return (await getApolloClient()).mutate<{ createVerifiablePresentation: PresentationDTO }>({
         mutation: gql`
         mutation createVerifiablePresentation($identityDid: String!, $credentials: Json!, $realm: String!, $nonce: String!) {
           createVerifiablePresentation(input: { identityDid: $identityDid, credentials: $credentials, realm: $realm, nonce: $nonce}) {
@@ -294,5 +294,13 @@ export class CustodialDIDProvider implements IdentityProvider {
       return VerifiablePresentation.parse(data!.createVerifiablePresentation.verifiablePresentation);
     }
     return null;
+  }
+
+  addDIDDocumentService(identityDid: string, id: string, type: string, endpoint: string, properties?: any): boolean {
+    throw new Error("Method not implemented.");
+  }
+
+  removeDIDDocumentService(identityDid: string, id: string): boolean {
+    throw new Error("Method not implemented.");
   }
 }

@@ -22,4 +22,16 @@ export interface IdentityProvider {
   // publish Identity to did chain.
   publishIdentity(identityDid: string, payload: string): Promise<string>;
   getPublicationStatus(identityDid: string, publicationId: string): Promise<PublicationStatus>;
+
+  /**
+   * Adds a new service to the local DID document.
+   * ie: hive url endpoint.
+   */
+  addDIDDocumentService(identityDid: string, id: string, type: string, endpoint: string, properties?: any): boolean;
+
+  /**
+   * Remove a service from the local DID document.
+   * ie: hive url endpoint.
+   */
+  removeDIDDocumentService(identityDid: string, id: string): boolean;
 }

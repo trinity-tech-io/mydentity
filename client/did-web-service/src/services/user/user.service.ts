@@ -24,8 +24,8 @@ export async function signUp(name: string): Promise<boolean> {
 
   const input: SignUpInput = { name };
 
-  const response = await withCaughtAppException(() => {
-    return getApolloClient().mutate<{ signUp: LoggedUserOutput }>({
+  const response = await withCaughtAppException(async () => {
+    return (await getApolloClient()).mutate<{ signUp: LoggedUserOutput }>({
       mutation: gql`
         mutation SignUp($input: SignUpInput!) {
           signUp(input: $input) { accessToken refreshToken }
@@ -77,8 +77,8 @@ export async function fetchSelfUser(curToken?: string, refreshToken?: string): P
     if (refreshToken)
       localStorage.setItem("refresh_token", refreshToken);
 
-    const { data } = await withCaughtAppException(() => {
-      return getApolloClient().query<{ getSelfUser: UserDTO }>({
+    const { data } = await withCaughtAppException(async () => {
+      return (await getApolloClient()).query<{ getSelfUser: UserDTO }>({
         query: gql`
         query GetSelfUser {
           getSelfUser { ${graphQLPublicUserFields} }
@@ -127,8 +127,8 @@ export async function fetchSelfUser(curToken?: string, refreshToken?: string): P
 export async function authenticateWithEmailAddress(emailAddress: string): Promise<void> {
   logger.log("user", "Sending request to authentication by email");
 
-  await withCaughtAppException(() => {
-    return getApolloClient().mutate<unknown>({
+  await withCaughtAppException(async () => {
+    return (await getApolloClient()).mutate<unknown>({
       mutation: gql`
       mutation RequestEmailAuthentication($emailAddress: String!) {
         requestEmailAuthentication(emailAddress: $emailAddress) { success }
@@ -177,8 +177,8 @@ export async function checkEmailAuthenticationKey(authKey: string): Promise<bool
   logger.log("user", "Checking temporary authentication key");
 
   try {
-    const { data } = await withCaughtAppException(() => {
-      return getApolloClient().mutate<{
+    const { data } = await withCaughtAppException(async () => {
+      return (await getApolloClient()).mutate<{
         checkEmailAuthentication: {
           accessToken: string;
           refreshToken: string;
@@ -216,8 +216,8 @@ export async function refreshToken(): Promise<string> {
     return;
   }
 
-  const { data } = await withCaughtAppException(() => {
-    return getApolloClient().mutate({
+  const { data } = await withCaughtAppException(async () => {
+    return (await getApolloClient()).mutate({
       mutation: gql`
         mutation RefreshToken($token: String!) {
           refreshToken(refreshTokenInput: { refreshToken: $token }) { accessToken }
@@ -291,8 +291,8 @@ export async function authenticateWithPasskey(): Promise<boolean> {
     challengeId: challengeInfo.id,
   };
 
-  const result = await withCaughtAppException(() => {
-    return getApolloClient().query<{
+  const result = await withCaughtAppException(async () => {
+    return (await getApolloClient()).query<{
       signInWithPasskey: {
         accessToken: string;
         refreshToken: string;
@@ -329,8 +329,8 @@ export async function oauthMSSignIn(code: string): Promise<boolean> {
 
   const input: MsSignUpInput = { code };
 
-  const response = await withCaughtAppException(() => {
-    return getApolloClient().mutate<{ oauthMSSignIn: LoggedUserOutput }>({
+  const response = await withCaughtAppException(async () => {
+    return (await getApolloClient()).mutate<{ oauthMSSignIn: LoggedUserOutput }>({
       mutation: gql`
         mutation OauthMSSignIn($input: MsSignInInput!) {
           oauthMSSignIn(input: $input) { accessToken refreshToken }
@@ -357,8 +357,8 @@ export async function oauthMSBindEmail(code: string): Promise<boolean> {
 
   const input: MsSignUpInput = { code };
 
-  const response = await withCaughtAppException(() => {
-    return getApolloClient().mutate<{ oauthMSBindEmail: boolean }>({
+  const response = await withCaughtAppException(async () => {
+    return (await getApolloClient()).mutate<{ oauthMSBindEmail: boolean }>({
       mutation: gql`
         mutation OauthMSBindEmail($input: MsBindEmailInput!) {
           oauthMSBindEmail(input: $input)

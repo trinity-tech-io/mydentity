@@ -1,6 +1,7 @@
 import { VerifiableCredential, VerifiablePresentation } from "@elastosfoundation/did-js-sdk";
 import { IdentityProvider } from "@services/identity/did.provider";
 import { CredentialsFeature } from "./features/credentials/credentials.feature";
+import { HiveFeature } from "./features/hive/hive.feature";
 import { IdentityFeature } from "./features/identity-feature";
 import { ProfileFeature } from "./features/profile/profile.feature";
 import { IdentityDTO } from "./identity.dto";
@@ -18,6 +19,7 @@ export class Identity {
   constructor() {
     this.addFeature("credentials", new CredentialsFeature(this));
     this.addFeature("profile", new ProfileFeature(this));
+    this.addFeature("hive", new HiveFeature(this));
   }
 
   public static async fromJson(json: IdentityDTO, provider: IdentityProvider): Promise<Identity> {
@@ -32,7 +34,8 @@ export class Identity {
 
   public get(feature: "credentials"): CredentialsFeature;
   public get(feature: "profile"): ProfileFeature;
-  public get(feature: "credentials" | "profile"): IdentityFeature {
+  public get(feature: "hive"): HiveFeature;
+  public get(feature: "credentials" | "profile" | "hive"): IdentityFeature {
     if (!this.features.has(feature)) {
       throw new Error(`Unhandled user feature '${feature}'`);
     }

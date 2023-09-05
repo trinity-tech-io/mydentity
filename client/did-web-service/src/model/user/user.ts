@@ -4,6 +4,7 @@ import { UserEmailFeature } from "@model/user/features/email/user-email.feature"
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { logger } from "@services/logger";
+import { initialsString } from "@utils/strings";
 import { BehaviorSubject } from "rxjs";
 import { BrowserFeature } from "./features/browser/browser.feature";
 import { IdentityFeature } from "./features/identity/identity.feature";
@@ -11,7 +12,6 @@ import { SecurityFeature } from "./features/security/security.feature";
 import { UserFeature } from "./features/user-feature";
 import { usersCache } from "./user.cache";
 import { UserDTO } from "./user.dto";
-import { initialsString } from "@utils/strings";
 
 export type FeatureExtensionRegistrationCb = (user: User) => UserFeature;
 
@@ -90,8 +90,8 @@ export class User {
   public async updateUserName(name: string): Promise<boolean> {
     logger.log("user", "update user name.");
 
-    const { data } = await withCaughtAppException(() => {
-      return getApolloClient().mutate<{
+    const { data } = await withCaughtAppException(async () => {
+      return (await getApolloClient()).mutate<{
         updateUserProperty: boolean
       }>({
         mutation: gql`

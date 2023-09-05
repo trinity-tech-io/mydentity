@@ -43,7 +43,8 @@ const groups: GroupConfig[] = [
     links: [
       { title: "My profile", url: "/profile" },
       { title: "All credentials", url: "/credentials/list" },
-      { title: "Delete identity", url: "/delete-identity" }
+      { title: "Storage", url: "/storage" },
+      { title: "Delete identity", url: "/delete-identity" },
     ],
     requiresAuth: true
   },

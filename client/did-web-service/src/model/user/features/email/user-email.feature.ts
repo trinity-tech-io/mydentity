@@ -28,8 +28,8 @@ export class UserEmailFeature implements UserFeature {
     private async fetchUserEmails(): Promise<UserEmail[]> {
         logger.log("user", "list user emails.");
 
-        const { data } = await withCaughtAppException(() => {
-            return getApolloClient().query<{
+        const { data } = await withCaughtAppException(async () => {
+            return (await getApolloClient()).query<{
                 fetchUserEmails: UserEmailDTO[]
             }>({
                 query: gql`
@@ -53,8 +53,8 @@ export class UserEmailFeature implements UserFeature {
     public async removeUserEmail(id: string): Promise<boolean> {
         logger.log("user", "remove user email.");
 
-        const { data } = await withCaughtAppException(() => {
-            return getApolloClient().mutate<{
+        const { data } = await withCaughtAppException(async () => {
+            return (await getApolloClient()).mutate<{
                 removeUserEmail: boolean
             }>({
                 mutation: gql`
@@ -76,8 +76,8 @@ export class UserEmailFeature implements UserFeature {
     public async bindOauthEmail(email: string) {
         logger.log("user", "Bind oauth email address");
 
-        const { data } = await withCaughtAppException(() => {
-            return getApolloClient().mutate<{
+        const { data } = await withCaughtAppException(async () => {
+            return (await getApolloClient()).mutate<{
                 bindOauthEmail: boolean
             }>({
                 mutation: gql`
@@ -102,8 +102,8 @@ export class UserEmailFeature implements UserFeature {
     public async checkEmailBind(authKey: string): Promise<boolean> {
         logger.log("user", "Checking temporary authentication key for email bind.");
 
-        const { data } = await withCaughtAppException(() => {
-            return getApolloClient().mutate<{
+        const { data } = await withCaughtAppException(async () => {
+            return (await getApolloClient()).mutate<{
                 checkEmailBind: {
                     accessToken: string;
                     refreshToken: string;
@@ -132,8 +132,8 @@ export class UserEmailFeature implements UserFeature {
     public async bindWithEmailAddress(emailAddress: string): Promise<void> {
         logger.log("user", "Sending request to authentication by email");
 
-        await withCaughtAppException(() => {
-            return getApolloClient().mutate<unknown>({
+        await withCaughtAppException(async () => {
+            return (await getApolloClient()).mutate<unknown>({
                 mutation: gql`
                     mutation BindWithEmailAddress($emailAddress: String!) {
                         bindWithEmailAddress(emailAddress: $emailAddress) { success }

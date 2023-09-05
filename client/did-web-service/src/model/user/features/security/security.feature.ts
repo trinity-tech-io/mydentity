@@ -48,8 +48,8 @@ export class SecurityFeature implements UserFeature {
   private async fetchShadowKeys(): Promise<ShadowKey[]> {
     logger.log("devices", "Fetching shadow keys");
 
-    const result = await withCaughtAppException(() => {
-      return getApolloClient().query<{ userKeys: ShadowKeyDTO[] }>({
+    const result = await withCaughtAppException(async () => {
+      return (await getApolloClient()).query<{ userKeys: ShadowKeyDTO[] }>({
         query: gql`
         query FetchShadowKeys {
           userKeys {

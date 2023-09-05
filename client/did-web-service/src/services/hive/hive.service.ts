@@ -4,43 +4,50 @@ import {
   VerifiableCredential,
   VerifiablePresentation
 } from '@elastosfoundation/did-js-sdk';
-import { DID as ConnDID, DID } from '@elastosfoundation/elastos-connectivity-sdk-js';
-import { AppContext, AppContextProvider, DIDResolverAlreadySetupException, Vault } from '@elastosfoundation/hive-js-sdk';
+import type { DID as ConnDID } from '@elastosfoundation/elastos-connectivity-sdk-js';
+import { AppContext, AppContextProvider, DIDResolverAlreadySetupException, Vault, VaultSubscription } from '@elastosfoundation/hive-js-sdk';
 import { logger } from '@services/logger';
+import { isClientSide } from '@utils/client-server';
+import { lazyElastosConnectivitySDKImport } from '@utils/import-helper';
 import dayjs from 'dayjs';
-import process from 'process';
 
 type HiveAuthErrorCallback = (err: any) => void;
 
 /**
- * Hive initialization
+ * Hive initialization - client side only
  */
-try {
-  AppContext.setupResolver(process.env.NEXT_PUBLIC_RESOLVER_URL, '/anyfakedir/browserside/for/didstores');
-} catch (e) {
-  if (e instanceof DIDResolverAlreadySetupException) {
-    // silent error, it's ok
-  } else {
-    logger.error('hive', 'AppContext.setupResolver() exception:', e);
+export function hiveInit(): void {
+  if (!isClientSide())
+    return;
+
+  try {
+    AppContext.setupResolver(process.env.NEXT_PUBLIC_RESOLVER_URL, '/anyfakedir/browserside/for/didstores');
+  } catch (e) {
+    if (e instanceof DIDResolverAlreadySetupException) {
+      // silent error, it's ok
+    } else {
+      logger.error('hive', 'AppContext.setupResolver() exception:', e);
+    }
   }
 }
-const didAccess = new ConnDID.DIDAccess();
 
-/**
- * Returns the hive AppContext for the given did.
- * Hive app context is needed by most hive operations.
- */
-export async function getHiveAppContext(userDid: string, onAuthError: HiveAuthErrorCallback): Promise<AppContext> {
+async function getDIDAccess(): Promise<ConnDID.DIDAccess> {
+  const { DID: ConnDID } = await lazyElastosConnectivitySDKImport();
+  return new ConnDID.DIDAccess();
+}
+
+export async function getHiveAppContextProvider(onAuthError?: HiveAuthErrorCallback): Promise<AppContextProvider> {
+  const didAccess = await getDIDAccess();
   const appInstanceDIDInfo = await didAccess.getOrCreateAppInstanceDID();
 
-  logger.log('hive', 'Getting app instance DID document');
   const didDocument = await appInstanceDIDInfo.didStore.loadDid(
     appInstanceDIDInfo.did.toString()
   );
   // appInstanceDIDInfo.didStore.loadDidDocument(appInstanceDIDInfo.did.getDIDString(), async (didDocument) => {
   logger.log('hive', 'Got app instance DID document. Now creating the Hive client', didDocument.toJSON());
 
-  const appContextProvider: AppContextProvider = {
+
+  return {
     getLocalDataDir: () => '/',
     getAppInstanceDocument: () => didDocument,
     getAuthorization: (authenticationChallengeJWtCode: string): Promise<string> => {
@@ -57,12 +64,20 @@ export async function getHiveAppContext(userDid: string, onAuthError: HiveAuthEr
         return handleVaultAuthenticationChallenge(authenticationChallengeJWtCode);
       } catch (e) {
         logger.error('hive', 'Exception in authentication handler:', e);
-        if (onAuthError)
-          onAuthError(e);
+        onAuthError?.(e);
         return null;
       }
     }
   };
+}
+
+/**
+ * Returns the hive AppContext for the given did.
+ * Hive app context is needed by most hive operations.
+ */
+export async function getHiveAppContext(userDid: string, onAuthError?: HiveAuthErrorCallback): Promise<AppContext> {
+  logger.log('hive', 'Getting app context for', userDid);
+  const appContextProvider = await getHiveAppContextProvider(onAuthError);
 
   return AppContext.build(appContextProvider, userDid, process.env.NEXT_PUBLIC_APP_DID);
 }
@@ -74,6 +89,11 @@ export async function getHiveAppContext(userDid: string, onAuthError: HiveAuthEr
 export async function getVaultServices(userDid: string, providerAddress: string = null, onAuthError?: HiveAuthErrorCallback): Promise<Vault> {
   const appContext = await getHiveAppContext(userDid, onAuthError);
   return new Vault(appContext, providerAddress);
+}
+
+export async function getSubscriptionService(userDid: string, providerAddress: string = null, onAuthError?: HiveAuthErrorCallback): Promise<VaultSubscription> {
+  const appContext = await getHiveAppContext(userDid, onAuthError);
+  return new VaultSubscription(appContext, providerAddress);
 }
 
 function handleVaultAuthenticationChallenge(jwtToken: string): Promise<string> {
@@ -108,6 +128,7 @@ async function generateAuthPresentationJWT(authChallengeJwttoken: string): Promi
     const realm = claims.getIssuer();
 
     logger.log('hive', 'Getting app instance DID');
+    const didAccess = await getDIDAccess();
     const appInstanceDIDResult = await didAccess.getOrCreateAppInstanceDID();
     const appInstanceDID = appInstanceDIDResult.did;
 
@@ -142,7 +163,8 @@ async function generateAuthPresentationJWT(authChallengeJwttoken: string): Promi
     if (presentation) {
       // Generate the hive back end authentication JWT
       logger.log('hive', 'Opening DID store to create a JWT for presentation:', presentation.toJSON());
-      const didStore = await DID.DIDHelper.openDidStore(appInstanceDIDInfo.storeId);
+      const ConnDID = (await import("@elastosfoundation/elastos-connectivity-sdk-js")).DID;
+      const didStore = await ConnDID.DIDHelper.openDidStore(appInstanceDIDInfo.storeId);
 
       logger.log('hive', 'Loading DID document');
       const didDocument = await didStore.loadDid(appInstanceDIDInfo.didString);
@@ -178,6 +200,7 @@ async function generateAuthPresentationJWT(authChallengeJwttoken: string): Promi
 }
 
 async function generateAppIdCredential(): Promise<VerifiableCredential> {
+  const didAccess = await getDIDAccess();
   const storedAppInstanceDID = await didAccess.getOrCreateAppInstanceDID();
   if (!storedAppInstanceDID)
     return null;

@@ -105,6 +105,14 @@ class IdentityService {
 
     return identities
   }
+
+  public addDIDDocumentService(identityDid: string, id: string, type: string, endpoint: string, properties?: any): boolean {
+    return this.provider.addDIDDocumentService(identityDid, id, type, endpoint, properties);
+  }
+
+  public removeDIDDocumentService(identityDid: string, id: string): boolean {
+    return this.provider.removeDIDDocumentService(identityDid, id);
+  }
 }
 
 

@@ -18,8 +18,8 @@ export class BrowserFeature implements UserFeature {
   private async fetchBrowsers(): Promise<Browser[]> {
     logger.log("devices", "Fetching user browsers");
 
-    const { data } = await withCaughtAppException(() => {
-      return getApolloClient().query<{ browsers: BrowserDTO[] }>({
+    const { data } = await withCaughtAppException(async () => {
+      return (await getApolloClient()).query<{ browsers: BrowserDTO[] }>({
         query: gql`
         query ListBrowsers {
           browsers {

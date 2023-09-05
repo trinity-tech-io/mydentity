@@ -17,8 +17,8 @@ import { AuthKeyInput } from "./auth-key.input";
  */
 export async function bindKey(newKey: AuthKeyInput): Promise<ShadowKey> {
   logger.log("keyring", "Binding key");
-  const result = await withCaughtAppException(() => {
-    return getApolloClient().mutate<{ bindKey: ShadowKeyDTO }>({
+  const result = await withCaughtAppException(async () => {
+    return (await getApolloClient()).mutate<{ bindKey: ShadowKeyDTO }>({
       mutation: gql`
         mutation bindKey($newKey: AuthKeyInput!) {
           bindKey(newKey: $newKey) {
@@ -53,8 +53,8 @@ export async function bindKey(newKey: AuthKeyInput): Promise<ShadowKey> {
 export async function changePassword(newPassword: string): Promise<ShadowKey[]> {
   logger.log("keyring", "Changing password");
 
-  const result = await withCaughtAppException(() => {
-    return getApolloClient().mutate<{ changePassword: ShadowKeyDTO[] }>({
+  const result = await withCaughtAppException(async () => {
+    return (await getApolloClient()).mutate<{ changePassword: ShadowKeyDTO[] }>({
       mutation: gql`
         mutation ChangePassword($newPassword: String!) {
           changePassword(newPassword: $newPassword) {
@@ -87,8 +87,8 @@ export async function changePassword(newPassword: string): Promise<ShadowKey[]> 
 export async function unlockMasterKey(authKey: AuthKeyInput): Promise<boolean> {
   logger.log("security", "Trying to unlock master key");
 
-  const result = await withCaughtAppException(() => {
-    return getApolloClient().mutate<{ unlockMasterKey: boolean }>({
+  const result = await withCaughtAppException(async () => {
+    return (await getApolloClient()).mutate<{ unlockMasterKey: boolean }>({
       mutation: gql`
           mutation unlockMasterKey($authKey: AuthKeyInput!) {
             unlockMasterKey(authKey: $authKey)
@@ -111,8 +111,8 @@ export async function unlockMasterKey(authKey: AuthKeyInput): Promise<boolean> {
 
 export async function getPasskeyChallenge(): Promise<ChallengeEntity> {
   logger.log("passkey", "get challenge to generate passkey");
-  const data = await withCaughtAppException(() => {
-    return getApolloClient().query<unknown>({
+  const data = await withCaughtAppException(async () => {
+    return (await getApolloClient()).query<unknown>({
       query: gql`
       query GenerateChallenge {
         generateChallenge{

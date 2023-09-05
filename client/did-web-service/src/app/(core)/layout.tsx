@@ -5,17 +5,15 @@ import AppThemeProvider from '../theming/AppThemeContext';
 import { UnlockKeyPromptContextProvider } from '@components/security/unlock-key-prompt/UnlockKeyPrompt';
 import { onNewError$ } from '@services/error.service';
 import { useToast } from '@services/feedback.service';
-import { initApp as initClientSide } from '@services/init.service';
+import { isUnlockException } from '@services/security/security.service';
 import { SnackbarProvider } from 'notistack';
 import { filter } from 'rxjs';
 import { Header } from '../partials/Header';
 import Sidebar from '../partials/Sidebar';
 import ThemeRegistry from '../theming/ThemeRegistry';
-import { isUnlockException } from '@services/security/security.service';
+import { initSync } from '@services/init.service';
 
-// This layout file is our very initial layout (the first thing that may use "use client") so we initialize the browser things from here for now.
-// BEWARE OF NEXTJS, as next has server side rendered pages and client side ones. We want to initialize browser side features for now.
-initClientSide();
+initSync();
 
 /* export const metadata: Metadata = {
   title: 'Create Next App',
@@ -24,7 +22,6 @@ initClientSide();
 
 const LayoutCore: FC<{ children: ReactNode }> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
   const { showErrorToast } = useToast();
 
   // Show API errors as error toast messages
@@ -66,11 +63,7 @@ const LayoutCore: FC<{ children: ReactNode }> = ({ children }) => {
   )
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }): any {
 
   return (
     <ThemeRegistry>
