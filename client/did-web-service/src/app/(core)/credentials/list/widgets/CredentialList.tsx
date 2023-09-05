@@ -57,7 +57,7 @@ export const CredentialListWidget: FC<ConfirmDialogProps> = (props) => {
               credentials.map(c =>
                 <div key={c.id}>
                   <ListItemButton
-                    selected={activeCredential.id === c.id}
+                    selected={activeCredential && activeCredential.id === c.id}
                     onClick={(): void => handleListItemClick(c)}>
                     <ListItemIcon>
                       <PersonIcon />
