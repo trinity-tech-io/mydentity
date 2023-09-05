@@ -20,11 +20,11 @@ export interface CreateCredentialDialog {
 }
 
 const CreateCredentialDialog: FC<CreateCredentialDialog> = ({ onClose, open, availableItemsForAddition }) => {
-  const handleClose = () => {
+  const handleClose = (): void => {
     onClose(null);
   };
 
-  const handleListItemClick = (value: ProfileCredentialInfo) => {
+  const handleListItemClick = (value: ProfileCredentialInfo): void => {
     onClose(value);
   };
 
@@ -37,7 +37,7 @@ const CreateCredentialDialog: FC<CreateCredentialDialog> = ({ onClose, open, ava
       <List sx={{ pt: 0 }}>
         {availableItemsForAddition?.map((addableItem, i) => (
           <ListItem disableGutters key={i}>
-            <ListItemButton onClick={() => handleListItemClick(addableItem)}  >
+            <ListItemButton onClick={():void => handleListItemClick(addableItem)}  >
               <ListItemAvatar>
                 <Avatar sx={{ bgcolor: blue[100], color: blue[600] }}>
                   <PersonIcon />

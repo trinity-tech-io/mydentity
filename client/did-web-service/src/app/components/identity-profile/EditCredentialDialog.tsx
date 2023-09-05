@@ -17,7 +17,7 @@ export interface EditCredentialDialogProps {
     onClose: (editCredentialValue?: { info: ProfileCredentialInfo, value: string, type: EditionMode, originCredential: ProfileCredential }) => void;
 }
 
-function EditCredentialDialog(props: EditCredentialDialogProps) {
+function EditCredentialDialog(props: EditCredentialDialogProps): JSX.Element {
     const { credentialInfo, defaultValue, open, type, originCredential, onClose } = props;
     const [editionType, setEditionType] = useState<ProfileCredentialInfoEditionType>(null);
     const radioGroupRef = useRef<HTMLElement>(null);
@@ -30,17 +30,17 @@ function EditCredentialDialog(props: EditCredentialDialogProps) {
 
     const inputRef = createRef<HTMLInputElement>()
 
-    const handleEntering = () => {
+    const handleEntering = (): void => {
         if (radioGroupRef.current != null) {
             radioGroupRef.current.focus();
         }
     };
 
-    const handleCancel = () => {
+    const handleCancel = (): void => {
         onClose(null);
     };
 
-    const handleOk = () => {
+    const handleOk = (): void => {
         const result = inputRef.current.value;
         onClose({ info: credentialInfo, value: result, type: type, originCredential });
     };
