@@ -43,7 +43,12 @@ export const CredentialListWidget: FC<ConfirmDialogProps> = (props) => {
         }
       }
     }
-  }, [activeCredential, credentials, onSelected]);
+
+    if (credentials && !activeCredential) {
+      identityProfileFeature.setActiveCredential(credentials[0])
+    }
+
+  }, [activeCredential, credentials, onSelected, identityProfileFeature]);
 
   return (
     <div className="col-span-full xl:col-span-5 bg-white dark:bg-slate-800 shadow-lg rounded-sm border border-slate-200 dark:border-slate-700">
