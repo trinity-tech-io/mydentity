@@ -146,6 +146,8 @@ const Profile: FC = () => {
   }
 
   const handleOpenMenu = (event: MouseEvent, credential: ProfileCredential): void => {
+    event.stopPropagation(); // Prevent event propagation to the cell
+    event.preventDefault(); //
     setOpenPopupMenu(event.currentTarget);
     setOriginCredential(credential);
   };
