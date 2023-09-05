@@ -6,11 +6,11 @@ import { logger } from "@services/logger";
 import { LazyBehaviorSubjectWrapper } from "@utils/lazy-behavior-subject";
 import { randomIntString } from "@utils/random";
 import moment from "moment";
-import { Observable, BehaviorSubject, map } from "rxjs";
+import { BehaviorSubject, map } from "rxjs";
 import { IdentityFeature } from "../identity-feature";
 
 export class ProfileFeature implements IdentityFeature {
-  private activeCredentialSubject: BehaviorSubject<ProfileCredential | null> = new BehaviorSubject<ProfileCredential | null>(null);
+  public activeCredential$: BehaviorSubject<ProfileCredential | null> = new BehaviorSubject<ProfileCredential>(null);
 
   public get profileCredentials$(): BehaviorSubject<ProfileCredential[]> { return this._profileCredentials$.getSubject(); }
   private _profileCredentials$ = new LazyBehaviorSubjectWrapper<ProfileCredential[]>(null, async () => {
@@ -26,15 +26,11 @@ export class ProfileFeature implements IdentityFeature {
     });
   });
 
-  public setActiveCredential(credential: ProfileCredential): void {
-    this.activeCredentialSubject.next(credential);
-  }
-
-  public activeCredentialChanges$(): Observable<ProfileCredential | null> {
-    return this.activeCredentialSubject.asObservable();
-  }
-
   constructor(protected identity: Identity) { }
+
+  public setActiveCredential(credential: ProfileCredential): void {
+    this.activeCredential$.next(credential)
+  }
 
   public async deleteProfileCredential(credentialId: string): Promise<boolean> {
     try {

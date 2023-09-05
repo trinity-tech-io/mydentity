@@ -255,7 +255,7 @@ const Profile: FC = () => {
       return JSON.stringify(credential.verifiableCredential.getSubject());
   } */
 
-  const handleCellClick = (credential: ProfileCredential) => {
+  const handleCellClick = (credential: ProfileCredential): void => {
     const text = 'Your current credential is: ' + credential.getDisplayValue()
     showSuccessToast(text);
     identityProfileFeature.setActiveCredential(credential)

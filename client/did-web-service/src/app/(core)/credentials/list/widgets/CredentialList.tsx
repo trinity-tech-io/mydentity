@@ -23,40 +23,30 @@ export const CredentialListWidget: FC<ConfirmDialogProps> = (props) => {
   const TAG = "CredentialList";
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const [credentials] = useBehaviorSubject(activeIdentity?.get("credentials").credentials$);
-  const [selectedIndex, setSelectedIndex] = useState("");
-  const mounted = useMounted();
+  const [selectedID, setSelectedID] = useState<string>(null);  const mounted = useMounted();
   const identityProfileFeature = activeIdentity?.get("profile");
-  const isExecutedRef = useRef(false);
+  const [activeCredential] = useBehaviorSubject(identityProfileFeature?.activeCredential$);
 
   const handleListItemClick = (
     credential: Credential,
   ): void => {
-    setSelectedIndex(credential.id);
+    setSelectedID(credential.id);
     onSelected(credential);
   };
 
   useEffect(() => {
-    if (isExecutedRef.current) return
-    if (identityProfileFeature) {
-  
-      const subscription = identityProfileFeature.activeCredentialChanges$().subscribe(newCredential => {
-        if (newCredential) {
-          for (let i = 0; i < credentials.length; i++) {
-            const credential = credentials[i];
-            if (newCredential.id === credential.id) {  
-              onSelected(credential);
-              setSelectedIndex(credential.id);
-              isExecutedRef.current = true;
-            }
-          }
+    if (activeCredential && !selectedID) {
+      for (let i = 0; i < credentials.length; i++ ) {
+        const credential =  credentials[i]
+        if (activeCredential.id == credential.id) {
+          onSelected(credential)
+          setSelectedID(credential.id)
         }
-      });
-  
-      return () => {
-        subscription.unsubscribe();
-      };
+      }
     }
-  }, [credentials, activeIdentity, onSelected]);
+    
+
+  }, [activeCredential]);
 
   return (
     <div className="col-span-full xl:col-span-5 bg-white dark:bg-slate-800 shadow-lg rounded-sm border border-slate-200 dark:border-slate-700">
@@ -70,7 +60,7 @@ export const CredentialListWidget: FC<ConfirmDialogProps> = (props) => {
               credentials.map(c =>
                 <div key={c.id}>
                   <ListItemButton
-                    selected={selectedIndex === c.id}
+                    selected={selectedID === c.id}
                     onClick={(): void => handleListItemClick(c)}>
                     <ListItemIcon>
                       <PersonIcon />
