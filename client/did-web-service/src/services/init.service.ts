@@ -1,8 +1,8 @@
-import { connectivity } from "@elastosfoundation/elastos-connectivity-sdk-js";
+import { connectivity, logger as connectivityLogger } from "@elastosfoundation/elastos-connectivity-sdk-js";
 import { configService } from "./config/config.service";
 import { InternalElastosConnector } from "./elastos-connector/internal-elastos-connector";
 import { hiveInit } from "./hive/hive.service";
-import { logger } from "./logger";
+import { DIDWebConnectivityLogger, logger } from "./logger";
 
 export function initSync(): void {
   logger.init(console);
@@ -18,6 +18,8 @@ export function initSync(): void {
 async function connectorInit(): Promise<void> {
   // Use our own internal connector for the connectivity SDK
   const internalConnector = new InternalElastosConnector();
+
+  connectivityLogger.setLoggerLayer(new DIDWebConnectivityLogger());
 
   if (connectivity.getAvailableConnectors().length > 0)
     await connectivity.unregisterConnector(internalConnector.name); // For nextjs hot reload, to avoid duplicate regitration

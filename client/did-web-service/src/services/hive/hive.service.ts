@@ -134,6 +134,8 @@ async function generateAuthPresentationJWT(authChallengeJwttoken: string): Promi
     const appInstanceDIDResult = await didAccess.getOrCreateAppInstanceDID();
     const appInstanceDID = appInstanceDIDResult.did;
 
+    logger.log("hive", "App instance DID:", appInstanceDID);
+
     const appInstanceDIDInfo = await didAccess.getExistingAppInstanceDIDInfo();
 
     logger.log('hive', 'Getting app identity credential');
@@ -168,7 +170,7 @@ async function generateAuthPresentationJWT(authChallengeJwttoken: string): Promi
       const ConnDID = (await import("@elastosfoundation/elastos-connectivity-sdk-js")).DID;
       const didStore = await ConnDID.DIDHelper.openDidStore(appInstanceDIDInfo.storeId);
 
-      logger.log('hive', 'Loading DID document');
+      logger.log('hive', 'Loading DID document', appInstanceDIDInfo.didString);
       const didDocument = await didStore.loadDid(appInstanceDIDInfo.didString);
       // const validityDays = 2;
       logger.log('hive', 'App instance DID document', didDocument.toJSON());

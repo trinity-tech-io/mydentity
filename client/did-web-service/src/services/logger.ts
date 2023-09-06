@@ -1,4 +1,15 @@
+import { Interfaces } from "@elastosfoundation/elastos-connectivity-sdk-js";
 import moment from "moment";
+
+const modulesColors: { [module: string]: string } = {
+    "default": "#008730",
+    "hive": "#5226af",
+    "connectivity": "#d17506"
+}
+
+function getBackgroundColor(module: string): string {
+    return modulesColors[module] || modulesColors.default;
+}
 
 type DevLogType = "log" | "warn" | "error" | "test";
 type DevLogEntry = {
@@ -14,7 +25,7 @@ class _Logger {
     private originalDebugWarn: (...args: any[]) => void;
     private originalDebugErr: (...args: any[]) => void;
 
-    public init(originalConsole: Console) {
+    public init(originalConsole: Console): void {
         this.originalConsole = originalConsole;
 
         // Replace original log methods with placeholders to warn that the migration is needed
@@ -33,29 +44,45 @@ class _Logger {
           } */
     }
 
-    public log(module: string, ...args: any) {
+    public log(module: string, ...args: any): void {
+        const bgColor = getBackgroundColor(module);
         this.originalDebugLog.apply(this.originalConsole, [
-            "%c" + moment(new Date().getTime()).format('HH:mm:ss.SSS') + " " + module.toUpperCase() + "*", 'background: #008730; color: #FFF; font-weight:bold; padding:5px;',
+            "%c" + moment(new Date().getTime()).format('HH:mm:ss.SSS') + " " + module.toUpperCase() + "*", `background: ${bgColor}; color: #FFF; font-weight:bold; padding:5px;`,
             ...args]);
     }
 
-    public warn(module: string, ...args: any) {
+    public warn(module: string, ...args: any): void {
+        const bgColor = getBackgroundColor(module);
         this.originalDebugWarn.apply(this.originalConsole, [
-            "%c" + moment(new Date().getTime()).format('HH:mm:ss.SSS') + " " + module.toUpperCase() + "* WARNING", 'background: #d59100; color: #FFF; font-weight:bold; padding:5px;',
+            "%c" + moment(new Date().getTime()).format('HH:mm:ss.SSS') + " " + module.toUpperCase() + "*", `background: ${bgColor}; color: #FFF; font-weight:bold; padding:5px;`,
             ...args]);
     }
 
-    public error(module: string, ...args: any) {
+    public error(module: string, ...args: any): void {
+        const bgColor = getBackgroundColor(module);
         this.originalDebugErr.apply(this.originalConsole, [
-            "%c" + moment(new Date().getTime()).format('HH:mm:ss.SSS') + " " + module.toUpperCase() + "* ERROR", 'background: #b30202; color: #FFF; font-weight:bold; padding:5px;',
+            "%c" + moment(new Date().getTime()).format('HH:mm:ss.SSS') + " " + module.toUpperCase() + "*", `background: ${bgColor}; color: #FFF; font-weight:bold; padding:5px;`,
             ...args]);
     }
 
-    public test(module: string, ...args: any) {
+    public test(module: string, ...args: any): void {
+        const bgColor = getBackgroundColor(module);
         this.originalDebugLog.apply(this.originalConsole, [
-            "%c" + moment(new Date().getTime()).format('HH:mm:ss.SSS') + " " + module.toUpperCase() + "* TEST", 'background: #7B68EE; color: #FFF; font-weight:bold; padding:5px;',
+            "%c" + moment(new Date().getTime()).format('HH:mm:ss.SSS') + " " + module.toUpperCase() + "* TEST", `background: ${bgColor}; color: #FFF; font-weight:bold; padding:5px;`,
             ...args]);
     }
 }
 
 export const logger = new _Logger();
+
+export class DIDWebConnectivityLogger implements Interfaces.ILogger {
+    log(...args: any) {
+        logger.log.apply(logger, ["connectivity", ...args]);
+    }
+    warn(...args: any) {
+        logger.warn.apply(logger, ["connectivity", ...args]);
+    }
+    error(...args: any) {
+        logger.error.apply(logger, ["connectivity", ...args]);
+    }
+}
