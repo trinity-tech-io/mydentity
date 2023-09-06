@@ -96,6 +96,11 @@ export class DidService {
     return successfulDeletion;
   }
 
+  async storeDIDDocument(didStorePath: string, didDocument: DIDDocument): Promise<void> {
+    const didStore = await this.openStore(didStorePath);
+    await didStore.storeDid(didDocument);
+  }
+
   async createCredential(didStorePath: string, didString: string, credentialId: string, types: string[], expirationDate: Date, properties, storepass: string) {
     try {
       const didStore = await this.openStore(didStorePath);

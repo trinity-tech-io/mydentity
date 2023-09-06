@@ -1,5 +1,6 @@
 import { Identity } from "@model/identity/identity";
 import { PublicationStatus } from "@model/publication/publish.dto";
+import { getRandomQuickStartHiveNodeAddress } from "@services/hive/hive.service";
 import { identityService } from "@services/identity/identity.service";
 import { logger } from "@services/logger";
 import { LazyBehaviorSubjectWrapper } from "@utils/lazy-behavior-subject";
@@ -16,7 +17,8 @@ export class IdentityFeature implements UserFeature {
   public async createIdentity(name: string): Promise<Identity> {
     logger.log("identities", "Creating a new identity", name);
 
-    const identity = await identityService.createIdentity(name);
+    const hiveAddress = getRandomQuickStartHiveNodeAddress();
+    const identity = await identityService.createIdentity(name, hiveAddress);
     this.identities$.next([identity, ...this.identities$.value]);
     return identity;
   }

@@ -71,11 +71,7 @@ export class DIDPublishingService {
   private network = MAINNET_TEMPLATE;
   // private network = TESTNET_TEMPLATE;
 
-  private logger: Logger;
-
-  constructor() {
-    this.logger = new Logger("DIDPublishingService");
-  }
+  private logger: Logger = new Logger("DIDPublishingService");
 
   /**
    * Directly publishes a payload previously generated in another part of the app.
@@ -84,7 +80,7 @@ export class DIDPublishingService {
    * DOC FOR ASSIST API: https://github.com/tuum-tech/assist-restapi-backend#verify
    */
   public async publishDID(didString: string, payloadObject: any, memo = ''): Promise<string> {
-    this.logger.log("Requesting identity publication to Assist" + didString);
+    this.logger.log("Requesting identity publication to Assist for DID: " + didString);
 
     return new Promise(async (resolve, reject) => {
       const requestBody = {
@@ -122,7 +118,7 @@ export class DIDPublishingService {
               reject(new AppException(DIDExceptionCode.NetworkError, errorMessage, HttpStatus.BAD_REQUEST));
             }
           } else {
-            const errorMessage = "Failed to publish did. Error:" +  (error ? error : (body?.meta?.message + ". " + body?.meta?.description));
+            const errorMessage = "Failed to publish did. Error:" + (error ? error : (body?.meta?.message + ". " + body?.meta?.description));
             this.logger.warn("publishDID error:" + errorMessage);
             reject(new AppException(DIDExceptionCode.NetworkError, errorMessage, response.statusCode));
           }
@@ -160,7 +156,7 @@ export class DIDPublishingService {
         if (!error && response.statusCode === 200) {
           resolve(body);
         } else {
-          const errorMessage = "Failed to get publication status. Error:" +  (error ? error : (body?.meta?.message + ". " + body?.meta?.description));
+          const errorMessage = "Failed to get publication status. Error:" + (error ? error : (body?.meta?.message + ". " + body?.meta?.description));
           this.logger.warn("getPublicationStatus:" + errorMessage);
           reject(errorMessage)
         }

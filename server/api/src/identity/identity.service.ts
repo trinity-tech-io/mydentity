@@ -36,6 +36,17 @@ export class IdentityService {
       rootIdentity = await this.didService.getRootIdentity(user.id, storePassword);
 
       didDocument = await rootIdentity.newDid(storePassword);
+
+      // In order to avoid publishing the DID at creation, then publish again to set the hive provider,
+      // we add the hive vault provider as a service, if any given, during the identity creation.
+      if (createIdentityInput.hiveVaultProvider)
+        didDocument = await DIDDocument.Builder.newFromDocument(didDocument)
+          .addService("#hivevault", "HiveVault", createIdentityInput.hiveVaultProvider)
+          .seal(storePassword);
+
+      // Save the DID document
+      await this.didService.storeDIDDocument(user.id, didDocument);
+
       identityDid = didDocument.getSubject().toString();
     } catch (e) {
       this.logger.log(`DID creation exception: ${e}`)
@@ -109,6 +120,10 @@ export class IdentityService {
     }
   }
 
+  /**
+   * Posts a publication request and only waits for the post confirmation but not for the DID
+   * transaction to be confirmed on chain.
+   */
   async publishIdentity(didString: string, payloadObject: any) {
     this.logger.log("publishIdentity:" + didString)
 

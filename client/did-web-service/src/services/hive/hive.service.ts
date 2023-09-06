@@ -6,12 +6,15 @@ import {
 } from '@elastosfoundation/did-js-sdk';
 import type { DID as ConnDID } from '@elastosfoundation/elastos-connectivity-sdk-js';
 import { AppContext, AppContextProvider, DIDResolverAlreadySetupException, Logger, Vault, VaultSubscription } from '@elastosfoundation/hive-js-sdk';
+import { availableHiveNodeProviders } from "@services/hive/vault/vault-providers";
 import { activeIdentity$ } from '@services/identity/identity.events';
 import { logger } from '@services/logger';
 import { isClientSide } from '@utils/client-server';
 import { lazyElastosConnectivitySDKImport } from '@utils/import-helper';
 import dayjs from 'dayjs';
 import moment from 'moment';
+
+const nodeProviders = availableHiveNodeProviders.MainNet; // For now, only mainnet supported
 
 type HiveAuthErrorCallback = (err: any) => void;
 
@@ -65,10 +68,7 @@ export async function getHiveAppContextProvider(onAuthError?: HiveAuthErrorCallb
        * The returned data must be a verifiable presentation, signed by the app instance DID, and
        * including a appid certification credential provided by the identity application.
        */
-      logger.log('hive',
-        'Hive client authentication challenge callback is being called with token:',
-        authenticationChallengeJWtCode
-      );
+      logger.log('hive', 'Hive client authentication challenge callback is being called with token:', authenticationChallengeJWtCode);
       try {
         return handleVaultAuthenticationChallenge(authenticationChallengeJWtCode);
       } catch (e) {
@@ -319,3 +319,13 @@ export const getHiveVault = async (did: string): Promise<Vault> => {
     return null;
   }
 };
+
+
+/**
+ * Returns a random hive node address among the nodes that we can choose as default quick start
+ * vault provider for new users.
+ */
+export function getRandomQuickStartHiveNodeAddress(): string {
+  const randomIndex = Math.floor(Math.random() * nodeProviders.length);
+  return nodeProviders[randomIndex];
+}

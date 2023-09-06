@@ -17,20 +17,26 @@ import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { logger } from "@services/logger";
 import { IdentityProvider } from "../did.provider";
+import { CreateIdentityInput } from "../dto/create-identity.input.dto";
 
 export class CustodialDIDProvider implements IdentityProvider {
-  async createIdentity(name: string): Promise<Identity> {
+  async createIdentity(name: string, hiveVaultProvider: string): Promise<Identity> {
+    const input: CreateIdentityInput = {
+      name,
+      hiveVaultProvider
+    };
+
     const { data } = await withCaughtAppException(async () => {
       return (await getApolloClient()).mutate<{ createIdentity: IdentityDTO }>({
         mutation: gql`
-        mutation createIdentity($name: String!) {
-          createIdentity(input: { name: $name }) {
-            ${gqlIdentityFields}
+          mutation createIdentity($input: CreateIdentityInput!) {
+            createIdentity(input: $input) {
+              ${gqlIdentityFields}
+            }
           }
-        }
-      `,
+        `,
         variables: {
-          name
+          input
         }
       });
     });

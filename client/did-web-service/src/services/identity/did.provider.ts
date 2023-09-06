@@ -9,7 +9,7 @@ import { PublicationStatus } from "@model/publication/publish.dto";
  * In non custodial mode, this is served by the front end (browser storage).
  */
 export interface IdentityProvider {
-  createIdentity(name: string): Promise<Identity>;
+  createIdentity(name: string, hiveVaultProvider?: string): Promise<Identity>;
   deleteIdentity(identityDid: string): Promise<boolean>;
   listIdentities(): Promise<Identity[]>;
   createCredential(identityDid: string, credentialId: string, types: string[], expirationDate: Date, prop: any): Promise<Credential>;

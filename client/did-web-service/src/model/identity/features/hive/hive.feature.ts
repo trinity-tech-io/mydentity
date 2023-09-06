@@ -1,8 +1,7 @@
 import { DIDDocument } from "@elastosfoundation/did-js-sdk";
 import { AppContext, AppContextProvider, Vault, VaultInfo, VaultSubscription } from "@elastosfoundation/hive-js-sdk";
 import { Identity } from "@model/identity/identity";
-import { getHiveAppContext, getHiveAppContextProvider, getSubscriptionService, getVaultServices } from "@services/hive/hive.service";
-import { availableHiveNodeProviders } from "@services/hive/vault/vault-providers";
+import { getHiveAppContext, getHiveAppContextProvider, getRandomQuickStartHiveNodeAddress, getSubscriptionService, getVaultServices } from "@services/hive/hive.service";
 import { VaultStatus, VaultStatusState } from "@services/hive/vault/vault-status";
 import { identityService } from "@services/identity/identity.service";
 import { logger } from "@services/logger";
@@ -16,8 +15,6 @@ import { IdentityFeature } from "../identity-feature";
   vaultInfo: null,
   publishedInfo: null
 }; */
-
-const nodeProviders = availableHiveNodeProviders.MainNet; // For now, only mainnet supported
 
 export class HiveFeature implements IdentityFeature {
   public get vaultStatus$(): BehaviorSubject<VaultStatus> { return this._vaultStatus$.getSubject(); } // Latest known vault status for active user
@@ -48,17 +45,8 @@ export class HiveFeature implements IdentityFeature {
     return getSubscriptionService(this.identity.did);
   }
 
-  /**
-   * Returns a random hive node address among the nodes that we can choose as default quick start
-   * vault provider for new users.
-   */
-  private getRandomQuickStartHiveNodeAddress(): string {
-    const randomIndex = Math.floor(Math.random() * nodeProviders.length);
-    return nodeProviders[randomIndex];
-  }
-
   public async addRandomHiveVaultServiceToDIDDocument(): Promise<boolean> {
-    const randomHiveNodeAddress = this.getRandomQuickStartHiveNodeAddress();
+    const randomHiveNodeAddress = getRandomQuickStartHiveNodeAddress();
     if (randomHiveNodeAddress) {
       await this.removeHiveVaultServiceFromDIDDocument();
       await identityService.addDIDDocumentService(this.identity.did, '#hivevault', 'HiveVault', randomHiveNodeAddress);
@@ -80,7 +68,7 @@ export class HiveFeature implements IdentityFeature {
    * TODO: LOCALLY OR ON CHAIN? NEED TO GET FROM THE IDENTITY SERVICE?
    */
   public documentHasVault(doc: DIDDocument): boolean {
-    const hiveService = doc.getService("#hivevault");
+    const hiveService = doc.getService("vault");
     return hiveService != null;
   }
 

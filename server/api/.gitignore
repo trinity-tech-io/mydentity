@@ -42,7 +42,6 @@ package-lock.json
 
 # Did store path
 /didstores
-/src/didstores/
 
 # Test
 src/did/*spec.ts
