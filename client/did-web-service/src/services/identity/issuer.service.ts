@@ -42,8 +42,6 @@ class IssuerService {
     // for test
     didString = "did:elastos:iqjN3CLRjd7a4jGCZe6B3isXyeLy7KKDuK"; // Kyc
 
-    console.log("fetchDIDDocument", didString)
-
     const didDocumentStatus = await didDocumentService.fetchOrAwaitDIDDocumentWithStatus(
       didString,
       forceRemote

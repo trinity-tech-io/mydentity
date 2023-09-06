@@ -13,7 +13,9 @@ import { isClientSide } from '@utils/client-server';
 import { lazyElastosConnectivitySDKImport } from '@utils/import-helper';
 import dayjs from 'dayjs';
 import moment from 'moment';
+import Queue from "promise-queue";
 
+const operationQueue = new Queue(1); // Semaphore to prevent multiple parrallel access to critical operations
 const nodeProviders = availableHiveNodeProviders.MainNet; // For now, only mainnet supported
 
 type HiveAuthErrorCallback = (err: any) => void;
@@ -49,35 +51,37 @@ async function getDIDAccess(): Promise<ConnDID.DIDAccess> {
 }
 
 export async function getHiveAppContextProvider(onAuthError?: HiveAuthErrorCallback): Promise<AppContextProvider> {
-  const didAccess = await getDIDAccess();
-  const appInstanceDIDInfo = await didAccess.getOrCreateAppInstanceDID();
+  return operationQueue.add(async () => {
+    const didAccess = await getDIDAccess();
+    const appDID = getThisAppDID();
+    const appInstanceDIDInfo = await didAccess.getOrCreateAppInstanceDID(appDID);
 
-  const didDocument = await appInstanceDIDInfo.didStore.loadDid(
-    appInstanceDIDInfo.did.toString()
-  );
-  // appInstanceDIDInfo.didStore.loadDidDocument(appInstanceDIDInfo.did.getDIDString(), async (didDocument) => {
-  logger.log('hive', 'Got app instance DID document. Now creating the Hive client', didDocument.toJSON());
+    const didDocument = await appInstanceDIDInfo.didStore.loadDid(
+      appInstanceDIDInfo.did.toString()
+    );
+    // appInstanceDIDInfo.didStore.loadDidDocument(appInstanceDIDInfo.did.getDIDString(), async (didDocument) => {
+    logger.log('hive', 'Got app instance DID document. Now creating the Hive client', didDocument.toJSON());
 
-
-  return {
-    getLocalDataDir: () => '/',
-    getAppInstanceDocument: () => didDocument,
-    getAuthorization: (authenticationChallengeJWtCode: string): Promise<string> => {
-      /**
-       * Called by the Hive plugin when a hive backend needs to authenticate the user and app.
-       * The returned data must be a verifiable presentation, signed by the app instance DID, and
-       * including a appid certification credential provided by the identity application.
-       */
-      logger.log('hive', 'Hive client authentication challenge callback is being called with token:', authenticationChallengeJWtCode);
-      try {
-        return handleVaultAuthenticationChallenge(authenticationChallengeJWtCode);
-      } catch (e) {
-        logger.error('hive', 'Exception in authentication handler:', e);
-        onAuthError?.(e);
-        return null;
+    return {
+      getLocalDataDir: () => '/',
+      getAppInstanceDocument: () => didDocument,
+      getAuthorization: (authenticationChallengeJWtCode: string): Promise<string> => {
+        /**
+         * Called by the Hive plugin when a hive backend needs to authenticate the user and app.
+         * The returned data must be a verifiable presentation, signed by the app instance DID, and
+         * including a appid certification credential provided by the identity application.
+         */
+        logger.log('hive', 'Hive client authentication challenge callback is being called with token:', authenticationChallengeJWtCode);
+        try {
+          return handleVaultAuthenticationChallenge(authenticationChallengeJWtCode);
+        } catch (e) {
+          logger.error('hive', 'Exception in authentication handler:', e);
+          onAuthError?.(e);
+          return null;
+        }
       }
-    }
-  };
+    };
+  });
 }
 
 /**
@@ -253,58 +257,62 @@ async function generateAppIdCredential(): Promise<VerifiableCredential> {
 }
 
 async function getExistingAppIdentityCredential(appDID: string = null): Promise<VerifiableCredential> {
-  logger.log("hive", "Trying to get an existing app ID credential from storage");
+  return operationQueue.add(async () => {
+    logger.log("hive", "Trying to get an existing app ID credential from storage");
 
-  const didAccess = await getDIDAccess();
-  const storedAppInstanceDID = await didAccess.getOrCreateAppInstanceDID(appDID);
-  if (!storedAppInstanceDID) {
-    return null;
-  }
-  const appInstanceDID = storedAppInstanceDID.did;
-
-  const fullCredId = appInstanceDID.toString() + "#app-id-credential";
-  const credential = await storedAppInstanceDID.didStore.loadCredential(fullCredId);
-  if (credential) {
-    // If the credential exists but expiration date it too close, delete the current one to force generating a
-    // new one.
-    const expirationDate = moment(await credential.getExpirationDate());
-    if (expirationDate.isBefore(moment().subtract(1, 'hours'))) {
-      // We are expired - ask to generate a new credential
-      logger.log("hive", "Existing credential is expired or almost expired - renewing it");
+    const didAccess = await getDIDAccess();
+    const storedAppInstanceDID = await didAccess.getOrCreateAppInstanceDID(appDID);
+    if (!storedAppInstanceDID) {
       return null;
     }
-    else {
-      logger.log("hive", "Returning existing app id credential found in app's local storage");
-    }
-  }
-  else {
-    logger.log("hive", "No app id credential found for id", fullCredId, "in store", storedAppInstanceDID.didStore);
-  }
+    const appInstanceDID = storedAppInstanceDID.did;
 
-  return credential;
+    const fullCredId = appInstanceDID.toString() + "#app-id-credential";
+    const credential = await storedAppInstanceDID.didStore.loadCredential(fullCredId);
+    if (credential) {
+      // If the credential exists but expiration date it too close, delete the current one to force generating a
+      // new one.
+      const expirationDate = moment(await credential.getExpirationDate());
+      if (expirationDate.isBefore(moment().subtract(1, 'hours'))) {
+        // We are expired - ask to generate a new credential
+        logger.log("hive", "Existing credential is expired or almost expired - renewing it");
+        return null;
+      }
+      else {
+        logger.log("hive", "Returning existing app id credential found in app's local storage", credential);
+      }
+    }
+    else {
+      logger.log("hive", "No app id credential found for id", fullCredId, "in store", storedAppInstanceDID.didStore);
+    }
+
+    return credential;
+  });
 }
 
 async function generateApplicationIDCredential(appInstanceDid: string, appDid: string): Promise<VerifiableCredential> {
-  const properties = { appInstanceDid, appDid };
+  return operationQueue.add(async () => {
+    const properties = { appInstanceDid, appDid };
 
-  logger.log('hive', "Asking the identity provider to generate app ID credential for appInstanceDid:", appInstanceDid, "appDid:", appDid);
+    logger.log('hive', "Asking the identity provider to generate app ID credential for appInstanceDid:", appInstanceDid, "appDid:", appDid);
 
-  try {
-    const activeIdentity = activeIdentity$.value; // TODO: NOT OK !! All methods should use the identity object in parameter, we don't want the active identity to change during a hive auth!
-    const credential = await activeIdentity.provider.issueCredential(
-      activeIdentity.did,
-      appInstanceDid,
-      "#app-id-credential",
-      ['https://elastos.org/fakecontext#AppIdCredential'], // TODO: real context
-      moment().add(30, "days").toDate(),
-      properties);
+    try {
+      const activeIdentity = activeIdentity$.value; // TODO: NOT OK !! All methods should use the identity object in parameter, we don't want the active identity to change during a hive auth!
+      const credential = await activeIdentity.provider.issueCredential(
+        activeIdentity.did,
+        appInstanceDid,
+        "#app-id-credential",
+        ['https://elastos.org/fakecontext#AppIdCredential'], // TODO: real context
+        moment().add(30, "days").toDate(),
+        properties);
 
-    return credential;
-  }
-  catch (e) {
-    logger.error('identity', "Failed to issue the app id credential...", e);
-    return null;
-  }
+      return credential;
+    }
+    catch (e) {
+      logger.error('identity', "Failed to issue the app id credential...", e);
+      return null;
+    }
+  });
 }
 
 /**
