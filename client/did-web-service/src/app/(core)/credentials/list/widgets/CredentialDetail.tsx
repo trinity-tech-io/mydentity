@@ -1,5 +1,5 @@
-import WarningIcon from '@assets/images/warning.svg';
 import AccountIcon from '@assets/images/account.svg';
+import WarningIcon from '@assets/images/warning.svg';
 import { VerticalStackLoadingCard } from '@components/loading-cards/vertical-stack-loading-card/VerticalStackLoadingCard';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { useMounted } from '@hooks/useMounted';
@@ -63,13 +63,15 @@ export const CredentialDetailWidget: FC<Props> = (props) => {
 
                 {
                   (!selectedCredential.selfIssued() && issuerInfo?.isPublished) && (
-                    <><Grid item>
+                    <ListItemButton>
+                      <ListItemIcon>
+                        <img src={issuerInfo?.avatarIcon} width={30} style={{ borderRadius: '50%' }} alt=""/>
+                      </ListItemIcon>
+
                       <Typography variant="body1" sx={{ color: 'text.secondary' }}>
                         Created by {issuerInfo?.name}
                       </Typography>
-                    </Grid>
-                      {/* TODO Issuer avatar */}
-                    </>
+                    </ListItemButton>
                   )}
 
                 <ListItemButton>

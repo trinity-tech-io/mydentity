@@ -12,7 +12,7 @@ import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import { activeIdentity$ } from '@services/identity/identity.events';
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect } from 'react';
 
 interface ConfirmDialogProps {
   onSelected: (credential: Credential) => void;

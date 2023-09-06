@@ -19,8 +19,8 @@ export class Credential {
   private _issuerInfo$ = new LazyBehaviorSubjectWrapper<IssuerInfo>(null, () => this.fetchIssuerInfo());
   public get issuerInfo$(): BehaviorSubject<IssuerInfo> { return this._issuerInfo$.getSubject(); }
 
-  private _isConform$ = new LazyBehaviorSubjectWrapper<Boolean>(null, () => this.verifyCredential());
-  public get isConform$(): BehaviorSubject<Boolean> { return this._isConform$.getSubject(); }
+  private _isConform$ = new LazyBehaviorSubjectWrapper<boolean>(null, () => this.verifyCredential());
+  public get isConform$(): BehaviorSubject<boolean> { return this._isConform$.getSubject(); }
 
   // Backend data
   public id: string = null;
@@ -339,6 +339,7 @@ export class Credential {
 
   private async fetchIssuerInfo(): Promise<IssuerInfo> {
     const issuerDidString = this.verifiableCredential.getIssuer().toString();
+    logger.log('credential', 'fetchIssuerInfo:', issuerDidString)
 
     let issuerName = null;
     let issuerIcon = null;
@@ -349,11 +350,11 @@ export class Credential {
       issuerIcon = await issuerService.getIssuerAvatar(issuerDidString);
     }
     const issuerInfo = { avatarIcon: issuerIcon, didString: issuerDidString, name: issuerName, isPublished: isPublished };
-    logger.log('credential', 'fetchIssuerInfo:', issuerInfo)
+    logger.log('credential', 'got issuer info:', issuerInfo)
     return issuerInfo;
   }
 
-  private async verifyCredential() {
+  private async verifyCredential(): Promise<boolean> {
     return await credentialTypesService.verifyCredential(this.verifiableCredential);
   }
 

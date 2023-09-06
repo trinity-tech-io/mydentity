@@ -1,6 +1,6 @@
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { Credential } from '@model/credential/credential';
-import { Box, Grid, Typography } from "@mui/material";
+import { Box, Grid, ListItemButton, ListItemIcon, Typography } from "@mui/material";
 
 interface Props {
     credential: Credential;
@@ -11,7 +11,7 @@ function CredentialBasicInfo(props: Props) {
     const [issuerInfo] = useBehaviorSubject(credential?.issuerInfo$);
 
   return (
-    <Box sx={{ textAlign: 'left', width: '50%' }}>
+    <Box sx={{ textAlign: 'left', width: '100%' }}>
       <Typography gutterBottom variant="h6">
         {credential.getDisplayableTitle()}
       </Typography>
@@ -29,12 +29,15 @@ function CredentialBasicInfo(props: Props) {
 
         {
           (!credential.selfIssued() && issuerInfo?.isPublished) && (
-        <><Grid item>
-            {/* TODO Issuer avatar */}
-            <Typography fontSize={14} variant="body1" sx={{ color: 'text.secondary' }}>
-              Created by {issuerInfo?.name}
-            </Typography>
-          </Grid></>
+            <ListItemButton>
+              <ListItemIcon>
+                <img src={issuerInfo?.avatarIcon} width={30} style={{ borderRadius: '50%' }} alt=""/>
+              </ListItemIcon>
+
+              <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+                Created by {issuerInfo?.name}
+              </Typography>
+            </ListItemButton>
         )}
       </Grid>
     </Box>
