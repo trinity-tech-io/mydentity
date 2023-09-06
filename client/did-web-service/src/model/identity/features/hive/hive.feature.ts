@@ -1,8 +1,8 @@
 import { DIDDocument } from "@elastosfoundation/did-js-sdk";
-import { AppContext, AppContextProvider, Vault, VaultInfo, VaultSubscription } from "@elastosfoundation/hive-js-sdk";
+import { AppContextProvider, Vault, VaultInfo, VaultNotFoundException, VaultSubscription } from "@elastosfoundation/hive-js-sdk";
 import { Identity } from "@model/identity/identity";
 import { getHiveAppContext, getHiveAppContextProvider, getRandomQuickStartHiveNodeAddress, getSubscriptionService, getVaultServices } from "@services/hive/hive.service";
-import { VaultStatus, VaultStatusState } from "@services/hive/vault/vault-status";
+import { VaultStatus } from "@services/hive/vault/vault-status";
 import { identityService } from "@services/identity/identity.service";
 import { logger } from "@services/logger";
 import { lazyElastosHiveSDKImport } from "@utils/import-helper";
@@ -18,9 +18,9 @@ import { IdentityFeature } from "../identity-feature";
 
 export class HiveFeature implements IdentityFeature {
   public get vaultStatus$(): BehaviorSubject<VaultStatus> { return this._vaultStatus$.getSubject(); } // Latest known vault status for active user
-  private _vaultStatus$ = new LazyBehaviorSubjectWrapper<VaultStatus>(null, async () => {
-    return this.retrieveVaultStatus();
-  });
+  private _vaultStatus$ = new LazyBehaviorSubjectWrapper<VaultStatus>(null, async () => { this.retrieveVaultStatus(); });
+
+  public vaultAddress$ = new BehaviorSubject<string>(null);
 
   constructor(protected identity: Identity) { }
 
@@ -158,67 +158,54 @@ export class HiveFeature implements IdentityFeature {
   private async retrieveVaultStatus(): Promise<void> {
     logger.log("hive", "Looking for vault status");
 
+    this.vaultStatus$.next(VaultStatus.NotChecked);
+
     const didString = this.identity.did;
 
     const { ServiceEndpoint } = await lazyElastosHiveSDKImport();
 
     // Check if we can find an existing vault provider address on DID chain for this user.
     logger.log("hive", "Retrieving vault of current user's DID " + didString);
-    try {
-      const vaultInfo = await (await getSubscriptionService(didString)).checkSubscription();
-      const activeUserVaultServices = await getVaultServices(didString);
-      const appContext = await getHiveAppContext(didString);
-      const serviceEndpoint = new ServiceEndpoint(appContext);
+    const appContext = await getHiveAppContext(didString);
+    const serviceEndpoint = new ServiceEndpoint(appContext);
 
-      // Normally, if no exception thrown, activeUserVaultServices is never null
-      this.vaultStatus$.next({
-        checkState: VaultStatusState.NOT_CHECKED,
-        vaultInfo,
-        publishedInfo: {
-          vaultAddress: await serviceEndpoint.getProviderAddress(),
-          vaultName: "Unknown Vault Name",
-          vaultVersion: await (await serviceEndpoint.getNodeVersion()).toString()
-        },
-        vaultServices: activeUserVaultServices
-      })
+    const vaultProviderInDIDDocument = await serviceEndpoint.getProviderAddress();
+    this.vaultAddress$.next(vaultProviderInDIDDocument);
+
+    try {
+      // Call the subscription service to actually know if we are registered or not on that vault.
+      const subscriptionService = await getSubscriptionService(didString);
+      await subscriptionService.checkSubscription();
+
+      // Normally, if no exception thrown, "vault" is never null
+      this.vaultStatus$.next(VaultStatus.ReadyToUse);
+
+      logger.log("hive", "Vault status retrieval completed");
     }
     catch (e) {
-      /* TODO if (hiveManager.errorOfType(e, "VAULT_NOT_FOUND")) {
-        // Vault not created on this hive provider yet (old DIDs?) - force user to pick a provider, that will
-        // create the vault at the same time.
-        logger.log("hive", "Vault does not exist on this provider. It has to be created again.");
+      if (e instanceof VaultNotFoundException) {
+        // Use has a vault registered in his DID document on chain but he is not subscribed to the
+        // vault: so we try to subscribe to that vault, this could be the initial identity creation
+        // step.
+        await this.subscribeToHiveProvider(vaultProviderInDIDDocument);
+      }
+      else {
+        logger.error("hive", "Unknown exception while retrieving vault status:", e);
         this.emitUnknownErrorStatus();
         return null;
       }
-      else { */
-      logger.error("hive", "Exception while calling getVault() in retrieveVaultLinkStatus():", e);
-      this.emitUnknownErrorStatus();
-      return null;
-      //}
     }
-
-    logger.log("hive", "Vault status retrieval completed");
   }
 
   private emitUnknownErrorStatus(): void {
     logger.log("hive", "Emiting unknown error status");
-    this.vaultStatus$.next({
-      checkState: VaultStatusState.UNKNOWN_ERROR
-    });
-  }
-
-  public getActiveVaultServices(): Vault {
-    return this.vaultStatus$.value.vaultServices;
-  }
-
-  public hiveUserVaultCanBeUsed(): boolean {
-    return !!this.getActiveVaultServices();
+    this.vaultStatus$.next(VaultStatus.UnknownError);
   }
 
   /**
    * Sets and saves a NEW vault provider for the active DID, WITHOUT any transfer of data.
    */
-  public async publishVaultProvider(providerName: string, vaultAddress: string): Promise<boolean> {
+  /* public async publishVaultProvider(providerName: string, vaultAddress: string): Promise<boolean> {
     const didString = this.identity.did;
 
     const subscriptionServices = await getSubscriptionService(didString, vaultAddress);
@@ -259,10 +246,9 @@ export class HiveFeature implements IdentityFeature {
       logger.error('hive', "Failed to create vault on the vault provider for DID " + didString + " at address " + vaultAddress, err);
       return false;
     }
-  }
+  } */
 
-  private async publishVaultProviderToIDChain(providerName: string, vaultAddress: string): Promise<boolean> {
-    /* TODO: ask this to the identity service / provider
+  /* private async publishVaultProviderToIDChain(providerName: string, vaultAddress: string): Promise<boolean> {
    logger.log("hive", "Requesting identity app to update the hive provider");
 
    try {
@@ -287,7 +273,7 @@ export class HiveFeature implements IdentityFeature {
    catch (err) {
      logger.error("hive", "Error while trying to call the sethiveprovider intent: ", err);
      return false;
-   } */
+   }
     return false;
-  }
+  } */
 }
