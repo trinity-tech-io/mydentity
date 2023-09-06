@@ -9,6 +9,7 @@ import { fetchIntent, fulfilIntentRequest } from "@services/intent.service";
 import { setQueryParameter } from "@utils/urls";
 import { FC, useEffect, useState } from "react";
 import { PreparingRequest } from "../components/PreparingRequest";
+import { useSearchParams } from "next/navigation";
 
 const RequestDetails: FC<{
   intent: Intent<ConnDID.CredentialDisclosureRequest>;
@@ -65,17 +66,21 @@ const RequestDetails: FC<{
   </>
 }
 
-const RequestCredentialsIntent: FC<{
-  searchParams?: {
-    rid?: string; // In theory when entering this page we get a rid query param in the url
-  };
-}> = ({ searchParams }) => {
+// TODO: this will cause build error: Static generation failed due to dynamic usage on /intent/request-credentials, reason: searchParams.rid
+//const RequestCredentialsIntent: FC<{
+//  searchParams?: {
+//    rid?: string; // In theory when entering this page we get a rid query param in the url
+//  };
+//}> = ({ searchParams }) => {
+const RequestCredentialsIntent: FC = () => {
+  const searchParams = useSearchParams();
+  const requestId = searchParams.get('rid');
   const [loadingIntent, setLoadingIntent] = useState(true);
   const [intent, setIntent] = useState<Intent<ConnDID.CredentialDisclosureRequest>>(null);
 
   // Try to find an intent that corresponds to the given intent ID.
   useEffect(() => {
-    const requestId = searchParams?.rid;
+    //const requestId = searchParams?.rid;
     if (!requestId)
       return;
 
@@ -84,7 +89,8 @@ const RequestCredentialsIntent: FC<{
       setIntent(_intent);
       console.log('intent result', _intent)
     });
-  }, [searchParams?.rid]);
+  //}, [searchParams?.rid]);
+  }, []);
 
   return (
     <div className="col-span-full">

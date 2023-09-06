@@ -39,6 +39,7 @@ package-lock.json
 
 .env*
 !.env.sample
+!.env.prod
 
 # Did store path
 /didstores
