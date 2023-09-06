@@ -13,13 +13,14 @@ export interface IdentityProvider {
   deleteIdentity(identityDid: string): Promise<boolean>;
   listIdentities(): Promise<Identity[]>;
   createCredential(identityDid: string, credentialId: string, types: string[], expirationDate: Date, prop: any): Promise<Credential>;
+  issueCredential(identityDid: string, subjectDid: string, credentialId: string, types: string[], expirationDate: Date, prop: any): Promise<VerifiableCredential>;
   importCredential(identityDid: string, credential: VerifiableCredential): Promise<Credential>;
   listCredentials(identityDid: string): Promise<Credential[]>;
   deleteCredential(credentialId: string): Promise<boolean>;
   createVerifiablePresentation(identityDid: string, credentials: VerifiableCredential[], realm: string, nonce: string): Promise<VerifiablePresentation>;
   // get the DID transaction payload
   createDIDPublishTransaction(identityDid: string): Promise<string>;
-  // publish Identity to did chain.
+  // publish Identity to did chain. Call createDIDPublishTransaction to obtain the payload
   publishIdentity(identityDid: string, payload: string): Promise<string>;
   getPublicationStatus(identityDid: string, publicationId: string): Promise<PublicationStatus>;
 

@@ -19,6 +19,13 @@ export class CredentialsFeature implements IdentityFeature {
     return credential;
   }
 
+  public async issueCredential(subjectDid: string, credentialId: string, types: string[], expirationDate: Date, prop: any): Promise<VerifiableCredential> {
+    logger.log("credentials", "Issuing credential", subjectDid, credentialId, types, expirationDate, prop);
+
+    const credential = await this.identity.provider.issueCredential(this.identity.did, subjectDid, credentialId, types, expirationDate, prop);
+    return credential;
+  }
+
   public async importCredential(vc: VerifiableCredential): Promise<Credential> {
     logger.log("credentials", "Importing credential", vc);
 

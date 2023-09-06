@@ -1,13 +1,13 @@
 import { gql } from "@apollo/client";
 import { JSONObject, VerifiableCredential, VerifiablePresentation } from "@elastosfoundation/did-js-sdk";
-import { gqlCredentialFields } from "@graphql/credential.fields";
+import { gqlCredentialFields, gqlIssueCredentialFields } from "@graphql/credential.fields";
 import { gqlIdentityFields } from "@graphql/identity.fields";
 import { gqlPresentationFields } from "@graphql/presentation.fields";
 import { gqlPublishFields } from "@graphql/publish.fields";
 import { gqlTransactionFields } from "@graphql/transaction.fields";
 import { Credential } from "@model/credential/credential";
 import { credentialFromJson } from "@model/credential/credential-builder";
-import { CredentialDTO } from "@model/credential/credential.dto";
+import { CredentialDTO, IssueCredentialDTO } from "@model/credential/credential.dto";
 import { Identity } from "@model/identity/identity";
 import { IdentityDTO } from "@model/identity/identity.dto";
 import { PresentationDTO } from "@model/presentation/presenttation.dto";
@@ -192,6 +192,34 @@ export class CustodialDIDProvider implements IdentityProvider {
 
     if (result?.data?.createCredential)
       return credentialFromJson(result.data.createCredential);
+    else
+      return null;
+  }
+
+  async issueCredential(identityDid: string, subjectDid: string, credentialId: string, types: string[],
+    expirationDate: Date, properties: any): Promise<VerifiableCredential> {
+    const result = await withCaughtAppException(async () => {
+      return (await getApolloClient()).mutate<{ issueCredential: IssueCredentialDTO }>({
+        mutation: gql`
+        mutation issueCredential($identityDid: String!, $subjectDid: String!, $credentialId: String!, $types: Json!, $expirationDate: String!, $properties: Json!) {
+          issueCredential(input: { identityDid: $identityDid, subjectDid: $subjectDid, credentialId: $credentialId, types: $types, expirationDate: $expirationDate, properties: $properties}) {
+            ${gqlIssueCredentialFields}
+          }
+        }
+      `,
+        variables: {
+          identityDid,
+          subjectDid,
+          credentialId,
+          types,
+          expirationDate,
+          properties
+        }
+      });
+    });
+
+    if (result?.data?.issueCredential)
+      return VerifiableCredential.parse(result.data.issueCredential.verifiableCredential);
     else
       return null;
   }

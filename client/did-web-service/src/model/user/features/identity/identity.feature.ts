@@ -35,6 +35,7 @@ export class IdentityFeature implements UserFeature {
     return await identityService.createDIDPublishTransaction(didString);
   }
 
+  // Call createDIDPublishTransaction to obtain the payload
   public async publishIdentity(didString: string, payload: string): Promise<string> {
     logger.log("identities", "Publishing identity");
 

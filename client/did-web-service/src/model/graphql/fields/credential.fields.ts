@@ -3,3 +3,7 @@ export const gqlCredentialFields = `
   createdAt
   verifiableCredential
 `;
+
+export const gqlIssueCredentialFields = `
+  verifiableCredential
+`;

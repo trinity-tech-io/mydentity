@@ -123,6 +123,26 @@ export class DidService {
     }
   }
 
+  async issueCredential(didStorePath: string, didString: string, subjectDid: string, credentialId: string, types: string[], expirationDate: Date, properties, storepass: string) {
+    try {
+      const didStore = await this.openStore(didStorePath);
+      const didDocument = await didStore.loadDid(didString);
+      if (!didDocument)
+        throw new AppException(DIDExceptionCode.DIDNotExists, "Can't load did:" + didString, HttpStatus.NOT_FOUND);
+
+      const issuer = new Issuer(didDocument);
+      const vcBuilder = issuer.issueFor(subjectDid);
+      const vc = await vcBuilder.id(credentialId).types(...types).expirationDate(expirationDate).properties(properties).seal(storepass);
+      return vc;
+    } catch (e) {
+      if (e instanceof Exceptions.CredentialAlreadyExistException) {
+        throw new AppException(DIDExceptionCode.CredentialAlreadyExists, e.message, HttpStatus.BAD_REQUEST);
+      } else {
+        throw new AppException(DIDExceptionCode.DIDStorageError, e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+    }
+  }
+
   async loadCredential(didStorePath: string, credentialId: string) {
     try {
       const didStore = await this.openStore(didStorePath);

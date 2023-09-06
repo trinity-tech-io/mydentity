@@ -8,6 +8,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCredentialInput } from './dto/create-credential.input';
 import { CreateVerifiablePresentationInput } from './dto/create-verifiablePresentation.input';
 import { ImportCredentialInput } from './dto/import-credential.input';
+import { IssueCredentialInput } from './dto/issue-credential.input';
 
 @Injectable()
 export class CredentialsService {
@@ -49,6 +50,17 @@ export class CredentialsService {
     });
     return {
       ...credentials,
+      verifiableCredential: vc.toString(),
+    };
+  }
+
+  async issueCredential(input: IssueCredentialInput, user: User) {
+    this.logger.log("issueCredential")
+    const storePassword = '123456'; // TODO: use account key
+
+    const vc = await this.didService.issueCredential(user.id, input.identityDid, input.subjectDid, input.credentialId,
+      input.types, input.expirationDate, input.properties, storePassword);
+    return {
       verifiableCredential: vc.toString(),
     };
   }
