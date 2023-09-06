@@ -12,10 +12,9 @@ import { IssueCredentialInput } from './dto/issue-credential.input';
 
 @Injectable()
 export class CredentialsService {
-  private logger: Logger;
+  private logger: Logger = new Logger("CredentialsService");
 
   constructor(private prisma: PrismaService, private didService: DidService) {
-    this.logger = new Logger("CredentialsService");
   }
 
   async create(input: CreateCredentialInput, user: User) {

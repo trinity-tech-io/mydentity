@@ -11,12 +11,12 @@ export class DidService {
   private didStoreCache: { [didStorePath: string]: DIDStore } = {};
   private globalDidAdapter: DidAdapter = null;
 
-  private logger: Logger;
+  private logger: Logger = new Logger("DidService");
 
   constructor() {
-    this.logger = new Logger("DidService");
     this.globalDidAdapter = new DidAdapter();
     DIDBackend.initialize(new DefaultDIDAdapter(this.network));
+    Features.enableJsonLdContext(true);
   }
 
   generateMnemonic(language: string) {
@@ -103,16 +103,8 @@ export class DidService {
 
   async createCredential(didStorePath: string, didString: string, credentialId: string, types: string[], expirationDate: Date, properties, storepass: string) {
     try {
+      const vc = await this.issueCredential(didStorePath, didString, didString, credentialId, types, expirationDate, properties, storepass);
       const didStore = await this.openStore(didStorePath);
-      const didDocument = await didStore.loadDid(didString);
-      if (!didDocument)
-        throw new AppException(DIDExceptionCode.DIDNotExists, "Can't load did:" + didString, HttpStatus.NOT_FOUND);
-
-      Features.enableJsonLdContext(true);
-
-      const issuer = new Issuer(didDocument);
-      const vcBuilder = issuer.issueFor(didString);
-      const vc = await vcBuilder.id(credentialId).types(...types).expirationDate(expirationDate).properties(properties).seal(storepass);
       // save to did store
       await didStore.storeCredential(vc);
       // didStore.storeDid(didDocument);
@@ -123,8 +115,6 @@ export class DidService {
       } else {
         throw new AppException(DIDExceptionCode.DIDStorageError, e.message, HttpStatus.INTERNAL_SERVER_ERROR);
       }
-    } finally {
-      Features.enableJsonLdContext(false);
     }
   }
 

@@ -14,13 +14,12 @@ const moment = require('moment');
 
 @Injectable()
 export class IdentityService {
-  private logger: Logger;
+  private logger: Logger = new Logger("IdentityService");
 
   constructor(private prisma: PrismaService,
     private credentialsService: CredentialsService,
     private didPublishingService: DIDPublishingService,
     private didService: DidService) {
-    this.logger = new Logger("IdentityService");
   }
 
   async create(createIdentityInput: CreateIdentityInput, user: User): Promise<Identity> {
