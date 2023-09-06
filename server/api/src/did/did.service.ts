@@ -107,7 +107,6 @@ export class DidService {
       const didStore = await this.openStore(didStorePath);
       // save to did store
       await didStore.storeCredential(vc);
-      // didStore.storeDid(didDocument);
       return vc;
     } catch (e) {
       if (e instanceof Exceptions.CredentialAlreadyExistException) {

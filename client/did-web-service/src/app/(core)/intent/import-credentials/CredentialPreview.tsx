@@ -2,7 +2,7 @@
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { Credential } from '@model/credential/credential';
 import InfoIcon from '@mui/icons-material/Info';
-import { Avatar, Card, Stack, Typography } from "@mui/material";
+import { Card, Stack, Typography } from "@mui/material";
 import Paper from '@mui/material/Paper';
 import { styled } from '@mui/material/styles';
 import { shortenString } from '@utils/strings';
@@ -58,7 +58,7 @@ export const CredentialPreview: FC<Props> = (props: Props) => {
                         <Item sx={{ my: 1, mx: 'auto', p: 2 }}>
                             <Stack spacing={2} direction="row" alignItems="center">
                                 <Stack>
-                                    <Avatar>T</Avatar>
+                                    <img src={issuerInfo?.avatarIcon} width={30} style={{ borderRadius: '50%' }} alt=""/>
                                 </Stack>
                                 <Stack sx={{ maxWidth: 400 }}>
                                     <Typography fontSize={13} noWrap>{issuerInfo && shortenString(issuerInfo?.name, 30)}</Typography>
