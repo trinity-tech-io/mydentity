@@ -3,11 +3,12 @@ import { Credential } from "@model/credential/credential";
 import { Identity } from "@model/identity/identity";
 import { logger } from "@services/logger";
 import { LazyBehaviorSubjectWrapper } from "@utils/lazy-behavior-subject";
+import { BehaviorSubject } from "rxjs";
 import { IdentityFeature } from "../identity-feature";
 
 export class CredentialsFeature implements IdentityFeature {
   private _credentials$ = new LazyBehaviorSubjectWrapper<Credential[]>([], () => this.fetchCredentials());
-  public get credentials$() { return this._credentials$.getSubject(); }
+  public get credentials$(): BehaviorSubject<Credential[]> { return this._credentials$.getSubject(); }
 
   constructor(protected identity: Identity) { }
 
@@ -38,7 +39,7 @@ export class CredentialsFeature implements IdentityFeature {
    * Fetches the credentials that belongs to this identity
    */
   private async fetchCredentials(): Promise<Credential[]> {
-    logger.log("credentials", "Fetching credentials");
+    logger.log("credentials", "Fetching credentials", this.identity.did);
     return this.identity.provider.listCredentials(this.identity.did);
   }
 
