@@ -5,7 +5,7 @@ import {
   VerifiablePresentation
 } from '@elastosfoundation/did-js-sdk';
 import type { DID as ConnDID } from '@elastosfoundation/elastos-connectivity-sdk-js';
-import { AppContext, AppContextProvider, DIDResolverAlreadySetupException, Vault, VaultSubscription } from '@elastosfoundation/hive-js-sdk';
+import { AppContext, AppContextProvider, DIDResolverAlreadySetupException, Logger, Vault, VaultSubscription } from '@elastosfoundation/hive-js-sdk';
 import { activeIdentity$ } from '@services/identity/identity.events';
 import { logger } from '@services/logger';
 import { isClientSide } from '@utils/client-server';
@@ -23,6 +23,7 @@ export function hiveInit(): void {
     return;
 
   try {
+    Logger.setDefaultLevel(Logger.WARNING);
     AppContext.setupResolver(process.env.NEXT_PUBLIC_RESOLVER_URL, '/anyfakedir/browserside/for/didstores');
   } catch (e) {
     if (e instanceof DIDResolverAlreadySetupException) {
@@ -33,9 +34,15 @@ export function hiveInit(): void {
   }
 }
 
+let didAccess: ConnDID.DIDAccess = null;
 async function getDIDAccess(): Promise<ConnDID.DIDAccess> {
+  if (didAccess)
+    return didAccess;
+
   const { DID: ConnDID } = await lazyElastosConnectivitySDKImport();
-  return new ConnDID.DIDAccess();
+  didAccess = new ConnDID.DIDAccess();
+
+  return didAccess;
 }
 
 export async function getHiveAppContextProvider(onAuthError?: HiveAuthErrorCallback): Promise<AppContextProvider> {
@@ -102,12 +109,17 @@ function handleVaultAuthenticationChallenge(jwtToken: string): Promise<string> {
   return generateAuthPresentationJWT(jwtToken);
 }
 
+function getThisAppDID(): string {
+  return process.env.NEXT_PUBLIC_APP_DID;
+}
+
 /**
  * Generates a JWT token needed by hive vaults to authenticate users and app.
  * That JWT contains a verifiable presentation that contains server challenge info, and the app id credential
  * issued by the end user earlier.
  */
 async function generateAuthPresentationJWT(authChallengeJwttoken: string): Promise<string> {
+  const appDID = getThisAppDID();
   logger.log('hive', 'Starting process to generate hive auth presentation JWT');
 
   // Parse, but verify on chain that this JWT is valid first
@@ -131,15 +143,15 @@ async function generateAuthPresentationJWT(authChallengeJwttoken: string): Promi
 
     logger.log('hive', 'Getting app instance DID');
     const didAccess = await getDIDAccess();
-    const appInstanceDIDResult = await didAccess.getOrCreateAppInstanceDID();
+    const appInstanceDIDResult = await didAccess.getOrCreateAppInstanceDID(appDID);
     const appInstanceDID = appInstanceDIDResult.did;
 
     logger.log("hive", "App instance DID:", appInstanceDID);
 
-    const appInstanceDIDInfo = await didAccess.getExistingAppInstanceDIDInfo();
+    const appInstanceDIDInfo = await didAccess.getExistingAppInstanceDIDInfo(appDID);
 
     logger.log('hive', 'Getting app identity credential');
-    let appIdCredential = await didAccess.getExistingAppIdentityCredential();
+    let appIdCredential = await getExistingAppIdentityCredential(appDID);
 
     if (!appIdCredential) {
       logger.log('hive', 'Empty app id credential. Trying to generate a new one');
@@ -205,17 +217,16 @@ async function generateAuthPresentationJWT(authChallengeJwttoken: string): Promi
 
 /**
  * Generates a app ID credential for hive authentication. This credential is generated directly, without user confirmation,
- *
  */
 async function generateAppIdCredential(): Promise<VerifiableCredential> {
-  const appDID = process.env.NEXT_PUBLIC_APP_DID;
+  const appDID = getThisAppDID();
 
   const didAccess = await getDIDAccess();
-  let storedAppInstanceDID = await didAccess.getOrCreateAppInstanceDID(appDID);
+  const storedAppInstanceDID = await didAccess.getOrCreateAppInstanceDID(appDID);
   if (!storedAppInstanceDID)
     return null;
 
-  let appInstanceDID = storedAppInstanceDID.did;
+  const appInstanceDID = storedAppInstanceDID.did;
 
   // No such credential, so we have to create one. Send an intent to get that from the did app
   logger.log("hive", "Starting to generate a new App ID credential.");
@@ -228,6 +239,7 @@ async function generateAppIdCredential(): Promise<VerifiableCredential> {
 
       // Save this issued credential for later use.
       await storedAppInstanceDID.didStore.storeCredential(credential);
+      logger.log("hive", "Storing app ID credential into DID store:", storedAppInstanceDID.didStore, credential);
 
       return credential;
     }
@@ -240,15 +252,47 @@ async function generateAppIdCredential(): Promise<VerifiableCredential> {
   }
 }
 
+async function getExistingAppIdentityCredential(appDID: string = null): Promise<VerifiableCredential> {
+  logger.log("hive", "Trying to get an existing app ID credential from storage");
+
+  const didAccess = await getDIDAccess();
+  const storedAppInstanceDID = await didAccess.getOrCreateAppInstanceDID(appDID);
+  if (!storedAppInstanceDID) {
+    return null;
+  }
+  const appInstanceDID = storedAppInstanceDID.did;
+
+  const fullCredId = appInstanceDID.toString() + "#app-id-credential";
+  const credential = await storedAppInstanceDID.didStore.loadCredential(fullCredId);
+  if (credential) {
+    // If the credential exists but expiration date it too close, delete the current one to force generating a
+    // new one.
+    const expirationDate = moment(await credential.getExpirationDate());
+    if (expirationDate.isBefore(moment().subtract(1, 'hours'))) {
+      // We are expired - ask to generate a new credential
+      logger.log("hive", "Existing credential is expired or almost expired - renewing it");
+      return null;
+    }
+    else {
+      logger.log("hive", "Returning existing app id credential found in app's local storage");
+    }
+  }
+  else {
+    logger.log("hive", "No app id credential found for id", fullCredId, "in store", storedAppInstanceDID.didStore);
+  }
+
+  return credential;
+}
+
 async function generateApplicationIDCredential(appInstanceDid: string, appDid: string): Promise<VerifiableCredential> {
   const properties = { appInstanceDid, appDid };
 
-  logger.log('hive', "AppIdCredIssueRequest - issuing credential");
+  logger.log('hive', "Asking the identity provider to generate app ID credential for appInstanceDid:", appInstanceDid, "appDid:", appDid);
 
   try {
     const activeIdentity = activeIdentity$.value; // TODO: NOT OK !! All methods should use the identity object in parameter, we don't want the active identity to change during a hive auth!
     const credential = await activeIdentity.provider.createCredential(
-      activeIdentity.did,
+      appInstanceDid,
       "#app-id-credential",
       ['https://elastos.org/fakecontext#AppIdCredential'], // TODO: real context
       moment().add(30, "days").toDate(),
