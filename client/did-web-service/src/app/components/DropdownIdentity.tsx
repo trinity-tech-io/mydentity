@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 "use client";
+import AccountIcon from '@assets/images/account.svg';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { useMounted } from '@hooks/useMounted';
 import { Identity } from '@model/identity/identity';
@@ -117,7 +118,9 @@ export const DropdownIdentity: FC<{
 
         {name && name !== null ? (
           <CircleComponent text={initialsString(name)} />) : (
-          <Avatar src={"/assets/images/account.svg"} />
+            <Avatar sx={{ ml: 0, width: 40, height: 40}}>
+              <AccountIcon width={20}/>
+            </Avatar>
         )}
         <div className={classes.avatarContainer}>
           <div className={classes.textContainer}>

@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 'use client';
+import AccountIcon from '@assets/images/account.svg';
 import Transition from "@components/generic/Transition";
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { User } from "@model/user/user";
@@ -91,7 +92,9 @@ export const DropdownUserProfile: FC<{
       >
         {isLogin ? (
           <CircleComponent text={userNameInitials} />) : (
-          <Avatar src={"/assets/images/account.svg"} />
+            <Avatar sx={{ ml: 0, width: 40, height: 40}}>
+              <AccountIcon width={20}/>
+            </Avatar>
         )}
         {isLogin && (
           <div className="flex items-center truncate">

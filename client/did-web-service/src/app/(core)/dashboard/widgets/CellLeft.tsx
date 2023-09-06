@@ -1,4 +1,5 @@
 'use client';
+import AccountIcon from '@assets/images/account.svg';
 import CircleComponent from '@components/CircleComponent';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { Identity } from '@model/identity/identity';
@@ -31,7 +32,9 @@ const IdentityCellLeft: FC<{
         {name !== null ? (
           <CircleComponent text={initialsString(name as string)} />
         ) : (
-          <Avatar src={"/assets/images/account.svg"} />
+          <Avatar sx={{ ml: 0, width: 40, height: 40}}>
+            <AccountIcon width={20}/>
+          </Avatar>
         )}
         <div style={{ width: '100px', marginLeft: '8px' }}>
           <div style={{ fontWeight: 'bold' }}>{name as string}</div>

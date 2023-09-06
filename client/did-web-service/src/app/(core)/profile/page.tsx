@@ -1,4 +1,6 @@
 'use client'
+import AccountIcon from '@assets/images/account.svg';
+import EmailIcon from '@assets/images/email.svg';
 import ComfirmDialog from "@components/generic/ComfirmDialog";
 import ListHead from "@components/generic/ListHead";
 import ListToolbar from "@components/generic/ListToolbar";
@@ -275,7 +277,9 @@ const Profile: FC = () => {
       autoComplete="off"
     >
       <Stack alignItems="center" spacing={3} sx={{ pt: 5, borderRadius: 2, position: 'relative' }}>
-        <Avatar src="/assets/images/account.svg" sx={{ ml: 2, width: 120, height: 120 }} />
+        <Avatar sx={{ ml: 2, width: 120, height: 120 }}>
+          <AccountIcon width={80}/>
+        </Avatar>
       </Stack>
     </Box>
 
@@ -321,7 +325,9 @@ const Profile: FC = () => {
                     <TableRow hover key={id} tabIndex={-1} onClick={(): void => handleCellClick(credential)}>
                       <TableCell component="th" scope="row" padding="none">
                         <Stack ml={1} direction="row" alignItems="center" spacing={2}>
-                          <Avatar src={"/assets/images/account.svg"} />
+                          <Avatar sx={{ ml: 2, width: 60, height: 60}}>
+                            <AccountIcon width={30}/>
+                          </Avatar>
                           <Typography variant="subtitle2" noWrap>
                             {credential.getDisplayableTitle()}
                           </Typography>

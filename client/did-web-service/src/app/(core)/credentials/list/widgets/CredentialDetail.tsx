@@ -1,4 +1,5 @@
 import WarningIcon from '@assets/images/warning.svg';
+import AccountIcon from '@assets/images/account.svg';
 import { VerticalStackLoadingCard } from '@components/loading-cards/vertical-stack-loading-card/VerticalStackLoadingCard';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { useMounted } from '@hooks/useMounted';
@@ -27,7 +28,9 @@ export const CredentialDetailWidget: FC<Props> = (props) => {
             {isProfileCredential && <IdentityMenu onEdit={selectedCredential} onDelete={selectedCredential} />}
           </div>
           <Stack alignItems="center" spacing={3} sx={{ pt: 5, borderRadius: 2, position: 'relative' }}>
-            <Avatar src="/assets/images/account.svg" sx={{ ml: 2, width: 120, height: 120 }} />
+            <Avatar sx={{ ml: 2, width: 120, height: 120 }}>
+              <AccountIcon width={80}/>
+            </Avatar>
             <Box sx={{ textAlign: 'left', width: '80%' }}>
               <Typography gutterBottom variant="h6">
                 {selectedCredential.getDisplayableTitle()}
