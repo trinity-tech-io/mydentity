@@ -4,17 +4,15 @@ import { VerticalStackLoadingCard } from '@components/loading-cards/vertical-sta
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { useMounted } from '@hooks/useMounted';
 import { Credential } from '@model/credential/credential';
-import { ProfileCredential } from '@model/credential/profile-credential';
 import { Avatar, Box, Grid, ListItemButton, ListItemIcon, Stack, Typography } from '@mui/material';
-import IdentityMenu from './IdentityMenu';
 import { FC } from 'react';
+import IdentityMenu from './IdentityMenu';
 
 interface Props {
   selectedCredential: Credential
 }
 export const CredentialDetailWidget: FC<Props> = (props) => {
   const { selectedCredential } = props;
-  const isProfileCredential = selectedCredential instanceof ProfileCredential;
   const [issuerInfo] = useBehaviorSubject(selectedCredential?.issuerInfo$);
   const mounted = useMounted();
   const [isConform] = useBehaviorSubject(selectedCredential?.isConform$);
@@ -25,7 +23,7 @@ export const CredentialDetailWidget: FC<Props> = (props) => {
       {mounted && selectedCredential &&
         (<Box sx={{ px: 2.5, pb: 3 }}>
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '24px' }}>
-            {isProfileCredential && <IdentityMenu onEdit={selectedCredential} onDelete={selectedCredential} />}
+            <IdentityMenu credential={selectedCredential} />
           </div>
           <Stack alignItems="center" spacing={3} sx={{ pt: 5, borderRadius: 2, position: 'relative' }}>
             <Avatar sx={{ ml: 2, width: 120, height: 120 }}>

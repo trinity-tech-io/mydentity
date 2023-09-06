@@ -171,7 +171,7 @@ export class CustodialDIDProvider implements IdentityProvider {
 
   async createCredential(identityDid: string, credentialId: string, types: string[],
     expirationDate: Date, properties: any): Promise<Credential> {
-    const { data } = await withCaughtAppException(async () => {
+    const result = await withCaughtAppException(async () => {
       return (await getApolloClient()).mutate<{ createCredential: CredentialDTO }>({
         mutation: gql`
         mutation createCredential($identityDid: String!, $credentialId: String!, $types: Json!, $expirationDate: String!, $properties: Json!) {
@@ -189,11 +189,11 @@ export class CustodialDIDProvider implements IdentityProvider {
         }
       });
     });
-    if (data && data.createCredential) {
-      return credentialFromJson(data!.createCredential);
-    }
 
-    return null;
+    if (result?.data?.createCredential)
+      return credentialFromJson(result.data.createCredential);
+    else
+      return null;
   }
 
   async addCredential(identityDid: string, credential: VerifiableCredential): Promise<Credential> {

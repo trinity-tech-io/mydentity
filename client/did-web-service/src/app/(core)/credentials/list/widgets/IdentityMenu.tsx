@@ -1,6 +1,7 @@
 import ComfirmDialog from "@components/generic/ComfirmDialog";
 import EditCredentialDialog, { EditionMode } from "@components/identity-profile/EditCredentialDialog";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
+import { Credential } from "@model/credential/credential";
 import { ProfileCredential } from "@model/credential/profile-credential";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import IconButton from '@mui/material/IconButton';
@@ -14,9 +15,8 @@ import { logger } from "@services/logger";
 import { FC, MouseEvent, useState } from 'react';
 
 const IdentityMenu: FC<{
-  onEdit: ProfileCredential;
-  onDelete: ProfileCredential;
-}> = ({ onEdit, onDelete }) => {
+  credential: Credential;
+}> = ({ credential }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const identityProfileFeature = activeIdentity?.get("profile");
@@ -25,45 +25,45 @@ const IdentityMenu: FC<{
   const [preEditCredentialInfo, setPreEditCredentialInfo] = useState<ProfileCredentialInfo>(null);
   const [preEditCredentialValue, setPreEditCredentialValue] = useState<string>(null);
   const [editType, setEditType] = useState(EditionMode.EDIT); // Set your default edit type
-  const [originCredential, setOriginCredential] = useState<ProfileCredential>(onEdit);
   const { showSuccessToast, showErrorToast } = useToast();
   const TAG = 'IdentityMenu';
+  const isProfileCredential = credential instanceof ProfileCredential;
 
-  const handleClick = (event: MouseEvent) => {
+  const handleClick = (event: MouseEvent): void => {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleClose = () => {
+  const handleClose = (): void => {
     setAnchorEl(null);
   };
 
   // Click Edit
-  const handleEdit = () => {
+  const handleEdit = (): void => {
     handleClose();
     setOpenEditCredentialDialog(true);
-    const entry = findProfileInfoByTypes(originCredential.verifiableCredential.getType());
+    const entry = findProfileInfoByTypes(credential.verifiableCredential.getType());
     setPreEditCredentialInfo(entry);
-    const value = originCredential.verifiableCredential.getSubject().getProperty(entry.key)
+    const value = credential.verifiableCredential.getSubject().getProperty(entry.key)
     setPreEditCredentialValue(value);
     setEditType(editType);
   };
 
 
   // Click -> Delete
-  const handleDelete = () => {
+  const handleDelete = (): void => {
     setOpenConfirmDialog(true);
     handleClose();
   };
 
   // Delete -> Disagree/Agree
-  const handleCancel = async (isAgree: boolean) => {
+  const handleCancel = async (didAgree: boolean): Promise<void> => {
     setOpenConfirmDialog(false);
-    if (!isAgree)
+    if (!didAgree)
       return;
 
     let isSuccess = false;
     try {
-      isSuccess = await identityProfileFeature.deleteProfileCredential(originCredential.verifiableCredential.getId().toString());
+      isSuccess = await identityProfileFeature.deleteProfileCredential(credential.verifiableCredential.getId().toString());
     } catch (error) {
       logger.error(TAG, 'Delete credential error: ', error);
     }
@@ -75,7 +75,7 @@ const IdentityMenu: FC<{
   };
 
   // Edit -> Cancel/OK
-  const handleOK = async (editCredentialValue: { info: ProfileCredentialInfo, value: string, type: EditionMode, originCredential: ProfileCredential }) => {
+  const handleOK = async (editCredentialValue: { info: ProfileCredentialInfo, value: string, type: EditionMode, originCredential: ProfileCredential }): Promise<void> => {
     setOpenEditCredentialDialog(false);
     if (!editCredentialValue)
       return;
@@ -123,7 +123,7 @@ const IdentityMenu: FC<{
           },
         }}
       >
-        <MenuItem onClick={handleEdit}> Edit </MenuItem>
+        {isProfileCredential && <MenuItem onClick={handleEdit}> Edit </MenuItem>}
         <MenuItem sx={{ color: 'error.main' }} onClick={handleDelete}> Delete </MenuItem>
       </Popover>
 
@@ -131,7 +131,7 @@ const IdentityMenu: FC<{
         title='Delete this Credential?'
         content='Do you want to delete this Credential?'
         open={openConfirmDialog}
-        onClose={(isAgree: boolean) => handleCancel(isAgree)}
+        onClose={handleCancel}
       />
 
       <EditCredentialDialog
@@ -139,7 +139,7 @@ const IdentityMenu: FC<{
         defaultValue={preEditCredentialValue}
         type={editType}
         open={openEditCredentialDialog}
-        originCredential={originCredential}
+        originCredential={credential as ProfileCredential}
         onClose={handleOK}
       />
     </div>

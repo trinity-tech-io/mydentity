@@ -6,10 +6,12 @@ import {
 } from '@elastosfoundation/did-js-sdk';
 import type { DID as ConnDID } from '@elastosfoundation/elastos-connectivity-sdk-js';
 import { AppContext, AppContextProvider, DIDResolverAlreadySetupException, Vault, VaultSubscription } from '@elastosfoundation/hive-js-sdk';
+import { activeIdentity$ } from '@services/identity/identity.events';
 import { logger } from '@services/logger';
 import { isClientSide } from '@utils/client-server';
 import { lazyElastosConnectivitySDKImport } from '@utils/import-helper';
 import dayjs from 'dayjs';
+import moment from 'moment';
 
 type HiveAuthErrorCallback = (err: any) => void;
 
@@ -199,27 +201,63 @@ async function generateAuthPresentationJWT(authChallengeJwttoken: string): Promi
   }
 }
 
+/**
+ * Generates a app ID credential for hive authentication. This credential is generated directly, without user confirmation,
+ *
+ */
 async function generateAppIdCredential(): Promise<VerifiableCredential> {
+  const appDID = process.env.NEXT_PUBLIC_APP_DID;
+
   const didAccess = await getDIDAccess();
-  const storedAppInstanceDID = await didAccess.getOrCreateAppInstanceDID();
+  let storedAppInstanceDID = await didAccess.getOrCreateAppInstanceDID(appDID);
   if (!storedAppInstanceDID)
     return null;
 
+  let appInstanceDID = storedAppInstanceDID.did;
+
   // No such credential, so we have to create one. Send an intent to get that from the did app
-  logger.log('hive', 'Starting to generate a new App ID credential.');
+  logger.log("hive", "Starting to generate a new App ID credential.");
 
-  // Ask the identity walconst (eg: Essentials) to generate an app id credential.
-  const appIdCredential = await didAccess.generateAppIdCredential();
+  // Directly generate the credential without user confirmation.
+  try {
+    const credential = await generateApplicationIDCredential(appInstanceDID.toString(), appDID);
+    if (credential) {
+      logger.log("hive", "App ID credential generated:", credential);
 
-  // Save this issued credential for later use.
-  await storedAppInstanceDID.didStore.storeCredential(appIdCredential);
+      // Save this issued credential for later use.
+      await storedAppInstanceDID.didStore.storeCredential(credential);
 
-  // This generated credential must contain the following properties:
-  // TODO: CHECK THAT THE RECEIVED CREDENTIAL CONTENT IS VALID
-  // appInstanceDid
-  // appDid
+      return credential;
+    }
+    else
+      return null;
+  }
+  catch (e) {
+    // MasterPasswordCancellation
+    return null;
+  }
+}
 
-  return appIdCredential;
+async function generateApplicationIDCredential(appInstanceDid: string, appDid: string): Promise<VerifiableCredential> {
+  const properties = { appInstanceDid, appDid };
+
+  logger.log('hive', "AppIdCredIssueRequest - issuing credential");
+
+  try {
+    const activeIdentity = activeIdentity$.value; // TODO: NOT OK !! All methods should use the identity object in parameter, we don't want the active identity to change during a hive auth!
+    const credential = await activeIdentity.provider.createCredential(
+      activeIdentity.did,
+      "#app-id-credential",
+      ['https://elastos.org/fakecontext#AppIdCredential'], // TODO: real context
+      moment().add(30, "days").toDate(),
+      properties);
+
+    return credential?.verifiableCredential;
+  }
+  catch (e) {
+    logger.error('identity', "Failed to issue the app id credential...", e);
+    return null;
+  }
 }
 
 /**
