@@ -5,9 +5,9 @@ import { DidService } from 'src/did/did.service';
 import { AppException } from 'src/exceptions/app-exception';
 import { AuthExceptionCode } from 'src/exceptions/exception-codes';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { AddCredentialInput } from './dto/add-credential.input';
 import { CreateCredentialInput } from './dto/create-credential.input';
 import { CreateVerifiablePresentationInput } from './dto/create-verifiablePresentation.input';
+import { ImportCredentialInput } from './dto/import-credential.input';
 
 @Injectable()
 export class CredentialsService {
@@ -36,7 +36,7 @@ export class CredentialsService {
     };
   }
 
-  async storeCredential(input: AddCredentialInput, user: User) {
+  async storeCredential(input: ImportCredentialInput, user: User) {
     const vc = VerifiableCredential.parse(input.credentialString);
     this.logger.log("storeCredential")
     await this.didService.storeCredential(user.id, vc);

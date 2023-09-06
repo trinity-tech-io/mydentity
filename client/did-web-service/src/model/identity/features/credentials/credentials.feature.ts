@@ -19,10 +19,10 @@ export class CredentialsFeature implements IdentityFeature {
     return credential;
   }
 
-  public async addCredential(vc: VerifiableCredential): Promise<Credential> {
-    logger.log("credentials", "Adding credential", vc);
+  public async importCredential(vc: VerifiableCredential): Promise<Credential> {
+    logger.log("credentials", "Importing credential", vc);
 
-    const credential = await this.identity.provider.addCredential(this.identity.did, vc);
+    const credential = await this.identity.provider.importCredential(this.identity.did, vc);
     this.credentials$.next([credential, ...this.credentials$.value]);
     return credential;
   }

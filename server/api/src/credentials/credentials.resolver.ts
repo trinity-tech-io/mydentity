@@ -5,11 +5,11 @@ import { CurrentUser } from 'src/auth/currentuser.decorator';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { IdentityService } from 'src/identity/identity.service';
 import { CredentialsService } from './credentials.service';
-import { AddCredentialInput } from './dto/add-credential.input';
 import { CreateCredentialInput } from './dto/create-credential.input';
 import { CreateVerifiablePresentationInput } from './dto/create-verifiablePresentation.input';
 import { CredentialEntity } from './entities/credential.entity';
 import { VerifiablePresentionEntity } from './entities/verifiablePresention.entity';
+import { ImportCredentialInput } from './dto/import-credential.input';
 
 @Resolver(() => CredentialEntity)
 export class CredentialsResolver {
@@ -27,9 +27,9 @@ export class CredentialsResolver {
 
   @UseGuards(JwtAuthGuard)
   @Mutation(() => CredentialEntity)
-  async addCredential(@Args('input') addCredentialInput: AddCredentialInput, @CurrentUser() user: User) {
-    await this.identityService.ensureOwnedIdentity(addCredentialInput.identityDid, user);
-    return this.credentialsService.storeCredential(addCredentialInput, user);
+  async importCredential(@Args('input') importCredentialInput: ImportCredentialInput, @CurrentUser() user: User) {
+    await this.identityService.ensureOwnedIdentity(importCredentialInput.identityDid, user);
+    return this.credentialsService.storeCredential(importCredentialInput, user);
   }
 
   @UseGuards(JwtAuthGuard)

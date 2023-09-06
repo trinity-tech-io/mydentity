@@ -116,7 +116,7 @@ export const RequestDetails: FC<{
     let fulfilled = false;
     try {
       for (const importedCredential of importedCredentials) {
-        await identityProfileFeature.addProfileCredential(importedCredential);
+        await identityProfileFeature.importProfileCredential(importedCredential);
       }
 
       fulfilled = await fulfilIntentRequest(intent.id, responsePayload);

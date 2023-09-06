@@ -70,9 +70,9 @@ export class ProfileFeature implements IdentityFeature {
   }
 
   // Import credential
-  public async addProfileCredential(importedCredential: ImportedCredential): Promise<boolean> {
+  public async importProfileCredential(importedCredential: ImportedCredential): Promise<boolean> {
     try {
-      await this.identity.get("credentials").addCredential(importedCredential.credential.verifiableCredential);
+      await this.identity.get("credentials").importCredential(importedCredential.credential.verifiableCredential);
       return true;
     } catch (error) {
       logger.error("profile", error);
