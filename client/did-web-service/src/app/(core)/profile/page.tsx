@@ -118,7 +118,7 @@ const Profile: FC = () => {
     }
   };
 
-  const handleEditCredentialDialogClose = async (editCredentialValue: { info: ProfileCredentialInfo, value: string, type: EditionMode, originCredential: ProfileCredential }): Promise<void> => {
+  const handleEditCredentialDialogClose = async (editCredentialValue: { info: ProfileCredentialInfo, value?: string, type: EditionMode, originCredential: ProfileCredential, selectedDate?: Date }): Promise<void> => {
     setOpenEditCredentialDialog(false);
     if (!editCredentialValue)
       return;

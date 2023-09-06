@@ -28,7 +28,13 @@ const availableProfileCredentialEntries: ProfileCredentialInfo[] = [
       multipleInstancesAllowed: true,
       converter: new CredentialValueConverterString("email")
     }),
-  new ProfileCredentialInfo("birthDate"),
+  new ProfileCredentialInfo("birthDate",
+    new CredentialType("https://ns.elastos.org/credentials/profile/email/v1#BirthDateCredential"),
+    {
+      multipleInstancesAllowed: true,
+      converter: new CredentialValueConverterString("birthDate")
+    }),
+  // new ProfileCredentialInfo("birthDate"),
   new ProfileCredentialInfo("nationality", new CredentialType("did://elastos/iUq76mi2inkZfqqbHkovbcDkzEkAh2dKrb/ISONationalityCredential#ISONationalityCredential")),
   new ProfileCredentialInfo("gender", new CredentialType("https://ns.elastos.org/credentials/profile/gender/v1#GenderCredential")),
   new ProfileCredentialInfo("telephone"),
