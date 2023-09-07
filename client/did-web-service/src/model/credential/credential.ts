@@ -13,6 +13,7 @@ import { rawImageToBase64DataUrl } from "@utils/pictures";
 import { capitalizeFirstLetter } from "@utils/strings";
 import { BehaviorSubject } from "rxjs";
 import { IssuerInfo } from "./issuer-info";
+import { convertUtcToLocaleDateTime } from '@utils/strings';
 
 type ValueItem = {
   name: string,
@@ -36,7 +37,7 @@ export class Credential {
 
   // Computed client data
   protected displayTitle: string;
-  protected displayValue: string = null;
+  protected displayValue: any = null;
   private onIconReadyCallback: (iconSrc: string) => void = null;
 
   /**
@@ -119,6 +120,15 @@ export class Credential {
   }
 
   public getDisplayValue(): any {
+    if (typeof this.displayValue === 'string') {
+      if (this.displayTitle === 'BirthDate') {
+        // BirthDate
+        this.displayValue = convertUtcToLocaleDateTime(this.displayValue)
+      }
+    } else {
+      // Nationality
+      this.displayValue = this.displayValue.label 
+    }
     return this.displayValue;
   }
 

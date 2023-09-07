@@ -27,7 +27,6 @@ import { useRouter } from "next/navigation";
 import { ChangeEvent, FC, MouseEvent, forwardRef, useEffect, useState } from "react";
 import { EditableCredentialAvatar } from '../../components/credential/EditableCredentialAvatar';
 import { OrderBy } from "./order-by";
-import { convertUtcToLocaleDateTime } from '@utils/strings';
 
 const CREDENTIAL_LIST_HEAD = [
   { id: 'name', label: 'Name', alignRight: false },
@@ -325,13 +324,6 @@ const Profile: FC = () => {
                 {filteredCredentials?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((credential: ProfileCredential) => {
                   // const { id, name, value} = row;
                   const id = credential.id;
-                  let value = credential.getDisplayValue();
-                  if (credential.getDisplayableTitle() == 'Nationality') {   
-                    value = value.label
-                  }
-                  else if (credential.getDisplayableTitle() == 'BirthDate') {
-                    value = convertUtcToLocaleDateTime(value)
-                  }
                   return (
                     <TableRow hover key={id} tabIndex={-1} onClick={(): void => handleCellClick(credential)}>
                       <TableCell component="th" scope="row" padding="none">
@@ -345,7 +337,7 @@ const Profile: FC = () => {
                         </Stack>
                       </TableCell>
 
-                      <TableCell align="left">{value}</TableCell>
+                      <TableCell align="left">{credential.getDisplayValue()}</TableCell>
 
                       <TableCell align="right">
                         <IconButton size="large" color="inherit" onClick={(event): void => { handleOpenMenu(event, credential) }}>
