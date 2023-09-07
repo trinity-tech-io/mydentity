@@ -17,7 +17,7 @@ export abstract class CredentialValueConverter<DisplayType> {
   /**
    * Returns the credential value in a string format ready for display
    */
-  public abstract toDisplayableValue(credential: Credential): DisplayType;
+  public abstract toDisplayableValue(credential: Credential): string;
 
   /**
    * Creates the VC subject ready to be saved in a VerifiableCredential.

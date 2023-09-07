@@ -1,5 +1,6 @@
 import { CredentialType } from "@model/credential/credential-type";
 import { ProfileCredentialInfo } from "@services/identity-profile-info/profile-credential-info";
+import { CredentialValueConverterAvatar } from "./converters/avatar-converter";
 import { CredentialValueConverterString } from "./converters/string-converter";
 
 /**
@@ -14,14 +15,10 @@ const availableProfileCredentialEntries: ProfileCredentialInfo[] = [
     { converter: new CredentialValueConverterString("name") }
   ),
   // TODO: user https://ns.elastos.org/credentials/profile/avatar/v1 with schema:avatar  - keep old fields for compatibility
-  new ProfileCredentialInfo("avatar", null, {
-    defaultSubject: {
-      "content-type": "",
-      "type": "",
-      "data": ""
-    },
-    converter: null //  TODO
-  }),
+  new ProfileCredentialInfo("avatar",
+    new CredentialType("https://webservice.org#AvatarCredential"),
+    { converter: new CredentialValueConverterAvatar("avatar") }
+  ),
   new ProfileCredentialInfo("email",
     new CredentialType("https://ns.elastos.org/credentials/profile/email/v1#EmailCredential"),
     {
@@ -114,4 +111,8 @@ export function getAvailableProfileEntries(): ProfileCredentialInfo[] {
  */
 export function findProfileInfoByTypes(shortOrLongTypes: string[]): ProfileCredentialInfo {
   return availableProfileCredentialEntries.find(e => e.type?.containedIn(shortOrLongTypes));
+}
+
+export function findProfileInfoByKey(key: string): ProfileCredentialInfo {
+  return availableProfileCredentialEntries.find(e => e.key === key);
 }

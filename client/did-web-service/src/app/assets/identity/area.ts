@@ -1,4 +1,4 @@
-import { CountryCodeInfo } from "@model/credential/countrycodeinfo";
+import { CountryCodeInfo } from "@model/credential/country-code-info";
 
 export const area: CountryCodeInfo[] = [
     {

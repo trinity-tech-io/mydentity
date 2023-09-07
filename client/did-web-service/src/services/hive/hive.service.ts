@@ -5,7 +5,7 @@ import {
   VerifiablePresentation
 } from '@elastosfoundation/did-js-sdk';
 import type { DID as ConnDID } from '@elastosfoundation/elastos-connectivity-sdk-js';
-import { AppContext, AppContextProvider, DIDResolverAlreadySetupException, Logger, Vault, VaultSubscription } from '@elastosfoundation/hive-js-sdk';
+import { AppContext, AppContextProvider, DIDResolverAlreadySetupException, Logger, ScriptingService, ServiceEndpoint, Vault, VaultSubscription } from '@elastosfoundation/hive-js-sdk';
 import { availableHiveNodeProviders } from "@services/hive/vault/vault-providers";
 import { activeIdentity$ } from '@services/identity/identity.events';
 import { logger } from '@services/logger';
@@ -88,25 +88,33 @@ export async function getHiveAppContextProvider(onAuthError?: HiveAuthErrorCallb
  * Returns the hive AppContext for the given did.
  * Hive app context is needed by most hive operations.
  */
-export async function getHiveAppContext(userDid: string, onAuthError?: HiveAuthErrorCallback): Promise<AppContext> {
-  logger.log('hive', 'Getting app context for', userDid);
+export async function getHiveAppContext(identityDid: string, onAuthError?: HiveAuthErrorCallback): Promise<AppContext> {
+  logger.log('hive', 'Getting app context for', identityDid);
   const appContextProvider = await getHiveAppContextProvider(onAuthError);
 
-  return AppContext.build(appContextProvider, userDid, process.env.NEXT_PUBLIC_APP_DID);
+  // TODO: make a context cache per identity
+
+  return AppContext.build(appContextProvider, identityDid, process.env.NEXT_PUBLIC_APP_DID);
 }
 
 /**
  * Returns the vault service instance for a target did.
  * The vault service gives access to various root information about a user's vault.
  */
-export async function getVaultServices(userDid: string, providerAddress: string = null, onAuthError?: HiveAuthErrorCallback): Promise<Vault> {
-  const appContext = await getHiveAppContext(userDid, onAuthError);
+export async function getVaultService(identityDid: string, providerAddress: string = null, onAuthError?: HiveAuthErrorCallback): Promise<Vault> {
+  const appContext = await getHiveAppContext(identityDid, onAuthError);
   return new Vault(appContext, providerAddress);
 }
 
-export async function getSubscriptionService(userDid: string, providerAddress: string = null, onAuthError?: HiveAuthErrorCallback): Promise<VaultSubscription> {
-  const appContext = await getHiveAppContext(userDid, onAuthError);
+export async function getSubscriptionService(identityDid: string, providerAddress: string = null, onAuthError?: HiveAuthErrorCallback): Promise<VaultSubscription> {
+  const appContext = await getHiveAppContext(identityDid, onAuthError);
   return new VaultSubscription(appContext, providerAddress);
+}
+
+export async function getScriptingService(identityDid: string, providerAddress: string = null, onAuthError?: HiveAuthErrorCallback): Promise<ScriptingService> {
+  const appContext = await getHiveAppContext(identityDid, onAuthError);
+  const serviceEndpoint = new ServiceEndpoint(appContext);
+  return new ScriptingService(serviceEndpoint);
 }
 
 function handleVaultAuthenticationChallenge(jwtToken: string): Promise<string> {
@@ -321,7 +329,7 @@ async function generateApplicationIDCredential(appInstanceDid: string, appDid: s
  */
 export const getHiveVault = async (did: string): Promise<Vault> => {
   try {
-    const vault = await getVaultServices(did);
+    const vault = await getVaultService(did);
     return vault;
   } catch (err) {
     logger.error('hive', err);

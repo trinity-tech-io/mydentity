@@ -7,7 +7,7 @@ export class ProfileCredential extends Credential {
     super();
   }
 
-  protected prepareDisplayTitle() {
+  protected prepareDisplayTitle(): void {
     const displayableCredentialTitle = this.getDisplayableCredentialTitle();
     if (displayableCredentialTitle)
       this.displayTitle = displayableCredentialTitle;
@@ -16,13 +16,8 @@ export class ProfileCredential extends Credential {
     }
   }
 
-  protected prepareDisplayValue() {
-    const displayableCredentialTitle = this.getDisplayableCredentialTitle();
-    if (displayableCredentialTitle)
-      this.displayValue = displayableCredentialTitle;
-    else {
-      this.displayValue = this.profileInfo.options.converter.toDisplayableValue(this);
-    }
+  protected prepareDisplayValue(): void {
+    this.displayValue = this.profileInfo.options.converter.toDisplayableValue(this);
   }
 
   /**

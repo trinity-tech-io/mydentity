@@ -9,6 +9,7 @@ export function initSync(): void {
   configService.init({
     frontendUrl: process.env.NEXT_PUBLIC_FRONTEND_URL,
     backendUrl: process.env.NEXT_PUBLIC_BACKEND_URL,
+    appDid: process.env.NEXT_PUBLIC_APP_DID
   });
 
   connectorInit(); // NOTE: Async and we can't wait for it here as the root init must be synchronous. TODO: try to improve this in case some early code need this.

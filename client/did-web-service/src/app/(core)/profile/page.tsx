@@ -25,6 +25,7 @@ import { filter } from 'lodash';
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, FC, MouseEvent, forwardRef, useEffect, useState } from "react";
+import { EditableCredentialAvatar } from '../../components/credential/EditableCredentialAvatar';
 import { OrderBy } from "./order-by";
 
 const CREDENTIAL_LIST_HEAD = [
@@ -177,6 +178,10 @@ const Profile: FC = () => {
     setFilterName(event.target.value);
   };
 
+  const handleAvatarFileChanged = (file: File): void => {
+    identityProfileFeature.upsertIdentityAvatar(file);
+  }
+
   function descendingComparator(a: Credential, b: Credential, orderBy: OrderBy): number {
     switch (orderBy) {
       case "name":
@@ -276,9 +281,7 @@ const Profile: FC = () => {
       autoComplete="off"
     >
       <Stack alignItems="center" spacing={3} sx={{ pt: 5, borderRadius: 2, position: 'relative' }}>
-        <Avatar sx={{ ml: 2, width: 120, height: 120 }}>
-          <AccountIcon width={80}/>
-        </Avatar>
+        <EditableCredentialAvatar onFileUpload={handleAvatarFileChanged} />
       </Stack>
     </Box>
 
@@ -324,8 +327,8 @@ const Profile: FC = () => {
                     <TableRow hover key={id} tabIndex={-1} onClick={(): void => handleCellClick(credential)}>
                       <TableCell component="th" scope="row" padding="none">
                         <Stack ml={1} direction="row" alignItems="center" spacing={2}>
-                          <Avatar sx={{ ml: 2, width: 60, height: 60}}>
-                            <AccountIcon width={30}/>
+                          <Avatar sx={{ ml: 2, width: 60, height: 60 }}>
+                            <AccountIcon width={30} />
                           </Avatar>
                           <Typography variant="subtitle2" noWrap>
                             {credential.getDisplayableTitle()}

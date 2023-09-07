@@ -1,14 +1,18 @@
 import { VerifiableCredential } from "@elastosfoundation/did-js-sdk";
 import { JSONObject } from "@model/json";
 import { credentialTypesService } from "@services/credential-types/credential.types.service";
+import { getHiveScriptPictureDataUrl } from "@services/hive/hive-pictures.service";
+import { findProfileInfoByTypes } from "@services/identity-profile-info/identity-profile-info.service";
+import { activeIdentity$ } from "@services/identity/identity.events";
 import { identityService } from "@services/identity/identity.service";
 import { issuerService } from "@services/identity/issuer.service";
 import { logger } from "@services/logger";
 import { LazyBehaviorSubjectWrapper } from "@utils/lazy-behavior-subject";
 import { evalObjectFieldPath } from "@utils/objects";
+import { rawImageToBase64DataUrl } from "@utils/pictures";
 import { capitalizeFirstLetter } from "@utils/strings";
 import { BehaviorSubject } from "rxjs";
-import { IssuerInfo } from "./issuerinfo";
+import { IssuerInfo } from "./issuer-info";
 
 type ValueItem = {
   name: string,
@@ -22,6 +26,9 @@ export class Credential {
   private _isConform$ = new LazyBehaviorSubjectWrapper<boolean>(null, () => this.verifyCredential());
   public get isConform$(): BehaviorSubject<boolean> { return this._isConform$.getSubject(); }
 
+  // Path to display the icon that best represents this credential.
+  public representativeIcon$ = new BehaviorSubject<string>(null);
+
   // Backend data
   public id: string = null;
   public createdAt: Date = null;
@@ -30,7 +37,6 @@ export class Credential {
   // Computed client data
   protected displayTitle: string;
   protected displayValue: string = null;
-  private iconSrc: string = null;
   private onIconReadyCallback: (iconSrc: string) => void = null;
 
   /**
@@ -65,7 +71,7 @@ export class Credential {
   }
 
   protected getDisplayableCredentialDescription(): string {
-    const credProps = this.verifiableCredential.getSubject();
+    const credProps = this.verifiableCredential.getSubject().getProperties();
     if ("displayable" in credProps) {
       // rawDescription sample: hello ${firstName} ${lastName.test}
       const rawDescription = (credProps["displayable"] as JSONObject)["description"] as string;
@@ -165,57 +171,62 @@ export class Credential {
 
 
   private async prepareIcon(): Promise<void> {
-    // if (this.hasRemotePictureToFetch()) { // Remote picture to fetch
-    //     let avatarCredential = this.pluginVerifiableCredential;
-    //     if (avatarCredential.getSubject() && avatarCredential.getSubject().avatar && avatarCredential.getSubject().avatar.data) {
-    //         let hiveAssetUrl: string = avatarCredential.getSubject().avatar.data;
-    //         let avatarCacheKey = hiveAssetUrl;
+    const activeIdentity = activeIdentity$.value;
+    const subject = <any>this.verifiableCredential.getSubject().getProperties();
 
-    //         if (hiveAssetUrl.startsWith("hive://")) {
-    //             Logger.log("identity", "Refreshing picture from hive url", hiveAssetUrl);
-    //           // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    //           /* this.hiveCacheDataUrlSub = */ GlobalHiveCacheService.instance.getAssetByUrl(avatarCacheKey, hiveAssetUrl).subscribe(async rawData => {
-    //                 //console.log("DEBUG HIVE CACHE CHANGED IN PROFILE SERVICE, NEXT", /* rawData */)
-    //                 if (rawData) {
-    //                     Logger.log("identity", "Got raw picture data from hive");
-    //                     let base64DataUrl = await rawImageToBase64DataUrl(rawData);
-    //                     //console.log("DEBUG BASE64 ENCODED", /* base64DataUrl */);
-    //                     this.iconSrc = base64DataUrl;
-    //                 }
-    //                 else {
-    //                     Logger.log("identity", "Got empty picture data from the hive cache service (real picture may come later)");
-    //                     this.iconSrc = null;
-    //                 }
-    //                 this.loadIconWithFallback();
-    //             });
-    //         }
-    //         else {
-    //             // Assume base64.
-    //             let avatar = await Avatar.fromAvatarCredential(avatarCredential.getSubject().avatar as CredentialAvatar);
-    //             this.iconSrc = avatar.toBase64DataUrl();
-    //             this.loadIconWithFallback();
-    //         }
-    //     }
-    // }
-    // else { // No remote picture to fetch
-    //     // If the credential implements the DisplayableCredential interface, we get the icon from this.
-    //     let credProps = this.pluginVerifiableCredential.getSubject();
-    //     if ("displayable" in credProps) {
-    //         this.iconSrc = (credProps["displayable"] as JSONObject)["icon"] as string;
-    //     }
-    //     else {
-    //         // Fallback for old style credentials - try to guess an icon, or use a defaut one.
-    //         let fragment = this.pluginVerifiableCredential.getFragment();
+    if (this.hasRemotePictureToFetch()) { // Remote picture to fetch
+      if (subject.avatar && subject.avatar?.data) {
+        const hiveAssetUrl: string = subject.avatar.data;
+        const avatarCacheKey = hiveAssetUrl;
 
-    //         if (!BasicCredentialsService.instance.getBasicCredentialkeys().some(x => x == fragment)) {
-    //             fragment = "finger-print";
-    //         }
+        if (hiveAssetUrl.startsWith("hive://")) {
+          logger.log("credential", "Refreshing picture from hive url", hiveAssetUrl);
+          // NOTE: assume we use the currently active identity to authenticate to target hive vault for calling the picture script
+          (await getHiveScriptPictureDataUrl(hiveAssetUrl, activeIdentity.did)).subscribe(async rawData => {
+            //console.log("DEBUG HIVE CACHE CHANGED IN PROFILE SERVICE, NEXT", /* rawData */)
+            if (rawData) {
+              logger.log("credential", "Got raw picture data from hive");
+              const base64DataUrl = await rawImageToBase64DataUrl(rawData);
+              //console.log("DEBUG BASE64 ENCODED", /* base64DataUrl */);
+              this.representativeIcon$.next(base64DataUrl);
+            }
+            else {
+              logger.log("idencredentialtity", "Got empty picture data from the hive cache service (real picture may come later)");
+              this.representativeIcon$.next(null);
+            }
+            this.loadIconWithFallback();
+          });
+        }
+        else {
+          // Assume base64.
+          /* const avatar = await Avatar.fromAvatarCredential(subject.avatar as CredentialAvatar);
+          this.iconSrc = avatar.toBase64DataUrl();
+          this.loadIconWithFallback(); */
 
-    //         this.iconSrc = `/assets/identity/smallIcons/dark/${fragment}.svg`;
-    //     }
+          // TODO:
+          console.warn("Unhandled avatar credentials format");
+        }
+      }
+    }
+    else { // No remote picture to fetch
+      // If the credential implements the DisplayableCredential interface, we get the icon from this.
+      if ("displayable" in subject) {
+        this.representativeIcon$.next((subject["displayable"] as JSONObject)["icon"] as string);
+      }
+      else {
+        // Fallback for old style credentials - try to guess an icon, or use a defaut one.
+        let fragment = this.verifiableCredential.getId().getFragment();
 
-    //     this.loadIconWithFallback();
-    // }
+        // TODO: NOT GOOD HERE - SHOULD BE IN THE PROFILE CREDENTIAL CLASS
+
+        const profileInfo = findProfileInfoByTypes([fragment]);
+        fragment = profileInfo?.key || "finger-print";
+
+        this.representativeIcon$.next(`/assets/identity/smallIcons/dark/${fragment}.svg`);
+      }
+
+      this.loadIconWithFallback();
+    }
   }
 
   /**
@@ -223,24 +234,24 @@ export class Credential {
    * a placeholder.
    */
   private loadIconWithFallback(): void {
-    if (this.iconSrc == null) {
-      this.iconSrc = this.getFallbackIcon();
+    if (this.representativeIcon$.value == null) {
+      this.representativeIcon$.next(this.getFallbackIcon());
     }
 
     const image = new Image();
     image.crossOrigin = 'anonymous';
 
     image.onload = (): void => {
-      this.iconSrc = image.src;
-      this.onIconReadyCallback?.(this.iconSrc);
+      this.representativeIcon$.next(image.src);
+      this.onIconReadyCallback?.(this.representativeIcon$.value);
     };
     image.onerror = (): void => {
-      this.iconSrc = this.getFallbackIcon();
-      this.onIconReadyCallback?.(this.iconSrc);
+      this.representativeIcon$.next(this.getFallbackIcon());
+      this.onIconReadyCallback?.(this.representativeIcon$.value);
     };
 
     // Try to load the picture
-    image.src = this.iconSrc;
+    image.src = this.representativeIcon$.value;
   }
 
   /**
@@ -270,13 +281,6 @@ export class Credential {
   private isUserAvatar(): boolean {
     const fragment = this.verifiableCredential.getId().getFragment();
     return (fragment === "avatar");
-  }
-
-  /**
-   * Icon source directly display in a HTML <img>. Either a url, or a base64 image.
-   */
-  public getDisplayableIconSrc(): string {
-    return this.iconSrc;
   }
 
   /**
@@ -354,6 +358,10 @@ export class Credential {
     return issuerInfo;
   }
 
+  /**
+   * Checks confirmity of this credentials to credential contexts/types and tells if the
+   * credential is "conform" or not.
+   */
   private async verifyCredential(): Promise<boolean> {
     return await credentialTypesService.verifyCredential(this.verifiableCredential);
   }

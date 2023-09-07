@@ -1,13 +1,15 @@
 import { Credential } from "@model/credential/credential";
 import { ProfileCredential } from "@model/credential/profile-credential";
 import { Identity } from "@model/identity/identity";
-import { findProfileInfoByTypes } from "@services/identity-profile-info/identity-profile-info.service";
+import { AvatarInfoToSubject } from "@services/identity-profile-info/converters/avatar-converter";
+import { findProfileInfoByKey, findProfileInfoByTypes } from "@services/identity-profile-info/identity-profile-info.service";
 import { logger } from "@services/logger";
 import { LazyBehaviorSubjectWrapper } from "@utils/lazy-behavior-subject";
 import { randomIntString } from "@utils/random";
 import moment from "moment";
 import { BehaviorSubject, map } from "rxjs";
 import { IdentityFeature } from "../identity-feature";
+import { editAvatarOnHive } from "./upload-avatar";
 
 export class ProfileFeature implements IdentityFeature {
   public activeCredential$ = new BehaviorSubject<Credential>(null);
@@ -102,5 +104,40 @@ export class ProfileFeature implements IdentityFeature {
       return null;
 
     return nameCredential.getDisplayValue();
+  }
+
+  /**
+   * From a file uploaded by the user in the browser:
+   * - Resizes it to a maximum dimension
+   * - Uploads to identity's hive vault and prepare a hive script to serve the file
+   * - Updates the avatar credential with this new data
+   */
+  public async upsertIdentityAvatar(newAvatarPictureFile: File): Promise<void> {
+    console.log("updateIdentityAvatar", newAvatarPictureFile)
+    const uploadedAvatar = await editAvatarOnHive(this.identity.did, newAvatarPictureFile);
+    if (uploadedAvatar) {
+      console.log("uploadedAvatar", uploadedAvatar)
+      const avatarInfo = findProfileInfoByKey("avatar");
+
+      const avatarToSubject: AvatarInfoToSubject = {
+        mimeType: uploadedAvatar.mimeType,
+        hiveDownloadScriptUrl: uploadedAvatar.avatarHiveURL
+      }
+
+      // Delete existing avatar credential, if any
+      await this.deleteAvatarCredential();
+
+      await this.createProfileCredential("#avatar", avatarInfo.typesForCreation(), avatarInfo.key, avatarToSubject);
+    }
+    else {
+      // TODO - to user
+      console.log("Failed to upload avatar to hive");
+    }
+  }
+
+  public async deleteAvatarCredential(): Promise<void> {
+    const avatarInfo = findProfileInfoByKey("avatar");
+
+    // TODO
   }
 }

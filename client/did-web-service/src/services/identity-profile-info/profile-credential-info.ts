@@ -7,6 +7,7 @@ export enum ProfileCredentialInfoEditionType {
     MultiLineText,
     Date,
     Country,
+    Undefined // ie: for avatar, handled manually
 }
 
 export type ProfileCredentialInfoOptions = {

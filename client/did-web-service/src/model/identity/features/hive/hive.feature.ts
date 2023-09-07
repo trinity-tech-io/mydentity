@@ -1,7 +1,7 @@
 import { DIDDocument } from "@elastosfoundation/did-js-sdk";
 import { AppContextProvider, Vault, VaultInfo, VaultNotFoundException, VaultSubscription } from "@elastosfoundation/hive-js-sdk";
 import { Identity } from "@model/identity/identity";
-import { getHiveAppContext, getHiveAppContextProvider, getRandomQuickStartHiveNodeAddress, getSubscriptionService, getVaultServices } from "@services/hive/hive.service";
+import { getHiveAppContext, getHiveAppContextProvider, getRandomQuickStartHiveNodeAddress, getSubscriptionService, getVaultService } from "@services/hive/hive.service";
 import { VaultStatus } from "@services/hive/vault/vault-status";
 import { identityService } from "@services/identity/identity.service";
 import { logger } from "@services/logger";
@@ -28,7 +28,7 @@ export class HiveFeature implements IdentityFeature {
    * Convenience method to get a shared vault services instance for the active user.
    */
   public getActiveUserVaultServices(): Promise<Vault> {
-    return getVaultServices(this.identity.did);
+    return getVaultService(this.identity.did);
   }
 
   public getRawHiveContextProvider(): Promise<AppContextProvider> {
@@ -119,7 +119,7 @@ export class HiveFeature implements IdentityFeature {
       }
     }
 
-    let vaultServices = await getVaultServices(didString);
+    let vaultServices = await getVaultService(didString);
     if (!vaultServices) {
       logger.error("hive", "NULL vault returned, unable to get the vault for this DID.");
     }
@@ -128,7 +128,7 @@ export class HiveFeature implements IdentityFeature {
       try {
         logger.log("hive", "Calling an api on the hive vault to make sure everything is fine");
 
-        vaultServices = await getVaultServices(didString);
+        vaultServices = await getVaultService(didString);
         const appStats = await vaultServices.getAppStats();
 
         if (!appStats) {

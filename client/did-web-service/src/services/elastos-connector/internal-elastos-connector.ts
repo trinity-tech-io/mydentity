@@ -2,8 +2,8 @@ import { VerifiableCredential } from "@elastosfoundation/did-js-sdk";
 import type { Interfaces, Wallet } from "@elastosfoundation/elastos-connectivity-sdk-js";
 
 /**
- * This internal elastos connector is used for now to produce app instance DIDs in order to 
- * authenticate this app as a hive app allowed to use a user's hive vault. 
+ * This internal elastos connector is used for now to produce app instance DIDs in order to
+ * authenticate this app as a hive app allowed to use a user's hive vault.
  */
 export class InternalElastosConnector implements Interfaces.Connectors.IConnector {
     public name = "did-web-internal";
@@ -42,7 +42,7 @@ export class InternalElastosConnector implements Interfaces.Connectors.IConnecto
         return null;
     }
 
-    getWeb3Provider() {
+    getWeb3Provider(): unknown {
         throw new Error("Method not implemented.");
     }
     pay(query: Wallet.PayQuery): Promise<Wallet.TransactionResult> {
