@@ -8,6 +8,7 @@ import { AppException } from 'src/exceptions/app-exception';
 import { AuthExceptionCode, DIDExceptionCode } from 'src/exceptions/exception-codes';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateIdentityInput } from './dto/create-identity.input';
+import { IdentityPublicationState } from './model/identity-publication-state';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const moment = require('moment');
@@ -141,35 +142,48 @@ export class IdentityService {
     };
   }
 
-  async getPublicationStatus(didString: string, publicationId: string) {
-    this.logger.log("getPublicationStatus:" + publicationId)
+  async getPublicationStatus(did: string): Promise<IdentityPublicationState> {
+    this.logger.log("Checking identity publicaiton status for DID " + did);
 
-    // Get status from prisma first
-    const identiy = await this.prisma.identity.findFirst({
-      where: {
-        did: didString,
-        publicationId
-      }
-    })
+    // Get the publication status from prisma first
+    const identity = await this.prisma.identity.findFirst({ where: { did } });
 
-    // Already published
-    if (identiy.publishedAt) {
-      return AssistTransactionStatus.COMPLETED;
+    // No entry found, this is a state error. Return unpublished.
+    if (!identity)
+      return IdentityPublicationState.UNPUBLISHED;
+
+    // If we know it was already published earlier, we don't check by api, we simply return published
+    if (identity.publishedAt) {
+      return IdentityPublicationState.PUBLISHED;
     }
 
-    const assistTransactionStatusResponse = await this.didPublishingService.getPublicationStatus(publicationId);
+    const assistTransactionStatusResponse = await this.didPublishingService.getPublicationStatus(identity.publicationId);
     if (assistTransactionStatusResponse.data.status == AssistTransactionStatus.COMPLETED) {
+      // We just found that the publication is complete, so we save this into database for quick access to info later on.
       await this.prisma.identity.update({
         where: {
-          did: didString,
-          publicationId
+          did
         },
         data: {
           publishedAt: moment(assistTransactionStatusResponse.data.modified).toDate()
         }
       });
+
+      return IdentityPublicationState.PUBLISHED;
     }
-    return assistTransactionStatusResponse.data.status;
+    else {
+      return this.assistToIdentityPublicationStatus(assistTransactionStatusResponse.data.status);
+    }
+  }
+
+  private assistToIdentityPublicationStatus(assistStatus: AssistTransactionStatus): IdentityPublicationState {
+    switch (assistStatus) {
+      case AssistTransactionStatus.COMPLETED: return IdentityPublicationState.PUBLISHED;
+      case AssistTransactionStatus.ERROR: return IdentityPublicationState.FAILED_TO_PUBLISH;
+      case AssistTransactionStatus.PENDING: return IdentityPublicationState.PUBLISHING;
+      case AssistTransactionStatus.PROCESSING: return IdentityPublicationState.PUBLISHING;
+      case AssistTransactionStatus.QUARANTINED: return IdentityPublicationState.FAILED_TO_PUBLISH;
+    }
   }
 
   findAll(user: User) {

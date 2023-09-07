@@ -114,7 +114,7 @@ export class ProfileFeature implements IdentityFeature {
    */
   public async upsertIdentityAvatar(newAvatarPictureFile: File): Promise<void> {
     console.log("updateIdentityAvatar", newAvatarPictureFile)
-    const uploadedAvatar = await editAvatarOnHive(this.identity.did, newAvatarPictureFile);
+    const uploadedAvatar = await editAvatarOnHive(this.identity, newAvatarPictureFile);
     if (uploadedAvatar) {
       console.log("uploadedAvatar", uploadedAvatar)
       const avatarInfo = findProfileInfoByKey("avatar");

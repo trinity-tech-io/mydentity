@@ -1,5 +1,5 @@
+import { IdentityPublicationStatusResult } from "@model/identity-publication/identity-publication-status.dto";
 import { Identity } from "@model/identity/identity";
-import { PublicationStatus } from "@model/publication/publish.dto";
 import { CustodialDIDProvider } from "./custodial/custodial-did.provider";
 import { IdentityProvider } from "./did.provider";
 import { activeIdentity$ } from "./identity.events";
@@ -40,8 +40,8 @@ class IdentityService {
   /**
    * Get publication status
    */
-  public getPublicationStatus(didString: string, publicationId: string): Promise<PublicationStatus> {
-    return this.provider.getPublicationStatus(didString, publicationId);
+  public getPublicationStatus(didString: string): Promise<IdentityPublicationStatusResult> {
+    return this.provider.getPublicationStatus(didString);
   }
 
   /**

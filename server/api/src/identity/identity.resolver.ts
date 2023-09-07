@@ -6,8 +6,9 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CreateIdentityInput } from './dto/create-identity.input';
 import { PublicationStatusInput } from './dto/publication-status.input';
 import { PublishIdentityInput } from './dto/publish-identity.input';
-import { DIDPublishEntity } from './entities/didpublish.entity';
+import { IdentityPublicationStatusEntity } from './entities/identity-publication-status.entity';
 import { IdentityEntity } from './entities/identity.entity';
+import { PublishResultEntity } from './entities/publish-result.entity';
 import { TransactionEntity } from './entities/transaction.entity';
 import { IdentityService } from './identity.service';
 
@@ -36,17 +37,20 @@ export class IdentityResolver {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Mutation(() => DIDPublishEntity)
+  @Mutation(() => PublishResultEntity)
   async publishIdentity(@Args('input') input: PublishIdentityInput, @CurrentUser() user: User) {
     await this.identityService.ensureOwnedIdentity(input.identityDid, user);
     return this.identityService.publishIdentity(input.identityDid, JSON.parse(input.payload));
   }
 
   @UseGuards(JwtAuthGuard)
-  @Mutation(() => String)
-  async getPublicationStatus(@Args('input') input: PublicationStatusInput, @CurrentUser() user: User) {
+  @Mutation(() => IdentityPublicationStatusEntity)
+  async getPublicationStatus(@Args('input') input: PublicationStatusInput, @CurrentUser() user: User): Promise<IdentityPublicationStatusEntity> {
     await this.identityService.ensureOwnedIdentity(input.identityDid, user);
-    return this.identityService.getPublicationStatus(input.identityDid, input.publicationId);
+
+    return {
+      state: await this.identityService.getPublicationStatus(input.identityDid)
+    }
   }
 
   @UseGuards(JwtAuthGuard)

@@ -1,7 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
-export class DIDPublishEntity {
+export class PublishResultEntity {
   @Field(() => String)
   publicationId: string;
 }

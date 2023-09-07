@@ -4,7 +4,4 @@ import { Field, InputType } from '@nestjs/graphql';
 export class PublicationStatusInput {
   @Field(() => String)
   identityDid: string;
-
-  @Field(() => String)
-  publicationId: string;
 }

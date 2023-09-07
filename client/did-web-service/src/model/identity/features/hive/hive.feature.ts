@@ -7,6 +7,7 @@ import { identityService } from "@services/identity/identity.service";
 import { logger } from "@services/logger";
 import { lazyElastosHiveSDKImport } from "@utils/import-helper";
 import { LazyBehaviorSubjectWrapper } from "@utils/lazy-behavior-subject";
+import { awaitSubjectValue } from "@utils/promises";
 import { BehaviorSubject } from "rxjs";
 import { IdentityFeature } from "../identity-feature";
 
@@ -25,10 +26,19 @@ export class HiveFeature implements IdentityFeature {
   constructor(protected identity: Identity) { }
 
   /**
-   * Convenience method to get a shared vault services instance for the active user.
+   * Convenience method to get a shared vault services instance for this identity.
+   * It also makes sure that the hive vault status has been checked first
    */
-  public getActiveUserVaultServices(): Promise<Vault> {
+  public async getVaultService(): Promise<Vault> {
+    await this.awaitHiveVaultReady();
     return getVaultService(this.identity.did);
+  }
+
+  /**
+   * Awaits until this identity's hive vault is ready to use (subscribed, status checked)
+   */
+  public awaitHiveVaultReady(): Promise<void> {
+    return awaitSubjectValue(this.vaultStatus$, VaultStatus.ReadyToUse);
   }
 
   public getRawHiveContextProvider(): Promise<AppContextProvider> {
@@ -156,6 +166,9 @@ export class HiveFeature implements IdentityFeature {
    * Initial check of active user's hive vault status
    */
   private async retrieveVaultStatus(): Promise<void> {
+    // Make sure identity is published
+    await this.identity.get("publication").awaitIdentityPublished();
+
     logger.log("hive", "Looking for vault status");
 
     this.vaultStatus$.next(VaultStatus.NotChecked);

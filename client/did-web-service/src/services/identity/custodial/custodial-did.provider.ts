@@ -8,10 +8,11 @@ import { gqlTransactionFields } from "@graphql/transaction.fields";
 import { Credential } from "@model/credential/credential";
 import { credentialFromJson } from "@model/credential/credential-builder";
 import { CredentialDTO, IssueCredentialDTO } from "@model/credential/credential.dto";
+import { IdentityPublicationStatusResult } from "@model/identity-publication/identity-publication-status.dto";
 import { Identity } from "@model/identity/identity";
 import { IdentityDTO } from "@model/identity/identity.dto";
 import { PresentationDTO } from "@model/presentation/presenttation.dto";
-import { PublicationStatus, PublishDTO } from "@model/publication/publish.dto";
+import { PublishDTO } from "@model/publication/publish.dto";
 import { TransactionDTO } from "@model/publication/transaction.dto";
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
@@ -150,17 +151,18 @@ export class CustodialDIDProvider implements IdentityProvider {
     }
   }
 
-  async getPublicationStatus(identityDid: string, publicationId: string): Promise<PublicationStatus> {
+  async getPublicationStatus(identityDid: string): Promise<IdentityPublicationStatusResult> {
     const { data } = await withCaughtAppException(async () => {
-      return (await getApolloClient()).mutate<{ getPublicationStatus: string }>({
+      return (await getApolloClient()).mutate<{ getPublicationStatus: IdentityPublicationStatusResult }>({
         mutation: gql`
-        mutation getPublicationStatus($identityDid: String!, $publicationId: String!) {
-          getPublicationStatus(input: { identityDid: $identityDid, publicationId: $publicationId})
+        mutation getPublicationStatus($identityDid: String!) {
+          getPublicationStatus(input: { identityDid: $identityDid}) {
+            state
+          }
         }
       `,
         variables: {
-          identityDid,
-          publicationId
+          identityDid
         }
       });
     });
@@ -168,7 +170,7 @@ export class CustodialDIDProvider implements IdentityProvider {
     console.log(data)
 
     if (data?.getPublicationStatus) {
-      return data.getPublicationStatus as PublicationStatus;
+      return data.getPublicationStatus as IdentityPublicationStatusResult;
     }
     else {
       throw new Error("Failed to get publication status");

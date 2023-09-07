@@ -1,7 +1,8 @@
 import { logger } from "@elastosfoundation/elastos-connectivity-sdk-js";
 import { FileDownloadExecutable } from "@elastosfoundation/hive-js-sdk";
+import { Identity } from "@model/identity/identity";
 import { configService } from "@services/config/config.service";
-import { getScriptingService, getVaultService } from "@services/hive/hive.service";
+import { getScriptingService } from "@services/hive/hive.service";
 import { compressImage, fileToDataUrlImage } from "@utils/pictures";
 
 type UploadedHiveAvatar = {
@@ -9,7 +10,7 @@ type UploadedHiveAvatar = {
   avatarHiveURL: string;
 }
 
-export async function editAvatarOnHive(identityDid: string, newPictureFile: File): Promise<UploadedHiveAvatar> {
+export async function editAvatarOnHive(identity: Identity, newPictureFile: File): Promise<UploadedHiveAvatar> {
   // TODO: ensure vault ready
 
   // TODO: we probably need to delete older pictures from the vault somewhere...
@@ -22,7 +23,7 @@ export async function editAvatarOnHive(identityDid: string, newPictureFile: File
   const dataUrl = await fileToDataUrlImage(newPictureFile);
   const compressedImageBuffer = await compressImage(dataUrl, 100);
   const avatarData = compressedImageBuffer; //Buffer.from(compressedImageBuffer, "base64"); // Raw picture data, not base64 encoded
-  const vault = await getVaultService(identityDid);
+  const vault = await identity.get("hive").getVaultService();
   const uploadResponse = await vault.getFilesService().upload(avatarFileName, Buffer.from(avatarData), {
     onProgress(progress) {
       console.log("upload progreess", progress)
@@ -30,18 +31,19 @@ export async function editAvatarOnHive(identityDid: string, newPictureFile: File
   }, false);
   logger.log('profile', "Completed avatar upload to hive", uploadResponse);
 
+
   // Create a script to make this picture available to everyone
   const scriptName = "getMainIdentityAvatar" + randomPictureID;
-  const scriptingService = await getScriptingService(identityDid);
+  const scriptingService = await getScriptingService(identity.did);
   /*  scriptingService.registerScript(scriptName, new AggregatedExecutable(
      "getMainIdentityAvatar",
      [new Executable('download', ExecutableType.FILE_DOWNLOAD, { path: avatarFileName })]
    ), null, true, true); */
 
-  await scriptingService.registerScript(scriptName, new FileDownloadExecutable(scriptName).setOutput(true), undefined, true, true);
+  await scriptingService.registerScript(scriptName, new FileDownloadExecutable(avatarFileName).setOutput(true), undefined, true, true);
 
   const appDid = configService.get("appDid");
-  const avatarHiveURL = "hive://" + identityDid + "@" + appDid + "/" + scriptName + `?params={"path":"${avatarFileName}"}`; // Fake params to prevent hive SDK bug crash
+  const avatarHiveURL = "hive://" + identity.did + "@" + appDid + "/" + scriptName + "?params={}"; // Fake params to prevent hive SDK bug crash
   logger.log("identity", "Generated avatar url:", avatarHiveURL);
 
   return { mimeType, avatarHiveURL }

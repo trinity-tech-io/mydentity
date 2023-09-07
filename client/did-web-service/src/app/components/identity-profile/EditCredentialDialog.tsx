@@ -1,10 +1,10 @@
+import NationalityCommon from '@components/identity-profile/CountrySelect';
+import DatePickerCommon from '@components/identity-profile/DatePickerCommon';
+import GenderCommon from '@components/identity-profile/GenderSelect';
 import { ProfileCredential } from "@model/credential/profile-credential";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
 import { ProfileCredentialInfo, ProfileCredentialInfoEditionType } from "@services/identity-profile-info/profile-credential-info";
 import { createRef, useEffect, useRef, useState } from "react";
-import DatePickerCommon from '@components/identity-profile/DatePickerCommon';
-import NationalityCommon from '@components/identity-profile/CountrySelect';
-import GenderCommon from '@components/identity-profile/GenderSelect';
 
 export enum EditionMode {
     EDIT,
@@ -39,15 +39,15 @@ function EditCredentialDialog(props: EditCredentialDialogProps): JSX.Element {
         if (open) {
             if (credentialInfo.key === 'birthDate') {
                 setSelectedType(SelectedType.BIRTHDATE);
-              } else if (credentialInfo.key === 'avatar') {
+            } else if (credentialInfo.key === 'avatar') {
                 setSelectedType(SelectedType.AVATAR);
-              } else if (credentialInfo.key === 'email') {
+            } else if (credentialInfo.key === 'email') {
                 setSelectedType(SelectedType.EMAIL);
-              } else if (credentialInfo.key === 'nationality') {
+            } else if (credentialInfo.key === 'nationality') {
                 setSelectedType(SelectedType.NATIONALITY);
-              } else if (credentialInfo.key === 'gender') {
+            } else if (credentialInfo.key === 'gender') {
                 setSelectedType(SelectedType.GENDER);
-              }
+            }
             setEditionType(credentialInfo.getConverter().getEditionType());
         }
     }, [credentialInfo, open]);
@@ -65,13 +65,13 @@ function EditCredentialDialog(props: EditCredentialDialogProps): JSX.Element {
     };
 
     const handleOk = (): void => {
-        const result = inputRef?.current?.value 
+        const result = inputRef?.current?.value
         onClose({ info: credentialInfo, value: result, type: type, originCredential, selectedDate });
     };
 
     const handleDateChange = (date: Date): void => {
         setSelectedDate(date);
-      };
+    };
 
     return (
         <Dialog

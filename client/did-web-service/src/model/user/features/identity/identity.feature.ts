@@ -1,5 +1,4 @@
 import { Identity } from "@model/identity/identity";
-import { PublicationStatus } from "@model/publication/publish.dto";
 import { getRandomQuickStartHiveNodeAddress } from "@services/hive/hive.service";
 import { identityService } from "@services/identity/identity.service";
 import { logger } from "@services/logger";
@@ -42,12 +41,6 @@ export class IdentityFeature implements UserFeature {
     logger.log("identities", "Publishing identity");
 
     return await identityService.publishIdentity(didString, payload);
-  }
-
-  public async getPublicationStatus(didString: string, publicationId: string): Promise<PublicationStatus> {
-    logger.log("identities", "Getting publication status");
-
-    return await identityService.getPublicationStatus(didString, publicationId);
   }
 
   private async fetchIdentities(): Promise<Identity[]> {
