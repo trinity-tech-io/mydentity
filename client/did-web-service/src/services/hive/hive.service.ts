@@ -89,6 +89,8 @@ export async function getHiveAppContextProvider(onAuthError?: HiveAuthErrorCallb
  * Hive app context is needed by most hive operations.
  */
 export async function getHiveAppContext(identityDid: string, onAuthError?: HiveAuthErrorCallback): Promise<AppContext> {
+  AppContext.setNetworkTimeout(120000);
+
   logger.log('hive', 'Getting app context for', identityDid);
   const appContextProvider = await getHiveAppContextProvider(onAuthError);
 

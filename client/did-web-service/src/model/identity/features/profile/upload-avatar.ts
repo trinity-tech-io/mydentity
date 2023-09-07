@@ -31,7 +31,6 @@ export async function editAvatarOnHive(identity: Identity, newPictureFile: File)
   }, false);
   logger.log('profile', "Completed avatar upload to hive", uploadResponse);
 
-
   // Create a script to make this picture available to everyone
   const scriptName = "getMainIdentityAvatar" + randomPictureID;
   const scriptingService = await getScriptingService(identity.did);

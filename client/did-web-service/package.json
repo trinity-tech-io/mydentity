@@ -12,7 +12,7 @@
     "@apollo/client": "^3.7.17",
     "@elastosfoundation/did-js-sdk": "^2.3.0",
     "@elastosfoundation/elastos-connectivity-sdk-js": "^2.0.0-next",
-    "@elastosfoundation/hive-js-sdk": "^2.9.9",
+    "@elastosfoundation/hive-js-sdk": "^2.9.11",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@iconify/react": "^4.1.1",
