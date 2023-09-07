@@ -20,6 +20,7 @@ export const RequestDetails: FC<{
   const TAG = 'ImportCredential';
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const identityProfileFeature = activeIdentity?.get("profile");
+  const credentialFeature = activeIdentity?.get("credentials");
   const [preparingResponse, setPreparingResponse] = useState(false);
   const [importedCredentials, setImportedCredentials] = useState<ImportedCredential[]>(null);
   const [wrongTargetDID, setWrongTargetDID] = useState<boolean>(false);
@@ -116,7 +117,7 @@ export const RequestDetails: FC<{
     let fulfilled = false;
     try {
       for (const importedCredential of importedCredentials) {
-        await identityProfileFeature.importProfileCredential(importedCredential);
+        await credentialFeature.importCredential(importedCredential.credential.verifiableCredential);
       }
 
       fulfilled = await fulfilIntentRequest(intent.id, responsePayload);

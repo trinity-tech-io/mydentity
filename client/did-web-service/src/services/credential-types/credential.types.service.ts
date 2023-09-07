@@ -95,7 +95,7 @@ class CredentialTypesService {
 
       if (expanded && expanded.length > 0) {
         // Use only the first output entry. There is normally only one.
-        let resultJsonLDNode = expanded[0];
+        const resultJsonLDNode = expanded[0];
 
         // Expanded types identifiers can be a string or an array of string. We make this become an array, always.
         return Array.isArray(resultJsonLDNode["@type"]) ? resultJsonLDNode["@type"] : [resultJsonLDNode["@type"]];
@@ -131,10 +131,10 @@ class CredentialTypesService {
       }
 
       // Resolve all contexts
-      let contexts = credentialJson["@context"];
-      let contextPayloadsWithUrls: { url: string, payload: ContextPayload }[] = [];
-      for (let context of contexts) {
-        let contextPayload = await this.fetchContext(context);
+      const contexts = credentialJson["@context"];
+      const contextPayloadsWithUrls: { url: string, payload: ContextPayload }[] = [];
+      for (const context of contexts) {
+        const contextPayload = await this.fetchContext(context);
         if (!contextPayload) {
           logger.warn("credentialtypes", "Failed to fetch credential type context for", context);
           continue;
@@ -151,9 +151,9 @@ class CredentialTypesService {
       }
 
       // Now that we have all context payloads, search short types in each of them
-      let pairs: CredentialTypeWithContext[] = [];
-      for (let type of credential.getType()) { // Short types
-        let contextInfo = contextPayloadsWithUrls.find(c => Object.keys(c.payload["@context"]).indexOf(type) >= 0);
+      const pairs: CredentialTypeWithContext[] = [];
+      for (const type of credential.getType()) { // Short types
+        const contextInfo = contextPayloadsWithUrls.find(c => Object.keys(c.payload["@context"]).indexOf(type) >= 0);
         if (contextInfo) {
           pairs.push({
             context: contextInfo.url,
@@ -174,7 +174,7 @@ class CredentialTypesService {
 
   // eslint-disable-next-line require-await
   private async fetchContext(contextUrl: string): Promise<ContextPayload> {
-    let cacheEntry = this.contextsCache.get(contextUrl);
+    const cacheEntry = this.contextsCache.get(contextUrl);
     if (cacheEntry) {
       return cacheEntry.data;
     }
@@ -189,8 +189,8 @@ class CredentialTypesService {
             }
           };
 
-          let response = await fetch(contextUrl);
-          let payload = await response.json();
+          const response = await fetch(contextUrl);
+          const payload = await response.json();
 
           this.contextsCache.set(contextUrl, payload as ContextPayload, moment().unix());
           // NOTE - don't save the cache = not persistent on disk - await this.contextsCache.save();
@@ -204,16 +204,16 @@ class CredentialTypesService {
       }
       else if (contextUrl.startsWith("did:")) { // EID url
         // Compute publisher's DID string based on context url
-        let { publisher, shortType } = this.extractEIDContext(contextUrl);
+        const { publisher, shortType } = this.extractEIDContext(contextUrl);
         if (!publisher) {
           logger.warn("credentialtypes", "Failed to extract publisher from context", contextUrl);
           return null;
         }
 
-        let docStatus = await didDocumentService.fetchOrAwaitDIDDocumentWithStatus(publisher);
+        const docStatus = await didDocumentService.fetchOrAwaitDIDDocumentWithStatus(publisher);
         if (docStatus.document) {
-          let serviceId = `${publisher}#${shortType}`;
-          let contextPayload = this.getContextPayloadFromDIDDocument(docStatus.document, serviceId);
+          const serviceId = `${publisher}#${shortType}`;
+          const contextPayload = this.getContextPayloadFromDIDDocument(docStatus.document, serviceId);
 
           this.contextsCache.set(contextUrl, contextPayload, moment().unix());
           // NOTE - don't save the cache = not persistent on disk - await this.contextsCache.save();
@@ -235,8 +235,8 @@ class CredentialTypesService {
   // From: did://elastos/insTmxdDDuS9wHHfeYD1h5C2onEHh3D8Vq/BenCredential
   // To: did:elastos:insTmxdDDuS9wHHfeYD1h5C2onEHh3D8Vq + BenCredential
   private extractEIDContext(context: string): { publisher: string, shortType: string } {
-    let regex = new RegExp(/^did:\/\/elastos\/([a-zA-Z0-9]+)\/([a-zA-Z0-9]+)/);
-    let parts = regex.exec(context);
+    const regex = new RegExp(/^did:\/\/elastos\/([a-zA-Z0-9]+)\/([a-zA-Z0-9]+)/);
+    const parts = regex.exec(context);
 
     if (!parts || parts.length < 3) {
       logger.warn("credentialtypes", 'Invalid url format, cannot find credential publisher and ID');
@@ -254,15 +254,15 @@ class CredentialTypesService {
    * get the right target credential id in the same document, and gets the context payload out of it.
    */
   public getContextPayloadFromDIDDocument(document: DIDDocument, serviceId: string): ContextPayload {
-    let service = document.getService(serviceId);
+    const service = document.getService(serviceId);
     if (!service) {
       logger.warn("credentialtypes", "The DID document has no service with ID: " + serviceId);
       return null;
     }
 
-    let targetCredentialId = service.getServiceEndpoint();
+    const targetCredentialId = service.getServiceEndpoint();
 
-    let credential = this.getCredentialById(document, new DIDURL(targetCredentialId));
+    const credential = this.getCredentialById(document, new DIDURL(targetCredentialId));
     if (!credential) {
       logger.warn("credentialtypes", "The DID document has no credential context credential that matches (service id, credential id): ", serviceId, targetCredentialId);
       return null;
@@ -276,7 +276,7 @@ class CredentialTypesService {
      *   }
      * }
      */
-    let subject = credential.getSubject().getProperties();
+    const subject = credential.getSubject().getProperties();
     if (!("definition" in subject) || !("@context" in (subject["definition"] as JSONObject))) {
       logger.warn("credentialtypes", `Credential ${targetCredentialId} found but no definition/@context in the subject. Invalid format.`, subject);
       return null;
@@ -297,7 +297,7 @@ class CredentialTypesService {
             // we use the json ld's "defaultLoader" as it also deals wit hmore advanced cases like
             // following header redirection for special types, etc (more things than our fetcher).
             // For instance, our fetcher works with ns.elastos.org urls, but not with schema.org ones.
-            let context = await this.fetchContext(url);
+            const context = await this.fetchContext(url);
             resolve({
               contextUrl: null,
               documentUrl: url,
@@ -305,8 +305,8 @@ class CredentialTypesService {
             });
           }
           else {
-            let defaultLoader = (jsonld as any).documentLoaders.xhr();
-            let data = await defaultLoader(url);
+            const defaultLoader = (jsonld as any).documentLoaders.xhr();
+            const data = await defaultLoader(url);
             resolve(data);
           }
         }
@@ -324,7 +324,7 @@ class CredentialTypesService {
    */
   public async verifyCredential(credential: VerifiableCredential): Promise<boolean> {
     try {
-      let credentialContentJson = credential.toJSON();
+      const credentialContentJson = credential.toJSON();
       if (typeof credentialContentJson !== "object") {
         logger.warn('credentialtypes', 'verifyCredential false 331')
         return false;
@@ -346,7 +346,7 @@ class CredentialTypesService {
         return false;
       }
 
-      let compacted = await jsonld.compact(credentialContentJson, credentialContentJson["@context"] as ContextDefinition, {
+      const compacted = await jsonld.compact(credentialContentJson, credentialContentJson["@context"] as ContextDefinition, {
         documentLoader: this.buildElastosJsonLdDocLoader()
       });
 
@@ -361,7 +361,7 @@ class CredentialTypesService {
 
         // Check what original fields are missing after compacting. Is some warnings are generated,
         // this means the document is not conform
-        let { modifiedDoc, warningsGenerated } = this.addMissingFieldsToCompactHtmlResult(credentialContentJson, compacted);
+        const { modifiedDoc, warningsGenerated } = this.addMissingFieldsToCompactHtmlResult(credentialContentJson, compacted);
         if (!warningsGenerated)
           return true;
       }
@@ -377,10 +377,10 @@ class CredentialTypesService {
   // TODO: RECURSIVE
   private addMissingFieldsToCompactHtmlResult(originalUserDoc: any, compactedDoc: any): { modifiedDoc: any, warningsGenerated: boolean } {
     let warningsGenerated = false;
-    let modifiedCompactedDoc = Object.assign({}, compactedDoc);
+    const modifiedCompactedDoc = Object.assign({}, compactedDoc);
 
     // Credential subject
-    for (let key of Object.keys(originalUserDoc.credentialSubject)) {
+    for (const key of Object.keys(originalUserDoc.credentialSubject)) {
       if (!(key in compactedDoc.credentialSubject)) {
         modifiedCompactedDoc.credentialSubject["MISSING_KEY_" + key] = "This field is missing in credential types";
         warningsGenerated = true;
@@ -388,7 +388,7 @@ class CredentialTypesService {
     }
 
     // Proof
-    for (let key of Object.keys(originalUserDoc.proof)) {
+    for (const key of Object.keys(originalUserDoc.proof)) {
       if (!(key in compactedDoc.proof)) {
         modifiedCompactedDoc.proof["MISSING_KEY_" + key] = "This field is missing in credential types";
         warningsGenerated = true;
@@ -402,7 +402,7 @@ class CredentialTypesService {
   }
 
   getCredentialById(document: DIDDocument, credentialId: DIDURL): VerifiableCredential {
-    let credentials = document.getCredentials();
+    const credentials = document.getCredentials();
     return credentials.find((c) => {
       return credentialId.getFragment() == c.getId().getFragment();
     });

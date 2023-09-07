@@ -5,6 +5,7 @@ import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { useMounted } from '@hooks/useMounted';
 import { Credential } from '@model/credential/credential';
 import { Avatar, Box, Grid, ListItemButton, ListItemIcon, Stack, Typography } from '@mui/material';
+import Image from 'next/image';
 import { FC } from 'react';
 import IdentityMenu from './IdentityMenu';
 
@@ -65,7 +66,7 @@ export const CredentialDetailWidget: FC<Props> = (props) => {
                   (!selectedCredential.selfIssued() && issuerInfo?.isPublished) && (
                     <ListItemButton>
                       <ListItemIcon>
-                        <img src={issuerInfo?.avatarIcon} width={30} style={{ borderRadius: '50%' }} alt=""/>
+                        <Image unoptimized src={issuerInfo?.avatarIcon} width={30}  height={30} style={{ borderRadius: '50%' }} alt="avatar" />
                       </ListItemIcon>
 
                       <Typography variant="body1" sx={{ color: 'text.secondary' }}>

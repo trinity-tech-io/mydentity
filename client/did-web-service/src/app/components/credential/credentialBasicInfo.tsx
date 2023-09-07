@@ -1,6 +1,7 @@
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { Credential } from '@model/credential/credential';
 import { Box, Grid, ListItemButton, ListItemIcon, Typography } from "@mui/material";
+import Image from 'next/image';
 
 interface Props {
     credential: Credential;
@@ -31,7 +32,7 @@ function CredentialBasicInfo(props: Props) {
           (!credential.selfIssued() && issuerInfo?.isPublished) && (
             <ListItemButton>
               <ListItemIcon>
-                <img src={issuerInfo?.avatarIcon} width={30} style={{ borderRadius: '50%' }} alt=""/>
+                <Image unoptimized src={issuerInfo?.avatarIcon} width={30} height={30} style={{ borderRadius: '50%' }} alt=""/>
               </ListItemIcon>
 
               <Typography variant="body1" sx={{ color: 'text.secondary' }}>

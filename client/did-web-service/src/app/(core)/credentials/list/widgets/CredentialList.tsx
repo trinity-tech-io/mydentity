@@ -1,5 +1,5 @@
 'use client';
-import CredentialBasicInfo from '@components/credential/credentialBasicInfo';
+import CredentialBasicInfo from '@components/credential/CredentialBasicInfo';
 import { VerticalStackLoadingCard } from '@components/loading-cards/vertical-stack-loading-card/VerticalStackLoadingCard';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { useMounted } from '@hooks/useMounted';

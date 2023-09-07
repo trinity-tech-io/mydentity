@@ -6,6 +6,7 @@ import { Card, Stack, Typography } from "@mui/material";
 import Paper from '@mui/material/Paper';
 import { styled } from '@mui/material/styles';
 import { shortenString } from '@utils/strings';
+import Image from 'next/image';
 import { FC } from "react";
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -58,7 +59,7 @@ export const CredentialPreview: FC<Props> = (props: Props) => {
                         <Item sx={{ my: 1, mx: 'auto', p: 2 }}>
                             <Stack spacing={2} direction="row" alignItems="center">
                                 <Stack>
-                                    <img src={issuerInfo?.avatarIcon} width={30} style={{ borderRadius: '50%' }} alt=""/>
+                                    <Image unoptimized src={issuerInfo?.avatarIcon} width={30} height={30} style={{ borderRadius: '50%' }} alt=""/>
                                 </Stack>
                                 <Stack sx={{ maxWidth: 400 }}>
                                     <Typography fontSize={13} noWrap>{issuerInfo && shortenString(issuerInfo?.name, 30)}</Typography>
