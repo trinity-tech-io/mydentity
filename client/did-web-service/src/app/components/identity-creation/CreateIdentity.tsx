@@ -2,6 +2,7 @@
 import { MainButton } from '@components/generic/MainButton';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { useMounted } from '@hooks/useMounted';
+import { Identity } from '@model/identity/identity';
 import { TextField } from '@mui/material';
 import { useToast } from '@services/feedback.service';
 import { identityService } from '@services/identity/identity.service';
@@ -12,7 +13,7 @@ import { FC, FormEvent, useRef, useState } from 'react';
 export const CreateIdentity: FC<{
   suggestedName?: string;
   onIdentityCreating?: () => void;
-  onIdentityCreated: () => void;
+  onIdentityCreated: (identity: Identity) => void;
 }> = ({ suggestedName = "", onIdentityCreating, onIdentityCreated }) => {
   const nameInput = useRef(null);
   const [authUser] = useBehaviorSubject(authUser$());
@@ -35,7 +36,7 @@ export const CreateIdentity: FC<{
     if (identity) {
       identityService.setActiveIdentity(identity)
       showSuccessToast("Your new identity was created!");
-      onIdentityCreated();
+      onIdentityCreated(identity);
     }
   }
 
