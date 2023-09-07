@@ -1,6 +1,6 @@
-import NationalityCommon from '@components/identity-profile/CountrySelect';
+import NationalityCommon, { CountryType } from '@components/identity-profile/CountrySelect';
 import DatePickerCommon from '@components/identity-profile/DatePickerCommon';
-import GenderCommon from '@components/identity-profile/GenderSelect';
+import GenderCommon, { GenderType } from '@components/identity-profile/GenderSelect';
 import { ProfileCredential } from "@model/credential/profile-credential";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
 import { ProfileCredentialInfo, ProfileCredentialInfoEditionType } from "@services/identity-profile-info/profile-credential-info";
