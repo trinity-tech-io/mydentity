@@ -37,9 +37,11 @@ export class CredentialsService {
   }
 
   async storeCredential(input: ImportCredentialInput, user: User) {
+    const storePassword = '123456'; // TODO: use account key
+
     const vc = VerifiableCredential.parse(input.credentialString);
     this.logger.log("storeCredential")
-    await this.didService.storeCredential(user.id, vc);
+    await this.didService.storeCredential(user.id, vc, storePassword);
 
     const credentials = await this.prisma.credential.create({
       data: {
@@ -69,10 +71,12 @@ export class CredentialsService {
       where: { identityDid },
     });
 
+    const storePassword = '123456'; // TODO: use account key
+
     // TODO: for each DB credential, load the real VC from the DID Store and decrypt it.
     return Promise.all(credentials.map(async (c) => ({
       ...c,
-      verifiableCredential: (await this.didService.loadCredential(user.id, c.credentialId)).toString(),
+      verifiableCredential: (await this.didService.loadCredential(user.id, c.credentialId, storePassword)).toString(),
     })));
   }
 

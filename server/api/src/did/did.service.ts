@@ -106,7 +106,7 @@ export class DidService {
       const vc = await this.issueCredential(didStorePath, didString, didString, credentialId, types, expirationDate, properties, storepass);
       const didStore = await this.openStore(didStorePath);
       // save to did store
-      await didStore.storeCredential(vc);
+      await didStore.storeCredential(vc, storepass);
       return vc;
     } catch (e) {
       if (e instanceof Exceptions.CredentialAlreadyExistException) {
@@ -137,19 +137,19 @@ export class DidService {
     }
   }
 
-  async loadCredential(didStorePath: string, credentialId: string) {
+  async loadCredential(didStorePath: string, credentialId: string, storePassword: string) {
     try {
       const didStore = await this.openStore(didStorePath);
-      return await didStore.loadCredential(credentialId);
+      return await didStore.loadCredential(credentialId, storePassword);
     } catch (e) {
       throw new AppException(DIDExceptionCode.DIDStorageError, e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
-  async storeCredential(didStorePath: string, credential: VerifiableCredential) {
+  async storeCredential(didStorePath: string, credential: VerifiableCredential, storePassword: string) {
     try {
       const didStore = await this.openStore(didStorePath);
-      return await didStore.storeCredential(credential);
+      return await didStore.storeCredential(credential, storePassword);
     } catch (e) {
       throw new AppException(DIDExceptionCode.DIDStorageError, e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
