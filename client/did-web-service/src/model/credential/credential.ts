@@ -9,7 +9,7 @@ import { issuerService } from "@services/identity/issuer.service";
 import { logger } from "@services/logger";
 import { LazyBehaviorSubjectWrapper } from "@utils/lazy-behavior-subject";
 import { evalObjectFieldPath } from "@utils/objects";
-import { capitalizeFirstLetter, convertUtcToLocaleDateTime } from "@utils/strings";
+import { capitalizeFirstLetter } from "@utils/strings";
 import { BehaviorSubject } from "rxjs";
 import { IssuerInfo } from "./issuer-info";
 
@@ -118,17 +118,7 @@ export class Credential {
   }
 
   public getDisplayValue(): any {
-    return this.convertDisplayValue(this.displayValue);
-  }
-
-  private convertDisplayValue(displayValue: any): any {
-    if (typeof displayValue === 'string') {
-      this.displayValue = convertUtcToLocaleDateTime(displayValue)
-    } else if (typeof displayValue === 'object') {
-      // Nationality
-      this.displayValue = displayValue?.label
-    }
-    return this.displayValue;
+    return this.displayValue
   }
 
   /**

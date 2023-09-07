@@ -1,24 +1,22 @@
 import { Credential } from "@model/credential/credential";
 import { CredentialValueConverter } from "../credential-value-converter";
 import { ProfileCredentialInfoEditionType } from "../profile-credential-info";
+import { convertUtcToLocaleDateTime } from "@utils/strings";
 
-/**
- * Default string management: single string during edition, single string in the subject.
- */
-export class CredentialValueConverterString extends CredentialValueConverter<string> {
+export class CredentialValueConverterDate extends CredentialValueConverter<Date> {
   constructor(private subjectKey: string) {
-    super(ProfileCredentialInfoEditionType.SingleLineString);
+    super(ProfileCredentialInfoEditionType.Date);
   }
 
-  public toEditableValue(credential: Credential): string {
+  public toEditableValue(credential: Credential): Date {
     return credential.verifiableCredential.getSubject().getProperty(this.subjectKey);
   }
 
   public toDisplayableValue(credential: Credential): string {
-    return credential.verifiableCredential.getSubject().getProperty(this.subjectKey);
+    return convertUtcToLocaleDateTime(credential.verifiableCredential.getSubject().getProperty(this.subjectKey))
   }
 
-  public toSubject(editedValue: string): any {
+  public toSubject(editedValue: Date): any {
     return {
       [this.subjectKey]: editedValue
     }

@@ -2,6 +2,9 @@ import { CredentialType } from "@model/credential/credential-type";
 import { ProfileCredentialInfo } from "@services/identity-profile-info/profile-credential-info";
 import { CredentialValueConverterAvatar } from "./converters/avatar-converter";
 import { CredentialValueConverterString } from "./converters/string-converter";
+import { CredentialValueConverterDate } from "./converters/date-converter";
+import { CredentialValueConverterGender } from "./converters/gender-converter";
+import { CredentialValueConverterNationality } from "./converters/nationality-converter";
 
 /**
  * List of profile credentials that this identity can potentially hold.
@@ -29,21 +32,21 @@ const availableProfileCredentialEntries: ProfileCredentialInfo[] = [
     new CredentialType("https://ns.elastos.org/credentials/profile/email/v1#BirthDateCredential"),
     {
       multipleInstancesAllowed: true,
-      converter: new CredentialValueConverterString("birthDate")
+      converter: new CredentialValueConverterDate("birthDate")
     }),
 
   new ProfileCredentialInfo("nationality",
     new CredentialType("did://elastos/iUq76mi2inkZfqqbHkovbcDkzEkAh2dKrb/ISONationalityCredential#ISONationalityCredential"),
     {
       multipleInstancesAllowed: true,
-      converter: new CredentialValueConverterString("nationality")
+      converter: new CredentialValueConverterNationality("nationality")
     }),
 
   new ProfileCredentialInfo("gender",
     new CredentialType("https://ns.elastos.org/credentials/profile/gender/v1#GenderCredential"),
     {
       multipleInstancesAllowed: true,
-      converter: new CredentialValueConverterString("gender")
+      converter: new CredentialValueConverterGender("gender")
     }),
   new ProfileCredentialInfo("telephone"),
   new ProfileCredentialInfo("nickname"),

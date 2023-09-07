@@ -3,11 +3,11 @@ import { CredentialValueConverter } from "../credential-value-converter";
 import { ProfileCredentialInfoEditionType } from "../profile-credential-info";
 
 /**
- * Default string management: single string during edition, single string in the subject.
+ * Gender
  */
-export class CredentialValueConverterString extends CredentialValueConverter<string> {
+export class CredentialValueConverterGender extends CredentialValueConverter<string> {
   constructor(private subjectKey: string) {
-    super(ProfileCredentialInfoEditionType.SingleLineString);
+    super(ProfileCredentialInfoEditionType.Gender);
   }
 
   public toEditableValue(credential: Credential): string {
