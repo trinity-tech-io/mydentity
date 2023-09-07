@@ -188,8 +188,11 @@ const Profile: FC = () => {
         return a.getDisplayableTitle().localeCompare(b.getDisplayableTitle());
 
       case "value":
-        return a.getDisplayValue().localeCompare(b.getDisplayValue());
-
+        {
+        const aValue = a.getDisplayValue().label ? a.getDisplayValue().label : a.getDisplayValue();
+        const bValue = b.getDisplayValue().label ? b.getDisplayValue().label : b.getDisplayValue();
+        return aValue.localeCompare(bValue);
+        }
       default:
     }
   }

@@ -67,7 +67,7 @@ function EditCredentialDialog(props: EditCredentialDialogProps): JSX.Element {
                 result = selectedCountry 
                 break
             case ProfileCredentialInfoEditionType.Gender:
-                result = selectedGender // TODO
+                result = selectedGender 
                 break
             default:
                 break
