@@ -3,21 +3,32 @@ import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Autocomplete, { AutocompleteRenderInputParams } from '@mui/material/Autocomplete';
 
-export default function GenderSelect(): React.ReactElement  {
+interface GenderSelectProps {
+  selectedGender: GenderType | null
+  onGenderSelect: (selectedGender: GenderType | null) => void;
+}
+
+export default function GenderSelect({ onGenderSelect }: GenderSelectProps): React.ReactElement {  
+  const handleGenderChange = (event: React.ChangeEvent<unknown>, newValue: GenderType | null): void => {    
+    onGenderSelect(newValue)
+  }
+
   return (
     <Autocomplete
+      key="gender-select" 
       id="country-select-demo"
       sx={{ width: 395 }}
       options={gender}
+      onChange={handleGenderChange}
       autoHighlight
-      getOptionLabel={(option): string => option.label}
+      getOptionLabel={(option): string => option}
       renderOption={(props, option): React.JSX.Element => (
         <Box
           component="li"
           sx={{ "& > img": { mr: 2, flexShrink: 0 } }}
           {...props}
         >
-          {option.label}
+          {option}
         </Box>
       )}
       renderInput={(params: AutocompleteRenderInputParams): React.ReactElement => (
@@ -34,13 +45,12 @@ export default function GenderSelect(): React.ReactElement  {
   );
 }
 
-interface GenderType {
-  code: string;
-  label: string;
-  suggested?: boolean;
+export enum GenderType {
+  man = 'man',
+  famle = 'famle'
 }
 
 const gender: readonly GenderType[] = [
-  { code: "1", label: "man" },
-  { code: "2", label: "famle"}
+  GenderType.man,
+  GenderType.famle
 ];

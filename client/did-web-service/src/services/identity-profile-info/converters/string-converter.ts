@@ -7,7 +7,20 @@ import { ProfileCredentialInfoEditionType } from "../profile-credential-info";
  */
 export class CredentialValueConverterString extends CredentialValueConverter<string> {
   constructor(private subjectKey: string) {
-    super(ProfileCredentialInfoEditionType.SingleLineString);
+    if (subjectKey === "avatar") {
+      super(ProfileCredentialInfoEditionType.Undefined);
+    } else if (subjectKey === 'email') {
+      super(ProfileCredentialInfoEditionType.SingleLineString)
+    } else if (subjectKey === "birthDate") {
+      super(ProfileCredentialInfoEditionType.Date);
+    } else if (subjectKey === "nationality") {
+      super(ProfileCredentialInfoEditionType.Country);
+    } else if (subjectKey === "gender") {
+      super(ProfileCredentialInfoEditionType.Gender);
+    }
+    else {
+      super(ProfileCredentialInfoEditionType.Undefined);
+    }
   }
 
   public toEditableValue(credential: Credential): string {

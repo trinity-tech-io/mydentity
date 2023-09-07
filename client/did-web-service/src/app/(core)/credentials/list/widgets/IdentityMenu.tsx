@@ -75,7 +75,7 @@ const IdentityMenu: FC<{
   };
 
   // Edit -> Cancel/OK
-  const handleOK = async (editCredentialValue: { info: ProfileCredentialInfo, value?: string, type: EditionMode, originCredential: ProfileCredential, selectedDate?: Date }): Promise<void> => {
+  const handleOK = async (editCredentialValue: { info: ProfileCredentialInfo, value: any, type: EditionMode, originCredential: ProfileCredential}): Promise<void> => {
     setOpenEditCredentialDialog(false);
     if (!editCredentialValue)
       return;

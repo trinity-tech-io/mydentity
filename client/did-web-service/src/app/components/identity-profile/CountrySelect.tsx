@@ -3,10 +3,19 @@ import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Autocomplete, { AutocompleteRenderInputParams } from '@mui/material/Autocomplete';
 
-export default function CountrySelect(): React.ReactElement  {
+interface CountryCommonProps {
+  selectedCountry: CountryType | null
+  onCountrySelect: (selectedCountry: CountryType | null) => void; // Change the argument type
+}
+
+const CountrySelect: React.FC<CountryCommonProps> = ({ onCountrySelect }) => {
+  const handleCountryChange = (event: React.ChangeEvent<unknown>, newValue: CountryType | null): void => {
+    onCountrySelect(newValue); // Call the callback with the selected country
+  };
   return (
     <Autocomplete
       id="country-select-demo"
+      onChange={handleCountryChange}
       sx={{ width: 395 }}
       options={countries}
       autoHighlight
@@ -29,8 +38,9 @@ export default function CountrySelect(): React.ReactElement  {
     />
   );
 }
+export default CountrySelect;
 
-interface CountryType {
+export interface CountryType {
   code: string;
   label: string;
   phone: string;

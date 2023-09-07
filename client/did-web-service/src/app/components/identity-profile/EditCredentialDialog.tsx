@@ -25,29 +25,19 @@ export interface EditCredentialDialogProps {
     open: boolean;
     type: EditionMode;
     originCredential: ProfileCredential;
-    onClose: (editCredentialValue?: { info: ProfileCredentialInfo, value?: string, type: EditionMode, originCredential: ProfileCredential, selectedDate?: Date }) => void;
+    onClose: (editCredentialValue?: { info: ProfileCredentialInfo, value: any, type: EditionMode, originCredential: ProfileCredential}) => void;
 }
 
 function EditCredentialDialog(props: EditCredentialDialogProps): JSX.Element {
     const { credentialInfo, defaultValue, open, type, originCredential, onClose } = props;
     const [editionType, setEditionType] = useState<ProfileCredentialInfoEditionType>(null);
     const radioGroupRef = useRef<HTMLElement>(null);
-    const [selectedType, setSelectedType] = useState<SelectedType>(null);
     const [selectedDate, setSelectedDate] = useState<Date>(null);
+    const [selectedCountry, setSelectedCountry] = useState<CountryType>(null); 
+    const [selectedGender, setSelectedGender] = useState<GenderType | null>(null);
 
     useEffect(() => {
         if (open) {
-            if (credentialInfo.key === 'birthDate') {
-                setSelectedType(SelectedType.BIRTHDATE);
-            } else if (credentialInfo.key === 'avatar') {
-                setSelectedType(SelectedType.AVATAR);
-            } else if (credentialInfo.key === 'email') {
-                setSelectedType(SelectedType.EMAIL);
-            } else if (credentialInfo.key === 'nationality') {
-                setSelectedType(SelectedType.NATIONALITY);
-            } else if (credentialInfo.key === 'gender') {
-                setSelectedType(SelectedType.GENDER);
-            }
             setEditionType(credentialInfo.getConverter().getEditionType());
         }
     }, [credentialInfo, open]);
@@ -65,12 +55,36 @@ function EditCredentialDialog(props: EditCredentialDialogProps): JSX.Element {
     };
 
     const handleOk = (): void => {
-        const result = inputRef?.current?.value
-        onClose({ info: credentialInfo, value: result, type: type, originCredential, selectedDate });
+        let result;
+        switch (credentialInfo.getConverter().getEditionType()) {
+            case ProfileCredentialInfoEditionType.SingleLineString:
+                result = inputRef?.current?.value 
+                break
+            case ProfileCredentialInfoEditionType.Date:
+                result = selectedDate
+                break
+            case ProfileCredentialInfoEditionType.Country:
+                result = selectedCountry 
+                break
+            case ProfileCredentialInfoEditionType.Gender:
+                result = selectedGender // TODO
+                break
+            default:
+                break
+          }
+        onClose({ info: credentialInfo, value: result, type: type, originCredential});
     };
 
     const handleDateChange = (date: Date): void => {
         setSelectedDate(date);
+    };
+
+    const handleCountrySelect = (country: CountryType): void => {
+        setSelectedCountry(country);
+      };
+
+    const handleGenderSelect = (gender: GenderType | null): void => {
+        setSelectedGender(gender);
     };
 
     return (
@@ -86,7 +100,7 @@ function EditCredentialDialog(props: EditCredentialDialogProps): JSX.Element {
 
             {/* Content input */}
             <DialogContent dividers>
-                {(selectedType == SelectedType.EMAIL) &&
+                {(editionType == ProfileCredentialInfoEditionType.SingleLineString) &&
                     <TextField
                         fullWidth={true}
                         label={credentialInfo.key}
@@ -98,16 +112,10 @@ function EditCredentialDialog(props: EditCredentialDialogProps): JSX.Element {
                         autoFocus
                     />
                 }
-                {(selectedType == SelectedType.BIRTHDATE) && (
-                    <DatePickerCommon selectedDate={selectedDate} onDateChange={handleDateChange} />
-                )}
-                {(selectedType == SelectedType.NATIONALITY) && (
-                    <NationalityCommon />
-                )}
-                {(selectedType == SelectedType.GENDER) && (
-                    <GenderCommon />
-                )}
-                {editionType != ProfileCredentialInfoEditionType.SingleLineString &&
+                {editionType == ProfileCredentialInfoEditionType.Date && <DatePickerCommon selectedDate={selectedDate} onDateChange={handleDateChange} />}
+                {editionType == ProfileCredentialInfoEditionType.Country && <NationalityCommon selectedCountry={selectedCountry} onCountrySelect={handleCountrySelect} />}
+                {editionType == ProfileCredentialInfoEditionType.Gender && <GenderCommon selectedGender={selectedGender} onGenderSelect={handleGenderSelect} />}
+                {editionType == ProfileCredentialInfoEditionType.Undefined &&
                     <div>TODO</div>
                 }
             </DialogContent>

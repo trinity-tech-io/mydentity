@@ -118,7 +118,7 @@ const Profile: FC = () => {
     }
   };
 
-  const handleEditCredentialDialogClose = async (editCredentialValue: { info: ProfileCredentialInfo, value?: string, type: EditionMode, originCredential: ProfileCredential, selectedDate?: Date }): Promise<void> => {
+  const handleEditCredentialDialogClose = async (editCredentialValue: { info: ProfileCredentialInfo, value: any, type: EditionMode, originCredential: ProfileCredential}): Promise<void> => {
     setOpenEditCredentialDialog(false);
     if (!editCredentialValue)
       return;
@@ -321,8 +321,11 @@ const Profile: FC = () => {
                 {filteredCredentials?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((credential: ProfileCredential) => {
                   // const { id, name, value} = row;
                   const id = credential.id;
-                  const value = credential.getDisplayValue();
-
+                  let value = credential.getDisplayValue();
+                  if (credential.getDisplayableTitle() == 'Nationality') {   
+                    value = value.label
+                  }
+                  
                   return (
                     <TableRow hover key={id} tabIndex={-1} onClick={(): void => handleCellClick(credential)}>
                       <TableCell component="th" scope="row" padding="none">
