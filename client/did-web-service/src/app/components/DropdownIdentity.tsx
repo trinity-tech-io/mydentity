@@ -78,7 +78,6 @@ export const DropdownIdentity: FC<{
     if (currentIdentity) {
       setDID(shortenDID(currentIdentity.did));
     } else {
-      // setName('');
       setDID('No active identity');
     }
   }, [currentIdentity]);
@@ -118,9 +117,9 @@ export const DropdownIdentity: FC<{
 
         {name && name !== null ? (
           <CircleComponent text={initialsString(name)} />) : (
-            <Avatar sx={{ ml: 0, width: 40, height: 40}}>
-              <AccountIcon width={20}/>
-            </Avatar>
+          <Avatar sx={{ ml: 0, width: 40, height: 40 }}>
+            <AccountIcon width={20} />
+          </Avatar>
         )}
         <div className={classes.avatarContainer}>
           <div className={classes.textContainer}>

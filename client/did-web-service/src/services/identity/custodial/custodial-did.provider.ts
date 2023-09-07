@@ -167,8 +167,6 @@ export class CustodialDIDProvider implements IdentityProvider {
       });
     });
 
-    console.log(data)
-
     if (data?.getPublicationStatus) {
       return data.getPublicationStatus as IdentityPublicationStatusResult;
     }

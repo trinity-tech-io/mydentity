@@ -18,9 +18,14 @@ export const CreateIdentity: FC<{
   const nameInput = useRef(null);
   const [authUser] = useBehaviorSubject(authUser$());
   const { mounted } = useMounted();
-  const [creatingIdentity, setCreatingIdentity] = useState(false);
   const { showSuccessToast } = useToast();
   const router = useRouter();
+
+  // Step states
+  const [creatingIdentity, setCreatingIdentity] = useState(false); // From clicking on "create" until the very end
+  const [callingCreationApi, setCallingCreationApi] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [creatingStorage, setCreatingStorage] = useState(false);
 
   const createIdentity = async (e?: FormEvent): Promise<void> => {
     // Disable form submit
@@ -32,16 +37,25 @@ export const CreateIdentity: FC<{
 
     // Create identity for real in the backend
     // TODO: use callWithUnlock() to call createIdentity(), because master key unlock is probably required
+    setCallingCreationApi(true);
     const identity = await authUser.get("identity").createIdentity(name);
+    setCallingCreationApi(false);
+
     if (identity) {
-      identityService.setActiveIdentity(identity)
+      identityService.setActiveIdentity(identity);
+
+      setPublishing(true);
+      await identity.get("publication").awaitIdentityPublished();
+      setPublishing(false);
+
+      // Prepare the hive vault. This also starts the vault registration is not done yet, through the lazy access of vault status.
+      setCreatingStorage(true);
+      await identity.get("hive").awaitHiveVaultReady();
+      setCreatingStorage(false);
+
       showSuccessToast("Your new identity was created!");
       onIdentityCreated(identity);
     }
-  }
-
-  const showProfile = (): void => {
-    router.replace("/profile");
   }
 
   if (!mounted)
@@ -63,6 +77,12 @@ export const CreateIdentity: FC<{
     </form>
 
     <MainButton onClick={createIdentity} busy={creatingIdentity}>Create this identity</MainButton>
+
+    <div className='flex flex-col'>
+      {callingCreationApi && "Creating the secure identity"}
+      {publishing && "Registering identity"}
+      {creatingStorage && "Creating storage"}
+    </div>
   </div>
   )
 }

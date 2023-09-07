@@ -34,9 +34,9 @@ export class PublicationFeature implements IdentityFeature {
   }
 
   public async fetchPublicationStatus(didString: string): Promise<void> {
-    logger.log("publication", "Getting publication status");
-
     const status = await identityService.getPublicationStatus(didString);
+    logger.log("publication", "Got publication status", status?.state);
+
     this.publicationStatus$.next(status?.state);
   }
 
