@@ -27,6 +27,7 @@ import { useRouter } from "next/navigation";
 import { ChangeEvent, FC, MouseEvent, forwardRef, useEffect, useState } from "react";
 import { EditableCredentialAvatar } from '../../components/credential/EditableCredentialAvatar';
 import { OrderBy } from "./order-by";
+import { convertUtcToLocaleDateTime } from '@utils/strings';
 
 const CREDENTIAL_LIST_HEAD = [
   { id: 'name', label: 'Name', alignRight: false },
@@ -328,7 +329,9 @@ const Profile: FC = () => {
                   if (credential.getDisplayableTitle() == 'Nationality') {   
                     value = value.label
                   }
-                  
+                  else if (credential.getDisplayableTitle() == 'BirthDate') {
+                    value = convertUtcToLocaleDateTime(value)
+                  }
                   return (
                     <TableRow hover key={id} tabIndex={-1} onClick={(): void => handleCellClick(credential)}>
                       <TableCell component="th" scope="row" padding="none">

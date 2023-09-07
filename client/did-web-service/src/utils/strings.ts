@@ -19,4 +19,13 @@ export function initialsString(str?: string): string {
   return capitalizeFirstLetter(str.split(' ').map(word => word[0]).join(''))
 }
 
+export function convertUtcToLocaleDateTime(utcDateTimeString: string): string {
+  const utcDate = new Date(utcDateTimeString);
+
+  const locale = navigator.language; // Get the local language setting of the user's browser
+  const dateFormatter = new Intl.DateTimeFormat(locale);
+  const localDateTimeString = dateFormatter.format(utcDate);
+
+  return localDateTimeString;
+}
 
