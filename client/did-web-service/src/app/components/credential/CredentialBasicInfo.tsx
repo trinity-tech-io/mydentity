@@ -23,9 +23,9 @@ function CredentialBasicInfo(props: Props) {
 
       <Grid container spacing={2} sx={{ mt: 1 }}>
         {credential.isSensitiveCredential() &&
-            <Typography fontSize={14} color={"#FF6347"}>
-              Sensitive
-            </Typography>
+          <Typography fontSize={14} color={"#FF6347"}>
+            Sensitive
+          </Typography>
         }
 
         {

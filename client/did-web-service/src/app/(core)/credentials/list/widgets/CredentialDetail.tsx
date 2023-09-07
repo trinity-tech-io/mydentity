@@ -62,6 +62,14 @@ export const CredentialDetailWidget: FC<Props> = (props) => {
                   </Typography>
                 </Grid>
 
+                {selectedCredential.isSensitiveCredential() &&
+                  <><Grid item xs={6}>
+                    <Typography fontSize={14} color={"#FF6347"} gutterBottom>
+                      Sensitive
+                    </Typography>
+                  </Grid></>
+                }
+
                 {
                   (!selectedCredential.selfIssued() && issuerInfo?.isPublished) && (
                     <ListItemButton>
