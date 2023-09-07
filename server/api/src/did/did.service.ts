@@ -53,10 +53,10 @@ export class DidService {
     const didStore = await this.openStore(didStorePath);
 
     let rootIdentity: RootIdentity = null;
-    if (!didStore.containsRootIdentities()) {
+    if (!(await didStore.containsRootIdentities())) {
       // Create DID SDK root identity
       this.logger.log('No root identities, creating a root identity');
-      rootIdentity = this.initPrivateIdentity(didStore, storePassword);
+      rootIdentity = await this.initPrivateIdentity(didStore, storePassword);
     } else {
       this.logger.log('Root identities found - reusing the existing root identity');
       rootIdentity = await didStore.loadRootIdentity();
@@ -82,9 +82,9 @@ export class DidService {
 
     // Delete all credentials belonging to this did
     const credentials = await didStore.listCredentials(didString);
-    credentials.forEach(c => {
-      didStore.deleteCredential(c);
-    })
+    for (const c of credentials){
+      await didStore.deleteCredential(c);
+    }
 
     const successfulDeletion = didStore.deleteDid(didString);
     if (!successfulDeletion) {
@@ -124,7 +124,7 @@ export class DidService {
       if (!didDocument)
         throw new AppException(DIDExceptionCode.DIDNotExists, "Can't load did:" + didString, HttpStatus.NOT_FOUND);
 
-      const issuer = new Issuer(didDocument);
+      const issuer = await Issuer.create(didDocument);
       const vcBuilder = issuer.issueFor(subjectDid);
       const vc = await vcBuilder.id(credentialId).types(...types).expirationDate(expirationDate).properties(properties).seal(storepass);
       return vc;
