@@ -1,8 +1,8 @@
-import { logger } from "@elastosfoundation/elastos-connectivity-sdk-js";
 import { FileDownloadExecutable } from "@elastosfoundation/hive-js-sdk";
 import { Identity } from "@model/identity/identity";
 import { configService } from "@services/config/config.service";
 import { getScriptingService } from "@services/hive/hive.service";
+import { logger } from "@services/logger";
 import { compressImage, fileToDataUrlImage } from "@utils/pictures";
 
 type UploadedHiveAvatar = {
@@ -23,24 +23,18 @@ export async function editAvatarOnHive(identity: Identity, newPictureFile: File)
   const dataUrl = await fileToDataUrlImage(newPictureFile);
   const compressedImageBuffer = await compressImage(dataUrl, 100);
   const avatarData = compressedImageBuffer; //Buffer.from(compressedImageBuffer, "base64"); // Raw picture data, not base64 encoded
+
+  // Upload the picture
   const vault = await identity.get("hive").getVaultService();
-  const uploadResponse = await vault.getFilesService().upload(avatarFileName, Buffer.from(avatarData), {
-    onProgress(progress) {
-      console.log("upload progreess", progress)
-    },
-  }, false);
+  const uploadResponse = await vault.getFilesService().upload(avatarFileName, Buffer.from(avatarData), { onProgress: () => { } }, false);
   logger.log('profile', "Completed avatar upload to hive", uploadResponse);
 
   // Create a script to make this picture available to everyone
   const scriptName = "getMainIdentityAvatar" + randomPictureID;
   const scriptingService = await getScriptingService(identity.did);
-  /*  scriptingService.registerScript(scriptName, new AggregatedExecutable(
-     "getMainIdentityAvatar",
-     [new Executable('download', ExecutableType.FILE_DOWNLOAD, { path: avatarFileName })]
-   ), null, true, true); */
+  await scriptingService.registerScript(scriptName, new FileDownloadExecutable(scriptName, avatarFileName).setOutput(true), undefined, true, true);
 
-  await scriptingService.registerScript(scriptName, new FileDownloadExecutable(avatarFileName).setOutput(true), undefined, true, true);
-
+  // Prepare the hive url that will be used to fetch the picture
   const appDid = configService.get("appDid");
   const avatarHiveURL = "hive://" + identity.did + "@" + appDid + "/" + scriptName + "?params={}"; // Fake params to prevent hive SDK bug crash
   logger.log("identity", "Generated avatar url:", avatarHiveURL);

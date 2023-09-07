@@ -18,3 +18,8 @@
 # Theme info
 
 - The current theme was copied from https://mosaic.cruip.com/
+
+# To check npm dependencies versions and update them all
+
+- npx npm-check-updates
+- npx npm-check-updates -u
