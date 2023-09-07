@@ -119,14 +119,15 @@ export class Credential {
   }
 
   public getDisplayValue(): any {
-    if (typeof this.displayValue === 'string') {
-      if (this.displayTitle === 'BirthDate') {
-        // BirthDate
-        this.displayValue = convertUtcToLocaleDateTime(this.displayValue)
-      }
-    } else {
+    return this.convertDisplayValue(this.displayValue);
+  }
+
+  private convertDisplayValue(displayValue: any): any {
+    if (typeof displayValue === 'string') {
+      this.displayValue = convertUtcToLocaleDateTime(displayValue)
+    } else if (typeof displayValue === 'object') {
       // Nationality
-      this.displayValue = this.displayValue?.label
+      this.displayValue = displayValue?.label
     }
     return this.displayValue;
   }
