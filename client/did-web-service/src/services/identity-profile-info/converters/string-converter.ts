@@ -17,8 +17,9 @@ export class CredentialValueConverterString extends CredentialValueConverter<str
       super(ProfileCredentialInfoEditionType.Country);
     } else if (subjectKey === "gender") {
       super(ProfileCredentialInfoEditionType.Gender);
-    }
-    else {
+    } else if (subjectKey === "name") {
+      super(ProfileCredentialInfoEditionType.SingleLineString);
+    } else {
       super(ProfileCredentialInfoEditionType.Undefined);
     }
   }
