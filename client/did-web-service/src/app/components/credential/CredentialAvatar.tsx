@@ -16,8 +16,7 @@ export const CredentialAvatar: FC<{
   const [representativeIconPath] = useBehaviorSubject(credential?.representativeIcon$);
 
   return (
-    <Avatar sx={{ width, height }}>
-      {representativeIconPath && <img src={representativeIconPath} />}
+    <Avatar sx={{ width, height }} src={representativeIconPath}>
       {!representativeIconPath && <AccountIcon style={{ width: '70%' }} />}
     </Avatar>
   )

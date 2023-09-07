@@ -21,7 +21,7 @@ export async function editAvatarOnHive(identity: Identity, newPictureFile: File)
   const mimeType = newPictureFile.type;
   const avatarFileName = "identity/avatar/" + randomPictureID;
   const dataUrl = await fileToDataUrlImage(newPictureFile);
-  const compressedImageBuffer = await compressImage(dataUrl, 100);
+  const compressedImageBuffer = await compressImage(dataUrl, 300);
   const avatarData = compressedImageBuffer; //Buffer.from(compressedImageBuffer, "base64"); // Raw picture data, not base64 encoded
 
   // Upload the picture
