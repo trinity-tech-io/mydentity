@@ -17,6 +17,10 @@ export function initSync(): void {
 }
 
 async function connectorInit(): Promise<void> {
+  // No connector on the server side
+  if (typeof window === "undefined")
+    return;
+
   // Use our own internal connector for the connectivity SDK
   const internalConnector = new InternalElastosConnector();
 

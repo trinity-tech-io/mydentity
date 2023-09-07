@@ -10,10 +10,9 @@ import { logger } from "@services/logger";
 import { LazyBehaviorSubjectWrapper } from "@utils/lazy-behavior-subject";
 import { evalObjectFieldPath } from "@utils/objects";
 import { rawImageToBase64DataUrl } from "@utils/pictures";
-import { capitalizeFirstLetter } from "@utils/strings";
+import { capitalizeFirstLetter, convertUtcToLocaleDateTime } from "@utils/strings";
 import { BehaviorSubject } from "rxjs";
 import { IssuerInfo } from "./issuer-info";
-import { convertUtcToLocaleDateTime } from '@utils/strings';
 
 type ValueItem = {
   name: string,
@@ -127,7 +126,7 @@ export class Credential {
       }
     } else {
       // Nationality
-      this.displayValue = this.displayValue.label 
+      this.displayValue = this.displayValue?.label
     }
     return this.displayValue;
   }
