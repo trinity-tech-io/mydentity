@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -15,17 +15,16 @@ function DatePickerCommon({ selectedDate, onDateChange }: DatePickerCommonProps)
   };
 
   return (
-    <div>
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <DemoContainer components={["DatePicker"]}>
-          <DatePicker
-            label="Basic date picker"
-            value={selectedDate}
-            onChange={handleDateChange}
-          />
-        </DemoContainer>
-      </LocalizationProvider>
-    </div>
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <DemoContainer components={["DatePicker"]}>
+        <DatePicker
+          label="Choose a birth date"
+          value={selectedDate}
+          onChange={handleDateChange}
+          slotProps={{ textField: { fullWidth: true } }}
+        />
+      </DemoContainer>
+    </LocalizationProvider>
   );
 }
 

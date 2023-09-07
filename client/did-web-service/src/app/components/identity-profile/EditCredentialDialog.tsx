@@ -3,6 +3,8 @@ import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } 
 import { ProfileCredentialInfo, ProfileCredentialInfoEditionType } from "@services/identity-profile-info/profile-credential-info";
 import { createRef, useEffect, useRef, useState } from "react";
 import DatePickerCommon from '@components/identity-profile/DatePickerCommon';
+import NationalityCommon from '@components/identity-profile/CountrySelect';
+import GenderCommon from '@components/identity-profile/GenderSelect';
 
 export enum EditionMode {
     EDIT,
@@ -13,7 +15,8 @@ export enum SelectedType {
     AVATAR = 'avatar',
     EMAIL = 'email',
     BIRTHDATE = 'birthDate',
-    NATIONALITY = 'nationality'
+    NATIONALITY = 'nationality',
+    GENDER = 'gender'
 }
 
 export interface EditCredentialDialogProps {
@@ -42,6 +45,8 @@ function EditCredentialDialog(props: EditCredentialDialogProps): JSX.Element {
                 setSelectedType(SelectedType.EMAIL);
               } else if (credentialInfo.key === 'nationality') {
                 setSelectedType(SelectedType.NATIONALITY);
+              } else if (credentialInfo.key === 'gender') {
+                setSelectedType(SelectedType.GENDER);
               }
             setEditionType(credentialInfo.getConverter().getEditionType());
         }
@@ -81,12 +86,6 @@ function EditCredentialDialog(props: EditCredentialDialogProps): JSX.Element {
 
             {/* Content input */}
             <DialogContent dividers>
-                {(selectedType == SelectedType.BIRTHDATE) && (
-                    <div className="overlay">
-                        <DatePickerCommon selectedDate={selectedDate} onDateChange={handleDateChange} />
-                    </div> 
-                )}
-
                 {(selectedType == SelectedType.EMAIL) &&
                     <TextField
                         fullWidth={true}
@@ -99,6 +98,15 @@ function EditCredentialDialog(props: EditCredentialDialogProps): JSX.Element {
                         autoFocus
                     />
                 }
+                {(selectedType == SelectedType.BIRTHDATE) && (
+                    <DatePickerCommon selectedDate={selectedDate} onDateChange={handleDateChange} />
+                )}
+                {(selectedType == SelectedType.NATIONALITY) && (
+                    <NationalityCommon />
+                )}
+                {(selectedType == SelectedType.GENDER) && (
+                    <GenderCommon />
+                )}
                 {editionType != ProfileCredentialInfoEditionType.SingleLineString &&
                     <div>TODO</div>
                 }
