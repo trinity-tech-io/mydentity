@@ -9,7 +9,6 @@ import { issuerService } from "@services/identity/issuer.service";
 import { logger } from "@services/logger";
 import { LazyBehaviorSubjectWrapper } from "@utils/lazy-behavior-subject";
 import { evalObjectFieldPath } from "@utils/objects";
-import { rawImageToBase64DataUrl } from "@utils/pictures";
 import { capitalizeFirstLetter, convertUtcToLocaleDateTime } from "@utils/strings";
 import { BehaviorSubject } from "rxjs";
 import { IssuerInfo } from "./issuer-info";
@@ -192,13 +191,10 @@ export class Credential {
         if (hiveAssetUrl.startsWith("hive://")) {
           logger.log("credential", "Refreshing picture from hive url", hiveAssetUrl);
           // NOTE: assume we use the currently active identity to authenticate to target hive vault for calling the picture script
-          (await getHiveScriptPictureDataUrl(hiveAssetUrl, activeIdentity.did)).subscribe(async rawData => {
-            //console.log("DEBUG HIVE CACHE CHANGED IN PROFILE SERVICE, NEXT", /* rawData */)
-            if (rawData) {
-              logger.log("credential", "Got raw picture data from hive");
-              const base64DataUrl = await rawImageToBase64DataUrl(rawData);
-              //console.log("DEBUG BASE64 ENCODED", /* base64DataUrl */);
-              this.representativeIcon$.next(base64DataUrl);
+          (await getHiveScriptPictureDataUrl(hiveAssetUrl, activeIdentity.did)).subscribe(async dataUrl => {
+            if (dataUrl) {
+              logger.log("credential", "Got picture data from hive");
+              this.representativeIcon$.next(dataUrl);
             }
             else {
               logger.log("idencredentialtity", "Got empty picture data from the hive cache service (real picture may come later)");

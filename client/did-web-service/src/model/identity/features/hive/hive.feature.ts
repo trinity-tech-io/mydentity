@@ -107,7 +107,6 @@ export class HiveFeature implements IdentityFeature {
     let vaultInfo: VaultInfo = null;
     try {
       vaultInfo = await this.getVaultInfo();
-      console.log("subscribeToHiveProvider vaultInfo", vaultInfo);
     }
     catch (e) {
       // Silent catch, probably not authorized because not subscribed, so we will try to subscribe to the vault.

@@ -129,7 +129,6 @@ class DIDDocumentsService {
 
     // Try to find suitable credentials in the document - start with the application credential type
     const applicationCredentials = this.getCredentialsByType(credentials, "ApplicationCredential");
-    //console.log("getRepresentativeIcon applicationCredentials", applicationCredentials)
     if (applicationCredentials && applicationCredentials.length > 0) {
       const props = applicationCredentials[0].getSubject().getProperties();
       if ("iconUrl" in props)

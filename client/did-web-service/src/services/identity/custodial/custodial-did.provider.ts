@@ -42,8 +42,6 @@ export class CustodialDIDProvider implements IdentityProvider {
       });
     });
 
-    console.log(data)
-
     if (data?.createIdentity) {
       return Identity.fromJson(data.createIdentity, this);
     }
@@ -65,8 +63,6 @@ export class CustodialDIDProvider implements IdentityProvider {
         }
       });
     });
-
-    console.log(data)
 
     if (data?.deleteIdentity) {
       return true;
@@ -114,8 +110,6 @@ export class CustodialDIDProvider implements IdentityProvider {
       });
     });
 
-    console.log(data)
-
     if (data?.createDIDPublishTransaction.payload) {
       return data.createDIDPublishTransaction.payload;
     }
@@ -140,8 +134,6 @@ export class CustodialDIDProvider implements IdentityProvider {
         }
       });
     });
-
-    console.log(data)
 
     if (data?.publishIdentity.publicationId) {
       return data.publishIdentity.publicationId;

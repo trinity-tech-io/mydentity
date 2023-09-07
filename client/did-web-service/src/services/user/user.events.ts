@@ -5,7 +5,6 @@ import { LazyBehaviorSubjectWrapper } from "@utils/lazy-behavior-subject";
 const _authUser$ = new LazyBehaviorSubjectWrapper<User>(null, async () => {
   if (typeof window !== 'undefined') {
     const userStr = localStorage.getItem("authenticated_user");
-    // console.log(`>>>>>> load active user: ${userStr}`);
     if (!userStr)
       return null;
 

@@ -122,7 +122,6 @@ class CredentialTypesService {
 
     try {
       credentialJson = credential.toJSON();
-      //console.log("credentialJson", credentialJson)
 
       // Make sure we have "https://www.w3.org/2018/credentials/v1" has first entry in the context,
       // this is a W3C spec requirement
@@ -184,7 +183,7 @@ class CredentialTypesService {
         try {
           const options = {
             url: contextUrl,
-            headers:  {
+            headers: {
               'Accept': 'application/json'
             }
           };

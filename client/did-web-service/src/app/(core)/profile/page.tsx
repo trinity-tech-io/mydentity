@@ -50,6 +50,7 @@ const Profile: FC = () => {
   const [credentials] = useBehaviorSubject(activeIdentity?.get("profile").profileCredentials$); // All profile credentials of this identity
   const { mounted } = useMounted();
   const router = useRouter()
+  const [avatarCredential] = useBehaviorSubject(identityProfileFeature?.avatarCredential$);
 
   const [originCredential, setOriginCredential] = useState<ProfileCredential>(null);
   const [availableItemsForAddition, setAvailableItemsForAddition] = useState<ProfileCredentialInfo[]>([]);
@@ -118,7 +119,7 @@ const Profile: FC = () => {
     }
   };
 
-  const handleEditCredentialDialogClose = async (editCredentialValue: { info: ProfileCredentialInfo, value: any, type: EditionMode, originCredential: ProfileCredential}): Promise<void> => {
+  const handleEditCredentialDialogClose = async (editCredentialValue: { info: ProfileCredentialInfo, value: any, type: EditionMode, originCredential: ProfileCredential }): Promise<void> => {
     setOpenEditCredentialDialog(false);
     if (!editCredentialValue)
       return;
@@ -189,9 +190,9 @@ const Profile: FC = () => {
 
       case "value":
         {
-        const aValue = a.getDisplayValue().label ? a.getDisplayValue().label : a.getDisplayValue();
-        const bValue = b.getDisplayValue().label ? b.getDisplayValue().label : b.getDisplayValue();
-        return aValue.localeCompare(bValue);
+          const aValue = a.getDisplayValue().label ? a.getDisplayValue().label : a.getDisplayValue();
+          const bValue = b.getDisplayValue().label ? b.getDisplayValue().label : b.getDisplayValue();
+          return aValue.localeCompare(bValue);
         }
       default:
     }
@@ -284,7 +285,7 @@ const Profile: FC = () => {
       autoComplete="off"
     >
       <Stack alignItems="center" spacing={3} sx={{ pt: 5, borderRadius: 2, position: 'relative' }}>
-        <EditableCredentialAvatar onFileUpload={handleAvatarFileChanged} />
+        <EditableCredentialAvatar credential={avatarCredential} onFileUpload={handleAvatarFileChanged} />
       </Stack>
     </Box>
 

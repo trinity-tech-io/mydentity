@@ -21,6 +21,13 @@ export class ProfileFeature implements IdentityFeature {
     });
   });
 
+  public get avatarCredential$(): BehaviorSubject<ProfileCredential> { return this._avatarCredential$.getSubject(); }
+  private _avatarCredential$ = new LazyBehaviorSubjectWrapper<ProfileCredential>(null, async () => {
+    this.profileCredentials$.subscribe(creds => {
+      this.avatarCredential$.next(creds?.find(c => c.verifiableCredential.getId().getFragment() === "avatar"));
+    });
+  });
+
   public get name$(): BehaviorSubject<string> { return this._name$.getSubject(); }
   private _name$ = new LazyBehaviorSubjectWrapper<string>(null, async () => {
     this.profileCredentials$.subscribe(creds => {
@@ -113,10 +120,8 @@ export class ProfileFeature implements IdentityFeature {
    * - Updates the avatar credential with this new data
    */
   public async upsertIdentityAvatar(newAvatarPictureFile: File): Promise<void> {
-    console.log("updateIdentityAvatar", newAvatarPictureFile)
     const uploadedAvatar = await editAvatarOnHive(this.identity, newAvatarPictureFile);
     if (uploadedAvatar) {
-      console.log("uploadedAvatar", uploadedAvatar)
       const avatarInfo = findProfileInfoByKey("avatar");
 
       const avatarToSubject: AvatarInfoToSubject = {
