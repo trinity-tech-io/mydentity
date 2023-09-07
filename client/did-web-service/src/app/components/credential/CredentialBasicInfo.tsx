@@ -2,15 +2,23 @@ import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { Credential } from '@model/credential/credential';
 import { Box, Grid, ListItemButton, ListItemIcon, Typography } from "@mui/material";
 import Image from 'next/image';
+import { convertUtcToLocaleDateTime } from '@utils/strings';
 
 interface Props {
     credential: Credential;
 }
 
-function CredentialBasicInfo(props: Props) {
+function CredentialBasicInfo(props: Props): JSX.Element {
     const { credential } = props;
     const [issuerInfo] = useBehaviorSubject(credential?.issuerInfo$);
 
+    let value = credential.getDisplayValue();
+    if (credential.getDisplayableTitle() == 'Nationality') {   
+      value = value.label
+    }
+    else if (credential.getDisplayableTitle() == 'BirthDate') {
+      value = convertUtcToLocaleDateTime(value)
+    }
   return (
     <Box sx={{ textAlign: 'left', width: '100%' }}>
       <Typography gutterBottom variant="h6">
@@ -18,7 +26,7 @@ function CredentialBasicInfo(props: Props) {
       </Typography>
 
       <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-        {credential.getDisplayValue()}
+        {value}
       </Typography>
 
       <Grid container spacing={2} sx={{ mt: 1 }}>
