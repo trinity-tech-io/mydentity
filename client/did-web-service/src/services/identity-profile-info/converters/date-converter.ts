@@ -13,10 +13,12 @@ export class CredentialValueConverterDate extends CredentialValueConverter<Date>
     return new Date(utcString)
   }
 
+  // return: locale date time string
   public toDisplayableValue(credential: Credential): string {
     return convertUtcToLocaleDateTime(credential.verifiableCredential.getSubject().getProperty(this.subjectKey))
   }
 
+  // return: utcString
   public toSubject(editedValue: Date): any {
     return {
       [this.subjectKey]: editedValue.toISOString()

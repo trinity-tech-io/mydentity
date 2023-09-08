@@ -33,3 +33,16 @@ export function isUtcTimeString(str: string): boolean {
   const utcTimeStringRegex = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,3})?Z)$/;
   return utcTimeStringRegex.test(str)
 }
+
+export function converGenderFullName(str?: string): string {
+  if (str == null) {
+    return null
+  }
+  if (str === 'M') {
+    return 'male'
+  } else if (str === 'F') {
+    return 'female'
+  } else {
+    return str
+  }
+}
