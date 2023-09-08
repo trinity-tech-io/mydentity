@@ -1,7 +1,7 @@
 import { DIDDocument } from "@elastosfoundation/did-js-sdk";
-import { AppContextProvider, Vault, VaultInfo, VaultNotFoundException, VaultSubscription } from "@elastosfoundation/hive-js-sdk";
+import { Vault, VaultInfo, VaultNotFoundException, VaultSubscription } from "@elastosfoundation/hive-js-sdk";
 import { Identity } from "@model/identity/identity";
-import { getHiveAppContext, getHiveAppContextProvider, getRandomQuickStartHiveNodeAddress, getSubscriptionService, getVaultService } from "@services/hive/hive.service";
+import { getHiveAppContext, getRandomQuickStartHiveNodeAddress, getSubscriptionService, getVaultService } from "@services/hive/hive.service";
 import { VaultStatus } from "@services/hive/vault/vault-status";
 import { identityService } from "@services/identity/identity.service";
 import { logger } from "@services/logger";
@@ -39,12 +39,6 @@ export class HiveFeature implements IdentityFeature {
    */
   public awaitHiveVaultReady(): Promise<void> {
     return awaitSubjectValue(this.vaultStatus$, VaultStatus.ReadyToUse);
-  }
-
-  public getRawHiveContextProvider(): Promise<AppContextProvider> {
-    return getHiveAppContextProvider((err) => {
-      logger.error("hive", err);
-    });
   }
 
   /**

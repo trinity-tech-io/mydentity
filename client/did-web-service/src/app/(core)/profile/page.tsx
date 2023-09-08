@@ -46,8 +46,9 @@ type ComparatorMethod = (a: ProfileCredential, b: ProfileCredential) => number;
 const Profile: FC = () => {
   const TAG = "ProfilePage";
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
+  const credentialsFeature = activeIdentity?.get("credentials");
   const identityProfileFeature = activeIdentity?.get("profile");
-  const [credentials] = useBehaviorSubject(activeIdentity?.get("profile").profileCredentials$); // All profile credentials of this identity
+  const [credentials] = useBehaviorSubject(identityProfileFeature?.profileCredentials$); // All profile credentials of this identity
   const { mounted } = useMounted();
   const router = useRouter()
   const [avatarCredential] = useBehaviorSubject(identityProfileFeature?.avatarCredential$);
@@ -140,7 +141,7 @@ const Profile: FC = () => {
     if (editCredentialValue.type == EditionMode.NEW && !originCredential) {
       let isSuccess = false;
       try {
-        isSuccess = await identityProfileFeature.createProfileCredential('', editCredentialValue.info.typesForCreation(), editCredentialValue.info.key, editCredentialValue.value);
+        isSuccess = !!await identityProfileFeature.createProfileCredential('', editCredentialValue.info.typesForCreation(), editCredentialValue.info.key, editCredentialValue.value);
       } catch (error) {
         logger.error(TAG, 'Create credential error', error);
       }
@@ -247,7 +248,7 @@ const Profile: FC = () => {
 
     let isSuccess = false;
     try {
-      isSuccess = await identityProfileFeature.deleteProfileCredential(originCredential.verifiableCredential.getId().toString());
+      isSuccess = await credentialsFeature.deleteCredential(originCredential);
     } catch (error) {
       logger.error(TAG, error);
     }

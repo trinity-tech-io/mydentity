@@ -43,10 +43,10 @@ export class CredentialsFeature implements IdentityFeature {
     return this.identity.provider.listCredentials(this.identity.did);
   }
 
-  public async deleteCredential(credentialId: string): Promise<boolean> {
+  public async deleteCredential(credential: Credential): Promise<boolean> {
     logger.log("credentials", "Deleting credential");
-    const successfulDeletion = await this.identity.provider.deleteCredential(credentialId);
-    this.credentials$.next(this.credentials$.value.filter(c => c.verifiableCredential.getId().toString() != credentialId));
+    const successfulDeletion = await this.identity.provider.deleteCredential(credential.id);
+    this.credentials$.next(this.credentials$.value.filter(c => c.id != credential.id));
     return successfulDeletion;
   }
 }

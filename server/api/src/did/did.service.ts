@@ -82,7 +82,7 @@ export class DidService {
 
     // Delete all credentials belonging to this did
     const credentials = await didStore.listCredentials(didString);
-    for (const c of credentials){
+    for (const c of credentials) {
       await didStore.deleteCredential(c);
     }
 
@@ -157,7 +157,7 @@ export class DidService {
 
   async deleteCredential(didStorePath: string, credentialId: string) {
     const didStore = await this.openStore(didStorePath);
-    this.logger.log('deleteCredential credentialId:' + credentialId)
+    this.logger.log('deleteCredential credentialId: ' + credentialId)
     return didStore.deleteCredential(credentialId);
   }
 

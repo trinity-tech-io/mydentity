@@ -3,9 +3,7 @@
 import AccountIcon from '@assets/images/account.svg';
 import DashboardIcon from '@assets/images/dashboard.svg';
 import DiscoverIcon from '@assets/images/discover.svg';
-import LearnIcon from '@assets/images/learn.svg';
 import ManageIcon from '@assets/images/manage.svg';
-import MarketplaceIcon from '@assets/images/marketplace.svg';
 import SupportIcon from '@assets/images/support.svg';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { useMounted } from '@hooks/useMounted';
@@ -48,7 +46,7 @@ const groups: GroupConfig[] = [
     ],
     requiresAuth: true
   },
-  {
+  /* {
     icon: <MarketplaceIcon />,
     title: "Hub",
     links: [
@@ -62,7 +60,7 @@ const groups: GroupConfig[] = [
       { title: "DIDs", url: "/learn/dids" },
       { title: "Credentials", url: "/learn/credentials " }
     ]
-  },
+  }, */
   {
     icon: <ManageIcon />,
     title: "Manage",
@@ -118,7 +116,7 @@ const GroupElement: FC<{
   const { icon, title, links, requiresAuth = false } = group;
   const pathname = usePathname();
   const isActive = group.url === pathname || group.links?.some(l => l.url === pathname);
-  const [open, setOpen] = useState(isActive);
+  const [open, setOpen] = useState(true);
   const [authUser] = useBehaviorSubject(authUser$());
   const { mounted } = useMounted();
 
@@ -202,14 +200,6 @@ const Sidebar: FC<{
     document.addEventListener('keydown', keyHandler);
     return () => document.removeEventListener('keydown', keyHandler);
   });
-
-  /* useEffect(() => {
-    if (sidebarExpanded) {
-      document.querySelector('body')?.classList.add('sidebar-expanded');
-    } else {
-      document.querySelector('body')?.classList.remove('sidebar-expanded');
-    }
-  }, [sidebarExpanded]); */
 
   return (
     <div>

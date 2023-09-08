@@ -270,21 +270,21 @@ export class CustodialDIDProvider implements IdentityProvider {
     return null;
   }
 
-  async deleteCredential(credentialId: string): Promise<boolean> {
-    const { data } = await withCaughtAppException(async () => {
+  async deleteCredential(id: string): Promise<boolean> {
+    const result = await withCaughtAppException(async () => {
       return (await getApolloClient()).mutate<{ deleteCredential: boolean }>({
         mutation: gql`
-        mutation deleteCredential($credentialId: String!) {
-          deleteCredential(credentialId: $credentialId)
+        mutation deleteCredential($id: String!) {
+          deleteCredential(id: $id)
         }
       `,
         variables: {
-          credentialId
+          id
         }
       });
     });
 
-    if (data?.deleteCredential) {
+    if (result?.data?.deleteCredential) {
       return true;
     }
     else {

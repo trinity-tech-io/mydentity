@@ -41,17 +41,7 @@ export class ProfileFeature implements IdentityFeature {
     this.activeCredential$.next(credential)
   }
 
-  public async deleteProfileCredential(credentialId: string): Promise<boolean> {
-    try {
-      await this.identity.get("credentials").deleteCredential(credentialId);
-      return true;
-    } catch (error) {
-      logger.error("profile", error);
-      return false;
-    }
-  }
-
-  public async createProfileCredential(credentialId: string = null, fullTypes: string[], key: string, editionValue: any): Promise<boolean> {
+  public async createProfileCredential(credentialId: string = null, fullTypes: string[], key: string, editionValue: any): Promise<Credential> {
     const credentialType: string[] = [];
     try {
       let finalCredentialId;
@@ -69,11 +59,10 @@ export class ProfileFeature implements IdentityFeature {
 
       const credentialSubject = entry.options.converter.toSubject(editionValue);
 
-      await this.identity.get("credentials").createCredential(finalCredentialId, credentialType, expirationDate, credentialSubject);
-      return true;
+      return this.identity.get("credentials").createCredential(finalCredentialId, credentialType, expirationDate, credentialSubject);
     } catch (error) {
       logger.error("profile", error);
-      return false;
+      return null;
     }
   }
 
@@ -82,17 +71,17 @@ export class ProfileFeature implements IdentityFeature {
     const profileInfoEntry = findProfileInfoByTypes(credential.verifiableCredential.getType());
 
     try {
-      const deleted = await this.deleteProfileCredential(credentialId);
+      const deleted = await this.identity.get("credentials").deleteCredential(credential);
       if (!deleted)
         return false;
 
-      const created = await this.createProfileCredential(
+      const createdCredential = await this.createProfileCredential(
         credentialId,
         profileInfoEntry.typesForCreation(),
         profileInfoEntry.key,
         newValue);
 
-      return created;
+      return !!createdCredential;
     } catch (error) {
       logger.error("profile", error);
       return false;
@@ -141,8 +130,8 @@ export class ProfileFeature implements IdentityFeature {
   }
 
   public async deleteAvatarCredential(): Promise<void> {
-    const avatarInfo = findProfileInfoByKey("avatar");
-
-    // TODO
+    const avatarCredential = this.avatarCredential$.value;
+    if (avatarCredential)
+      await this.identity.get("credentials").deleteCredential(avatarCredential);
   }
 }

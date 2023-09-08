@@ -4,8 +4,12 @@ import Queue from "promise-queue";
 type CacheLoadMethod<T> = {
   /** Creates a new object instance, when not existing in cache yet */
   create: () => Promise<T>;
-  /** Fills given instance with loaded data */
-  fill: (instance: T) => Promise<void>;
+  /** 
+   * Fills given instance with loaded data. Used by JSON based objects, when receiving a JSON object 
+   * from the backend, to update an existing instance of the same JS object (so the rxjs subjects references, etc remain the same).
+   * This method can not be filled and only create() used, for traditional caching.
+   */
+  fill?: (instance: T) => Promise<void>;
 }
 
 /**
@@ -47,7 +51,7 @@ export class ObjectCache<T> {
         // Object inexisting yet, create and fill
         const instance = await loader.create();
 
-        await loader.fill(instance);
+        await loader.fill?.(instance);
 
         this.cache[key] = instance;
 
@@ -56,8 +60,7 @@ export class ObjectCache<T> {
       else {
         // Object instance exists and we use the cache. Fill and return.
         const instance = this.cache[key];
-        if (loader)
-          await loader.fill(instance);
+        await loader?.fill?.(instance);
 
         return instance;
       }

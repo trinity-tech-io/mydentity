@@ -4,11 +4,13 @@ import { Credential, User } from '@prisma/client';
 import { DidService } from 'src/did/did.service';
 import { AppException } from 'src/exceptions/app-exception';
 import { AuthExceptionCode } from 'src/exceptions/exception-codes';
+import { logger } from 'src/logger';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCredentialInput } from './dto/create-credential.input';
 import { CreateVerifiablePresentationInput } from './dto/create-verifiablePresentation.input';
 import { ImportCredentialInput } from './dto/import-credential.input';
 import { IssueCredentialInput } from './dto/issue-credential.input';
+import { CredentialWithStringVC } from './model/credential-with-vc';
 
 @Injectable()
 export class CredentialsService {
@@ -66,45 +68,56 @@ export class CredentialsService {
     };
   }
 
-  async findAll(identityDid: string, user: User): Promise<Credential[]> {
+  async findOne(id: string): Promise<Credential> {
+    return this.prisma.credential.findUnique({ where: { id } });
+  }
+
+  async findAll(identityDid: string, user: User): Promise<CredentialWithStringVC[]> {
     const credentials = await this.prisma.credential.findMany({
       where: { identityDid },
     });
 
     const storePassword = '123456'; // TODO: use account key
 
-    // TODO: for each DB credential, load the real VC from the DID Store and decrypt it.
-    return Promise.all(credentials.map(async (c) => ({
-      ...c,
-      verifiableCredential: (await this.didService.loadCredential(user.id, c.credentialId, storePassword)).toString(),
-    })));
+    const output: CredentialWithStringVC[] = [];
+    for (const c of credentials) {
+      const didCredential = await this.didService.loadCredential(user.id, c.credentialId, storePassword);
+      if (!didCredential) {
+        logger.warn(`Credential with id ${c.id} has no matching VerifiableCredential in the DID Store...`);
+        continue;
+      }
+
+      output.push({
+        ...c,
+        verifiableCredential: didCredential.toString(),
+      });
+    }
+
+    return output;
   }
 
-  async remove(credentialId: string, user: User) {
-    const successfulDeletion = await this.didService.deleteCredential(user.id, credentialId);
-    if (successfulDeletion) {
-      await this.prisma.credential.deleteMany({
-        where: {
-          credentialId: credentialId,
-        }
-      })
-    }
+  async remove(id: string, user: User) {
+    const credential = await this.findOne(id);
+    if (!credential)
+      return false;
+
+    const successfulDeletion = await this.didService.deleteCredential(user.id, credential.credentialId);
+    if (successfulDeletion)
+      await this.prisma.credential.delete({ where: { id } });
 
     return successfulDeletion;
   }
 
-  async deleteCredentialsByIdentity(identityDid: string) {
-    this.logger.log('deleteCredentialsByIdentity identityDid:' + identityDid);
-    const credentials = await this.prisma.credential.findMany({
-      where: { identityDid },
-    });
-
-    return Promise.all(credentials.map(async (c) => (
-      await this.prisma.credential.deleteMany({
-        where: {
-          credentialId: c.credentialId,
+  async deleteIdentityCredentials(identityDid: string): Promise<Credential[]> {
+    const credentials = await this.prisma.credential.findMany({ where: { identityDid } });
+    await this.prisma.credential.deleteMany({
+      where: {
+        id: {
+          in: credentials.map(c => c.id)
         }
-      }))));
+      }
+    });
+    return credentials;
   }
 
   async createVerifiablePresentation(input: CreateVerifiablePresentationInput, user: User) {
@@ -123,20 +136,20 @@ export class CredentialsService {
   }
 
   /**
-  * Ensures that the credentialId credential is owned by user and returns the credential.
+  * Ensures that the credential is owned by user and returns the credential.
   * If not, throws an exception.
   */
-  public async ensureOwnedCredential(credentialId: string, user: User): Promise<Credential> {
+  public async ensureOwnedCredential(id: string, user: User): Promise<Credential> {
     const credential = await this.prisma.credential.findFirst({
       where: {
-        credentialId,
+        id,
         identity: {
           userId: user.id
         }
       }
     })
     if (!credential)
-      throw new AppException(AuthExceptionCode.CredenialNotOwned, `You are not owner of credential ${credentialId}`, 401);
+      throw new AppException(AuthExceptionCode.CredenialNotOwned, `You are not owner of credential ${id}`, 401);
 
     return credential;
   }

@@ -50,9 +50,9 @@ export class CredentialsResolver {
 
   @UseGuards(JwtAuthGuard)
   @Mutation(() => Boolean)
-  async deleteCredential(@Args('credentialId') credentialId: string, @CurrentUser() user: User) {
-    await this.credentialsService.ensureOwnedCredential(credentialId, user);
-    return this.credentialsService.remove(credentialId, user);
+  async deleteCredential(@Args('id') id: string, @CurrentUser() user: User) {
+    await this.credentialsService.ensureOwnedCredential(id, user);
+    return this.credentialsService.remove(id, user);
   }
 
   @UseGuards(JwtAuthGuard)
