@@ -9,7 +9,8 @@ export class CredentialValueConverterDate extends CredentialValueConverter<Date>
   }
 
   public toEditableValue(credential: Credential): Date {
-    return credential.verifiableCredential.getSubject().getProperty(this.subjectKey);
+    const utcString = credential.verifiableCredential.getSubject().getProperty(this.subjectKey)
+    return new Date(utcString)
   }
 
   public toDisplayableValue(credential: Credential): string {
@@ -18,7 +19,7 @@ export class CredentialValueConverterDate extends CredentialValueConverter<Date>
 
   public toSubject(editedValue: Date): any {
     return {
-      [this.subjectKey]: editedValue
+      [this.subjectKey]: editedValue.toISOString()
     }
   }
 }
