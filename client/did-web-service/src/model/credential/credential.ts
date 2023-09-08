@@ -181,17 +181,16 @@ export class Credential {
         if (hiveAssetUrl.startsWith("hive://")) {
           logger.log("credential", "Refreshing picture from hive url", hiveAssetUrl);
           // NOTE: assume we use the currently active identity to authenticate to target hive vault for calling the picture script
-          (await getHiveScriptPictureDataUrl(hiveAssetUrl, activeIdentity.did)).subscribe(async dataUrl => {
-            if (dataUrl) {
-              logger.log("credential", "Got picture data from hive");
-              this.representativeIcon$.next(dataUrl);
-            }
-            else {
-              logger.log("idencredentialtity", "Got empty picture data from the hive cache service (real picture may come later)");
-              this.representativeIcon$.next(null);
-            }
-            this.loadIconWithFallback();
-          });
+          const dataUrl = await getHiveScriptPictureDataUrl(hiveAssetUrl, activeIdentity.did);
+          if (dataUrl) {
+            logger.log("credential", "Got picture data from hive");
+            this.representativeIcon$.next(dataUrl);
+          }
+          else {
+            logger.log("idencredentialtity", "Got empty picture data from the hive cache service (real picture may come later)");
+            this.representativeIcon$.next(null);
+          }
+          this.loadIconWithFallback();
         }
         else {
           // Assume base64.

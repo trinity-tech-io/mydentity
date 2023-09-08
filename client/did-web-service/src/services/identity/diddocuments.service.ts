@@ -120,7 +120,7 @@ class DIDDocumentsService {
    * - An "avatar", if the did document represents a regular user
    * - An "app icon", if the did document is an application DID
    */
-  public getRepresentativeIcon(document: DIDDocument): Promise<BehaviorSubject<string>> {
+  public getRepresentativeIcon(document: DIDDocument): Promise<string> {
     if (!document) return null;
 
     let hiveIconUrl: string = null;

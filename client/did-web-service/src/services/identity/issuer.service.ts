@@ -11,28 +11,20 @@ class IssuerService {
   }
 
   async getIssuerAvatar(didString: string): Promise<string> {
-    return new Promise(async resolve => {
-      const didDocument = await this.fetchDIDDocument(didString);
+    const didDocument = await this.fetchDIDDocument(didString);
 
-      // Get the issuer icon
-      const representativeIconSubject = await didDocumentService.getRepresentativeIcon(didDocument);
-      if (representativeIconSubject) {
-        representativeIconSubject.subscribe(dataUrl => {
-          if (dataUrl) {
-            logger.log('identity', 'dataUrl', dataUrl)
-            resolve(dataUrl);
-          } else
-            resolve(null);
-        });
-      } else
-        resolve(null);
-    });
+    // Get the issuer icon
+    const dataUrl = await didDocumentService.getRepresentativeIcon(didDocument);
+    if (dataUrl) {
+      logger.log('identity', 'dataUrl', dataUrl)
+      return dataUrl;
+    } else
+      return null;
   }
 
   async isPublished(didString: string): Promise<boolean> {
     const didDocument = await this.fetchDIDDocument(didString);
-
-    return didDocument != null;
+    return !!didDocument;
   }
 
   /**
@@ -46,6 +38,7 @@ class IssuerService {
       didString,
       forceRemote
     );
+
     if (didDocumentStatus.checked)
       return didDocumentStatus.document;
 

@@ -1,28 +1,42 @@
 import { logger } from "@services/logger";
-import { ObjectCache } from "@utils/object-cache";
+import { PictureCache } from "@utils/caches/picture-cache";
+import { isClientSide } from "@utils/client-server";
 import { rawImageToBase64DataUrl } from "@utils/pictures";
-import { BehaviorSubject } from "rxjs";
 import { getHiveVault } from "./hive.service";
 
-const dataUrlPictureCache = new ObjectCache<BehaviorSubject<string>>();
+
+type CacheCustomData = {
+  hiveScriptUrl: string;
+  did: string;
+}
+
+// No indexed db on server, initialize cache only on the client side
+const cache = isClientSide() && new PictureCache<string, CacheCustomData>('hive-pictures', async (key, customData) => {
+  logger.log("hive", "Cache miss for hive url picture, fetching");
+  return fetchHiveScriptPictureToDataUrl(customData.hiveScriptUrl, customData.did);
+});
 
 /**
- * Returns a subject that contains the latest version of a data url hive script picture.
+ * Returns a cached data url hive script picture.
  * For example, credential issuers avatar pictures.
- *
- * Those subjects are queued and cached in momery so that hive is called only once even
- * if the UI calls the get method often at once.
  */
-export function getHiveScriptPictureDataUrl(hiveScriptUrl: string, did: string): Promise<BehaviorSubject<string>> {
-  return dataUrlPictureCache.get(hiveScriptUrl + did, {
-    async create() {
-      return new BehaviorSubject<string>(null);
-    },
-    async fill(subject: BehaviorSubject<string>) {
-      const dataUrl = await fetchHiveScriptPictureToDataUrl(hiveScriptUrl, did);
-      subject.next(dataUrl);
-    },
-  });
+export function getHiveScriptPictureDataUrl(hiveScriptUrl: string, did: string): Promise<string> {
+  // The cache will queue requests to avoid fetching multiple times in case of concurrent access to the same resource.
+  return cache.get(hiveScriptUrl + did, { hiveScriptUrl, did });
+}
+
+/**
+ * Calls a hive script that contains a downloadable picture file, for instance a identity avatar.
+ * The fetched picture is returned as a data URL "data:xxx" directly usable with Img HTML elements.
+ *
+ * Ex: hive://user_did@app_did/getMainIdentityAvatar ---> "data:image/png;base64,iVe89...."
+ */
+async function fetchHiveScriptPictureToDataUrl(hiveScriptUrl: string, did: string): Promise<string> {
+  if (!hiveScriptUrl)
+    return null;
+
+  const rawPicture = await fetchHiveScriptPicture(hiveScriptUrl, did);
+  return rawPicture ? rawImageToBase64DataUrl(rawPicture) : '';
 }
 
 /**
@@ -56,18 +70,4 @@ async function fetchHiveScriptPicture(hiveScriptUrl: string, did: string): Promi
     logger.warn('hive', 'Failed to download hive asset at ', hiveScriptUrl, e);
     return null;
   }
-}
-
-/**
- * Calls a hive script that contains a downloadable picture file, for instance a identity avatar.
- * The fetched picture is returned as a data URL "data:xxx" directly usable with Img HTML elements.
- *
- * Ex: hive://user_did@app_did/getMainIdentityAvatar ---> "data:image/png;base64,iVe89...."
- */
-async function fetchHiveScriptPictureToDataUrl(hiveScriptUrl: string, did: string): Promise<string> {
-  if (!hiveScriptUrl)
-    return null;
-
-  const rawPicture = await fetchHiveScriptPicture(hiveScriptUrl, did);
-  return rawPicture ? rawImageToBase64DataUrl(rawPicture) : '';
 }

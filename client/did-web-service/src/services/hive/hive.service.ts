@@ -9,9 +9,9 @@ import { AppContext, AppContextProvider, DIDResolverAlreadySetupException, Logge
 import { availableHiveNodeProviders } from "@services/hive/vault/vault-providers";
 import { activeIdentity$ } from '@services/identity/identity.events';
 import { logger } from '@services/logger';
+import { ObjectCache } from '@utils/caches/object-cache';
 import { isClientSide } from '@utils/client-server';
 import { lazyElastosConnectivitySDKImport } from '@utils/import-helper';
-import { ObjectCache } from '@utils/object-cache';
 import dayjs from 'dayjs';
 import moment from 'moment';
 import Queue from "promise-queue";
