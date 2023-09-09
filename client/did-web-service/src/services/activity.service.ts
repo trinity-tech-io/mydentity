@@ -8,7 +8,7 @@ import { logger } from "@services/logger";
 export async function getActivities(): Promise<Activity[]> {
     logger.log("activity", "Get activities");
 
-    const { data } = await getApolloClient().query<{ activities: ActivityDto[] }>({
+    const { data } = await (await getApolloClient()).query<{ activities: ActivityDto[] }>({
         query: gql` query ListActivities() {
             listActivities() { 
                 ${graphQLActivityFields}
@@ -27,7 +27,7 @@ export async function getActivities(): Promise<Activity[]> {
 export async function createActivity(): Promise<Activity> {
     logger.log("activity", "Create activity");
 
-    const { data } = await getApolloClient().mutate<{ activity: ActivityDto }>({
+    const { data } = await (await getApolloClient()).mutate<{ activity: ActivityDto }>({
         mutation: gql` query CreateActivity($input: CreateActivityInput!) {
             createActivity(input: $input) {
                 ${graphQLActivityFields}
@@ -46,7 +46,7 @@ export async function createActivity(): Promise<Activity> {
 export async function updateActivity() {
     logger.log("activity", "Update activity");
 
-    const { data } = await getApolloClient().mutate<{ activity: ActivityDto }>({
+    const { data } = await (await getApolloClient()).mutate<{ activity: ActivityDto }>({
         mutation: gql` query UpdateActivity($input: UpdateActivityInput!) {
             updateActivity(input: $input) {
                 ${graphQLActivityFields}

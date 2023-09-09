@@ -88,6 +88,11 @@ export class ProfileFeature implements IdentityFeature {
     }
   }
 
+  public async deleteProfileCredential(did: string): Promise<boolean> {
+    // TODO: just for fixing build error.
+    return false;
+  }
+
   /**
    * Convenient method to get a displayable "name" that represents this identity.
    * This looks for Name credentials mostly.
