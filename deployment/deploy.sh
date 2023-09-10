@@ -7,7 +7,7 @@ APP_NAME=did-web-service
 # To prevent "vite Error: ENOSPC: System limit for number of file watchers reached, watch ..."
 echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
 
-cd $APP_ROOT
+cd ~/$APP_ROOT
 
 echo '>>>>>> start deploy & update ...'
 
@@ -25,8 +25,13 @@ npx prisma generate
 
 # list apps: pm2 list
 
-# API
+# API, run as a service.
 pm2 stop --silent api || true
 pm2 delete api || true
 pm2 --name api start npm -- start
 echo '>>>>>> api done !!!'
+
+# client, just deploy static files
+cd ../..
+rm -rf /var/www/html/app
+cp -r client/did-web-service/out /var/www/html/app

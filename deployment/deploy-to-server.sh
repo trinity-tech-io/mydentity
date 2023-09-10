@@ -36,5 +36,5 @@ echo ""
 echo "REMOTE EXECUTION"
 echo ""
 
-# Execute remote deployment
-# ssh root@didweb-service 'bash -s' < deployment/deploy.sh
+Execute remote deployment
+ssh -t did-web-service 'sudo -s && bash -s' < deployment/deploy.sh
