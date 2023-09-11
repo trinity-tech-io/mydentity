@@ -63,7 +63,7 @@ const IdentityMenu: FC<{
 
     let isSuccess = false;
     try {
-      isSuccess = await identityProfileFeature.deleteProfileCredential(credential.verifiableCredential.getId().toString());
+      isSuccess = await activeIdentity.get("credentials").deleteCredential(credential);
     } catch (error) {
       logger.error(TAG, 'Delete credential error: ', error);
     }
@@ -75,7 +75,7 @@ const IdentityMenu: FC<{
   };
 
   // Edit -> Cancel/OK
-  const handleOK = async (editCredentialValue: { info: ProfileCredentialInfo, value: any, type: EditionMode, originCredential: ProfileCredential}): Promise<void> => {
+  const handleOK = async (editCredentialValue: { info: ProfileCredentialInfo, value: any, type: EditionMode, originCredential: ProfileCredential }): Promise<void> => {
     setOpenEditCredentialDialog(false);
     if (!editCredentialValue)
       return;
