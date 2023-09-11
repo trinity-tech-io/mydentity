@@ -10,7 +10,7 @@ import { shortenDID } from '@services/identity/identity.utils';
 import { initialsString } from "@utils/strings";
 import { FC, useEffect } from 'react';
 
-const IdentityCellLeft: FC<{
+export const IdentityCellLeft: FC<{
   identity: Identity;
   show: boolean;
 }> = ({ identity, show }) => {
@@ -44,6 +44,4 @@ const IdentityCellLeft: FC<{
     </div>
   );
 };
-
-export default IdentityCellLeft;
 

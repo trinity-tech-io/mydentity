@@ -9,7 +9,7 @@ import { identityService } from '@services/identity/identity.service';
 import { authUser$ } from '@services/user/user.events';
 import { useRouter } from "next/navigation";
 import { FC, MouseEvent, useState } from 'react';
-import IdentityCellLeft from './CellLeft';
+import { IdentityCellLeft } from './IdentityCellLeft';
 
 const TAG = 'IdentityListWidget'
 
