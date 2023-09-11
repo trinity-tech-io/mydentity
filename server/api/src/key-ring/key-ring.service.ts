@@ -437,6 +437,16 @@ export class KeyRingService {
     return masterKey;
   }
 
+  checkMasterKeyLock(browserId: string, userId: string): boolean {
+    const id = userId + "-" + browserId;
+    const masterKey: string = this.masterKeyCache.get(id);
+    if (masterKey) {
+      return true;
+    } else {
+      throw new AppException(KeyRingExceptionCode.Unauthorized, "Unauthorized to access master key", HttpStatus.UNAUTHORIZED);
+    }
+  }
+
   async getUserFromWebAuthnResponse(authKey: AuthKeyInput): Promise<User | null> {
     if (authKey.type != UserShadowKeyType.WEBAUTHN)
       throw new AppException(KeyRingExceptionCode.InvalidAuthKey, "Only accept the WebAuthn response", HttpStatus.BAD_REQUEST);

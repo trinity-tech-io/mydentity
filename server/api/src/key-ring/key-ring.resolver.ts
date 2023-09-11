@@ -47,4 +47,10 @@ export class KeyRingResolver {
   generateChallenge() {
     return this.keyRingService.generateChallenge();
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Query(() => Boolean)
+  checkMasterKeyLock(@CurrentBrowser() browser: Browser, @CurrentUser() user: User) {
+    return this.keyRingService.checkMasterKeyLock(browser.id, user.id);
+  }
 }
