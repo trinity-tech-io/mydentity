@@ -35,6 +35,7 @@ export const IdentityListWidget: FC = _ => {
   const onDeleteClicked = (event: MouseEvent, identity: Identity): void => {
     event.stopPropagation(); // Prevent event propagation to the cell
     event.preventDefault(); //
+    identityService.setActiveIdentity(identity);
     router.push("/delete-identity");
   }
 
