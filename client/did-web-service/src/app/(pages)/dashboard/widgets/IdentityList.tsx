@@ -2,13 +2,11 @@
 import { VerticalStackLoadingCard } from '@components/loading-cards/vertical-stack-loading-card/VerticalStackLoadingCard';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { Identity } from '@model/identity/identity';
-import DeleteIcon from '@mui/icons-material/Delete';
-import IconButton from '@mui/material/IconButton';
 import { activeIdentity$ } from '@services/identity/identity.events';
 import { identityService } from '@services/identity/identity.service';
 import { authUser$ } from '@services/user/user.events';
 import { useRouter } from "next/navigation";
-import { FC, MouseEvent, useState } from 'react';
+import { FC, useState } from 'react';
 import { IdentityCellLeft } from './IdentityCellLeft';
 
 const TAG = 'IdentityListWidget'
@@ -32,13 +30,6 @@ export const IdentityListWidget: FC = _ => {
     router.replace("/profile");
   }
 
-  const onDeleteClicked = (event: MouseEvent, identity: Identity): void => {
-    event.stopPropagation(); // Prevent event propagation to the cell
-    event.preventDefault(); //
-    identityService.setActiveIdentity(identity);
-    router.push("/delete-identity");
-  }
-
   return (
     <div className="col-span-full xl:col-span-6 bg-white dark:bg-slate-800 shadow-lg rounded-sm border border-slate-200 dark:border-slate-700">
       <header className="px-5 py-4 border-b border-slate-100 dark:border-slate-700">
@@ -51,14 +42,11 @@ export const IdentityListWidget: FC = _ => {
             {/* Table header */}
             <thead className="text-xs font-semibold uppercase text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-700 dark:bg-opacity-50">
               <tr>
-                <th className="p-0 whitespace-nowrap" style={{ width: '54%' }}>
+                <th className="p-0 whitespace-nowrap" style={{ width: '63%' }}>
                   <div className="font-semibold text-left">Identity</div>
                 </th>
                 <th className="p-2 whitespace-nowrap" style={{ width: '30%' }}>
                   <div className="font-semibold text-left">Create Date</div>
-                </th>
-                <th className="p-0 whitespace-nowrap">
-                  <div className="font-semibold text-right">Action</div>
                 </th>
               </tr>
             </thead>
@@ -89,13 +77,6 @@ export const IdentityListWidget: FC = _ => {
                         </td>
                         <td className="p-2 whitespace-nowrap">
                           <div className="text-left">{identity.createdAt.toLocaleDateString()}</div>
-                        </td>
-                        <td className="p-2 whitespace-nowrap">
-                          <div className="text-right">
-                            <IconButton aria-label="delete" onClick={(e): void => onDeleteClicked(e, identity)}>
-                              <DeleteIcon style={{ color: 'red' }} />
-                            </IconButton>
-                          </div>
                         </td>
                       </tr>)
                   })
