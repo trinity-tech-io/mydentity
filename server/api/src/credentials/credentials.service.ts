@@ -1,9 +1,10 @@
 import { VerifiableCredential } from '@elastosfoundation/did-js-sdk';
 import { Injectable, Logger } from '@nestjs/common';
-import { Credential, User } from '@prisma/client';
+import { Browser, Credential, User } from '@prisma/client';
 import { DidService } from 'src/did/did.service';
 import { AppException } from 'src/exceptions/app-exception';
 import { AuthExceptionCode } from 'src/exceptions/exception-codes';
+import { KeyRingService } from 'src/key-ring/key-ring.service';
 import { logger } from 'src/logger';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCredentialInput } from './dto/create-credential.input';
@@ -16,12 +17,14 @@ import { CredentialWithStringVC } from './model/credential-with-vc';
 export class CredentialsService {
   private logger: Logger = new Logger("CredentialsService");
 
-  constructor(private prisma: PrismaService, private didService: DidService) {
+  constructor(private prisma: PrismaService,
+      private didService: DidService,
+      private keyRingService: KeyRingService) {
   }
 
-  async create(input: CreateCredentialInput, user: User) {
+  async create(input: CreateCredentialInput, user: User, browser: Browser) {
     this.logger.log("create")
-    const storePassword = '123456'; // TODO: use account key
+    const storePassword = this.getDIDStorePassword(user?.id, browser?.id);
 
     const vc = await this.didService.createCredential(user.id, input.identityDid, input.credentialId,
       input.types, input.expirationDate, input.properties, storePassword);
@@ -38,8 +41,8 @@ export class CredentialsService {
     };
   }
 
-  async storeCredential(input: ImportCredentialInput, user: User) {
-    const storePassword = '123456'; // TODO: use account key
+  async storeCredential(input: ImportCredentialInput, user: User, browser: Browser) {
+    const storePassword = this.getDIDStorePassword(user?.id, browser?.id);
 
     const vc = VerifiableCredential.parse(input.credentialString);
     this.logger.log("storeCredential")
@@ -57,9 +60,9 @@ export class CredentialsService {
     };
   }
 
-  async issueCredential(input: IssueCredentialInput, user: User) {
+  async issueCredential(input: IssueCredentialInput, user: User, browser: Browser) {
     this.logger.log("issueCredential")
-    const storePassword = '123456'; // TODO: use account key
+    const storePassword = this.getDIDStorePassword(user?.id, browser?.id);
 
     const vc = await this.didService.issueCredential(user.id, input.identityDid, input.subjectDid, input.credentialId,
       input.types, input.expirationDate, input.properties, storePassword);
@@ -72,12 +75,12 @@ export class CredentialsService {
     return this.prisma.credential.findUnique({ where: { id } });
   }
 
-  async findAll(identityDid: string, user: User): Promise<CredentialWithStringVC[]> {
+  async findAll(identityDid: string, user: User, browser: Browser): Promise<CredentialWithStringVC[]> {
     const credentials = await this.prisma.credential.findMany({
       where: { identityDid },
     });
 
-    const storePassword = '123456'; // TODO: use account key
+    const storePassword = this.getDIDStorePassword(user?.id, browser?.id);
 
     const output: CredentialWithStringVC[] = [];
     for (const c of credentials) {
@@ -120,9 +123,9 @@ export class CredentialsService {
     return credentials;
   }
 
-  async createVerifiablePresentation(input: CreateVerifiablePresentationInput, user: User) {
+  async createVerifiablePresentation(input: CreateVerifiablePresentationInput, user: User, browser: Browser) {
     this.logger.log("createVerifiablePresentation")
-    const storePassword = '123456'; // TODO: use account key
+    const storePassword = this.getDIDStorePassword(user?.id, browser?.id);
 
     const credentials = [];
     input.credentials.forEach(c => {
@@ -152,5 +155,11 @@ export class CredentialsService {
       throw new AppException(AuthExceptionCode.CredenialNotOwned, `You are not owner of credential ${id}`, 401);
 
     return credential;
+  }
+
+  private getDIDStorePassword(userId: string, browserId: string) {
+    this.logger.log('getDIDStorePassword:' + userId + ' browserId:' + browserId);
+    const password = this.keyRingService.getMasterKey(userId, browserId);
+    return password;
   }
 }

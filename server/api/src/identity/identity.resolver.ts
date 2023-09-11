@@ -1,8 +1,9 @@
 import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { User } from '@prisma/client';
+import { Browser, User } from '@prisma/client';
 import { CurrentUser } from 'src/auth/currentuser.decorator';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { CurrentBrowser } from 'src/browsers/browser-user.decorator';
 import { CreateIdentityInput } from './dto/create-identity.input';
 import { PublicationStatusInput } from './dto/publication-status.input';
 import { PublishIdentityInput } from './dto/publish-identity.input';
@@ -18,8 +19,8 @@ export class IdentityResolver {
 
   @UseGuards(JwtAuthGuard)
   @Mutation(() => IdentityEntity)
-  createIdentity(@Args('input') createIdentityInput: CreateIdentityInput, @CurrentUser() user: User) {
-    return this.identityService.create(createIdentityInput, user);
+  createIdentity(@Args('input') createIdentityInput: CreateIdentityInput, @CurrentUser() user: User, @CurrentBrowser() browser: Browser) {
+    return this.identityService.create(createIdentityInput, user, browser);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -31,9 +32,9 @@ export class IdentityResolver {
 
   @UseGuards(JwtAuthGuard)
   @Mutation(() => TransactionEntity)
-  async createDIDPublishTransaction(@Args('identityDid') identityDid: string, @CurrentUser() user: User) {
+  async createDIDPublishTransaction(@Args('identityDid') identityDid: string, @CurrentUser() user: User, @CurrentBrowser() browser: Browser) {
     await this.identityService.ensureOwnedIdentity(identityDid, user);
-    return this.identityService.createDIDPublishTransaction(identityDid, user);
+    return this.identityService.createDIDPublishTransaction(identityDid, user, browser);
   }
 
   @UseGuards(JwtAuthGuard)

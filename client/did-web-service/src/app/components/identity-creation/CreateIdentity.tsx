@@ -6,6 +6,7 @@ import { Identity } from '@model/identity/identity';
 import { TextField } from '@mui/material';
 import { useToast } from '@services/feedback.service';
 import { identityService } from '@services/identity/identity.service';
+import { useCallWithUnlock } from '@services/security/security.service';
 import { authUser$ } from '@services/user/user.events';
 import { useRouter } from 'next/navigation';
 import { FC, FormEvent, useRef, useState } from 'react';
@@ -20,6 +21,7 @@ export const CreateIdentity: FC<{
   const { mounted } = useMounted();
   const { showSuccessToast } = useToast();
   const router = useRouter();
+  const { callWithUnlock } = useCallWithUnlock<Identity>();
 
   // Step states
   const [creatingIdentity, setCreatingIdentity] = useState(false); // From clicking on "create" until the very end
@@ -36,9 +38,8 @@ export const CreateIdentity: FC<{
     onIdentityCreating?.();
 
     // Create identity for real in the backend
-    // TODO: use callWithUnlock() to call createIdentity(), because master key unlock is probably required
     setCallingCreationApi(true);
-    const identity = await authUser.get("identity").createIdentity(name);
+    const identity = await callWithUnlock(async () => await authUser.get("identity").createIdentity(name));
     setCallingCreationApi(false);
 
     if (identity) {

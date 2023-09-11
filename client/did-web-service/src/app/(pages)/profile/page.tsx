@@ -26,6 +26,7 @@ import { useRouter } from "next/navigation";
 import { ChangeEvent, FC, MouseEvent, forwardRef, useEffect, useState } from "react";
 import { EditableCredentialAvatar } from '../../components/credential/EditableCredentialAvatar';
 import { OrderBy } from "./order-by";
+import { useCallWithUnlock } from '@services/security/security.service';
 
 const CREDENTIAL_LIST_HEAD = [
   { id: 'name', label: 'Name', alignRight: false },
@@ -60,6 +61,8 @@ const Profile: FC = () => {
   const [preEditCredentialInfo, setPreEditCredentialInfo] = useState<ProfileCredentialInfo>(null);
   const [preEditCredentialValue, setPreEditCredentialValue] = useState<string>('');
   const [editType, setEditType] = useState(EditionMode.NEW);
+
+  const { callWithUnlock } = useCallWithUnlock<boolean>();
 
   const { showSuccessToast, showErrorToast } = useToast();
   const [isOpenPopupMenu, setOpenPopupMenu] = useState(null);
@@ -140,7 +143,8 @@ const Profile: FC = () => {
     if (editCredentialValue.type == EditionMode.NEW && !originCredential) {
       let isSuccess = false;
       try {
-        isSuccess = !!await identityProfileFeature.createProfileCredential('', editCredentialValue.info.typesForCreation(), editCredentialValue.info.key, editCredentialValue.value);
+        // Call the API with auto-retry if user unlock method is required.
+        isSuccess = await callWithUnlock(async () => !!await identityProfileFeature.createProfileCredential('', editCredentialValue.info.typesForCreation(), editCredentialValue.info.key, editCredentialValue.value));
       } catch (error) {
         logger.error(TAG, 'Create credential error', error);
       }
