@@ -7,7 +7,6 @@ import { clearOnGoingFlowOperation, FlowOperation, getOnGoingFlowOperation } fro
 import { oauthMSBindEmail, oauthMSSignIn } from "@services/user/user.service";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FC, useEffect } from "react";
-import { createActivity } from "@services/activity.service";
 import { ActivityType } from "@model/activity/activity-type";
 
 const MicrosoftRedirect: FC = () => {

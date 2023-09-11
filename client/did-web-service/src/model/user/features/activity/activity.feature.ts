@@ -19,7 +19,7 @@ export class ActivityFeature implements UserFeature {
     private async fetchActivities(): Promise<Activity[]> {
         logger.log("activity", "Fetch activities");
 
-        const { data } = await getApolloClient().query<{ activities: ActivityDto[] }>({
+        const { data } = await (await getApolloClient()).query<{ activities: ActivityDto[] }>({
             query: gql`
         query Activities {
             activities { 
@@ -39,7 +39,7 @@ export class ActivityFeature implements UserFeature {
     public async createActivity(type: ActivityType, content: any): Promise<Activity> {
         logger.log("activity", "Create activity");
 
-        const { data } = await getApolloClient().mutate<{ activity: ActivityDto }>({
+        const { data } = await (await getApolloClient()).mutate<{ activity: ActivityDto }>({
             mutation: gql`
         mutation CreateActivity($input: CreateActivityInput!) {
             createActivity(input: $input) {
@@ -64,7 +64,7 @@ export class ActivityFeature implements UserFeature {
     public async updateActivity(id: string, type: ActivityType, content: any): Promise<Activity> {
         logger.log("activity", "Update activity");
 
-        const { data } = await getApolloClient().mutate<{ activity: ActivityDto }>({
+        const { data } = await (await getApolloClient()).mutate<{ activity: ActivityDto }>({
             mutation: gql`
         mutation UpdateActivity($input: UpdateActivityInput!) {
             updateActivity(input: $input) {

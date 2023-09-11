@@ -4,7 +4,6 @@ import { UserEmailFeature } from "@model/user/features/email/user-email.feature"
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { logger } from "@services/logger";
-import { initialsString } from "@utils/strings";
 import { BehaviorSubject } from "rxjs";
 import { BrowserFeature } from "./features/browser/browser.feature";
 import { IdentityFeature } from "./features/identity/identity.feature";
