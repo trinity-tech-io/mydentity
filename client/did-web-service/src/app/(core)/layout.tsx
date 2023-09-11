@@ -5,13 +5,13 @@ import AppThemeProvider from '../theming/AppThemeContext';
 import { UnlockKeyPromptContextProvider } from '@components/security/unlock-key-prompt/UnlockKeyPrompt';
 import { onNewError$ } from '@services/error.service';
 import { useToast } from '@services/feedback.service';
+import { initSync } from '@services/init.service';
 import { isUnlockException } from '@services/security/security.service';
 import { SnackbarProvider } from 'notistack';
 import { filter } from 'rxjs';
-import { Header } from '../partials/Header';
-import Sidebar from '../partials/Sidebar';
+import { Header } from '../components/layout/Header';
+import Sidebar from '../components/layout/Sidebar';
 import ThemeRegistry from '../theming/ThemeRegistry';
-import { initSync } from '@services/init.service';
 
 initSync();
 

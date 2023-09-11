@@ -8,7 +8,7 @@ import { activeIdentity$ } from '@services/identity/identity.events';
 import { identityService } from '@services/identity/identity.service';
 import { authUser$ } from '@services/user/user.events';
 import { useRouter } from "next/navigation";
-import { FC, useState,MouseEvent } from 'react';
+import { FC, MouseEvent, useState } from 'react';
 import IdentityCellLeft from './CellLeft';
 
 const TAG = 'IdentityListWidget'
@@ -18,15 +18,15 @@ export const IdentityListWidget: FC = _ => {
   let [identities] = useBehaviorSubject(authUser?.get("identity").identities$);
   const router = useRouter()
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
-  const [showTost, setShowTost] = useState<boolean>(false);
+  const [showToast, setShowToast] = useState<boolean>(false);
   identities = identities?.slice(0, 5);
 
   const handleCellClick = (identity: Identity): void => {
     if (identity !== activeIdentity) {
-      setShowTost(true)
+      setShowToast(true)
     }
     else {
-      setShowTost(false)
+      setShowToast(false)
     }
     identityService.setActiveIdentity(identity);
     router.replace("/profile");
@@ -82,7 +82,7 @@ export const IdentityListWidget: FC = _ => {
                         <td className="p-2 whitespace-nowrap">
                           <div className="flex items-center">
                             <div className="font-medium text-slate-800 dark:text-slate-100">
-                              <IdentityCellLeft identity={identity} show={showTost} />
+                              <IdentityCellLeft identity={identity} show={showToast} />
                             </div>
                           </div>
                         </td>

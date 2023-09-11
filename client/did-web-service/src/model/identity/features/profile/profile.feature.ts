@@ -4,12 +4,23 @@ import { Identity } from "@model/identity/identity";
 import { AvatarInfoToSubject } from "@services/identity-profile-info/converters/avatar-converter";
 import { findProfileInfoByKey, findProfileInfoByTypes } from "@services/identity-profile-info/identity-profile-info.service";
 import { logger } from "@services/logger";
+import { PermanentCache } from "@utils/caches/permanent-cache";
+import { isClientSide } from "@utils/client-server";
 import { LazyBehaviorSubjectWrapper } from "@utils/lazy-behavior-subject";
 import { randomIntString } from "@utils/random";
 import moment from "moment";
 import { BehaviorSubject, map } from "rxjs";
 import { IdentityFeature } from "../identity-feature";
 import { editAvatarOnHive } from "./upload-avatar";
+
+/**
+ * Caches to store identities names and avatars, so we can show their base information
+ * without fetching all their content (credentials).
+ *
+ * No indexed db on server, initialize cache only on the client side
+ */
+const identityInfoNames = isClientSide() && new PermanentCache<string, null>('identity-info-names');
+const identityInfoIcons = isClientSide() && new PermanentCache<string, null>('identity-info-icons');
 
 export class ProfileFeature implements IdentityFeature {
   public activeCredential$ = new BehaviorSubject<Credential>(null);
@@ -18,6 +29,11 @@ export class ProfileFeature implements IdentityFeature {
   private _profileCredentials$ = new LazyBehaviorSubjectWrapper<ProfileCredential[]>(null, async () => {
     this.identity.get("credentials").credentials$.pipe(map((creds) => creds.filter(c => c instanceof ProfileCredential))).subscribe(creds => {
       this.profileCredentials$.next(<ProfileCredential[]>creds);
+
+      // When credentials change, update name and avatar caches
+      const newName = this.getName();
+      this.name$.next(newName); // Update this subject
+      identityInfoNames.put(this.identity.did, newName); // Update the cache
     });
   });
 
@@ -28,12 +44,16 @@ export class ProfileFeature implements IdentityFeature {
     });
   });
 
-  public get name$(): BehaviorSubject<string> { return this._name$.getSubject(); }
-  private _name$ = new LazyBehaviorSubjectWrapper<string>(null, async () => {
-    this.profileCredentials$.subscribe(creds => {
-      this.name$.next(this.getName());
-    });
-  });
+  /**
+   * Cached identity name. Gets updated when the name credential changes by lazily listening
+   * to profile credential changes (in order to not fetch credentials and just use the cache initially).
+   */
+  public get name$(): BehaviorSubject<string> { return identityInfoNames.listen(this.identity.did); }
+  /**
+   * Cached identity icon. Gets updated when the avatar credential changes by lazily listening
+   * to profile credential changes (in order to not fetch credentials and just use the cache initially).
+   */
+  public get icon$(): BehaviorSubject<string> { return identityInfoIcons.listen(this.identity.did); }
 
   constructor(protected identity: Identity) { }
 

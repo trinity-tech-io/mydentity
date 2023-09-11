@@ -1,23 +1,23 @@
 'use client';
 import AccountIcon from '@assets/images/account.svg';
-import CircleComponent from '@components/CircleComponent';
+import CircleComponent from '@components/generic/CircleComponent';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { Identity } from '@model/identity/identity';
 import Avatar from '@mui/material/Avatar';
-import { shortenDID } from '@services/identity/identity.utils';
 import { useToast } from "@services/feedback.service";
 import { activeIdentity$ } from '@services/identity/identity.events';
+import { shortenDID } from '@services/identity/identity.utils';
 import { initialsString } from "@utils/strings";
 import { FC, useEffect } from 'react';
 
 const IdentityCellLeft: FC<{
   identity: Identity;
-  show: boolean; 
-}> = ({ identity , show}) => {
+  show: boolean;
+}> = ({ identity, show }) => {
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const { showSuccessToast } = useToast()
   const [name] = useBehaviorSubject(identity.get("profile").name$)
- 
+
   useEffect(() => {
     if (show && activeIdentity == identity) {
       const shortDid = shortenDID(identity.did, 8)
@@ -32,8 +32,8 @@ const IdentityCellLeft: FC<{
         {name !== null ? (
           <CircleComponent text={initialsString(name as string)} />
         ) : (
-          <Avatar sx={{ ml: 0, width: 40, height: 40}}>
-            <AccountIcon width={20}/>
+          <Avatar sx={{ ml: 0, width: 40, height: 40 }}>
+            <AccountIcon width={20} />
           </Avatar>
         )}
         <div style={{ width: '100px', marginLeft: '8px' }}>

@@ -2,9 +2,9 @@
 import { FC } from 'react';
 // import Help from '../components/DropdownHelp';
 // import Notifications from '../components/DropdownNotifications';
-import { DropdownIdentity } from '@components/DropdownIdentity';
-import { DropdownUserProfile } from '@components/DropdownProfile';
 import { MainButton } from '@components/generic/MainButton';
+import { DropdownIdentity } from '@components/layout/DropdownIdentity';
+import { DropdownUserProfile } from '@components/layout/DropdownProfile';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { useMounted } from '@hooks/useMounted';
 import { authUser$ } from '@services/user/user.events';
@@ -21,11 +21,11 @@ export const Header: FC<{
 
   // const [searchModalOpen, setSearchModalOpen] = useState(false);
 
-  const signUp = () => {
+  const signUp = (): void => {
     router.push("/signup")
   }
 
-  const signIn = () => {
+  const signIn = (): void => {
     router.push("/signin")
   }
 
@@ -40,7 +40,7 @@ export const Header: FC<{
               className="text-slate-500 hover:text-slate-600 lg:hidden"
               aria-controls="sidebar"
               aria-expanded={sidebarOpen}
-              onClick={(e) => {
+              onClick={(e): void => {
                 e.stopPropagation();
                 setSidebarOpen(!sidebarOpen);
               }}

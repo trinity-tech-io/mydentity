@@ -14,7 +14,7 @@ import clsx from 'clsx';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { FC, ReactNode, useEffect, useRef, useState } from 'react';
-import ThemeToggle from '../components/generic/ThemeToggle';
+import ThemeToggle from '../generic/ThemeToggle';
 
 type LinkConfig = {
   title: string;

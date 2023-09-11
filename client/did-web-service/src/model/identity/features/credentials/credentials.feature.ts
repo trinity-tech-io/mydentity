@@ -7,7 +7,9 @@ import { BehaviorSubject } from "rxjs";
 import { IdentityFeature } from "../identity-feature";
 
 export class CredentialsFeature implements IdentityFeature {
-  private _credentials$ = new LazyBehaviorSubjectWrapper<Credential[]>([], () => this.fetchCredentials());
+  private _credentials$ = new LazyBehaviorSubjectWrapper<Credential[]>([], () => {
+    return this.fetchCredentials();
+  });
   public get credentials$(): BehaviorSubject<Credential[]> { return this._credentials$.getSubject(); }
 
   constructor(protected identity: Identity) { }

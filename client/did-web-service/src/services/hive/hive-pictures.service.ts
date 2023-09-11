@@ -1,5 +1,5 @@
 import { logger } from "@services/logger";
-import { PictureCache } from "@utils/caches/picture-cache";
+import { PermanentCache } from "@utils/caches/permanent-cache";
 import { isClientSide } from "@utils/client-server";
 import { rawImageToBase64DataUrl } from "@utils/pictures";
 import { getHiveVault } from "./hive.service";
@@ -11,7 +11,7 @@ type CacheCustomData = {
 }
 
 // No indexed db on server, initialize cache only on the client side
-const cache = isClientSide() && new PictureCache<string, CacheCustomData>('hive-pictures', async (key, customData) => {
+const cache = isClientSide() && new PermanentCache<string, CacheCustomData>('hive-pictures', async (key, customData) => {
   logger.log("hive", "Cache miss for hive url picture, fetching");
   return fetchHiveScriptPictureToDataUrl(customData.hiveScriptUrl, customData.did);
 });

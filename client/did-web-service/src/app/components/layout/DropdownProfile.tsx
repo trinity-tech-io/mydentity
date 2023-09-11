@@ -10,7 +10,7 @@ import { signOut } from "@services/user/user.service";
 import Link from 'next/link';
 import { useRouter, useSearchParams } from "next/navigation";
 import { FC, useEffect, useRef, useState } from "react";
-import CircleComponent from './CircleComponent';
+import CircleComponent from '../generic/CircleComponent';
 
 export const DropdownUserProfile: FC<{
   align: "left" | "right"
@@ -92,9 +92,9 @@ export const DropdownUserProfile: FC<{
       >
         {isLogin ? (
           <CircleComponent text={userNameInitials} />) : (
-            <Avatar sx={{ ml: 0, width: 40, height: 40}}>
-              <AccountIcon width={20}/>
-            </Avatar>
+          <Avatar sx={{ ml: 0, width: 40, height: 40 }}>
+            <AccountIcon width={20} />
+          </Avatar>
         )}
         {isLogin && (
           <div className="flex items-center truncate">

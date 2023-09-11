@@ -14,10 +14,10 @@ import { authUser$ } from '@services/user/user.events';
 import { initialsString } from "@utils/strings";
 import { useRouter } from 'next/navigation';
 import { FC, useEffect, useRef, useState } from 'react';
-import CircleComponent from './CircleComponent';
+import CircleComponent from '../generic/CircleComponent';
+import { MainButton } from '../generic/MainButton';
+import Transition from '../generic/Transition';
 import DropdownIdentityList from './DropdownIdentityList';
-import { MainButton } from './generic/MainButton';
-import Transition from './generic/Transition';
 
 const useStyles = makeStyles((theme: Theme) => ({
   button: {
