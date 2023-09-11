@@ -1,4 +1,5 @@
 "use client";
+import { Breadcrumbs } from "@components/breadcrumbs/Breadcrumbs";
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { useMounted } from '@hooks/useMounted';
 import { VaultStatus } from '@services/hive/vault/vault-status';
@@ -23,6 +24,8 @@ const StoragePage: FC = () => {
     return null;
 
   return (<div className='col-span-full flex flex-col'>
+    <Breadcrumbs entries={["storage"]} />
+
     <div className='font-bold'>Hive storage status</div>
     <div>
       {vaultStatus === VaultStatus.NotChecked && "Checking"}

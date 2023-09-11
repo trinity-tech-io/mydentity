@@ -1,5 +1,6 @@
 "use client";
 
+import { Breadcrumbs } from "@components/breadcrumbs/Breadcrumbs";
 import { MainButton } from "@components/generic/MainButton";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useMounted } from "@hooks/useMounted";
@@ -54,6 +55,8 @@ const AccountProfile: FC = () => {
   }
 
   return (<div className="col-span-full">
+    <Breadcrumbs entries={["account-profile"]} />
+
     <Typography variant="h4">Account profile</Typography>
     <p>
       Here is your account profile.

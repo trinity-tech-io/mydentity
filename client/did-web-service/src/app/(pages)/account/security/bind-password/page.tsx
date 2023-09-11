@@ -1,4 +1,5 @@
 "use client";
+import { Breadcrumbs } from "@components/breadcrumbs/Breadcrumbs";
 import { MasterPasswordInput } from "@components/security/MasterPasswordInput";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useMounted } from "@hooks/useMounted";
@@ -34,6 +35,8 @@ const BindPassword: FC = () => {
     return <CircularProgress />;
 
   return (<div className="col-span-full">
+    <Breadcrumbs entries={["security-center", "bind-password"]} />
+
     {!isPasswordBound && <Typography variant="h4">Master password creation</Typography>}
     {isPasswordBound && <Typography variant="h4">Master password update</Typography>}
     {!isPasswordBound && <p>

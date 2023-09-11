@@ -1,4 +1,5 @@
 "use client";
+import { Breadcrumbs } from "@components/breadcrumbs/Breadcrumbs";
 import { MainButton } from '@components/generic/MainButton';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { useMounted } from '@hooks/useMounted';
@@ -34,6 +35,8 @@ const DeleteIdentityPage: FC = () => {
     return null;
 
   return (<div className='flex flex-col col-span-full'>
+    <Breadcrumbs entries={["delete-identity"]} />
+
     <Typography variant='h5'>Identity deletion</Typography>
     <Typography>You are about to delete the active identity and all the information (credentials) it contains.</Typography>
     <br /><br />

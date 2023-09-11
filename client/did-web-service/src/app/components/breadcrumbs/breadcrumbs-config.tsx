@@ -5,14 +5,26 @@ import { BreadcrumbsItem } from "./Breadcrumbs";
 export type BreadcrumbsEntry =
   "dashboard" |
   "profile" |
+  "account-profile" |
   "security-center" |
-  "bind-browser";
+  "bind-browser" |
+  "bind-email" |
+  "bind-password" |
+  "credentials-list" |
+  "delete-identity" |
+  "storage";
 
 export const allBreadcrumbsItems: BreadcrumbsItem[] = [
   { key: "dashboard", icon: <HomeIcon />, title: "Dashboard", path: "/dashboard" },
   { key: "profile", title: "Profile", path: '/profile' },
+  { key: "account-profile", title: "Account profile", path: '/account/profile' },
   { key: "security-center", icon: <SecurityIcon />, title: "Security center", path: '/account/security' },
-  { key: "bind-browser", title: "Bind browser", path: '/account/security/bind-passkey' }
+  { key: "bind-browser", title: "Bind browser", path: '/account/security/bind-passkey' },
+  { key: "bind-email", title: "Bind email", path: '/account/security/bind-email' },
+  { key: "bind-password", title: "Bind password", path: '/account/security/bind-password' },
+  { key: "credentials-list", title: "All credentials", path: '/account/credentials/list' },
+  { key: "delete-identity", title: "Identity deletion", path: '/delete-identity' },
+  { key: "storage", title: "Storage", path: '/storage' },
 ];
 
 export function bcEntryToItem(entry: BreadcrumbsEntry): BreadcrumbsItem {
