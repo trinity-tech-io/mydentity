@@ -1,10 +1,15 @@
 'use client';
-import { FC } from 'react';
 
-const CircleComponent: FC<{ text: string }> = ({ text }) => {
+import { FC } from "react";
+
+export const LettersAvatar: FC<{
+  text: string;
+  width?: number;
+  height?: number;
+}> = ({ text, width = 40, height = 40 }) => {
   const circleStyle = {
-    width: '39px',
-    height: '39px',
+    width: `${width}px`,
+    height: `${height}px`,
     borderRadius: '50%',
     display: 'flex',
     justifyContent: 'center',
@@ -19,5 +24,3 @@ const CircleComponent: FC<{ text: string }> = ({ text }) => {
     </div>
   );
 };
-
-export default CircleComponent;

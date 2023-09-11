@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 'use client';
 import AccountIcon from '@assets/images/account.svg';
+import { LettersAvatar } from '@components/generic/LettersAvatar';
 import Transition from "@components/generic/Transition";
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { User } from "@model/user/user";
@@ -10,7 +11,6 @@ import { signOut } from "@services/user/user.service";
 import Link from 'next/link';
 import { useRouter, useSearchParams } from "next/navigation";
 import { FC, useEffect, useRef, useState } from "react";
-import CircleComponent from '../generic/CircleComponent';
 
 export const DropdownUserProfile: FC<{
   align: "left" | "right"
@@ -91,7 +91,7 @@ export const DropdownUserProfile: FC<{
         aria-expanded={dropdownOpen}
       >
         {isLogin ? (
-          <CircleComponent text={userNameInitials} />) : (
+          <LettersAvatar text={userNameInitials} />) : (
           <Avatar sx={{ ml: 0, width: 40, height: 40 }}>
             <AccountIcon width={20} />
           </Avatar>

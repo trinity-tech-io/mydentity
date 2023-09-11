@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 'use client';
+import { IdentityAvatar } from '@components/identity/IdentityAvatar';
 import { Identity } from '@model/identity/identity';
 import { makeStyles } from '@mui/styles';
 import { Theme } from '@mui/system';
@@ -34,12 +35,13 @@ const DropdownIdentityList: FC<{
       {identities.map((identity) => (
         <div key={identity.did}>
           <div
-            className="font-medium text-sm text-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center py-3 px-3"
+            className="font-medium text-sm hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center py-3 px-3 cursor-pointer"
             onClick={() => {
               setCurrentIdentity(identity);
               setDropdownOpen(false);
             }}
           >
+            <IdentityAvatar identity={identity} width={40} height={40} />
             <div className={classes.avatarContainer}>
               <div className={classes.textContainer}>
                 <span

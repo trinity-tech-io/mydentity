@@ -1,20 +1,17 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 "use client";
-import AccountIcon from '@assets/images/account.svg';
+import { IdentityAvatar } from '@components/identity/IdentityAvatar';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { useMounted } from '@hooks/useMounted';
 import { Identity } from '@model/identity/identity';
-import { Avatar } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { Theme } from '@mui/system';
 import { activeIdentity$ } from '@services/identity/identity.events';
 import { identityService } from '@services/identity/identity.service';
 import { shortenDID } from '@services/identity/identity.utils';
 import { authUser$ } from '@services/user/user.events';
-import { initialsString } from "@utils/strings";
 import { useRouter } from 'next/navigation';
 import { FC, useEffect, useRef, useState } from 'react';
-import CircleComponent from '../generic/CircleComponent';
 import { MainButton } from '../generic/MainButton';
 import Transition from '../generic/Transition';
 import DropdownIdentityList from './DropdownIdentityList';
@@ -114,13 +111,7 @@ export const DropdownIdentity: FC<{
         onClick={() => setDropdownOpen(!dropdownOpen)}
         aria-expanded={dropdownOpen}
       >
-
-        {name && name !== null ? (
-          <CircleComponent text={initialsString(name)} />) : (
-          <Avatar sx={{ ml: 0, width: 40, height: 40 }}>
-            <AccountIcon width={20} />
-          </Avatar>
-        )}
+        <IdentityAvatar identity={currentIdentity} width={40} height={40} />
         <div className={classes.avatarContainer}>
           <div className={classes.textContainer}>
             <div className={`truncate text-sm font-bold dark:text-slate-300 group-hover:text-slate-800 dark:group-hover:text-slate-200 ${currentIdentity ? classes.blackText : ''}`}>

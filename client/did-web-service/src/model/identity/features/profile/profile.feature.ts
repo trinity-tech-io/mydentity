@@ -30,17 +30,21 @@ export class ProfileFeature implements IdentityFeature {
     this.identity.get("credentials").credentials$.pipe(map((creds) => creds.filter(c => c instanceof ProfileCredential))).subscribe(creds => {
       this.profileCredentials$.next(<ProfileCredential[]>creds);
 
-      // When credentials change, update name and avatar caches
-      const newName = this.getName();
-      this.name$.next(newName); // Update this subject
-      identityInfoNames.put(this.identity.did, newName); // Update the cache
+      // When credentials change, update name subject and its cache so we can later show the
+      // identity name without fetching credentials
+      this.refreshIdentityName();
     });
   });
 
   public get avatarCredential$(): BehaviorSubject<ProfileCredential> { return this._avatarCredential$.getSubject(); }
   private _avatarCredential$ = new LazyBehaviorSubjectWrapper<ProfileCredential>(null, async () => {
     this.profileCredentials$.subscribe(creds => {
-      this.avatarCredential$.next(creds?.find(c => c.verifiableCredential.getId().getFragment() === "avatar"));
+      const avatarCredential = creds?.find(c => c.verifiableCredential.getId().getFragment() === "avatar");
+      avatarCredential?.representativeIcon$.subscribe(icon => {
+        this.refreshIdentityIcon();
+      })
+      this.avatarCredential$.next(avatarCredential);
+      this.refreshIdentityIcon();
     });
   });
 
@@ -59,6 +63,26 @@ export class ProfileFeature implements IdentityFeature {
 
   public setActiveCredential(credential: Credential): void {
     this.activeCredential$.next(credential)
+  }
+
+  private refreshIdentityName(): void {
+    const newName = this.getName();
+    this.name$.next(newName); // Update this subject
+    identityInfoNames.put(this.identity.did, newName); // Update the cache
+  }
+
+  private refreshIdentityIcon(): void {
+    const avatarIcon = this.avatarCredential$.value?.representativeIcon$.value;
+    // Only handle real string data urls from the avataer credential. Not default avatars icons
+    // (we don't want to use such icon to represent the identity)
+    if (typeof avatarIcon === "string") {
+      this.icon$.next(avatarIcon);
+      identityInfoIcons.put(this.identity.did, avatarIcon); // Update the cache
+    }
+    else {
+      this.icon$.next(null);
+      identityInfoIcons.put(this.identity.did, null); // Update the cache
+    }
   }
 
   public async createProfileCredential(credentialId: string = null, fullTypes: string[], key: string, editionValue: any): Promise<Credential> {
