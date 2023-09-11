@@ -3,7 +3,6 @@
 import AccountIcon from '@assets/images/account.svg';
 import DashboardIcon from '@assets/images/dashboard.svg';
 import DiscoverIcon from '@assets/images/discover.svg';
-import ManageIcon from '@assets/images/manage.svg';
 import SupportIcon from '@assets/images/support.svg';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { useMounted } from '@hooks/useMounted';
@@ -60,14 +59,14 @@ const groups: GroupConfig[] = [
       { title: "DIDs", url: "/learn/dids" },
       { title: "Credentials", url: "/learn/credentials " }
     ]
-  }, */
+  },
   {
     icon: <ManageIcon />,
     title: "Manage",
     links: [
       { title: "Export", url: "/manage/export" },
     ]
-  },
+  }, */
   {
     icon: <DiscoverIcon />,
     title: "Discover",
