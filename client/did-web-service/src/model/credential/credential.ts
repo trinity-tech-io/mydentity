@@ -213,13 +213,11 @@ export class Credential {
       else {
         // Fallback for old style credentials - try to guess an icon, or use a defaut one.
 
-        // let fragment = this.verifiableCredential.getId().getFragment();
+        const fragmentInfo = this.verifiableCredential.getType();
         // TODO: NOT GOOD HERE - SHOULD BE IN THE PROFILE CREDENTIAL CLASS
-        // const profileInfo = findProfileInfoByTypes([fragment]);
-        // fragment = profileInfo?.key || FingerPrintIcon;
-
-        const key = defaultProfileIcons[this.getDisplayableTitle()]
-
+        const profileInfo = findProfileInfoByTypes(fragmentInfo);
+        const fragment = profileInfo?.key;
+        const key = defaultProfileIcons[fragment]
         this.representativeIcon$.next(key);
       }
 

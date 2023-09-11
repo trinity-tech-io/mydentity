@@ -3,11 +3,11 @@ import AccountIcon from '@assets/images/account.svg';
 import FingerPrintIcon from '@assets/images/fingerprint.svg';
 
 export const defaultProfileIcons:{[profileInfoKey: string]: JSX.Element} = {
-    'Name': <AccountIcon style={{ width: 35, height: 35 }}/>,
-    'Gender': <AccountIcon style={{ width: 35, height: 35 }}/>,
-    'Email': <EmailPrintIcon style={{ width: 35, height: 35 }}/>,
-    'BirthDate': <AccountIcon style={{ width: 35, height: 35 }}/>,
-    'finger-print': <FingerPrintIcon style={{ width: 35, height: 35 }}/>,
+    'name': <AccountIcon style={{ width: 35, height: 35 }}/>,
+    'gender': <AccountIcon style={{ width: 35, height: 35 }}/>,
+    'email': <EmailPrintIcon style={{ width: 35, height: 35 }}/>,
+    'birthDate': <AccountIcon style={{ width: 35, height: 35 }}/>,
+    'fingerPrint': <FingerPrintIcon style={{ width: 35, height: 35 }}/>, // TODO: TEST
     'default':<AccountIcon style={{ width: 35, height: 35 }}/>   
     // TODO： ADD MORE
 }
