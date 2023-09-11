@@ -191,9 +191,9 @@ const Profile: FC = () => {
 
       case "value":
         {
-          const aValue = a.getDisplayValue().label ? a.getDisplayValue().label : a.getDisplayValue();
-          const bValue = b.getDisplayValue().label ? b.getDisplayValue().label : b.getDisplayValue();
-          return aValue.localeCompare(bValue);
+          const aValue = a.getDisplayValue()?.label ? a.getDisplayValue().label : a.getDisplayValue();
+          const bValue = b.getDisplayValue()?.label ? b.getDisplayValue().label : b.getDisplayValue();
+          return aValue?.localeCompare(bValue);
         }
       default:
     }
