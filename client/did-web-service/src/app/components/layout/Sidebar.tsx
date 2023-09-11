@@ -116,7 +116,7 @@ const GroupElement: FC<{
   const pathname = usePathname();
   const isActive = group.url === pathname || group.links?.some(l => l.url === pathname);
   const [open, setOpen] = useState(true);
-  const [authUser] = useBehaviorSubject(authUser$());
+  const [authUser] = useBehaviorSubject(authUser$);
   const { mounted } = useMounted();
 
   if ((requiresAuth && (!authUser || !mounted))) // render server and client without this item until we know more about "authUser"

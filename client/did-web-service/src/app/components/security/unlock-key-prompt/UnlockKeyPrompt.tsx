@@ -1,13 +1,19 @@
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
+import { AppException } from '@model/exceptions/app-exception';
 import { ShadowKeyType } from '@model/shadow-key/shadow-key-type';
 import { Dialog, Typography } from '@mui/material';
 import { AuthKeyInput } from '@services/keyring/auth-key.input';
+import { unlockMasterKey } from '@services/keyring/keyring.service';
+import { logger } from '@services/logger';
+import { CallWithUnlockCallback, isUnlockException } from '@services/security/security.service';
 import { authUser$ } from '@services/user/user.events';
 import React, {
   Dispatch, FC,
   createContext,
-  useContext, useState
+  useContext, useEffect,
+  useState
 } from 'react';
+import { Subject } from 'rxjs';
 import { PasskeyPrompt } from './PasskeyPrompt';
 import { PasswordPrompt } from './PasswordPrompt';
 
@@ -27,6 +33,13 @@ export const UnlockKeyPromptContext = createContext<UnlockKeyPromptContextType>(
   setActions: null
 });
 
+type UnlockRequest<T> = {
+  method: CallWithUnlockCallback<T>;
+  resolve: (value: any) => any;
+}
+const callWithUnlockRequestEvent = new Subject<UnlockRequest<any>>();
+
+
 export function UnlockKeyPromptContextProvider(props: any): JSX.Element {
   const [actions, setActions] = useState<UnlockKeyPromptActions>(null);
 
@@ -41,10 +54,11 @@ export function UnlockKeyPromptContextProvider(props: any): JSX.Element {
 
 const UnlockKeyPrompt: FC = () => {
   const { actions, setActions } = useContext(UnlockKeyPromptContext);
-  const [authUser] = useBehaviorSubject(authUser$());
+  const [authUser] = useBehaviorSubject(authUser$);
   const securityFeature = authUser?.get("security");
   const [passwordKeys] = useBehaviorSubject(securityFeature?.passwordKeys$);
   const [passkeyKeys] = useBehaviorSubject(securityFeature?.passkeyKeys$);
+  const { promptMasterKeyUnlock } = useUnlockKeyPrompt();
 
   const hideDialog = (): void => {
     setActions(null) // Hides the dialog
@@ -69,6 +83,13 @@ const UnlockKeyPrompt: FC = () => {
     actions.onUnlockKey?.(authKey);
     hideDialog();
   }
+
+  useEffect(() => {
+    const sub = callWithUnlockRequestEvent.subscribe(request => {
+      callWithUnlockHandler(request, promptMasterKeyUnlock);
+    });
+    return () => sub.unsubscribe();
+  }, []);
 
   return (
     <Dialog
@@ -113,4 +134,38 @@ export const useUnlockKeyPrompt = (): {
   }
 
   return { promptMasterKeyUnlock };
+}
+
+
+
+
+export async function callWithUnlock<T>(method: CallWithUnlockCallback<T>): Promise<T> {
+  return new Promise<T>((resolve) => {
+    callWithUnlockRequestEvent.next({ method, resolve });
+  });
+}
+
+async function callWithUnlockHandler(request: UnlockRequest<any>, promptMasterKeyUnlock: () => Promise<AuthKeyInput>): Promise<void> {
+  try {
+    const result = await request.method();
+    request.resolve(result);
+  }
+  catch (e) {
+    // Exception during the API call. Check if this is a unlock key requirement app exception and if so,
+    // trigger the master unlock callback to let the UI prompt the unlock method to the user
+    if (e instanceof AppException && isUnlockException(e)) {
+      logger.warn("security", "This method call requires unlock authorization from the user. Prompting");
+      const auth = await promptMasterKeyUnlock();
+      if (auth) {
+        // Client side auth provided: try to unlock on the API side and call the original api again
+        await unlockMasterKey(auth);
+        const result = await callWithUnlock(request.method)
+        request.resolve(result);
+      }
+      else {
+        // Operation cancelled by user, failure to bind password
+        logger.warn("security", "Unlock operation cancelled by user");
+      }
+    }
+  }
 }

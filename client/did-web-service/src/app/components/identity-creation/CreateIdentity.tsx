@@ -17,7 +17,7 @@ export const CreateIdentity: FC<{
   onIdentityCreated: (identity: Identity) => void;
 }> = ({ suggestedName = "", onIdentityCreating, onIdentityCreated }) => {
   const nameInput = useRef(null);
-  const [authUser] = useBehaviorSubject(authUser$());
+  const [authUser] = useBehaviorSubject(authUser$);
   const { mounted } = useMounted();
   const { showSuccessToast } = useToast();
   const router = useRouter();

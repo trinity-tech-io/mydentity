@@ -16,7 +16,7 @@ export const Header: FC<{
   setSidebarOpen: (open: boolean) => void;
 }> = ({ sidebarOpen, setSidebarOpen }) => {
   const { mounted } = useMounted();
-  const [authUser] = useBehaviorSubject(authUser$());
+  const [authUser] = useBehaviorSubject(authUser$);
   const router = useRouter()
 
   // const [searchModalOpen, setSearchModalOpen] = useState(false);

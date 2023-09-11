@@ -11,7 +11,7 @@ import { unlockMasterKey } from "@services/keyring/keyring.service";
 import { logger } from "@services/logger";
 import { authUser$ } from "@services/user/user.events";
 
-type CallWithUnlockCallback<T> = () => Promise<T>;
+export type CallWithUnlockCallback<T> = () => Promise<T>;
 
 /**
  * Tells if the given app exception is considered as a requirement to unlock a user's master key.
@@ -30,7 +30,8 @@ export function isUnlockException(e: AppException): boolean {
 export function useCallWithUnlock<T>(): {
   callWithUnlock: (method: CallWithUnlockCallback<T>) => Promise<T>;
 } {
-  const [authUser] = useBehaviorSubject(authUser$());
+
+  const [authUser] = useBehaviorSubject(authUser$);
   const { promptMasterKeyUnlock } = useUnlockKeyPrompt();
 
   const callWithUnlock = async (method: CallWithUnlockCallback<T>): Promise<T> => {
@@ -62,3 +63,4 @@ export function useCallWithUnlock<T>(): {
     callWithUnlock
   }
 }
+

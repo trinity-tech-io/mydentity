@@ -14,7 +14,7 @@ import { BrowserRow } from './components/BrowserRow';
 
 const Security: FC = () => {
   const { mounted } = useMounted();
-  const [authUser] = useBehaviorSubject(authUser$());
+  const [authUser] = useBehaviorSubject(authUser$);
   const emailFeature = authUser?.get("email");
   const [userEmails] = useBehaviorSubject(emailFeature?.userEmails$);
   const securityFeature = authUser?.get("security");
@@ -95,10 +95,10 @@ const Security: FC = () => {
                 {userEmails.map(email => <div key={email.id} className="info mb-2">{email.email}</div>)}
               </div>
               <Link href="/account/security/bind-email">Bind more</Link>
-                {errorMsg && <>
-                  <div className='text-red-500'>{errorMsg}</div>
-                </>
-                }
+              {errorMsg && <>
+                <div className='text-red-500'>{errorMsg}</div>
+              </>
+              }
             </div>
           }
         </div>

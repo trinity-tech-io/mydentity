@@ -19,7 +19,7 @@ const AccountProfile: FC = () => {
   const userNameRef = createRef<HTMLInputElement>()
   // const userNameRef = createRef()
   const [open, setOpen] = useState(false);
-  const [authUser] = useBehaviorSubject(authUser$());
+  const [authUser] = useBehaviorSubject(authUser$);
   const [userName] = useBehaviorSubject(authUser?.name$);
   const { mounted } = useMounted();
 

@@ -14,7 +14,7 @@ export const PasskeyBind: FC = () => {
   //     onConfirm("");
   //   }
   const router = useRouter();
-  const [authUser] = useBehaviorSubject(authUser$());
+  const [authUser] = useBehaviorSubject(authUser$);
   const securityFeature = authUser?.get("security");
   const { callWithUnlock } = useCallWithUnlock<boolean>();
   const { showSuccessToast } = useToast();

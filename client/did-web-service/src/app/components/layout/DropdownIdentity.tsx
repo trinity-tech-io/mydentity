@@ -54,7 +54,7 @@ export const DropdownIdentity: FC<{
   const trigger = useRef(null);
   const dropdown = useRef(null);
 
-  const [authUser] = useBehaviorSubject(authUser$());
+  const [authUser] = useBehaviorSubject(authUser$);
   const [identities] = useBehaviorSubject(authUser?.get("identity").identities$);
   const [currentIdentity] = useBehaviorSubject(activeIdentity$);
   //const [createDidModalOpen, setCreateDidModalOpen] = useState(false);

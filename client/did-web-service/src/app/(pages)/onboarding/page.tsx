@@ -7,7 +7,7 @@ import { OnBoardingStep1 } from "./steps/step1";
 import { OnBoardingStep2 } from "./steps/step2";
 
 const OnBoarding: FC = () => {
-  const [authUser] = useBehaviorSubject(authUser$());
+  const [authUser] = useBehaviorSubject(authUser$);
   const securityFeature = authUser?.get("security");
   const [shadowKeys] = useBehaviorSubject(securityFeature?.shadowKeys$);
   const initialDataFetched = !!shadowKeys;

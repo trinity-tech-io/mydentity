@@ -8,7 +8,7 @@ import { FC, useState } from "react";
 
 export const OnBoardingStep2: FC = () => {
   const router = useRouter();
-  const [authUser] = useBehaviorSubject(authUser$());
+  const [authUser] = useBehaviorSubject(authUser$);
   const [userName] = useBehaviorSubject(authUser?.name$);
   const [identityBeingCreated, setIdentityBeingCreated] = useState(false);
 

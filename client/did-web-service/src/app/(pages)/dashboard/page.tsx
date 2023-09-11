@@ -12,7 +12,7 @@ import { IdentityListWidget } from "./widgets/IdentityList";
 import { RecentActivityWidget } from "./widgets/RecentActivity";
 
 const Dashboard: FC = () => {
-  const [authUser] = useBehaviorSubject(authUser$());
+  const [authUser] = useBehaviorSubject(authUser$);
   const router = useRouter();
   const { mounted } = useMounted();
 

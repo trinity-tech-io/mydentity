@@ -6,6 +6,7 @@ import ListToolbar from "@components/generic/ListToolbar";
 import CreateCredentialDialog from "@components/identity-profile/CreateCredentialDialog";
 import EditCredentialDialog, { EditionMode } from "@components/identity-profile/EditCredentialDialog";
 import { VerticalStackLoadingCard } from "@components/loading-cards/vertical-stack-loading-card/VerticalStackLoadingCard";
+import { callWithUnlock } from '@components/security/unlock-key-prompt/UnlockKeyPrompt';
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useMounted } from "@hooks/useMounted";
 import { Credential } from "@model/credential/credential";
@@ -26,7 +27,6 @@ import { useRouter } from "next/navigation";
 import { ChangeEvent, FC, MouseEvent, forwardRef, useEffect, useState } from "react";
 import { EditableCredentialAvatar } from '../../components/credential/EditableCredentialAvatar';
 import { OrderBy } from "./order-by";
-import { useCallWithUnlock } from '@services/security/security.service';
 
 const CREDENTIAL_LIST_HEAD = [
   { id: 'name', label: 'Name', alignRight: false },
@@ -62,7 +62,7 @@ const Profile: FC = () => {
   const [preEditCredentialValue, setPreEditCredentialValue] = useState<string>('');
   const [editType, setEditType] = useState(EditionMode.NEW);
 
-  const { callWithUnlock } = useCallWithUnlock<boolean>();
+  // const { callWithUnlock } = useCallWithUnlock<boolean>();
 
   const { showSuccessToast, showErrorToast } = useToast();
   const [isOpenPopupMenu, setOpenPopupMenu] = useState(null);
@@ -133,7 +133,7 @@ const Profile: FC = () => {
     if (editCredentialValue.type == EditionMode.EDIT && editCredentialValue.originCredential) {
       let isSuccess = false;
       try {
-        isSuccess = await identityProfileFeature.updateProfileCredential(editCredentialValue.originCredential, editCredentialValue.value).catch()
+        isSuccess = await callWithUnlock(async () => identityProfileFeature.updateProfileCredential(editCredentialValue.originCredential, editCredentialValue.value));
       } catch (error) {
         logger.error(TAG, 'Update credential error', error);
       }

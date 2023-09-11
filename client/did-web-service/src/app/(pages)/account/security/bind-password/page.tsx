@@ -11,7 +11,7 @@ import { FC } from "react";
 
 const BindPassword: FC = () => {
   const { mounted } = useMounted();
-  const [authUser] = useBehaviorSubject(authUser$());
+  const [authUser] = useBehaviorSubject(authUser$);
   const securityFeature = authUser?.get("security");
   const [shadowKeys] = useBehaviorSubject(securityFeature?.shadowKeys$); // KEY THIS to lazily fetch the shadow keys
   const isPasswordBound = securityFeature?.isPasswordBound();
