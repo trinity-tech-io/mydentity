@@ -1,3 +1,4 @@
+import AccountIcon from '@assets/images/account.svg';
 import { VerifiableCredential } from "@elastosfoundation/did-js-sdk";
 import { JSONObject } from "@model/json";
 import { credentialTypesService } from "@services/credential-types/credential.types.service";
@@ -9,9 +10,10 @@ import { issuerService } from "@services/identity/issuer.service";
 import { logger } from "@services/logger";
 import { LazyBehaviorSubjectWrapper } from "@utils/lazy-behavior-subject";
 import { evalObjectFieldPath } from "@utils/objects";
-import { capitalizeFirstLetter } from "@utils/strings";
+import { capitalizeFirstLetter, isDefaultLocalIcon } from "@utils/strings";
 import { BehaviorSubject } from "rxjs";
 import { IssuerInfo } from "./issuer-info";
+import { defaultProfileIcons } from "./profile-info-icons";
 
 type ValueItem = {
   name: string,
@@ -26,7 +28,7 @@ export class Credential {
   public get isConform$(): BehaviorSubject<boolean> { return this._isConform$.getSubject(); }
 
   // Path to display the icon that best represents this credential.
-  public representativeIcon$ = new BehaviorSubject<string>(null);
+  public representativeIcon$ = new BehaviorSubject<string | JSX.Element>(null);
 
   // Backend data
   public id: string = null;
@@ -36,7 +38,7 @@ export class Credential {
   // Computed client data
   protected displayTitle: string;
   protected displayValue: any = null;
-  private onIconReadyCallback: (iconSrc: string) => void = null;
+  private onIconReadyCallback: (iconSrc: string | JSX.Element) => void = null;
 
   /**
    * Prepare all display data.
@@ -210,14 +212,15 @@ export class Credential {
       }
       else {
         // Fallback for old style credentials - try to guess an icon, or use a defaut one.
-        let fragment = this.verifiableCredential.getId().getFragment();
 
+        // let fragment = this.verifiableCredential.getId().getFragment();
         // TODO: NOT GOOD HERE - SHOULD BE IN THE PROFILE CREDENTIAL CLASS
+        // const profileInfo = findProfileInfoByTypes([fragment]);
+        // fragment = profileInfo?.key || FingerPrintIcon;
 
-        const profileInfo = findProfileInfoByTypes([fragment]);
-        fragment = profileInfo?.key || "finger-print";
+        const key = defaultProfileIcons[this.getDisplayableTitle()]
 
-        this.representativeIcon$.next(`/assets/identity/smallIcons/dark/${fragment}.svg`);
+        this.representativeIcon$.next(key);
       }
 
       this.loadIconWithFallback();
@@ -233,12 +236,13 @@ export class Credential {
       this.representativeIcon$.next(this.getFallbackIcon());
     }
 
+    if (isDefaultLocalIcon(this.representativeIcon$.value as string)) return
     const image = new Image();
     image.crossOrigin = 'anonymous';
 
     image.onload = (): void => {
       this.representativeIcon$.next(image.src);
-      this.onIconReadyCallback?.(this.representativeIcon$.value);
+      this.onIconReadyCallback?.(this.representativeIcon$.value as string);
     };
     image.onerror = (): void => {
       this.representativeIcon$.next(this.getFallbackIcon());
@@ -246,17 +250,17 @@ export class Credential {
     };
 
     // Try to load the picture
-    image.src = this.representativeIcon$.value;
+    image.src = this.representativeIcon$.value as string;
   }
 
   /**
    * Fallback icon used either when the real icon is not loaded yet, or failed to load
-   */
-  public getFallbackIcon(): string {
+   */ // TODO: icon
+  public getFallbackIcon(): string | JSX.Element {
     if (!this.isUserAvatar())
-      return "assets/identity/smallIcons/dark/finger-print.svg";
+      return AccountIcon;
     else
-      return "assets/identity/smallIcons/dark/name.svg";
+      return AccountIcon;
   }
 
   // TODO - rework - basic way of checking if the credential is an avatar.
@@ -285,7 +289,7 @@ export class Credential {
     return this.displayTitle;
   }
 
-  public onIconReady(callback: (iconSrc: string) => void): void {
+  public onIconReady(callback: (iconSrc: string | JSX.Element) => void): void {
     this.onIconReadyCallback = callback;
   }
 

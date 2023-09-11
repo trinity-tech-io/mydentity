@@ -46,3 +46,11 @@ export function converGenderFullName(str?: string): string {
     return str
   }
 }
+
+export function isDefaultLocalIcon(str: string): boolean {
+  if (typeof str === 'string') {
+    return false
+  }
+  return true
+}
+

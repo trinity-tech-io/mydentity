@@ -1,5 +1,5 @@
 'use client'
-import AccountIcon from '@assets/images/account.svg';
+import { CredentialAvatar } from '@components/credential/CredentialAvatar';
 import ComfirmDialog from "@components/generic/ComfirmDialog";
 import ListHead from "@components/generic/ListHead";
 import ListToolbar from "@components/generic/ListToolbar";
@@ -14,7 +14,6 @@ import AddIcon from '@mui/icons-material/Add';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { Button, Card, Container, IconButton, MenuItem, Popover, Stack, Table, TableBody, TableCell, TableContainer, TablePagination, TableRow, Typography } from "@mui/material";
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
-import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import { useToast } from "@services/feedback.service";
 import { findProfileInfoByTypes, getAvailableProfileEntries } from "@services/identity-profile-info/identity-profile-info.service";
@@ -330,9 +329,7 @@ const Profile: FC = () => {
                     <TableRow hover key={id} tabIndex={-1} onClick={(): void => handleCellClick(credential)}>
                       <TableCell component="th" scope="row" padding="none">
                         <Stack ml={1} direction="row" alignItems="center" spacing={2}>
-                          <Avatar sx={{ ml: 2, width: 60, height: 60 }}>
-                            <AccountIcon width={30} />
-                          </Avatar>
+                          <CredentialAvatar credential={credential} width={60} height={60} />
                           <Typography variant="subtitle2" noWrap>
                             {credential.getDisplayableTitle()}
                           </Typography>
