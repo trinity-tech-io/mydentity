@@ -2,6 +2,7 @@
 import EmailIcon from '@assets/images/email.svg';
 import FingerprintIcon from '@assets/images/fingerprint.svg';
 import PasswordIcon from '@assets/images/password.svg';
+import { Breadcrumbs } from '@components/breadcrumbs/Breadcrumbs';
 import { MainButton } from "@components/generic/MainButton";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useMounted } from "@hooks/useMounted";
@@ -60,6 +61,7 @@ const Security: FC = () => {
   }
 
   return (<div className="col-span-full">
+    <Breadcrumbs entries={["security-center"]} />
     <Typography variant="h4">Security center</Typography>
     <p>
       Your identity is a Web3 identity, <b>protected by cryptographic keys</b>. Many Web3 applications require you to
@@ -95,10 +97,10 @@ const Security: FC = () => {
                 {userEmails.map(email => <div key={email.id} className="info mb-2">{email.email}</div>)}
               </div>
               <Link href="/account/security/bind-email">Bind more</Link>
-                {errorMsg && <>
-                  <div className='text-red-500'>{errorMsg}</div>
-                </>
-                }
+              {errorMsg && <>
+                <div className='text-red-500'>{errorMsg}</div>
+              </>
+              }
             </div>
           }
         </div>

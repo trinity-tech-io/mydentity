@@ -22,7 +22,6 @@ export class EmailingDevController {
   }
 
   private getPlaceholderData(templateType: EmailTemplateType) {
-    console.log()
     switch (templateType) {
       case EmailTemplateType.WELCOME:
         return {

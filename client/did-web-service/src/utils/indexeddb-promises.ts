@@ -17,8 +17,6 @@ export class PromisifiedIndexedDB {
     this.db = new Promise((resolve, reject) => {
       const request = indexedDB.open(databaseName);
 
-      console.log(request, request.readyState)
-
       request.onerror = () => reject(request.error);
       request.onsuccess = () => {
         // If the store is already created, resolve right now, we are ready.

@@ -1,4 +1,5 @@
 'use client'
+import { Breadcrumbs } from '@components/breadcrumbs/Breadcrumbs';
 import { CredentialAvatar } from '@components/credential/CredentialAvatar';
 import ComfirmDialog from "@components/generic/ComfirmDialog";
 import ListHead from "@components/generic/ListHead";
@@ -275,6 +276,7 @@ const Profile: FC = () => {
   }
 
   return (<div className="col-span-full">
+    <Breadcrumbs entries={["profile"]} />
     <Box
       mt={2}
       component="form"
