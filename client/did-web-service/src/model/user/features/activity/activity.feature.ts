@@ -1,18 +1,16 @@
-import { UserFeature } from "@model/user/features/user-feature";
-import { User } from "@model/user/user";
-import { LazyBehaviorSubjectWrapper } from "@utils/lazy-behavior-subject";
-import { BehaviorSubject } from "rxjs";
-import { Activity } from "@model/activity/activity";
-import { logger } from "@services/logger";
-import { getApolloClient } from "@services/graphql.service";
-import { ActivityDto } from "@model/activity/activity.dto";
 import { gql } from "@apollo/client";
 import { graphQLActivityFields } from "@graphql/activity.fields";
+import { Activity } from "@model/activity/activity";
 import { ActivityType } from "@model/activity/activity-type";
+import { ActivityDto } from "@model/activity/activity.dto";
+import { UserFeature } from "@model/user/features/user-feature";
+import { User } from "@model/user/user";
+import { getApolloClient } from "@services/graphql.service";
+import { logger } from "@services/logger";
+import { AdvancedBehaviorSubject } from "@utils/advanced-behavior-subject";
 
 export class ActivityFeature implements UserFeature {
-    private _activities$ = new LazyBehaviorSubjectWrapper<Activity[]>([], () => this.fetchActivities());
-    public get activities$(): BehaviorSubject<Activity[]> { return this._activities$.getSubject(); }
+    public activities$ = new AdvancedBehaviorSubject<Activity[]>([], () => this.fetchActivities());
 
     constructor(protected user: User) { }
 
@@ -22,7 +20,7 @@ export class ActivityFeature implements UserFeature {
         const { data } = await (await getApolloClient()).query<{ activities: ActivityDto[] }>({
             query: gql`
         query Activities {
-            activities { 
+            activities {
                 ${graphQLActivityFields}
             }
         } `

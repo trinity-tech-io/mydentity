@@ -46,7 +46,7 @@ export const IdentityListWidget: FC = _ => {
                   <div className="font-semibold text-left">Identity</div>
                 </th>
                 <th className="p-2 whitespace-nowrap" style={{ width: '30%' }}>
-                  <div className="font-semibold text-left">Create Date</div>
+                  <div className="font-semibold text-left">Creation Date</div>
                 </th>
               </tr>
             </thead>
@@ -66,7 +66,7 @@ export const IdentityListWidget: FC = _ => {
                   identities.map(identity => {
                     return (
                       <tr key={identity.did}
-                        className="hover:bg-gray-100 hover:text-black dark:hover:bg-slate-500 dark:hover:text-slate-1000"
+                        className="hover:bg-gray-100 hover:text-black dark:hover:bg-slate-500 dark:hover:text-slate-1000 cursor-pointer"
                         onClick={(): void => handleCellClick(identity)}>
                         <td className="p-2 whitespace-nowrap">
                           <div className="flex items-center">

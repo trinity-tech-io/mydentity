@@ -1,9 +1,9 @@
-import { FC, useEffect, useState } from 'react';
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { authUser$ } from "@services/user/user.events";
+import { FC } from 'react';
 
 export const RecentActivityWidget: FC = _ => {
-  const [activeUser] = useBehaviorSubject(authUser$());
+  const [activeUser] = useBehaviorSubject(authUser$);
   const [activities] = useBehaviorSubject(activeUser?.get('activity').activities$);
 
   return (

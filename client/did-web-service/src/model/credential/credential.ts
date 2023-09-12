@@ -13,6 +13,7 @@ import { capitalizeFirstLetter, isDefaultLocalIcon } from "@utils/strings";
 import { BehaviorSubject } from "rxjs";
 import { IssuerInfo } from "./issuer-info";
 import { defaultProfileIcons } from "./profile-info-icons";
+import { findProfileInfoByTypes } from '@services/identity-profile-info/identity-profile-info.service';
 
 type ValueItem = {
   name: string,
