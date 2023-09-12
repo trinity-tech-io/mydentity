@@ -2,6 +2,10 @@ const { join } = require('path')
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  images: {
+    unoptimized: true,
+  },
+  output: 'export',
   webpack(config) {
     config.resolve.alias = {
       ...config.resolve.alias,

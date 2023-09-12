@@ -4,13 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 4050",
-    "build": "next build",
+    "build": "rm -rf ./out ./next && next build --debug",
     "start": "next start -p 4050",
     "lint": "next lint"
   },
   "dependencies": {
     "@elastosfoundation/did-js-sdk": "^2.2.14",
-    "@elastosfoundation/elastos-connectivity-sdk-js": "^2.0.3-next",
+    "@elastosfoundation/elastos-connectivity-sdk-js": "^2.0.7-next",
     "@elastosfoundation/essentials-connector-client-browser": "^1.0.43",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
