@@ -1,40 +1,79 @@
 echo "LOCAL EXECUTION"
 echo ""
 
-echo "Usage: $0 [-n]"
-echo "-n: Don't build the client"
+echo "Usage: $0 [-c] [-t] [-p] [-r]"
+echo "-c: Build the client"
+echo "-t: Build the tests"
+echo "-p: Commit and push"
+echo "-r: Remote execution"
 echo ""
 
-build=true
-while getopts n flag
-do
+build_client=false
+build_tests=false
+commit_push=false
+remote_executiion=false
+
+while getopts ":c:t:p:r:" flag; do
     case "${flag}" in
-        n) build=false;;
+        c) build_client=true ;;
+        t) build_tests=true ;;
+        p) commit_push=true ;;
+        r) remote_executiion=true ;;
+        *) echo "Contains invalid option" ;;
     esac
 done
 
-if [ $build = true ]
+# Build the client dist locally
+if [ $build_client = true ]
 then
-  # Build the client dist locally
   echo "Building client apps locally"
 
   cd client/did-web-service
   npm run build
   cd ../..
 
-  # Push git folder to git
+  # # Push git folder to git
+  # echo "Pushing built clients to git"
+  # git add .
+  # git commit -m "Production build"
+  # git push
+else
+  echo "Not building client locally as requested"
+fi
+
+# Build the tests dist locally
+if [ $build_tests = true ]
+then
+  echo "Building tests apps locally"
+
+  cd tests/did-web-tests
+  npm run build
+  cd ../..
+
+  # # Push git folder to git
+  # echo "Pushing built clients to git"
+  # git add .
+  # git commit -m "Production build"
+  # git push
+else
+  echo "Not building tests locally as requested"
+fi
+
+# Push git folder to git
+if [ $commit_push = true ]
+then
   echo "Pushing built clients to git"
   git add .
   git commit -m "Production build"
   git push
 else
-  echo "Not building client locally as requested"
+  echo "Not commit and push to git"
 fi
 
-echo ""
-
-echo "REMOTE EXECUTION"
-echo ""
-
-Execute remote deployment
-ssh -t did-web-service 'sudo -s && bash -s' < deployment/deploy.sh
+# Execute remote deployment
+if [ $remote_executiion = true ]
+then
+  ssh -t did-web-service 'sudo -s && bash -s' < deployment/deploy.sh
+else
+  echo "Not execute remote deployment"
+fi
