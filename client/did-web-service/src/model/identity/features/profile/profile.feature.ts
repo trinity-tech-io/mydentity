@@ -4,6 +4,7 @@ import { Identity } from "@model/identity/identity";
 import { withCaughtAppException } from "@services/error.service";
 import { AvatarInfoToSubject } from "@services/identity-profile-info/converters/avatar-converter";
 import { findProfileInfoByKey, findProfileInfoByTypes } from "@services/identity-profile-info/identity-profile-info.service";
+import { AdvancedBehaviorSubject } from "@utils/advanced-behavior-subject";
 import { PermanentCache } from "@utils/caches/permanent-cache";
 import { isClientSide } from "@utils/client-server";
 import { randomIntString } from "@utils/random";
@@ -11,7 +12,6 @@ import moment from "moment";
 import { BehaviorSubject, map } from "rxjs";
 import { IdentityFeature } from "../identity-feature";
 import { editAvatarOnHive } from "./upload-avatar";
-import { LazyBehaviorSubject } from "@utils/lazy-behavior-subject";
 
 /**
  * Caches to store identities names and avatars, so we can show their base information
@@ -25,7 +25,7 @@ const identityInfoIcons = isClientSide() && new PermanentCache<string, null>('id
 export class ProfileFeature implements IdentityFeature {
   public activeCredential$ = new BehaviorSubject<Credential>(null);
 
-  public profileCredentials$ = new LazyBehaviorSubject<ProfileCredential[]>(null, async () => {
+  public profileCredentials$ = new AdvancedBehaviorSubject<ProfileCredential[]>(null, async () => {
     this.identity.get("credentials").credentials$.pipe(map((creds) => creds?.filter(c => c instanceof ProfileCredential))).subscribe(creds => {
       this.profileCredentials$.next(<ProfileCredential[]>creds);
 
@@ -36,7 +36,7 @@ export class ProfileFeature implements IdentityFeature {
     });
   });
 
-  public avatarCredential$ = new LazyBehaviorSubject<ProfileCredential>(null, async () => {
+  public avatarCredential$ = new AdvancedBehaviorSubject<ProfileCredential>(null, async () => {
     this.profileCredentials$.subscribe(creds => {
       this.avatarCredential$.next(creds?.find(c => c.verifiableCredential.getId().getFragment() === "avatar"));
     });

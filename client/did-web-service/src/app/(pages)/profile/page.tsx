@@ -3,17 +3,19 @@ import { CredentialAvatar } from '@components/credential/CredentialAvatar';
 import ComfirmDialog from "@components/generic/ComfirmDialog";
 import ListHead from "@components/generic/ListHead";
 import ListToolbar from "@components/generic/ListToolbar";
+import { MainButton } from '@components/generic/MainButton';
 import CreateCredentialDialog from "@components/identity-profile/CreateCredentialDialog";
 import EditCredentialDialog, { EditionMode } from "@components/identity-profile/EditCredentialDialog";
 import { VerticalStackLoadingCard } from "@components/loading-cards/vertical-stack-loading-card/VerticalStackLoadingCard";
-import { callWithUnlock } from '@components/security/unlock-key-prompt/UnlockKeyPrompt';
+import { UnlockRetrier } from '@components/security/UnlockRetrier';
+import { callWithUnlock, useUnlockPromptState } from '@components/security/unlock-key-prompt/UnlockKeyPrompt';
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useMounted } from "@hooks/useMounted";
 import { Credential } from "@model/credential/credential";
 import { ProfileCredential } from "@model/credential/profile-credential";
 import AddIcon from '@mui/icons-material/Add';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { Button, Card, Container, IconButton, MenuItem, Popover, Stack, Table, TableBody, TableCell, TableContainer, TablePagination, TableRow, Typography } from "@mui/material";
+import { Card, Container, IconButton, MenuItem, Popover, Stack, Table, TableBody, TableCell, TableContainer, TablePagination, TableRow, Typography } from "@mui/material";
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import { useToast } from "@services/feedback.service";
@@ -52,6 +54,7 @@ const Profile: FC = () => {
   const { mounted } = useMounted();
   const router = useRouter()
   const [avatarCredential] = useBehaviorSubject(identityProfileFeature?.avatarCredential$);
+  const { unlockerIsIdle, unlockerIsCancelled } = useUnlockPromptState();
 
   const [originCredential, setOriginCredential] = useState<ProfileCredential>(null);
   const [availableItemsForAddition, setAvailableItemsForAddition] = useState<ProfileCredentialInfo[]>([]);
@@ -112,7 +115,6 @@ const Profile: FC = () => {
 
   const handleCreateCredentialDialogClose = (selectedItem: ProfileCredentialInfo): void => {
     setOpenCreateCredential(false);
-    console.log("selected item", selectedItem);
     if (selectedItem) {
       setOpenEditCredentialDialog(true);
       setPreEditCredentialInfo(selectedItem);
@@ -298,19 +300,21 @@ const Profile: FC = () => {
         <Typography variant="h4" gutterBottom>
           About me
         </Typography>
-        <Button variant="contained"
-          startIcon={<AddIcon />}
-          onClick={(): void => { setOpenCreateCredential(true) }}
-        >
+        <MainButton
+          leftIcon={<AddIcon />}
+          disabled={!credentials} // Don't allow edition until credentials are fetched
+          onClick={(): void => { setOpenCreateCredential(true) }}>
           New profile item
-        </Button>
+        </MainButton>
       </Stack>
 
       <Typography gutterBottom>
         <i>Good to know</i>: every item in the list below is stored in your identity as an individual <b>credential</b>. Credentials can later be shared to apps that request them, with your consent. Credentials are always signed with your own signature so no matter where they are shared, one can always make sure that <b>the information inside was created by you, and not modified</b>.
       </Typography>
 
-      {(!credentials || !mounted) && <VerticalStackLoadingCard />}
+      {unlockerIsIdle && (!credentials || !mounted) && <VerticalStackLoadingCard />}
+      {/* Unlocking credentials failed, cannot display them. Show a retry button to  */}
+      {unlockerIsCancelled && <UnlockRetrier className="mt-4" />}
       {credentials && mounted &&
         <Card>
           <ListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />

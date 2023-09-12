@@ -9,7 +9,7 @@ import { User } from "@model/user/user";
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { logger } from "@services/logger";
-import { LazyBehaviorSubject } from "@utils/lazy-behavior-subject";
+import { AdvancedBehaviorSubject } from "@utils/advanced-behavior-subject";
 
 export function isEmailAlreadyExistsException(e: AppException): boolean {
     return e.appExceptionCode === AuthExceptionCode.EmailAlreadyExists;
@@ -20,7 +20,7 @@ export function isEmailNotExistsException(e: AppException): boolean {
 }
 
 export class UserEmailFeature implements UserFeature {
-    public userEmails$ = new LazyBehaviorSubject<UserEmail[]>([], () => this.fetchUserEmails());
+    public userEmails$ = new AdvancedBehaviorSubject<UserEmail[]>([], () => this.fetchUserEmails());
 
     constructor(protected user: User) { }
 

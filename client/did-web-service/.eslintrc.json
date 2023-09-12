@@ -15,6 +15,7 @@
   "rules": {
     // Global
     "prefer-const": "warn",
+    "prefer-rest-params": "warn", // Allow "arguments" in functions
     "no-async-promise-executor": "off", // ability to use async for promise resolve functions
     // React
     "react/no-unescaped-entities": "off",

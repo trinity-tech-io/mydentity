@@ -1,8 +1,8 @@
 // Separated from the service to reduce circular dependencies
 import { User } from "@model/user/user";
-import { LazyBehaviorSubject } from "@utils/lazy-behavior-subject";
+import { AdvancedBehaviorSubject } from "@utils/advanced-behavior-subject";
 
-export const authUser$ = new LazyBehaviorSubject<User>(null, async () => {
+export const authUser$ = new AdvancedBehaviorSubject<User>(null, async () => {
   if (typeof window !== 'undefined') {
     const userStr = localStorage.getItem("authenticated_user");
     if (!userStr)

@@ -1,12 +1,12 @@
 "use client";
 import { MainButton } from '@components/generic/MainButton';
+import { callWithUnlock } from '@components/security/unlock-key-prompt/UnlockKeyPrompt';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { useMounted } from '@hooks/useMounted';
 import { Identity } from '@model/identity/identity';
 import { TextField } from '@mui/material';
 import { useToast } from '@services/feedback.service';
 import { identityService } from '@services/identity/identity.service';
-import { useCallWithUnlock } from '@services/security/security.service';
 import { authUser$ } from '@services/user/user.events';
 import { useRouter } from 'next/navigation';
 import { FC, FormEvent, useRef, useState } from 'react';
@@ -21,7 +21,6 @@ export const CreateIdentity: FC<{
   const { mounted } = useMounted();
   const { showSuccessToast } = useToast();
   const router = useRouter();
-  const { callWithUnlock } = useCallWithUnlock<Identity>();
 
   // Step states
   const [creatingIdentity, setCreatingIdentity] = useState(false); // From clicking on "create" until the very end

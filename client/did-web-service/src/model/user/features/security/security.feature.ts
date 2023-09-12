@@ -11,7 +11,7 @@ import { bindKey, changePassword, getPasskeyChallenge } from "@services/keyring/
 import { logger } from "@services/logger";
 import { startAuthentication, startRegistration } from "@simplewebauthn/browser";
 import { PublicKeyCredentialCreationOptionsJSON, PublicKeyCredentialRequestOptionsJSON } from "@simplewebauthn/typescript-types";
-import { LazyBehaviorSubject } from "@utils/lazy-behavior-subject";
+import { AdvancedBehaviorSubject } from "@utils/advanced-behavior-subject";
 import { map } from "rxjs";
 import { User } from "../../user";
 import { UserFeature } from "../user-feature";
@@ -20,19 +20,19 @@ export class SecurityFeature implements UserFeature {
   /**
    * All user's shadow keys (bindings)
    */
-  public shadowKeys$ = new LazyBehaviorSubject<ShadowKey[]>(null, () => this.fetchShadowKeys());
+  public shadowKeys$ = new AdvancedBehaviorSubject<ShadowKey[]>(null, () => this.fetchShadowKeys());
 
   /**
    * Password shadow keys. Normally, only one per user.
    */
-  public passwordKeys$ = new LazyBehaviorSubject<ShadowKey[]>(null, async () => {
+  public passwordKeys$ = new AdvancedBehaviorSubject<ShadowKey[]>(null, async () => {
     this.shadowKeys$.pipe(map((k) => k?.filter(k => k.type === ShadowKeyType.PASSWORD))).subscribe(this.passwordKeys$);
   });
 
   /**
    * Passkey shadow keys. A user may have multiple, one per bound browser.
    */
-  public passkeyKeys$ = new LazyBehaviorSubject<ShadowKey[]>(null, async () => {
+  public passkeyKeys$ = new AdvancedBehaviorSubject<ShadowKey[]>(null, async () => {
     this.shadowKeys$.pipe(map((k) => k?.filter(k => k.type === ShadowKeyType.WEBAUTHN))).subscribe(this.passkeyKeys$);
   });
 

@@ -76,9 +76,9 @@ function handleApolloNetworkError(e: Error | ServerParseError | ServerError): Ap
 function handleApolloError(e: ApolloError): AppException[] {
   let exceptions: AppException[] = [];
 
-  exceptions = exceptions.concat(e.clientErrors.map(handleApolloClientError));
-  exceptions = exceptions.concat(e.graphQLErrors.map(handleGraphQLError));
-  exceptions = exceptions.concat(e.protocolErrors.map(handleApolloProtocolError));
+  exceptions = exceptions.concat(e.clientErrors?.map(handleApolloClientError));
+  exceptions = exceptions.concat(e.graphQLErrors?.map(handleGraphQLError));
+  exceptions = exceptions.concat(e.protocolErrors?.map(handleApolloProtocolError));
 
   if (e.networkError)
     exceptions = exceptions.concat(handleApolloNetworkError(e.networkError));
@@ -116,6 +116,10 @@ export async function withCaughtAppException<T>(call: () => Promise<T>, errorRet
     // There can be multiple apollo sub-errors inside one apollo error.
     // NOTE: we can receive GraphQL errors inside apollo errors (server side) or
     // directly as GraphQLError here (client side, such as syntax error)
+    if (e instanceof AppException) {
+      // Already converted to an app exception
+      caughtExceptions = [e];
+    }
     if (e instanceof ApolloError) {
       caughtExceptions = handleApolloError(e);
     }

@@ -7,12 +7,12 @@ import { activeIdentity$ } from "@services/identity/identity.events";
 import { identityService } from "@services/identity/identity.service";
 import { issuerService } from "@services/identity/issuer.service";
 import { logger } from "@services/logger";
+import { AdvancedBehaviorSubject } from '@utils/advanced-behavior-subject';
 import { evalObjectFieldPath } from "@utils/objects";
 import { capitalizeFirstLetter, isDefaultLocalIcon } from "@utils/strings";
 import { BehaviorSubject } from "rxjs";
 import { IssuerInfo } from "./issuer-info";
 import { defaultProfileIcons } from "./profile-info-icons";
-import { LazyBehaviorSubject } from '@utils/lazy-behavior-subject';
 
 type ValueItem = {
   name: string,
@@ -20,9 +20,9 @@ type ValueItem = {
 };
 
 export class Credential {
-  public issuerInfo$ = new LazyBehaviorSubject<IssuerInfo>(null, () => this.fetchIssuerInfo());
+  public issuerInfo$ = new AdvancedBehaviorSubject<IssuerInfo>(null, () => this.fetchIssuerInfo());
 
-  public isConform$ = new LazyBehaviorSubject<boolean>(null, () => this.verifyCredential());
+  public isConform$ = new AdvancedBehaviorSubject<boolean>(null, () => this.verifyCredential());
 
   // Path to display the icon that best represents this credential.
   public representativeIcon$ = new BehaviorSubject<string | JSX.Element>(null);

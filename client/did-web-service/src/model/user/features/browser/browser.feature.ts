@@ -5,12 +5,12 @@ import { BrowserDTO } from "@model/browser/browser.dto";
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { logger } from "@services/logger";
+import { AdvancedBehaviorSubject } from "@utils/advanced-behavior-subject";
 import { User } from "../../user";
 import { UserFeature } from "../user-feature";
-import { LazyBehaviorSubject } from "@utils/lazy-behavior-subject";
 
 export class BrowserFeature implements UserFeature {
-  public browsers$ = new LazyBehaviorSubject<Browser[]>([], () => this.fetchBrowsers());
+  public browsers$ = new AdvancedBehaviorSubject<Browser[]>([], () => this.fetchBrowsers());
 
   constructor(protected user: User) { }
 
