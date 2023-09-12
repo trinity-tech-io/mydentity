@@ -7,7 +7,6 @@ import SupportIcon from '@assets/images/support.svg';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { useMounted } from '@hooks/useMounted';
 import { activeIdentity$ } from '@services/identity/identity.events';
-import { shortenDID } from '@services/identity/identity.utils';
 import { authUser$ } from '@services/user/user.events';
 import clsx from 'clsx';
 import Link from 'next/link';
@@ -264,17 +263,6 @@ const Sidebar: FC<{
           </svg>
           <span className="hidden xs:block ml-2">Test New DID</span>
         </button> */}
-
-        {activeIdentity && <>
-          <h3 className="text-xs uppercase text-slate-500 font-semibold pl-3">
-            <span className={clsx("hidden lg:block 2xl:hidden text-center w-6", sidebarExpanded && "lg:hidden")} aria-hidden="true">
-              •••
-            </span>
-            <span className={clsx("lg:hidden 2xl:block", sidebarExpanded && "lg:!block")}>ACTIVE IDENTITY</span>
-          </h3>
-          <span className={clsx("lg:hidden 2xl:block text-slate-200 mx-3 mb-6", sidebarExpanded && "lg:!block")} style={{ fontSize: 11 }}>{shortenDID(activeIdentity.did)}</span>
-        </>
-        }
 
         {/* Links */}
         <div /* className="space-y-8" */>

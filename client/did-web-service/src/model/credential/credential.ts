@@ -3,6 +3,7 @@ import { VerifiableCredential } from "@elastosfoundation/did-js-sdk";
 import { JSONObject } from "@model/json";
 import { credentialTypesService } from "@services/credential-types/credential.types.service";
 import { getHiveScriptPictureDataUrl } from "@services/hive/hive-pictures.service";
+import { findProfileInfoByTypes } from '@services/identity-profile-info/identity-profile-info.service';
 import { activeIdentity$ } from "@services/identity/identity.events";
 import { identityService } from "@services/identity/identity.service";
 import { issuerService } from "@services/identity/issuer.service";
@@ -13,7 +14,6 @@ import { capitalizeFirstLetter, isDefaultLocalIcon } from "@utils/strings";
 import { BehaviorSubject } from "rxjs";
 import { IssuerInfo } from "./issuer-info";
 import { defaultProfileIcons } from "./profile-info-icons";
-import { findProfileInfoByTypes } from '@services/identity-profile-info/identity-profile-info.service';
 
 type ValueItem = {
   name: string,
@@ -179,7 +179,7 @@ export class Credential {
         const avatarCacheKey = hiveAssetUrl;
 
         if (hiveAssetUrl.startsWith("hive://")) {
-          logger.log("credential", "Refreshing picture from hive url", hiveAssetUrl);
+          // logger.log("credential", "Getting picture from hive url", hiveAssetUrl);
           // NOTE: assume we use the currently active identity to authenticate to target hive vault for calling the picture script
           const dataUrl = await getHiveScriptPictureDataUrl(hiveAssetUrl, activeIdentity.did);
           if (dataUrl) {

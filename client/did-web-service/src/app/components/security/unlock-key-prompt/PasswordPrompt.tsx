@@ -1,16 +1,19 @@
 import { TextField } from '@mui/material';
-import { FC, createRef } from 'react';
+import { ChangeEvent, FC, useState } from 'react';
 import { MainButton } from '../../generic/MainButton';
 
 export const PasswordPrompt: FC<{
   onConfirm: (password: string) => void;
   disabled: boolean;
 }> = ({ onConfirm, disabled }) => {
-  const passwordRef = createRef<HTMLInputElement>()
+  const [password, setPassword] = useState<string>("");
 
   const onSubmit = () => {
-    const password = passwordRef.current.value;
     onConfirm(password);
+  }
+
+  const onInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.currentTarget.value);
   }
 
   return (
@@ -18,15 +21,15 @@ export const PasswordPrompt: FC<{
       <p className='uppercase text-xs'>master<br />password</p>
       <TextField
         label="Your password"
-        inputRef={passwordRef}
         autoFocus
         type='password'
         name='master-password' // TODO + user id
         variant="outlined"
         size='small'
+        onChange={onInputChange}
         disabled={disabled}
       />
-      <MainButton onClick={onSubmit} disabled={disabled}>Continue</MainButton>
+      <MainButton onClick={onSubmit} disabled={disabled || !password}>Continue</MainButton>
     </div>
   );
 }

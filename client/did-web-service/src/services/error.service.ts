@@ -41,7 +41,10 @@ function handleGraphQLError(error: GraphQLError): AppException {
   const appException = AppException.fromJson(originalError);
   if (appException) {
     // Graphql call failed because of a custom exception of our API
-    logger.error("graphql", "Custom API exception when calling GraphQL method:", originalMethod, originalError);
+    if (isUnlockException(appException))
+      logger.warn("graphql", "Master key needs to be unlocked");
+    else
+      logger.error("graphql", "Custom API exception when calling GraphQL method:", originalMethod, originalError);
     return appException;
   }
   else {
