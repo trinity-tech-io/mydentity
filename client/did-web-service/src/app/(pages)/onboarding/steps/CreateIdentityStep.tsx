@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FC, useState } from "react";
 
-export const OnBoardingStep2: FC = () => {
+export const CreateIdentityStep: FC = () => {
   const router = useRouter();
   const [authUser] = useBehaviorSubject(authUser$);
   const [userName] = useBehaviorSubject(authUser?.name$);

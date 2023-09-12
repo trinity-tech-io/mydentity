@@ -8,8 +8,8 @@ import { TextField } from '@mui/material';
 import { useToast } from '@services/feedback.service';
 import { identityService } from '@services/identity/identity.service';
 import { authUser$ } from '@services/user/user.events';
-import { useRouter } from 'next/navigation';
 import { FC, FormEvent, useRef, useState } from 'react';
+import { first } from 'rxjs';
 
 export const CreateIdentity: FC<{
   suggestedName?: string;
@@ -20,7 +20,6 @@ export const CreateIdentity: FC<{
   const [authUser] = useBehaviorSubject(authUser$);
   const { mounted } = useMounted();
   const { showSuccessToast } = useToast();
-  const router = useRouter();
 
   // Step states
   const [creatingIdentity, setCreatingIdentity] = useState(false); // From clicking on "create" until the very end
@@ -44,17 +43,23 @@ export const CreateIdentity: FC<{
     if (identity) {
       identityService.setActiveIdentity(identity);
 
-      setPublishing(true);
-      await identity.get("publication").awaitIdentityPublished();
-      setPublishing(false);
+      // First fetch the (empty list of) credentials, this is required to be able to create new credentials.
+      identity.get("profile").profileCredentials$.pipe(first(v => !!v)).subscribe(async () => {
+        // Attach the name as credential, to this new identity
+        await identity.get("profile").createInitialNameCredential(name);
 
-      // Prepare the hive vault. This also starts the vault registration is not done yet, through the lazy access of vault status.
-      setCreatingStorage(true);
-      await identity.get("hive").awaitHiveVaultReady();
-      setCreatingStorage(false);
+        setPublishing(true);
+        await identity.get("publication").awaitIdentityPublished();
+        setPublishing(false);
 
-      showSuccessToast("Your new identity was created!");
-      onIdentityCreated(identity);
+        // Prepare the hive vault. This also starts the vault registration is not done yet, through the lazy access of vault status.
+        setCreatingStorage(true);
+        await identity.get("hive").awaitHiveVaultReady();
+        setCreatingStorage(false);
+
+        showSuccessToast("Your new identity was created!");
+        onIdentityCreated(identity);
+      });
     }
   }
 

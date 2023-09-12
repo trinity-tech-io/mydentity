@@ -4,7 +4,7 @@ import { FlowOperation, setOnGoingFlowOperation } from "@services/flow.service";
 import { useRouter } from "next/navigation";
 import { FC } from "react";
 
-export const OnBoardingStep1: FC<{
+export const BindingSuggestionStep: FC<{
   onSkip: () => void;
 }> = ({ onSkip }) => {
   const router = useRouter();

@@ -19,7 +19,7 @@ import { authUser$, getActiveUser } from "./user.events";
 
 const fetchUserQueue = new Queue(1); // Execute user retrieval from the backend one by one to avoid duplicates
 
-export async function signUp(name: string): Promise<boolean> {
+export async function signUp(name: string): Promise<User> {
   logger.log("user", "Sign up user, creating new user entry");
 
   const input: SignUpInput = { name };
@@ -37,13 +37,12 @@ export async function signUp(name: string): Promise<boolean> {
 
   if (response?.data && response.data.signUp) {
     const { accessToken, refreshToken } = response.data.signUp;
-    void updateUserByToken(accessToken, refreshToken);
-    return true;
+    return updateUserByToken(accessToken, refreshToken);
   }
   else {
     // TODO: print error
     logger.error('user', 'failed to sign up.');
-    return false;
+    return null;
   }
 }
 

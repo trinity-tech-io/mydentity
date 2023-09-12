@@ -3,8 +3,8 @@ import { VerticalStackLoadingCard } from "@components/loading-cards/vertical-sta
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { authUser$ } from "@services/user/user.events";
 import { FC, useState } from "react";
-import { OnBoardingStep1 } from "./steps/step1";
-import { OnBoardingStep2 } from "./steps/step2";
+import { BindingSuggestionStep } from "./steps/BindingSuggestionStep";
+import { CreateIdentityStep } from "./steps/CreateIdentityStep";
 
 const OnBoarding: FC = () => {
   const [authUser] = useBehaviorSubject(authUser$);
@@ -22,8 +22,8 @@ const OnBoarding: FC = () => {
     <div className="col-span-full">
       {!initialDataFetched && <VerticalStackLoadingCard />}
       {initialDataFetched && <>
-        {(!isThisBrowserBound && !step1Skipped) && <OnBoardingStep1 onSkip={skipStep1} />}
-        {(isThisBrowserBound || step1Skipped) && <OnBoardingStep2 />}
+        {(!isThisBrowserBound && !step1Skipped) && <BindingSuggestionStep onSkip={skipStep1} />}
+        {(isThisBrowserBound || step1Skipped) && <CreateIdentityStep />}
       </>}
     </div>
   )

@@ -1,3 +1,4 @@
+import { callWithUnlock } from "@components/security/unlock-key-prompt/UnlockKeyPrompt";
 import { Credential } from "@model/credential/credential";
 import { ProfileCredential } from "@model/credential/profile-credential";
 import { Identity } from "@model/identity/identity";
@@ -51,6 +52,7 @@ export class ProfileFeature implements IdentityFeature {
    * to profile credential changes (in order to not fetch credentials and just use the cache initially).
    */
   public get name$(): BehaviorSubject<string> { return identityInfoNames.listen(this.identity.did); }
+
   /**
    * Cached identity icon. Gets updated when the avatar credential changes by lazily listening
    * to profile credential changes (in order to not fetch credentials and just use the cache initially).
@@ -81,6 +83,16 @@ export class ProfileFeature implements IdentityFeature {
       this.icon$.next(null);
       identityInfoIcons.put(this.identity.did, null); // Update the cache
     }
+  }
+
+  /**
+   * Convenient method over createProfileCredential() to create the first identity name
+   */
+  public async createInitialNameCredential(name: string): Promise<boolean> {
+    const nameCredentialInfo = findProfileInfoByKey("name");
+    return callWithUnlock(async () => {
+      return !!await this.createProfileCredential(null, nameCredentialInfo.typesForCreation(), nameCredentialInfo.key, name);
+    });
   }
 
   public async createProfileCredential(credentialId: string = null, fullTypes: string[], key: string, editionValue: any): Promise<Credential> {

@@ -76,17 +76,6 @@ export class IdentityService {
       }
     })
 
-    const createCredentialInput = {
-      identityDid: identityDid,
-      credentialId: '#name',
-      types: ["https://ns.elastos.org/credentials/v1#SelfProclaimedCredential", "https://ns.elastos.org/credentials/profile/name/v1#NameCredential"],
-      expirationDate: moment().add(5, 'year').toDate(),
-      properties: {
-        "name": createIdentityInput.name
-      }
-    }
-    await this.credentialsService.create(createCredentialInput, user, browser);
-
     // publish DID
     const payload = await this.didService.createDIDPublishTransaction(user.id, identityDid, storePassword);
     const { publicationId } = await this.publishIdentity(identityDid, payload);

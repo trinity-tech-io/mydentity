@@ -1,3 +1,4 @@
+import { callWithUnlock } from '@components/security/unlock-key-prompt/UnlockKeyPrompt';
 import {
   JWTHeader,
   JWTParserBuilder,
@@ -303,15 +304,17 @@ async function generateApplicationIDCredential(appInstanceDid: string, appDid: s
 
     try {
       const activeIdentity = activeIdentity$.value; // TODO: NOT OK !! All methods should use the identity object in parameter, we don't want the active identity to change during a hive auth!
-      const credential = await activeIdentity.provider.issueCredential(
-        activeIdentity.did,
-        appInstanceDid,
-        "#app-id-credential",
-        ['https://elastos.org/fakecontext#AppIdCredential'], // TODO: real context
-        moment().add(30, "days").toDate(),
-        properties);
+      return callWithUnlock(async () => {
+        const credential = await activeIdentity.provider.issueCredential(
+          activeIdentity.did,
+          appInstanceDid,
+          "#app-id-credential",
+          ['https://elastos.org/fakecontext#AppIdCredential'], // TODO: real context
+          moment().add(30, "days").toDate(),
+          properties);
 
-      return credential;
+        return credential;
+      }, true, null);
     }
     catch (e) {
       logger.error('identity', "Failed to issue the app id credential...", e);
