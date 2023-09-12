@@ -1,16 +1,19 @@
 import BrowserIcon from '@assets/images/browser.svg';
 import FingerprintIcon from '@assets/images/fingerprint.svg';
+import ComfirmDialog from '@components/generic/ComfirmDialog';
+import { logger } from '@elastosfoundation/elastos-connectivity-sdk-js';
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { Browser } from "@model/browser/browser";
 import DeleteIcon from '@mui/icons-material/Delete';
 import IconButton from '@mui/material/IconButton';
 import { useToast } from '@services/feedback.service';
 import { authUser$ } from '@services/user/user.events';
-import { FC, MouseEvent } from 'react';
+import { FC, MouseEvent, useState } from 'react';
 
 export const BrowserRow: FC<{
   browser: Browser;
 }> = ({ browser }) => {
+  const TAG = "Browser";
   const [shadowKey] = useBehaviorSubject(browser?.activeShadowKey$);
   const isCurrentBrowser = browser?.isCurrentBrowser();
   const isPasskeyBound = !!shadowKey;
@@ -20,17 +23,30 @@ export const BrowserRow: FC<{
 
   const { showSuccessToast, showErrorToast } = useToast();
 
-  const onDeleteClicked = async (event: MouseEvent, browser: Browser): Promise<void> => {
-    event.stopPropagation(); // Prevent event propagation to the cell
-    event.preventDefault(); //
+  const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
+  const handleCloseDialog = async (isAgree: boolean): Promise<void> => {
+    setOpenConfirmDialog(false);
+    if (!isAgree)
+      return;
 
-    // Deletion
-    const successfulDeletion = await browserFeature.deleteBrowser(browser.id);
-    if (successfulDeletion) {
+    let isSuccess = false;
+    try {
+      isSuccess = await browserFeature.deleteBrowser(browser.id);
+    } catch (error) {
+      logger.error(TAG, error);
+    }
+    if (isSuccess) {
       showSuccessToast('Browser has been deleted!');
     } else {
       showErrorToast('Failed to delete the browser...');
     }
+  };
+
+  const onDeleteClicked = async (event: MouseEvent, browser: Browser): Promise<void> => {
+    event.stopPropagation(); // Prevent event propagation to the cell
+    event.preventDefault(); //
+
+    setOpenConfirmDialog(true)
   }
 
   return (
@@ -53,6 +69,13 @@ export const BrowserRow: FC<{
           </IconButton>
         </div>
       }
+
+      <ComfirmDialog
+        title='Delete this Browser?'
+        content='Do you want to delete this Browser?'
+        open={openConfirmDialog}
+        onClose={handleCloseDialog}
+      />
     </div>
   )
 }
