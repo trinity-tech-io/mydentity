@@ -187,7 +187,7 @@ const Profile: FC = () => {
   };
 
   const handleAvatarFileChanged = (file: File): void => {
-    identityProfileFeature.upsertIdentityAvatar(file);
+    callWithUnlock(() => identityProfileFeature.upsertIdentityAvatar(file));
   }
 
   function descendingComparator(a: Credential, b: Credential, orderBy: OrderBy): number {
