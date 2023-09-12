@@ -4,14 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 4000",
-    "build": "rm -rf ./out ./next && next build",
+    "build": "rm -rf ./out ./next && next build --debug",
     "start": "next start -p 4000",
     "lint": "next lint"
   },
   "dependencies": {
     "@apollo/client": "^3.7.17",
     "@elastosfoundation/did-js-sdk": "^2.3.0",
-    "@elastosfoundation/elastos-connectivity-sdk-js": "^2.0.5-next",
+    "@elastosfoundation/elastos-connectivity-sdk-js": "^2.0.6-next",
     "@elastosfoundation/hive-js-sdk": "^2.9.11",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
