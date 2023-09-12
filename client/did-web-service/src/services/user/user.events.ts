@@ -1,8 +1,8 @@
 // Separated from the service to reduce circular dependencies
 import { User } from "@model/user/user";
-import { LazyBehaviorSubjectWrapper } from "@utils/lazy-behavior-subject";
+import { AdvancedBehaviorSubject } from "@utils/advanced-behavior-subject";
 
-const _authUser$ = new LazyBehaviorSubjectWrapper<User>(null, async () => {
+export const authUser$ = new AdvancedBehaviorSubject<User>(null, async () => {
   if (typeof window !== 'undefined') {
     const userStr = localStorage.getItem("authenticated_user");
     if (!userStr)
@@ -12,12 +12,8 @@ const _authUser$ = new LazyBehaviorSubjectWrapper<User>(null, async () => {
   }
 });
 
-export function authUser$() {
-  return _authUser$.getSubject();
-}
-
 export function getActiveUser(): User {
-  return authUser$().value;
+  return authUser$.value;
 }
 
 export function getAccessToken(): string {

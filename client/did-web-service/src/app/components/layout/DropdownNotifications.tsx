@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
+import Transition from '@components/generic/Transition';
 import Link from 'next/link';
 import { FC, useEffect, useRef, useState } from 'react';
-import Transition from '../generic/Transition';
 
 const DropdownNotifications: FC<{
   align: "left" | "right"

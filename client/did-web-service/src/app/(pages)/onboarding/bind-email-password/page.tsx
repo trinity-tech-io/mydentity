@@ -10,7 +10,7 @@ import { FC } from "react";
 
 const BindEmailPassword: FC = () => {
   const { mounted } = useMounted();
-  const [authUser] = useBehaviorSubject(authUser$());
+  const [authUser] = useBehaviorSubject(authUser$);
   const securityFeature = authUser?.get("security");
   const { showSuccessToast } = useToast();
   const router = useRouter();

@@ -1,5 +1,6 @@
 "use client";
 import { MainButton } from '@components/generic/MainButton';
+import { callWithUnlock } from '@components/security/unlock-key-prompt/UnlockKeyPrompt';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { useMounted } from '@hooks/useMounted';
 import { Identity } from '@model/identity/identity';
@@ -16,7 +17,7 @@ export const CreateIdentity: FC<{
   onIdentityCreated: (identity: Identity) => void;
 }> = ({ suggestedName = "", onIdentityCreating, onIdentityCreated }) => {
   const nameInput = useRef(null);
-  const [authUser] = useBehaviorSubject(authUser$());
+  const [authUser] = useBehaviorSubject(authUser$);
   const { mounted } = useMounted();
   const { showSuccessToast } = useToast();
   const router = useRouter();
@@ -36,9 +37,8 @@ export const CreateIdentity: FC<{
     onIdentityCreating?.();
 
     // Create identity for real in the backend
-    // TODO: use callWithUnlock() to call createIdentity(), because master key unlock is probably required
     setCallingCreationApi(true);
-    const identity = await authUser.get("identity").createIdentity(name);
+    const identity = await callWithUnlock(async () => await authUser.get("identity").createIdentity(name));
     setCallingCreationApi(false);
 
     if (identity) {

@@ -12,7 +12,7 @@ import { IdentityCellLeft } from './IdentityCellLeft';
 const TAG = 'IdentityListWidget'
 
 export const IdentityListWidget: FC = _ => {
-  const [authUser] = useBehaviorSubject(authUser$());
+  const [authUser] = useBehaviorSubject(authUser$);
   let [identities] = useBehaviorSubject(authUser?.get("identity").identities$);
   const router = useRouter()
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);

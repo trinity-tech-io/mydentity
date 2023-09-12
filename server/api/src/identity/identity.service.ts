@@ -1,11 +1,12 @@
 import { DIDDocument, RootIdentity } from '@elastosfoundation/did-js-sdk';
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
-import { Identity, User } from '@prisma/client';
+import { Browser, Identity, User } from '@prisma/client';
 import { CredentialsService } from 'src/credentials/credentials.service';
 import { AssistTransactionStatus, DIDPublishingService } from 'src/did-publishing/did-publishing.service';
 import { DidService } from 'src/did/did.service';
 import { AppException } from 'src/exceptions/app-exception';
 import { AuthExceptionCode, DIDExceptionCode } from 'src/exceptions/exception-codes';
+import { KeyRingService } from 'src/key-ring/key-ring.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateIdentityInput } from './dto/create-identity.input';
 import { IdentityPublicationState } from './model/identity-publication-state';
@@ -20,12 +21,13 @@ export class IdentityService {
   constructor(private prisma: PrismaService,
     private credentialsService: CredentialsService,
     private didPublishingService: DIDPublishingService,
-    private didService: DidService) {
+    private didService: DidService,
+    private keyRingService: KeyRingService) {
   }
 
-  async create(createIdentityInput: CreateIdentityInput, user: User): Promise<Identity> {
+  async create(createIdentityInput: CreateIdentityInput, user: User, browser: Browser): Promise<Identity> {
     this.logger.log('create');
-    const storePassword = '123456'; // TODO: use account key
+    const storePassword = this.getDIDStorePassword(user?.id, browser?.id);
 
     let rootIdentity: RootIdentity = null;
     let didDocument: DIDDocument = null;
@@ -83,7 +85,7 @@ export class IdentityService {
         "name": createIdentityInput.name
       }
     }
-    await this.credentialsService.create(createCredentialInput, user);
+    await this.credentialsService.create(createCredentialInput, user, browser);
 
     // publish DID
     const payload = await this.didService.createDIDPublishTransaction(user.id, identityDid, storePassword);
@@ -110,9 +112,9 @@ export class IdentityService {
     return successfulDeletion;
   }
 
-  async createDIDPublishTransaction(didString: string, user: User) {
+  async createDIDPublishTransaction(didString: string, user: User, browser: Browser) {
     this.logger.log("createDIDPublishTransaction:" + didString)
-    const storePassword = '123456'; // TODO: use account key
+    const storePassword = this.getDIDStorePassword(user?.id, browser?.id);
 
     const payload = await this.didService.createDIDPublishTransaction(user.id, didString, storePassword);
     return {
@@ -205,9 +207,16 @@ export class IdentityService {
         userId: user.id
       }
     })
-    if (!identity)
+    if (!identity) {
+      this.logger.log('ensureOwnedIdentity identityDid:' + identityDid + ' user.id:' + user.id);
       throw new AppException(AuthExceptionCode.IdentityNotOwned, `You are not owner of identity ${identityDid}`, 401);
+    }
 
     return identity;
+  }
+
+  private getDIDStorePassword(userId: string, browserId: string) {
+    const password = this.keyRingService.getMasterKey(userId, browserId);
+    return password;
   }
 }

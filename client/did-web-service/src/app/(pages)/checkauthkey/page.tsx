@@ -15,7 +15,7 @@ const CheckAuthKey: FC = () => {
   const authKey = encodedAuthKey ? decode(encodedAuthKey as string) : null;
   const [authError, setAuthError] = useState(false);
   const [logined, setLogined] = useState(false);
-  const [activeUser] = useBehaviorSubject(authUser$());
+  const [activeUser] = useBehaviorSubject(authUser$);
   const router = useRouter();
 
   useEffect(() => {

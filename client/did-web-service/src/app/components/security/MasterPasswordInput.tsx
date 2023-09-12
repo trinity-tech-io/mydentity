@@ -11,7 +11,7 @@ export const MasterPasswordInput: FC<{
   onValidConfirmation: (password: string) => void;
   title: string;
 }> = ({ onValidConfirmation, title }) => {
-  const [authUser] = useBehaviorSubject(authUser$());
+  const [authUser] = useBehaviorSubject(authUser$);
   const securityFeature = authUser?.get("security");
   const [passwordIsValid, setPasswordIsValid] = useState(false);
   const [binding, setBinding] = useState(false);

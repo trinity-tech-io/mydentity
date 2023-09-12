@@ -5,8 +5,8 @@ import { getHiveAppContext, getRandomQuickStartHiveNodeAddress, getSubscriptionS
 import { VaultStatus } from "@services/hive/vault/vault-status";
 import { identityService } from "@services/identity/identity.service";
 import { logger } from "@services/logger";
+import { AdvancedBehaviorSubject } from "@utils/advanced-behavior-subject";
 import { lazyElastosHiveSDKImport } from "@utils/import-helper";
-import { LazyBehaviorSubjectWrapper } from "@utils/lazy-behavior-subject";
 import { awaitSubjectValue } from "@utils/promises";
 import { BehaviorSubject } from "rxjs";
 import { IdentityFeature } from "../identity-feature";
@@ -18,8 +18,7 @@ import { IdentityFeature } from "../identity-feature";
 }; */
 
 export class HiveFeature implements IdentityFeature {
-  public get vaultStatus$(): BehaviorSubject<VaultStatus> { return this._vaultStatus$.getSubject(); } // Latest known vault status for active user
-  private _vaultStatus$ = new LazyBehaviorSubjectWrapper<VaultStatus>(null, async () => { this.retrieveVaultStatus(); });
+  public vaultStatus$ = new AdvancedBehaviorSubject<VaultStatus>(null, async () => { this.retrieveVaultStatus(); }); // Latest known vault status for active user
 
   public vaultAddress$ = new BehaviorSubject<string>(null);
 

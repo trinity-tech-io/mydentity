@@ -1,8 +1,8 @@
 import { MainButton } from '@components/generic/MainButton';
+import { callWithUnlock } from '@components/security/unlock-key-prompt/UnlockKeyPrompt';
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useToast } from "@services/feedback.service";
 import { FlowOperation, getOnGoingFlowOperation } from '@services/flow.service';
-import { useCallWithUnlock } from "@services/security/security.service";
 import { authUser$ } from "@services/user/user.events";
 import { useRouter } from "next/navigation";
 import { FC } from 'react';
@@ -14,9 +14,8 @@ export const PasskeyBind: FC = () => {
   //     onConfirm("");
   //   }
   const router = useRouter();
-  const [authUser] = useBehaviorSubject(authUser$());
+  const [authUser] = useBehaviorSubject(authUser$);
   const securityFeature = authUser?.get("security");
-  const { callWithUnlock } = useCallWithUnlock<boolean>();
   const { showSuccessToast } = useToast();
 
   const bindPasskeyConfirmation = async (): Promise<void> => {

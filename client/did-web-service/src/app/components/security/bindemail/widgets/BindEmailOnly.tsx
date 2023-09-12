@@ -25,7 +25,7 @@ export const BindEmailOnly: FC = () => {
   const [authEmailSent, setAuthEmailSent] = useState(false);
   const emailForm = useRef(null);
   const classes = useStyles();
-  const [activeUser] = useBehaviorSubject(authUser$());
+  const [activeUser] = useBehaviorSubject(authUser$);
   const router = useRouter();
 
   const doEmailAuth = async () => {

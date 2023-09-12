@@ -15,7 +15,7 @@ const TAG = "delete-identity";
 const DeleteIdentityPage: FC = () => {
   const { mounted } = useMounted();
   const router = useRouter();
-  const [authUser] = useBehaviorSubject(authUser$());
+  const [authUser] = useBehaviorSubject(authUser$);
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const [deletingIdentity, setDeletingIdentity] = useState(false);
 

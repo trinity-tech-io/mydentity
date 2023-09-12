@@ -17,7 +17,7 @@ export const DropdownUserProfile: FC<{
 }> = ({ align }) => {
   const router = useRouter();
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [activeUser] = useBehaviorSubject(authUser$());
+  const [activeUser] = useBehaviorSubject(authUser$);
   const isLogin = !!activeUser;
   const [userName] = useBehaviorSubject(activeUser?.name$);
   const [userNameInitials] = useBehaviorSubject(activeUser?.nameInitials$);

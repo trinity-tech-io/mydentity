@@ -2,13 +2,12 @@ import { Identity } from "@model/identity/identity";
 import { getRandomQuickStartHiveNodeAddress } from "@services/hive/hive.service";
 import { identityService } from "@services/identity/identity.service";
 import { logger } from "@services/logger";
-import { LazyBehaviorSubjectWrapper } from "@utils/lazy-behavior-subject";
+import { AdvancedBehaviorSubject } from "@utils/advanced-behavior-subject";
 import { User } from "../../user";
 import { UserFeature } from "../user-feature";
 
 export class IdentityFeature implements UserFeature {
-  private _identities$ = new LazyBehaviorSubjectWrapper<Identity[]>([], () => this.fetchIdentities());
-  public get identities$() { return this._identities$.getSubject(); }
+  public identities$ = new AdvancedBehaviorSubject<Identity[]>([], () => this.fetchIdentities());
 
   constructor(protected user: User) {
   }

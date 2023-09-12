@@ -8,7 +8,7 @@ export const PasskeyPrompt: FC<{
   onConfirm: (authKey: AuthKeyInput) => void;
   disabled: boolean;
 }> = ({ onConfirm, disabled }) => {
-  const [authUser] = useBehaviorSubject(authUser$());
+  const [authUser] = useBehaviorSubject(authUser$);
   const securityFeature = authUser?.get("security");
 
   const onSubmit = async (): Promise<void> => {

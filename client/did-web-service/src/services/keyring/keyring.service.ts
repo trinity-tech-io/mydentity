@@ -11,6 +11,7 @@ import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { logger } from "@services/logger";
 import { AuthKeyInput } from "./auth-key.input";
+import { onMasterKeyUnlock$ } from "./keyring.events";
 
 /**
  * Internal shared method to bind passkey or password.
@@ -102,6 +103,7 @@ export async function unlockMasterKey(authKey: AuthKeyInput): Promise<boolean> {
 
   if (result?.data?.unlockMasterKey) {
     logger.log("security", "Master key unlocked successfully");
+    onMasterKeyUnlock$.next(true);
     return true;
   }
   else {

@@ -38,7 +38,6 @@ class GraphQLService {
             return;
           }
 
-          // import("@services/user/user.service").then(({ refreshToken, onRefreshTokenFailed }) => { // circular deps
           for (const err of graphQLErrors) {
             switch (err.extensions.code) {
               case 'UNAUTHENTICATED': // handle token expired.

@@ -2,15 +2,13 @@ import { IdentityPublicationState } from "@model/identity-publication/identity-p
 import { Identity } from "@model/identity/identity";
 import { identityService } from "@services/identity/identity.service";
 import { logger } from "@services/logger";
-import { LazyBehaviorSubjectWrapper } from "@utils/lazy-behavior-subject";
+import { AdvancedBehaviorSubject } from "@utils/advanced-behavior-subject";
 import { awaitSubjectValue } from "@utils/promises";
 import { sleep } from "@utils/sleep";
-import { BehaviorSubject } from "rxjs";
 import { IdentityFeature } from "../identity-feature";
 
 export class PublicationFeature implements IdentityFeature {
-  public get publicationStatus$(): BehaviorSubject<IdentityPublicationState> { return this._publicationStatus$.getSubject(); }
-  private _publicationStatus$ = new LazyBehaviorSubjectWrapper<IdentityPublicationState>(null, async () => {
+  public publicationStatus$ = new AdvancedBehaviorSubject<IdentityPublicationState>(null, async () => {
     this.startCheckingPublicationStatus();
   });
 

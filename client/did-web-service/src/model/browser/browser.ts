@@ -2,7 +2,7 @@ import { ShadowKey } from "@model/shadow-key/shadow-key";
 import { ShadowKeyType } from "@model/shadow-key/shadow-key-type";
 import { getBrowserId } from "@services/browser.service";
 import { authUser$ } from "@services/user/user.events";
-import { LazyBehaviorSubjectWrapper } from "@utils/lazy-behavior-subject";
+import { AdvancedBehaviorSubject } from "@utils/advanced-behavior-subject";
 import { browserCache } from "./browser.cache";
 import { BrowserDTO } from "./browser.dto";
 
@@ -17,9 +17,8 @@ export class Browser {
    * Passkey shadow key bound to this browser, and still valid. In theory, only one at a time, as binding
    * a passkey in the same browser invalidates the old key.
    */
-  public get activeShadowKey$() { return this._activeShadowKey$.getSubject(); }
-  private _activeShadowKey$ = new LazyBehaviorSubjectWrapper<ShadowKey>(null, async () => {
-    authUser$().subscribe(user => {
+  public activeShadowKey$ = new AdvancedBehaviorSubject<ShadowKey>(null, async () => {
+    authUser$.subscribe(user => {
       return user?.get("security").shadowKeys$.subscribe(keys => {
         this.activeShadowKey$.next(keys.find(k => k.type === ShadowKeyType.WEBAUTHN && k.browser?.equals(this)));
       });

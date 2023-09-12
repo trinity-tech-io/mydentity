@@ -15,7 +15,7 @@ import { BrowserRow } from './components/BrowserRow';
 
 const Security: FC = () => {
   const { mounted } = useMounted();
-  const [authUser] = useBehaviorSubject(authUser$());
+  const [authUser] = useBehaviorSubject(authUser$);
   const emailFeature = authUser?.get("email");
   const [userEmails] = useBehaviorSubject(emailFeature?.userEmails$);
   const securityFeature = authUser?.get("security");

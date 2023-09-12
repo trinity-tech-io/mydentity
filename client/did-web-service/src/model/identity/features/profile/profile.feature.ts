@@ -1,12 +1,12 @@
 import { Credential } from "@model/credential/credential";
 import { ProfileCredential } from "@model/credential/profile-credential";
 import { Identity } from "@model/identity/identity";
+import { withCaughtAppException } from "@services/error.service";
 import { AvatarInfoToSubject } from "@services/identity-profile-info/converters/avatar-converter";
 import { findProfileInfoByKey, findProfileInfoByTypes } from "@services/identity-profile-info/identity-profile-info.service";
-import { logger } from "@services/logger";
+import { AdvancedBehaviorSubject } from "@utils/advanced-behavior-subject";
 import { PermanentCache } from "@utils/caches/permanent-cache";
 import { isClientSide } from "@utils/client-server";
-import { LazyBehaviorSubjectWrapper } from "@utils/lazy-behavior-subject";
 import { randomIntString } from "@utils/random";
 import moment from "moment";
 import { BehaviorSubject, map } from "rxjs";
@@ -25,9 +25,8 @@ const identityInfoIcons = isClientSide() && new PermanentCache<string, null>('id
 export class ProfileFeature implements IdentityFeature {
   public activeCredential$ = new BehaviorSubject<Credential>(null);
 
-  public get profileCredentials$(): BehaviorSubject<ProfileCredential[]> { return this._profileCredentials$.getSubject(); }
-  private _profileCredentials$ = new LazyBehaviorSubjectWrapper<ProfileCredential[]>(null, async () => {
-    this.identity.get("credentials").credentials$.pipe(map((creds) => creds.filter(c => c instanceof ProfileCredential))).subscribe(creds => {
+  public profileCredentials$ = new AdvancedBehaviorSubject<ProfileCredential[]>(null, async () => {
+    this.identity.get("credentials").credentials$.pipe(map((creds) => creds?.filter(c => c instanceof ProfileCredential))).subscribe(creds => {
       this.profileCredentials$.next(<ProfileCredential[]>creds);
 
       // When credentials change, update name subject and its cache so we can later show the
@@ -36,8 +35,7 @@ export class ProfileFeature implements IdentityFeature {
     });
   });
 
-  public get avatarCredential$(): BehaviorSubject<ProfileCredential> { return this._avatarCredential$.getSubject(); }
-  private _avatarCredential$ = new LazyBehaviorSubjectWrapper<ProfileCredential>(null, async () => {
+  public avatarCredential$ = new AdvancedBehaviorSubject<ProfileCredential>(null, async () => {
     this.profileCredentials$.subscribe(creds => {
       const avatarCredential = creds?.find(c => c.verifiableCredential.getId().getFragment() === "avatar");
       avatarCredential?.representativeIcon$.subscribe(icon => {
@@ -87,7 +85,8 @@ export class ProfileFeature implements IdentityFeature {
 
   public async createProfileCredential(credentialId: string = null, fullTypes: string[], key: string, editionValue: any): Promise<Credential> {
     const credentialType: string[] = [];
-    try {
+
+    return withCaughtAppException(async () => {
       let finalCredentialId;
       if (!credentialId) {
         finalCredentialId = this.identity.did + "#" + key + randomIntString();
@@ -104,32 +103,25 @@ export class ProfileFeature implements IdentityFeature {
       const credentialSubject = entry.options.converter.toSubject(editionValue);
 
       return this.identity.get("credentials").createCredential(finalCredentialId, credentialType, expirationDate, credentialSubject);
-    } catch (error) {
-      logger.error("profile", error);
-      return null;
-    }
+    }, null);
   }
 
+  // NOTE: Do NOT try catch inside this method to let unlock key exceptions go through
   public async updateProfileCredential(credential: ProfileCredential, newValue: string): Promise<boolean> {
     const credentialId = credential.verifiableCredential.getId().toString();
     const profileInfoEntry = findProfileInfoByTypes(credential.verifiableCredential.getType());
 
-    try {
-      const deleted = await this.identity.get("credentials").deleteCredential(credential);
-      if (!deleted)
-        return false;
-
-      const createdCredential = await this.createProfileCredential(
-        credentialId,
-        profileInfoEntry.typesForCreation(),
-        profileInfoEntry.key,
-        newValue);
-
-      return !!createdCredential;
-    } catch (error) {
-      logger.error("profile", error);
+    const deleted = await this.identity.get("credentials").deleteCredential(credential);
+    if (!deleted)
       return false;
-    }
+
+    const createdCredential = await this.createProfileCredential(
+      credentialId,
+      profileInfoEntry.typesForCreation(),
+      profileInfoEntry.key,
+      newValue);
+
+    return !!createdCredential;
   }
 
   /**

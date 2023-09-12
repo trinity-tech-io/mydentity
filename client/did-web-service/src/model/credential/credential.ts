@@ -3,12 +3,11 @@ import { VerifiableCredential } from "@elastosfoundation/did-js-sdk";
 import { JSONObject } from "@model/json";
 import { credentialTypesService } from "@services/credential-types/credential.types.service";
 import { getHiveScriptPictureDataUrl } from "@services/hive/hive-pictures.service";
-import { findProfileInfoByTypes } from "@services/identity-profile-info/identity-profile-info.service";
 import { activeIdentity$ } from "@services/identity/identity.events";
 import { identityService } from "@services/identity/identity.service";
 import { issuerService } from "@services/identity/issuer.service";
 import { logger } from "@services/logger";
-import { LazyBehaviorSubjectWrapper } from "@utils/lazy-behavior-subject";
+import { AdvancedBehaviorSubject } from '@utils/advanced-behavior-subject';
 import { evalObjectFieldPath } from "@utils/objects";
 import { capitalizeFirstLetter, isDefaultLocalIcon } from "@utils/strings";
 import { BehaviorSubject } from "rxjs";
@@ -21,11 +20,9 @@ type ValueItem = {
 };
 
 export class Credential {
-  private _issuerInfo$ = new LazyBehaviorSubjectWrapper<IssuerInfo>(null, () => this.fetchIssuerInfo());
-  public get issuerInfo$(): BehaviorSubject<IssuerInfo> { return this._issuerInfo$.getSubject(); }
+  public issuerInfo$ = new AdvancedBehaviorSubject<IssuerInfo>(null, () => this.fetchIssuerInfo());
 
-  private _isConform$ = new LazyBehaviorSubjectWrapper<boolean>(null, () => this.verifyCredential());
-  public get isConform$(): BehaviorSubject<boolean> { return this._isConform$.getSubject(); }
+  public isConform$ = new AdvancedBehaviorSubject<boolean>(null, () => this.verifyCredential());
 
   // Path to display the icon that best represents this credential.
   public representativeIcon$ = new BehaviorSubject<string | JSX.Element>(null);

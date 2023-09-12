@@ -1,9 +1,9 @@
 'use client';
 import { MainButton } from '@components/generic/MainButton';
+import { callWithUnlock } from '@components/security/unlock-key-prompt/UnlockKeyPrompt';
 import { Icon as ReactIcon } from '@iconify/react';
 import { makeStyles } from '@mui/styles';
 import { useToast } from "@services/feedback.service";
-import { useCallWithUnlock } from "@services/security/security.service";
 import { authenticateWithPasskey } from "@services/user/user.service";
 import clsx from 'clsx';
 import { useRouter } from "next/navigation";
@@ -21,7 +21,6 @@ const useStyles = makeStyles((theme) => ({
 const PasskeySignIn = () => {
   const classes = useStyles()
   const router = useRouter()
-  const { callWithUnlock } = useCallWithUnlock<boolean>()
   const { showSuccessToast } = useToast()
 
   const signInWithPasskey = async () => {

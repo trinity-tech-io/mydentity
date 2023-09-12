@@ -14,7 +14,7 @@ import { FC } from 'react';
 const StoragePage: FC = () => {
   const { mounted } = useMounted();
   const router = useRouter();
-  const [authUser] = useBehaviorSubject(authUser$());
+  const [authUser] = useBehaviorSubject(authUser$);
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const hiveFeature = activeIdentity?.get("hive");
   const [vaultStatus] = useBehaviorSubject(hiveFeature?.vaultStatus$);
