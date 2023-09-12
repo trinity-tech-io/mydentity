@@ -7,4 +7,7 @@ export class IdentityEntity {
 
   @Field(() => GraphQLISODateTime)
   createdAt: string;
+
+  @Field(() => GraphQLISODateTime)
+  lastUsedAt: string;
 }

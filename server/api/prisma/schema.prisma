@@ -59,6 +59,7 @@ model Identity {
 
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @default(now())
+  lastUsedAt      DateTime     @default(now())
   user            User         @relation(fields: [userId], references: [id], onDelete: Restrict)
   identityRoot    IdentityRoot @relation(fields: [identityRootId], references: [id], onDelete: Restrict)
   derivationIndex Int // Informative, for users: index of the DID derivation in the DID SDK

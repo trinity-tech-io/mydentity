@@ -11,6 +11,7 @@ import { IdentityDTO } from "./identity.dto";
 export class Identity {
   did: string;
   createdAt: Date;
+  lastUsedAt: Date;
 
   // Local bindings
   public provider: IdentityProvider;
@@ -30,6 +31,7 @@ export class Identity {
     Object.assign(identity, json);
 
     identity.createdAt = new Date(json.createdAt);
+    identity.lastUsedAt = new Date(json.lastUsedAt);
 
     identity.provider = provider;
     return identity;

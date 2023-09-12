@@ -59,4 +59,11 @@ export class IdentityResolver {
   findAll(@CurrentUser() user: User) {
     return this.identityService.findAll(user);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => Boolean)
+  async markIdentityInUse(@Args('identityDid') identityDid: string, @CurrentUser() user: User) {
+    await this.identityService.ensureOwnedIdentity(identityDid, user);
+    return this.identityService.markIdentityInUse(identityDid);
+  }
 }

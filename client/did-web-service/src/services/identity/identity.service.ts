@@ -1,5 +1,6 @@
 import { IdentityPublicationStatusResult } from "@model/identity-publication/identity-publication-status.dto";
 import { Identity } from "@model/identity/identity";
+import moment from "moment";
 import { CustodialDIDProvider } from "./custodial/custodial-did.provider";
 import { IdentityProvider } from "./did.provider";
 import { activeIdentity$ } from "./identity.events";
@@ -48,12 +49,19 @@ class IdentityService {
    * Sets the newly active identity for the whole app. This identity is the one used
    * to list credentials, and do all DID related operations.
    */
-  public setActiveIdentity(identity: Identity): void {
+  public async setActiveIdentity(identity: Identity): Promise<void> {
     if (!identity) {
       activeIdentity$.next(null);
       this.activeIdentityId = "";
       localStorage.setItem("activeIdentityId", "");
       return;
+    }
+
+    identity.lastUsedAt = moment().toDate();
+    try {
+      await this.provider.markIdentityInUse(identity.did);
+    } catch (e) {
+      // do nothing
     }
 
     activeIdentity$.next(identity);

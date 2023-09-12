@@ -185,6 +185,22 @@ export class IdentityService {
     })
   }
 
+  // Updates the given identity's last used at date
+  async markIdentityInUse(didString: string) {
+    this.logger.log('markIdentityInUse didString:' + didString);
+
+    await this.prisma.identity.update({
+      where: {
+        did: didString
+      },
+      data: {
+        lastUsedAt: moment().toDate()
+      }
+    })
+
+    return true;
+  }
+
   /**
    * Ensures that the identityDid identity is owned by user and returns the identity.
    * If not, throws an exception.
