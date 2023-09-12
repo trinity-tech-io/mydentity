@@ -1,5 +1,5 @@
 import { MainButton } from "@components/MainButton";
-import { VerifiablePresentation } from "@elastosfoundation/did-js-sdk";
+import type { VerifiablePresentation } from "@elastosfoundation/did-js-sdk";
 import { DID as ConnDID, didAccessV2 } from "@elastosfoundation/elastos-connectivity-sdk-js";
 import { FC, useEffect, useState } from "react";
 

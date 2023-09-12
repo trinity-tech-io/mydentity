@@ -4,7 +4,6 @@ import { DID as ConnDID } from "@elastosfoundation/elastos-connectivity-sdk-js";
 import { CircularProgress } from "@mui/material";
 import { FC, useState } from "react";
 
-const didAccess = new ConnDID.DIDAccess();
 
 const EssentialsAuthTests: FC = () => {
   const [creds, setCreds] = useState(null);
@@ -12,6 +11,7 @@ const EssentialsAuthTests: FC = () => {
 
   const didAuth = async () => {
     setAwaitingResult(true);
+    const didAccess = new ConnDID.DIDAccess();
     const credentials = await didAccess.requestCredentials({
       claims: [
         ConnDID.simpleTypeClaim("Your name", "NameCredential", false)

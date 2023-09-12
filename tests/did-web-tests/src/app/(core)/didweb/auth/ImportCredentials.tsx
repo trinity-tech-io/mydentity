@@ -1,10 +1,6 @@
 import { MainButton } from "@components/MainButton";
-import { DID, DIDBackend, DIDStore, DefaultDIDAdapter, Features, Issuer, Mnemonic, RootIdentity, VerifiableCredential } from "@elastosfoundation/did-js-sdk";
-import { didAccessV2 } from "@elastosfoundation/elastos-connectivity-sdk-js";
-import { ImportedCredential } from "@elastosfoundation/elastos-connectivity-sdk-js/typings/did";
+import type { ImportedCredential } from "@elastosfoundation/elastos-connectivity-sdk-js/typings/did";
 import { FC, useEffect, useState } from "react";
-
-console.log("didAccessV2", didAccessV2)
 
 async function importCredentials() {
   console.log("Creating and importing a credential");
@@ -12,18 +8,21 @@ async function importCredentials() {
   let storePass = "unsafepass";
   let passphrase = ""; // Mnemonic passphrase
 
+  const { Features, DefaultDIDAdapter, DIDBackend, DIDStore, RootIdentity, Mnemonic, Issuer, VerifiableCredential, DID } = await import("@elastosfoundation/did-js-sdk");
+  const { didAccessV2 } = await import("@elastosfoundation/elastos-connectivity-sdk-js");
+
   // For this test, always re-create a new identity for the signer of the created credential.
   // In real life, the signer should remain the same.
   Features.enableJsonLdContext(true);
   DIDBackend.initialize(new DefaultDIDAdapter("mainnet"));
   let didStore = await DIDStore.open(storeId);
-  let rootIdentity = RootIdentity.createFromMnemonic(Mnemonic.getInstance().generate(), passphrase, didStore, storePass, true);
+  let rootIdentity = await RootIdentity.createFromMnemonic(Mnemonic.getInstance().generate(), passphrase, didStore, storePass, true);
   console.log("Created identity:", rootIdentity);
 
   let issuerDID = await rootIdentity.newDid(storePass, 0, true); // Index 0, overwrite
   console.log("Issuer DID:", issuerDID);
 
-  let issuer = new Issuer(issuerDID);
+  let issuer = await Issuer.create(issuerDID);
   console.log("Issuer:", issuer);
 
   let targetDID = DID.from("did:elastos:insTmxdDDuS9wHHfeYD1h5C2onEHh3D8Vq");
@@ -59,8 +58,10 @@ export const ImportCredentials: FC = () => {
   useEffect(() => {
     let unsub = null;
     // Simulated late registration to event to make sure the SDK queued the responses
-    setTimeout(() => {
+    setTimeout(async () => {
       // Called after page redirection
+      const { didAccessV2 } = await import("@elastosfoundation/elastos-connectivity-sdk-js");
+
       unsub = didAccessV2.onImportCredentialsResponse((context, importedCredentials) => {
         console.log("onImportCredentialsResponse", context, importedCredentials);
         setImportedVCs(importedCredentials);

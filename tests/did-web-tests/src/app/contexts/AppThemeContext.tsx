@@ -6,12 +6,13 @@ const AppThemeContext = createContext({
 });
 
 export default function AppThemeProvider({ children }) {
-  const persistedTheme = localStorage.getItem('theme');
+  const storage = typeof localStorage == "undefined" ? null : localStorage; // server side issues
+  const persistedTheme = storage?.getItem('theme');
   const [theme, setTheme] = useState(persistedTheme || 'light');
 
   const changeCurrentTheme = (newTheme) => {
     setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
+    storage.setItem('theme', newTheme);
   };
 
   useEffect(() => {

@@ -22,6 +22,10 @@ export default function RootLayout({
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // No server side generation, this creates build errors because of did sdk, connectivity sdk...
+  if (typeof window == "undefined")
+    return "Loading";
+
   return (
     <html lang="en">
       <body /* className={inter.className} */>
