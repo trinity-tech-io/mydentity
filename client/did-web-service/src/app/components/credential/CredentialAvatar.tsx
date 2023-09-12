@@ -1,8 +1,8 @@
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { Credential } from "@model/credential/credential";
 import { Avatar } from "@mui/material";
-import { FC } from "react";
 import Image from 'next/image';
+import { FC } from "react";
 
 /**
  * Enhanced "avatar" component that displays either the representative picture of a credential,
@@ -15,9 +15,9 @@ export const CredentialAvatar: FC<{
 }> = ({ credential, width = 60, height = 60 }) => {
   const [representativeIconPath] = useBehaviorSubject(credential?.representativeIcon$);
   return (
-    <Avatar sx={{ width, height } }>
+    <Avatar sx={{ width, height }}>
       {typeof representativeIconPath === 'string' ? (
-        <Image src={representativeIconPath} alt="" width={width-20} height={height-20} />
+        <Image src={representativeIconPath} alt="" width={width} height={height} />
       ) : (
         representativeIconPath
       )}

@@ -6,7 +6,9 @@ import { CredentialAvatar } from './CredentialAvatar';
 export const EditableCredentialAvatar: FC<{
   credential?: Credential; // Existing credential to use for display, if any (ie: existing avatar credential)
   onFileUpload: (file: File) => void;
-}> = ({ credential, onFileUpload }) => {
+  width?: number;
+  height?: number;
+}> = ({ credential, onFileUpload, width, height }) => {
 
   const onDrop = async (acceptedFiles: File[]): Promise<void> => {
     if (acceptedFiles?.length > 0) {
@@ -25,7 +27,7 @@ export const EditableCredentialAvatar: FC<{
     <div {...getRootProps()} style={{ ...(isDragActive && { opacity: 0.72 }) }} className='cursor-pointer'>
       <input {...getInputProps()} />
 
-      <CredentialAvatar credential={credential} />
+      <CredentialAvatar credential={credential} width={width} height={height} />
     </div>
   )
 }

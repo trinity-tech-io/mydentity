@@ -284,7 +284,6 @@ const Profile: FC = () => {
   return (<div className="col-span-full">
     <Breadcrumbs entries={["profile"]} />
     <Box
-      mt={2}
       component="form"
       sx={{
         '& .MuiTextField-root': { m: 1, width: '25ch' },
@@ -293,7 +292,7 @@ const Profile: FC = () => {
       autoComplete="off"
     >
       <Stack alignItems="center" spacing={3} sx={{ pt: 5, borderRadius: 2, position: 'relative' }}>
-        <EditableCredentialAvatar credential={avatarCredential} onFileUpload={handleAvatarFileChanged} />
+        <EditableCredentialAvatar credential={avatarCredential} onFileUpload={handleAvatarFileChanged} width={100} height={100} />
       </Stack>
     </Box>
 
