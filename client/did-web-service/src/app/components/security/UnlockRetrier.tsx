@@ -8,7 +8,7 @@ import { useUnlockKeyPrompt } from "./unlock-key-prompt/UnlockKeyPrompt";
  * to retry. ie: advanced behavior subjects.
  */
 export const UnlockRetrier: FC<{
-  className?: any;
+  className?: string;
 }> = ({ className }) => {
   const { retryUnlock } = useUnlockKeyPrompt();
 

@@ -32,7 +32,7 @@ export class CredentialsFeature implements IdentityFeature {
     this.ensureCredentialsFetched();
     logger.log("credentials", "Importing credential", vc);
 
-    const credential = await this.identity.provider.importCredential(this.identity.did, vc);
+    const credential = await callWithUnlock(() => this.identity.provider.importCredential(this.identity.did, vc), true, null);
     this.credentials$.next([credential, ...this.credentials$.value]);
     return credential;
   }

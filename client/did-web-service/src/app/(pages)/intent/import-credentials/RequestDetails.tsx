@@ -1,4 +1,6 @@
 import { MainButton } from "@components/generic/MainButton";
+import { UnlockRetrier } from "@components/security/UnlockRetrier";
+import { useUnlockPromptState } from "@components/security/unlock-key-prompt/UnlockKeyPrompt";
 import { VerifiableCredential } from "@elastosfoundation/did-js-sdk";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { credentialFromVerifiableCredential } from "@model/credential/credential-builder";
@@ -14,19 +16,22 @@ import { FC, useEffect, useState } from "react";
 import { CredentialPreviewWithDetails } from "./CredentialPreviewWithDetails";
 import { ImportedCredential, ImportedCredentialItem } from "./page";
 
+const TAG = 'ImportCredential';
+
 export const RequestDetails: FC<{
   intent: Intent<VerifiableCredential[]>;
 }> = ({ intent }) => {
-  const TAG = 'ImportCredential';
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const identityProfileFeature = activeIdentity?.get("profile");
   const credentialFeature = activeIdentity?.get("credentials");
   const [preparingResponse, setPreparingResponse] = useState(false);
+  const [credentials] = useBehaviorSubject(credentialFeature?.credentials$); // NOTE: keep it to fetch the credentials, required before importing
   const [importedCredentials, setImportedCredentials] = useState<ImportedCredential[]>(null);
   const [wrongTargetDID, setWrongTargetDID] = useState<boolean>(false);
   const [requestingAppIconUrl, setRequestingAppIconUrl] = useState<string>('');
   const [requestingAppName, setRequestingAppName] = useState<string>('');
   const { showErrorToast } = useToast();
+  const { unlockerIsCancelled } = useUnlockPromptState();
 
   const payload = intent.requestPayload;
   useEffect(() => {
@@ -168,7 +173,8 @@ export const RequestDetails: FC<{
             <CredentialPreviewWithDetails key={i} importedCredential={importedCredential} />
           )
         })}
-        <MainButton onClick={approveRequest} busy={preparingResponse} >Import this to my profile</MainButton>
+        <MainButton onClick={approveRequest} busy={preparingResponse} disabled={!credentials}>Import this to my profile</MainButton>
+        {unlockerIsCancelled && <UnlockRetrier className="mt-2" />}
       </div>
     }
 

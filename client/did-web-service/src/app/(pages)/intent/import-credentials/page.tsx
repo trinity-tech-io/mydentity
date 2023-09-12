@@ -3,10 +3,10 @@ import { VerifiableCredential } from "@elastosfoundation/did-js-sdk";
 import { Credential } from "@model/credential/credential";
 import { Intent } from "@model/intent/intent";
 import { fetchIntent } from "@services/intent.service";
+import { useSearchParams } from "next/navigation";
 import { FC, useEffect, useState } from "react";
 import { PreparingRequest } from "../components/PreparingRequest";
 import { RequestDetails } from "./RequestDetails";
-import { useSearchParams } from "next/navigation";
 
 // Displayable version of a verifiable credential subject entry (a credential can contain several information
 // in its subject).
@@ -45,7 +45,7 @@ const ImportCredentialsIntent: FC = () => {
       setLoadingIntent(false);
       setIntent(_intent);
     });
-  //}, [searchParams?.rid]);
+    //}, [searchParams?.rid]);
   }, []);
 
   return (

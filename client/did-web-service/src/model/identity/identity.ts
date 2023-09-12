@@ -1,3 +1,4 @@
+import { callWithUnlock } from "@components/security/unlock-key-prompt/UnlockKeyPrompt";
 import { VerifiableCredential, VerifiablePresentation } from "@elastosfoundation/did-js-sdk";
 import { IdentityProvider } from "@services/identity/did.provider";
 import { CredentialsFeature } from "./features/credentials/credentials.feature";
@@ -58,7 +59,9 @@ export class Identity {
    * Creates a VP that contains the given VCs, signed by the identity
    */
   public createVerifiablePresentation(credentials: VerifiableCredential[], realm: string, nonce: string): Promise<VerifiablePresentation> {
-    return this.provider.createVerifiablePresentation(this.did, credentials, realm, nonce);
+    return callWithUnlock(() => {
+      return this.provider.createVerifiablePresentation(this.did, credentials, realm, nonce);
+    }, true);
   }
 
   public equals(otherIdentity: Identity): boolean {

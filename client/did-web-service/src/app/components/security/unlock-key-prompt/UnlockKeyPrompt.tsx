@@ -9,7 +9,7 @@ import { getApolloClient } from '@services/graphql.service';
 import { AuthKeyInput } from '@services/keyring/auth-key.input';
 import { unlockMasterKey } from '@services/keyring/keyring.service';
 import { logger } from '@services/logger';
-import { CallWithUnlockCallback, isUnlockException } from '@services/security/security.service';
+import { CallWithUnlockCallback, isUnlockException, isUnlockPromptCancelledException } from '@services/security/security.service';
 import { authUser$ } from '@services/user/user.events';
 import React, {
   Dispatch, FC,
@@ -205,12 +205,26 @@ async function checkRemoteUnlockStatus(): Promise<void> {
  * Convenience helper to catch unlock exceptions from APIs, prompt user to unlock his master key
  * on the UI, and automatically retry calling the API until the call succeeds or gets cancelled by
  * the user.
+ * 
+ * silentCancellation is used to let some methods such as active user actions (create identity, etc) automatically
+ * catch cancellation events, while letting behavior subjects throw the exception to be able to know
+ * such cancellation happened and then to retry initializing their data later.
  */
-export async function callWithUnlock<T>(method: CallWithUnlockCallback<T>): Promise<T> {
-  return new Promise<T>((resolve, reject) => {
+export async function callWithUnlock<T>(method: CallWithUnlockCallback<T>, silentCancellation = false, defaultValue?: T): Promise<T> {
+  const p = new Promise<T>((resolve, reject) => {
     unlockPromptState$.next(UnlockPromptState.Idle);
     callWithUnlockRequestEvent$.next({ method, resolve, reject });
+  }).catch(e => {
+    if (silentCancellation && isUnlockPromptCancelledException(e)) {
+      // Silent, catch the cancellation exception and let the promise return successfully with no value.
+    }
+    else {
+      // For all other errors, rethrow the exception, the caller needs to handle that.
+      throw e;
+    }
   });
+
+  return (await p) || defaultValue;
 }
 
 /**
@@ -218,7 +232,9 @@ export async function callWithUnlock<T>(method: CallWithUnlockCallback<T>): Prom
  */
 async function callWithUnlockHandler(request: UnlockRequest<any>, promptMasterKeyUnlock: () => Promise<AuthKeyInput>): Promise<void> {
   try {
-    const result = await request.method();
+    const result = await withCaughtAppException(() => {
+      return request.method();
+    });
     request.resolve(result);
   }
   catch (e) {

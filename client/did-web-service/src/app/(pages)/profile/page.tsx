@@ -320,7 +320,7 @@ const Profile: FC = () => {
 
       {unlockerIsIdle && (!credentials || !mounted) && <VerticalStackLoadingCard />}
       {/* Unlocking credentials failed, cannot display them. Show a retry button to  */}
-      {unlockerIsCancelled && <UnlockRetrier className="mt-4" />}
+      {unlockerIsCancelled && (!credentials || !mounted) && <UnlockRetrier className="mt-4" />}
       {credentials && mounted &&
         <Card>
           <ListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />

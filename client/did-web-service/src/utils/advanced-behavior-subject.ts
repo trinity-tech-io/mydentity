@@ -56,7 +56,9 @@ export class AdvancedBehaviorSubject<T> extends BehaviorSubject<T> {
         // First time we get a master unlock failure, register to master unlock event so
         // that we know when the key became available and we can try again to initialize the data.
         if (!this.masterKeyUnlockSub) {
+          console.log("SUB")
           this.masterKeyUnlockSub = onMasterKeyUnlock$.subscribe(() => {
+            console.log("CB", this.initializerState.value.toString())
             // Call the initializer if we are not yet initialized and the master key became unlocked
             if (this.initializerState.value === InitializerState.NotCalled || this.initializerState.value === InitializerState.FailedUnlock) {
               this.callInitializer();
