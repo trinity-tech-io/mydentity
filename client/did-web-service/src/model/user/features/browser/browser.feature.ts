@@ -37,4 +37,29 @@ export class BrowserFeature implements UserFeature {
 
     return null;
   }
+
+  public async deleteBrowser(browserId: string): Promise<boolean> {
+    logger.log("browsers", "Deleting browser");
+
+    const { data } = await withCaughtAppException(async () => {
+      return (await getApolloClient()).mutate<{ deleteBrowser: boolean }>({
+        mutation: gql`
+        mutation deleteBrowser($browserId: String!) {
+          deleteBrowser(browserId: $browserId)
+        }
+      `,
+        variables: {
+          browserId
+        }
+      });
+    });
+
+    if (data?.deleteBrowser) {
+      this.browsers$.next(this.browsers$.value.filter(i => i.id != browserId));
+      return true;
+    }
+    else {
+      throw new Error("Failed to delete Browser");
+    }
+  }
 }

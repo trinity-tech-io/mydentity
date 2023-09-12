@@ -288,7 +288,7 @@ export class CustodialDIDProvider implements IdentityProvider {
       return true;
     }
     else {
-      throw new Error("Failed to remove Credential");
+      throw new Error("Failed to delete Credential");
     }
   }
 

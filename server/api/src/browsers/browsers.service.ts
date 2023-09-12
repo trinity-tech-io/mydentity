@@ -73,4 +73,18 @@ export class BrowsersService {
       }
     });
   }
+
+  public async deleteBrowser(browserId: string, user?: User) {
+    logger.log('deleteBrowser ' + browserId)
+
+    // TODO: delete potential dependencies.
+    // remove shadowKey
+
+    await this.prisma.browser.delete({
+      where: {
+        id: browserId,
+        ...(user && { userId: user.id })
+      }
+    });
+  }
 }
