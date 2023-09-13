@@ -17,7 +17,7 @@ export class BrowserFeature implements UserFeature {
   private async fetchBrowsers(): Promise<Browser[]> {
     logger.log("devices", "Fetching user browsers");
 
-    const { data } = await withCaughtAppException(async () => {
+    const result = await withCaughtAppException(async () => {
       return (await getApolloClient()).query<{ browsers: BrowserDTO[] }>({
         query: gql`
         query ListBrowsers {
@@ -29,8 +29,8 @@ export class BrowserFeature implements UserFeature {
       });
     });
 
-    if (data && data.browsers) {
-      const browsers = await Promise.all(data!.browsers.map(browser => Browser.fromJson(browser)));
+    if (result?.data?.browsers) {
+      const browsers = await Promise.all(result.data.browsers.map(browser => Browser.fromJson(browser)));
       logger.log("browsers", "Fetched browsers:", browsers);
       return browsers;
     }
@@ -41,7 +41,7 @@ export class BrowserFeature implements UserFeature {
   public async deleteBrowser(browserId: string): Promise<boolean> {
     logger.log("browsers", "Deleting browser");
 
-    const { data } = await withCaughtAppException(async () => {
+    const result = await withCaughtAppException(async () => {
       return (await getApolloClient()).mutate<{ deleteBrowser: boolean }>({
         mutation: gql`
         mutation deleteBrowser($browserId: String!) {
@@ -54,7 +54,7 @@ export class BrowserFeature implements UserFeature {
       });
     });
 
-    if (data?.deleteBrowser) {
+    if (result?.data?.deleteBrowser) {
       this.browsers$.next(this.browsers$.value.filter(i => i.id != browserId));
       return true;
     }

@@ -16,6 +16,7 @@ import Queue from "promise-queue";
 import { LoggedUserOutput } from "./logged-user.output";
 import { SignUpInput } from "./sign-up.input";
 import { authUser$, getActiveUser } from "./user.events";
+import { result } from "lodash";
 
 const fetchUserQueue = new Queue(1); // Execute user retrieval from the backend one by one to avoid duplicates
 
@@ -76,7 +77,7 @@ export async function fetchSelfUser(curToken?: string, refreshToken?: string): P
     if (refreshToken)
       localStorage.setItem("refresh_token", refreshToken);
 
-    const { data } = await withCaughtAppException(async () => {
+    const result = await withCaughtAppException(async () => {
       return (await getApolloClient()).query<{ getSelfUser: UserDTO }>({
         query: gql`
         query GetSelfUser {
@@ -86,26 +87,10 @@ export async function fetchSelfUser(curToken?: string, refreshToken?: string): P
       });
     });
 
-    if (data) {
-      const rawUser = data.getSelfUser;
-
+    if (result?.data?.getSelfUser) {
       // Build the real user model based on its json representation
-      const user = await User.fromJson(rawUser) as User;
-
-      // if (curToken && !user.isTemporary() && getActiveUser() && getActiveUser().isTemporary()
-      //     && localStorage.getItem('access_token') !== curToken) { // why???
-      //   // only transfer from temp user to real user.
-      //   await getApolloClient().mutate<{ user: UserJson }>({
-      //     mutation: gql`
-      //     mutation TransferUserContent($token: String!) {
-      //       transferUserContent(transferUserContentInput: { accessToken: $token }) { ${graphQLSelfUserFields} }
-      //     }
-      //   `,
-      //     variables: {
-      //       token: curToken
-      //     }
-      //   });
-      // }
+      const rawUser = result?.data?.getSelfUser;
+      const user = await User.fromJson(rawUser);
 
       // Save this new authenticated user's json to local storage
       await saveAuthenticatedUser(rawUser);
@@ -176,7 +161,7 @@ export async function checkRawEmailAuthenticationKey(authKey: string): Promise<b
   logger.log("user", "Checking temporary authentication key");
 
   try {
-    const { data } = await withCaughtAppException(async () => {
+    const result = await withCaughtAppException(async () => {
       return (await getApolloClient()).mutate<{
         checkEmailAuthentication: {
           accessToken: string;
@@ -192,8 +177,8 @@ export async function checkRawEmailAuthenticationKey(authKey: string): Promise<b
       });
     });
 
-    if (data && data.checkEmailAuthentication) {
-      const { accessToken, refreshToken } = data.checkEmailAuthentication;
+    if (result?.data?.checkEmailAuthentication) {
+      const { accessToken, refreshToken } = result.data.checkEmailAuthentication;
       await updateUserByToken(accessToken, refreshToken);
       return true;
     }
@@ -215,8 +200,8 @@ export async function refreshToken(): Promise<string> {
     return;
   }
 
-  const { data } = await withCaughtAppException(async () => {
-    return (await getApolloClient()).mutate({
+  const result = await withCaughtAppException(async () => {
+    return (await getApolloClient()).mutate<{ refreshToken: { accessToken: string } }>({
       mutation: gql`
         mutation RefreshToken($token: String!) {
           refreshToken(refreshTokenInput: { refreshToken: $token }) { accessToken }
@@ -228,10 +213,10 @@ export async function refreshToken(): Promise<string> {
     });
   });
 
-  if (data) {
+  if (result?.data?.refreshToken) {
     logger.log("user", "Got refreshed access token");
 
-    const { accessToken } = data.refreshToken;
+    const { accessToken } = result.data.refreshToken;
 
     // Only update active access token.
     localStorage.setItem("access_token", accessToken);

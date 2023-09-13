@@ -82,7 +82,7 @@ export class Identity {
   }
 
   async markIdentityInUse(identityDid: string): Promise<boolean> {
-    const { data } = await withCaughtAppException(async () => {
+    const result = await withCaughtAppException(async () => {
       return (await getApolloClient()).mutate<{ markIdentityInUse: boolean }>({
         mutation: gql`
         mutation markIdentityInUse($identityDid: String!) {
@@ -97,6 +97,6 @@ export class Identity {
 
     this.lastUsedAt$.next(moment().toDate());
 
-    return data?.markIdentityInUse;
+    return result?.data?.markIdentityInUse;
   }
 }

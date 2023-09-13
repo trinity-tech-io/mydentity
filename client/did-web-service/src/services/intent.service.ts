@@ -12,7 +12,7 @@ import { logger } from "./logger";
  * The intent must first have been created using a API call, from the DID web connector.
  */
 export async function fetchIntent<IntentRequestPayloadType>(intentId: string): Promise<Intent<IntentRequestPayloadType>> {
-  const { data } = await withCaughtAppException(async () => {
+  const result = await withCaughtAppException(async () => {
     return (await getApolloClient()).query<{ intent: IntentDTO }>({
       query: gql`
       query GetIntentRequest($intentId: String!) {
@@ -27,8 +27,8 @@ export async function fetchIntent<IntentRequestPayloadType>(intentId: string): P
     });
   });
 
-  if (data && data.intent) {
-    const intent = await Intent.fromJson<IntentRequestPayloadType>(data.intent);
+  if (result?.data?.intent) {
+    const intent = await Intent.fromJson<IntentRequestPayloadType>(result.data.intent);
     logger.log("intents", "Fetched intent:", intent);
     return intent;
   }
@@ -44,7 +44,7 @@ export async function fetchIntent<IntentRequestPayloadType>(intentId: string): P
  * until the web connector grabs it, or if it expires.
  */
 export async function fulfilIntentRequest(intentId: string, responsePayload: any): Promise<boolean> {
-  const { data } = await withCaughtAppException(async () => {
+  const result = await withCaughtAppException(async () => {
     return (await getApolloClient()).mutate<{ fulfilIntent: boolean }>({
       mutation: gql`
       mutation FulfilIntentRequest($input: FulfilIntentInput!) {
@@ -57,7 +57,7 @@ export async function fulfilIntentRequest(intentId: string, responsePayload: any
     });
   });
 
-  if (data && data.fulfilIntent) {
+  if (result?.data?.fulfilIntent) {
     logger.log("intents", `Successfully fulfilled intent id ${intentId}`);
     return true;
   }

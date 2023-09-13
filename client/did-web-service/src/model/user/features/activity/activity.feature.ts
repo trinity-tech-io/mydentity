@@ -37,7 +37,7 @@ export class ActivityFeature implements UserFeature {
     public async createActivity(type: ActivityType, content: any): Promise<Activity> {
         logger.log("activity", "Create activity");
 
-        const { data } = await (await getApolloClient()).mutate<{ activity: ActivityDto }>({
+        const result = await (await getApolloClient()).mutate<{ activity: ActivityDto }>({
             mutation: gql`
         mutation CreateActivity($input: CreateActivityInput!) {
             createActivity(input: $input) {
@@ -51,9 +51,9 @@ export class ActivityFeature implements UserFeature {
             }
         });
 
-        if (data) {
-            logger.log("activity", "Create activities", data.activity);
-            return Activity.fromJson(data.activity);
+        if (result?.data?.activity) {
+            logger.log("activity", "Create activities", result.data.activity);
+            return Activity.fromJson(result.data.activity);
         } else {
             throw new Error('Can not create activity.');
         }
@@ -62,7 +62,7 @@ export class ActivityFeature implements UserFeature {
     public async updateActivity(id: string, type: ActivityType, content: any): Promise<Activity> {
         logger.log("activity", "Update activity");
 
-        const { data } = await (await getApolloClient()).mutate<{ activity: ActivityDto }>({
+        const result = await (await getApolloClient()).mutate<{ activity: ActivityDto }>({
             mutation: gql`
         mutation UpdateActivity($input: UpdateActivityInput!) {
             updateActivity(input: $input) {
@@ -76,9 +76,9 @@ export class ActivityFeature implements UserFeature {
             }
         });
 
-        if (data) {
-            logger.log("activity", "Update activities", data.activity);
-            return Activity.fromJson(data.activity);
+        if (result?.data?.activity) {
+            logger.log("activity", "Update activities", result.data.activity);
+            return Activity.fromJson(result.data.activity);
         } else {
             throw new Error('Can not update activity.');
         }

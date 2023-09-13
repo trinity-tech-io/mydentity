@@ -27,7 +27,7 @@ export class CustodialDIDProvider implements IdentityProvider {
       hiveVaultProvider
     };
 
-    const { data } = await withCaughtAppException(async () => {
+    const result = await withCaughtAppException(async () => {
       return (await getApolloClient()).mutate<{ createIdentity: IdentityDTO }>({
         mutation: gql`
           mutation createIdentity($input: CreateIdentityInput!) {
@@ -42,8 +42,8 @@ export class CustodialDIDProvider implements IdentityProvider {
       });
     });
 
-    if (data?.createIdentity) {
-      return Identity.fromJson(data.createIdentity, this);
+    if (result?.data?.createIdentity) {
+      return Identity.fromJson(result.data.createIdentity, this);
     }
     else {
       throw new Error("Failed to create DID");
@@ -51,7 +51,7 @@ export class CustodialDIDProvider implements IdentityProvider {
   }
 
   async deleteIdentity(identityDid: string): Promise<boolean> {
-    const { data } = await withCaughtAppException(async () => {
+    const result = await withCaughtAppException(async () => {
       return (await getApolloClient()).mutate<{ deleteIdentity: boolean }>({
         mutation: gql`
         mutation deleteIdentity($identityDid: String!) {
@@ -64,7 +64,7 @@ export class CustodialDIDProvider implements IdentityProvider {
       });
     });
 
-    if (data?.deleteIdentity) {
+    if (result?.data?.deleteIdentity) {
       return true;
     }
     else {
@@ -95,7 +95,7 @@ export class CustodialDIDProvider implements IdentityProvider {
   }
 
   async createDIDPublishTransaction(identityDid: string): Promise<string> {
-    const { data } = await withCaughtAppException(async () => {
+    const result = await withCaughtAppException(async () => {
       return (await getApolloClient()).mutate<{ createDIDPublishTransaction: TransactionDTO }>({
         mutation: gql`
         mutation createDIDPublishTransaction($identityDid: String!) {
@@ -110,8 +110,8 @@ export class CustodialDIDProvider implements IdentityProvider {
       });
     });
 
-    if (data?.createDIDPublishTransaction.payload) {
-      return data.createDIDPublishTransaction.payload;
+    if (result?.data?.createDIDPublishTransaction.payload) {
+      return result?.data.createDIDPublishTransaction.payload;
     }
     else {
       throw new Error("Failed to create transaction");
@@ -119,7 +119,7 @@ export class CustodialDIDProvider implements IdentityProvider {
   }
 
   async publishIdentity(identityDid: string, payload: string): Promise<string> {
-    const { data } = await withCaughtAppException(async () => {
+    const result = await withCaughtAppException(async () => {
       return (await getApolloClient()).mutate<{ publishIdentity: PublishDTO }>({
         mutation: gql`
         mutation publishIdentity($identityDid: String!, $payload: String!) {
@@ -135,8 +135,8 @@ export class CustodialDIDProvider implements IdentityProvider {
       });
     });
 
-    if (data?.publishIdentity.publicationId) {
-      return data.publishIdentity.publicationId;
+    if (result?.data?.publishIdentity.publicationId) {
+      return result?.data.publishIdentity.publicationId;
     }
     else {
       throw new Error("Failed to publish DID");
@@ -223,7 +223,7 @@ export class CustodialDIDProvider implements IdentityProvider {
   }
 
   async importCredential(identityDid: string, credential: VerifiableCredential): Promise<Credential> {
-    const { data } = await withCaughtAppException(async () => {
+    const result = await withCaughtAppException(async () => {
       return (await getApolloClient()).mutate<{ importCredential: CredentialDTO }>({
         mutation: gql`
         mutation importCredential($identityDid: String!, $credentialString: String!) {
@@ -238,15 +238,15 @@ export class CustodialDIDProvider implements IdentityProvider {
         }
       });
     });
-    if (data && data.importCredential) {
-      return credentialFromJson(data!.importCredential);
+    if (result?.data?.importCredential) {
+      return credentialFromJson(result.data.importCredential);
     }
 
     return null;
   }
 
   async listCredentials(identityDid: string): Promise<Credential[]> {
-    const { data } = await withCaughtAppException(async () => {
+    const result = await withCaughtAppException(async () => {
       return (await getApolloClient()).query<{ credentials: CredentialDTO[] }>({
         query: gql`
         query ListCredentials($identityDid: String!) {
@@ -261,8 +261,8 @@ export class CustodialDIDProvider implements IdentityProvider {
       });
     });
 
-    if (data && data.credentials) {
-      const credentials = await Promise.all(data!.credentials.map(credential => credentialFromJson(credential)));
+    if (result?.data?.credentials) {
+      const credentials = await Promise.all(result.data.credentials.map(credential => credentialFromJson(credential)));
       logger.log("custodial-provider", "Fetched credentials:", credentials);
       return credentials;
     }
@@ -298,7 +298,7 @@ export class CustodialDIDProvider implements IdentityProvider {
       credentials.push(c.toJSON())
     })
 
-    const { data } = await withCaughtAppException(async () => {
+    const result = await withCaughtAppException(async () => {
       return (await getApolloClient()).mutate<{ createVerifiablePresentation: PresentationDTO }>({
         mutation: gql`
         mutation createVerifiablePresentation($identityDid: String!, $credentials: Json!, $realm: String!, $nonce: String!) {
@@ -316,8 +316,8 @@ export class CustodialDIDProvider implements IdentityProvider {
       });
     });
 
-    if (data && data.createVerifiablePresentation) {
-      return VerifiablePresentation.parse(data!.createVerifiablePresentation.verifiablePresentation);
+    if (result?.data?.createVerifiablePresentation) {
+      return VerifiablePresentation.parse(result.data.createVerifiablePresentation.verifiablePresentation);
     }
     return null;
   }

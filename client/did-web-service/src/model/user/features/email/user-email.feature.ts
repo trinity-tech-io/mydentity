@@ -27,7 +27,7 @@ export class UserEmailFeature implements UserFeature {
     private async fetchUserEmails(): Promise<UserEmail[]> {
         logger.log("user", "list user emails.");
 
-        const { data } = await withCaughtAppException(async () => {
+        const result = await withCaughtAppException(async () => {
             return (await getApolloClient()).query<{
                 fetchUserEmails: UserEmailDTO[]
             }>({
@@ -41,8 +41,8 @@ export class UserEmailFeature implements UserFeature {
             });
         });
 
-        if (data?.fetchUserEmails) {
-            return data.fetchUserEmails.map(e => UserEmail.fromJson(e, this.user));
+        if (result?.data?.fetchUserEmails) {
+            return result.data.fetchUserEmails.map(e => UserEmail.fromJson(e, this.user));
         }
 
         console.error('user', 'can not fetch user emails.');
@@ -52,7 +52,7 @@ export class UserEmailFeature implements UserFeature {
     public async removeUserEmail(id: string): Promise<boolean> {
         logger.log("user", "remove user email.");
 
-        const { data } = await withCaughtAppException(async () => {
+        const result = await withCaughtAppException(async () => {
             return (await getApolloClient()).mutate<{
                 removeUserEmail: boolean
             }>({
@@ -65,17 +65,17 @@ export class UserEmailFeature implements UserFeature {
             });
         });
 
-        const result = data && data.removeUserEmail;
-        if (!result) {
+        if (!result?.data?.removeUserEmail) {
             console.error('user', 'can not remove user email.');
         }
-        return result;
+
+        return result?.data?.removeUserEmail;
     }
 
     public async bindOauthEmail(email: string): Promise<boolean> {
         logger.log("user", "Bind oauth email address");
 
-        const { data } = await withCaughtAppException(async () => {
+        const result = await withCaughtAppException(async () => {
             return (await getApolloClient()).mutate<{
                 bindOauthEmail: boolean
             }>({
@@ -88,11 +88,11 @@ export class UserEmailFeature implements UserFeature {
             });
         });
 
-        const result = data && data.bindOauthEmail;
-        if (!result) {
+        if (!result?.data?.bindOauthEmail) {
             logger.error('user', 'Failed from bindOauthEmail api.');
         }
-        return result;
+
+        return result?.data.bindOauthEmail;
     }
 
     /**
@@ -101,7 +101,7 @@ export class UserEmailFeature implements UserFeature {
     public async checkRawEmailBind(authKey: string): Promise<boolean> {
         logger.log("user", "Checking temporary authentication key for email bind.");
 
-        const { data } = await withCaughtAppException(async () => {
+        const result = await withCaughtAppException(async () => {
             return (await getApolloClient()).mutate<{
                 checkEmailBind: {
                     accessToken: string;
@@ -117,11 +117,11 @@ export class UserEmailFeature implements UserFeature {
             });
         });
 
-        const result = !!(data && data.checkEmailBind);
-        if (!result) {
+        if (!result?.data?.checkEmailBind) {
             logger.error('Failed to check email bind');
         }
-        return result;
+
+        return result?.data?.checkEmailBind;
     }
 
     /**
