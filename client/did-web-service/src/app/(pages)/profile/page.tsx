@@ -32,7 +32,7 @@ import { EditableCredentialAvatar } from '../../components/credential/EditableCr
 import { OrderBy } from "./order-by";
 
 const CREDENTIAL_LIST_HEAD = [
-  { id: 'name', label: 'Name', alignRight: false },
+  { id: 'name', label: 'Profile item', alignRight: false },
   { id: 'value', label: 'Value', alignRight: false },
   { id: '', alignRight: false },
 ]
@@ -196,8 +196,8 @@ const Profile: FC = () => {
   function descendingComparator(a: Credential, b: Credential, orderBy: OrderBy): number {
     switch (orderBy) {
       case "name":
-        return a.getDisplayableTitle().localeCompare(b.getDisplayableTitle());
 
+        return b.getDisplayableTitle().localeCompare(a.getDisplayableTitle());
       case "value":
         {
           const aValue = a.getDisplayValue()?.label ? a.getDisplayValue().label : a.getDisplayValue();

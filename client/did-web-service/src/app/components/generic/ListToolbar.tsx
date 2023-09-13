@@ -52,7 +52,7 @@ const UserListToolbar: FC<{
         <StyledSearch
           value={filterName}
           onChange={onFilterName}
-          placeholder="Search user..."
+          placeholder="Search profile..."
           startAdornment={
             <InputAdornment position="start">
               <SearchIcon />
