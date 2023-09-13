@@ -1,36 +1,42 @@
-import { DIDDocument } from "@elastosfoundation/did-js-sdk";
-import { Vault, VaultInfo, VaultNotFoundException, VaultSubscription } from "@elastosfoundation/hive-js-sdk";
+import { callWithUnlock } from '@components/security/unlock-key-prompt/UnlockKeyPrompt';
+import {
+  DIDDocument, JWTHeader,
+  JWTParserBuilder,
+  VerifiableCredential,
+  VerifiablePresentation
+} from "@elastosfoundation/did-js-sdk";
+import { AppContext, AppContextProvider, ScriptingService, ServiceEndpoint, Vault, VaultInfo, VaultNotFoundException, VaultSubscription } from "@elastosfoundation/hive-js-sdk";
 import { Identity } from "@model/identity/identity";
-import { getHiveAppContext, getRandomQuickStartHiveNodeAddress, getSubscriptionService, getVaultService } from "@services/hive/hive.service";
+import { getRandomQuickStartHiveNodeAddress, hiveOperationQueue } from '@services/hive/hive.service';
 import { VaultStatus } from "@services/hive/vault/vault-status";
 import { identityService } from "@services/identity/identity.service";
 import { logger } from "@services/logger";
 import { AdvancedBehaviorSubject } from "@utils/advanced-behavior-subject";
+import { ObjectCache } from '@utils/caches/object-cache';
 import { lazyElastosHiveSDKImport } from "@utils/import-helper";
 import { awaitSubjectValue } from "@utils/promises";
+import dayjs from 'dayjs';
+import moment from 'moment';
 import { BehaviorSubject } from "rxjs";
 import { IdentityFeature } from "../identity-feature";
 
-/* const defaultVaultStatus: VaultStatus = {
-  checkState: VaultStatusState.NOT_CHECKED,
-  vaultInfo: null,
-  publishedInfo: null
-}; */
-
 export class HiveFeature implements IdentityFeature {
   public vaultStatus$ = new AdvancedBehaviorSubject<VaultStatus>(null, async () => { this.retrieveVaultStatus(); }); // Latest known vault status for active user
-
   public vaultAddress$ = new BehaviorSubject<string>(null);
+
+  private appContextCache = new ObjectCache<AppContext>();
 
   constructor(protected identity: Identity) { }
 
   /**
-   * Convenience method to get a shared vault services instance for this identity.
-   * It also makes sure that the hive vault status has been checked first
+   * Returns the vault service instance for a target did.
+   * The vault service gives access to various root information about a user's vault.
    */
   public async getVaultService(): Promise<Vault> {
     await this.awaitHiveVaultReady();
-    return getVaultService(this.identity.did);
+
+    const appContext = await this.getHiveAppContext();
+    return new Vault(appContext, null);
   }
 
   /**
@@ -45,7 +51,7 @@ export class HiveFeature implements IdentityFeature {
    */
   public getActiveUserSubscriptionServices(): Promise<VaultSubscription> {
     logger.log("hive", "Getting subscription services for", this.identity.did);
-    return getSubscriptionService(this.identity.did);
+    return this.getSubscriptionService();
   }
 
   public async addRandomHiveVaultServiceToDIDDocument(): Promise<boolean> {
@@ -85,7 +91,7 @@ export class HiveFeature implements IdentityFeature {
    * Returns the hive vault status for a given DID.
    */
   private async getVaultInfo(): Promise<VaultInfo> {
-    const subscriptionService = await getSubscriptionService(this.identity.did);
+    const subscriptionService = await this.getSubscriptionService();
     return subscriptionService.checkSubscription();
   }
 
@@ -94,8 +100,6 @@ export class HiveFeature implements IdentityFeature {
    */
   public async subscribeToHiveProvider(vaultProviderAddress: string): Promise<boolean> {
     logger.log("hive", "Subscribing to hive provider", vaultProviderAddress);
-
-    const didString = this.identity.did;
 
     let vaultInfo: VaultInfo = null;
     try {
@@ -112,7 +116,7 @@ export class HiveFeature implements IdentityFeature {
     else {
       // No subscription - subscribe
       logger.log("hive", "subscribeToHiveProvider(): no vault info, subscribing");
-      const subscriptionService = await getSubscriptionService(didString);
+      const subscriptionService = await this.getSubscriptionService();
       vaultInfo = await subscriptionService.subscribe();
       if (!vaultInfo) {
         // TO CHECK - Failure ?
@@ -121,7 +125,7 @@ export class HiveFeature implements IdentityFeature {
       }
     }
 
-    let vaultServices = await getVaultService(didString);
+    let vaultServices = await this.getVaultService();
     if (!vaultServices) {
       logger.error("hive", "NULL vault returned, unable to get the vault for this DID.");
     }
@@ -130,7 +134,9 @@ export class HiveFeature implements IdentityFeature {
       try {
         logger.log("hive", "Calling an api on the hive vault to make sure everything is fine");
 
-        vaultServices = await getVaultService(didString);
+        // TODO: what the f***? :) getVaultService() after getVaultService() ?
+
+        vaultServices = await this.getVaultService();
         const appStats = await vaultServices.getAppStats();
 
         if (!appStats) {
@@ -165,13 +171,11 @@ export class HiveFeature implements IdentityFeature {
 
     this.vaultStatus$.next(VaultStatus.NotChecked);
 
-    const didString = this.identity.did;
-
     const { ServiceEndpoint } = await lazyElastosHiveSDKImport();
 
     // Check if we can find an existing vault provider address on DID chain for this user.
-    logger.log("hive", "Retrieving vault of current user's DID " + didString);
-    const appContext = await getHiveAppContext(didString);
+    logger.log("hive", "Retrieving vault of current user's DID " + this.identity.did);
+    const appContext = await this.getHiveAppContext();
     const serviceEndpoint = new ServiceEndpoint(appContext);
 
     const vaultProviderInDIDDocument = await serviceEndpoint.getProviderAddress();
@@ -179,7 +183,7 @@ export class HiveFeature implements IdentityFeature {
 
     try {
       // Call the subscription service to actually know if we are registered or not on that vault.
-      const subscriptionService = await getSubscriptionService(didString);
+      const subscriptionService = await this.getSubscriptionService();
       await subscriptionService.checkSubscription();
 
       // Normally, if no exception thrown, "vault" is never null
@@ -207,78 +211,224 @@ export class HiveFeature implements IdentityFeature {
     this.vaultStatus$.next(VaultStatus.UnknownError);
   }
 
+  async getSubscriptionService(): Promise<VaultSubscription> {
+    const appContext = await this.getHiveAppContext();
+    return new VaultSubscription(appContext);
+  }
+
+  async getScriptingService(): Promise<ScriptingService> {
+    const appContext = await this.getHiveAppContext();
+    const serviceEndpoint = new ServiceEndpoint(appContext);
+    return new ScriptingService(serviceEndpoint);
+  }
+
+  private handleVaultAuthenticationChallenge(jwtToken: string): Promise<string> {
+    return this.generateAuthPresentationJWT(jwtToken);
+  }
+
+
+  private getThisAppDID(): string {
+    return process.env.NEXT_PUBLIC_APP_DID;
+  }
+
+  private async getHiveAppContextProvider(): Promise<AppContextProvider> {
+    return hiveOperationQueue.add(async () => {
+      const appDID = this.getThisAppDID();
+      const appInstanceDIDInfo = await this.identity.get("did").getOrCreateAppInstanceDID(appDID);
+
+      const didDocument = await appInstanceDIDInfo.didStore.loadDid(appInstanceDIDInfo.did.toString());
+      //logger.log('hive', 'Got app instance DID document. Now creating the Hive client', didDocument.toJSON());
+
+      return {
+        getLocalDataDir: () => '/',
+        getAppInstanceDocument: () => didDocument,
+        getAuthorization: (authenticationChallengeJWtCode: string): Promise<string> => {
+          /**
+           * Called by the Hive plugin when a hive backend needs to authenticate the user and app.
+           * The returned data must be a verifiable presentation, signed by the app instance DID, and
+           * including a appid certification credential provided by the identity application.
+           */
+          logger.log('hive', 'Receiving hive client authentication challenge');
+          try {
+            return this.handleVaultAuthenticationChallenge(authenticationChallengeJWtCode);
+          } catch (e) {
+            logger.error('hive', 'Exception in authentication handler:', e);
+            return null;
+          }
+        }
+      };
+    });
+  }
+
   /**
-   * Sets and saves a NEW vault provider for the active DID, WITHOUT any transfer of data.
+   * Returns the hive AppContext for the given did.
+   * Hive app context is needed by most hive operations.
    */
-  /* public async publishVaultProvider(providerName: string, vaultAddress: string): Promise<boolean> {
-    const didString = this.identity.did;
+  private async getHiveAppContext(): Promise<AppContext> {
+    return this.appContextCache.get(this.identity.did, {
+      create: async () => {
+        logger.log('hive', 'Getting app context for', this.identity.did);
+        const appContextProvider = await this.getHiveAppContextProvider();
+        return AppContext.build(appContextProvider, this.identity.did, process.env.NEXT_PUBLIC_APP_DID);
+      }
+    });
+  }
 
-    const subscriptionServices = await getSubscriptionService(didString, vaultAddress);
-    if (!subscriptionServices) {
-      logger.error('hive', "Failed to create vault on the vault provider for DID " + didString + " at address " + vaultAddress + " because there is no active vault services instance.");
-      return false;
-    }
+  /**
+   * Generates a JWT token needed by hive vaults to authenticate users and app.
+   * That JWT contains a verifiable presentation that contains server challenge info, and the app id credential
+   * issued by the end user earlier.
+   */
+  private async generateAuthPresentationJWT(authChallengeJwttoken: string): Promise<string> {
+    const appDID = this.getThisAppDID();
+    logger.log('hive', 'Starting process to generate hive auth presentation JWT');
 
-    // First try to create the vault on the provider
+    // Parse, but verify on chain that this JWT is valid first
     try {
-      let createdVaultInfo = null;
+      const claims = (await new JWTParserBuilder().setAllowedClockSkewSeconds(300).build().parse(authChallengeJwttoken)).getBody();
+      if (claims == null)
+        throw new Error('Invalid jwt token as authorization.');
+
+      // The request JWT must contain iss and nonce fields
+      if (!claims.getIssuer() || !claims.get('nonce'))
+        throw new Error('The received authentication JWT token does not contain iss or nonce');
+
+      // Generate a hive authentication presentation and put the credential + back-end info such as nonce inside
+      const nonce = claims.get('nonce');
+      const realm = claims.getIssuer();
+
+      logger.log('hive', 'Getting app instance DID');
+      const appInstanceDIDResult = await this.identity.get("did").getOrCreateAppInstanceDID(appDID);
+      const appInstanceDID = appInstanceDIDResult.did;
+
+      logger.log("hive", "App instance DID:", appInstanceDID);
+
+      const appInstanceDIDInfo = await this.identity.get("did").getExistingAppInstanceDIDInfo(appDID);
+
+      logger.log('hive', 'Getting app identity credential');
+      let appIdCredential = await this.identity.get("did").getExistingAppIdentityCredential(appDID);
+
+      if (!appIdCredential) {
+        logger.log('hive', 'Empty app id credential. Trying to generate a new one');
+
+        appIdCredential = await this.generateAppIdCredential();
+        if (!appIdCredential) {
+          logger.warn('hive', 'Failed to generate a new App ID credential');
+          return null;
+        }
+      }
+
+      // Create the presentation that includes hive back end challenge (nonce) and the app id credential.
+      logger.log('hive', 'Creating DID presentation response for Hive authentication challenge');
+      const builder = await VerifiablePresentation.createFor(
+        appInstanceDID.toString(),
+        null,
+        appInstanceDIDResult.didStore
+      );
+      const presentation = await builder
+        .credentials(appIdCredential)
+        .realm(realm)
+        .nonce(nonce)
+        .seal(appInstanceDIDInfo.storePassword);
+
+      if (presentation) {
+        // Generate the hive back end authentication JWT
+        logger.log('hive', 'Opening DID store to create a JWT for presentation:', presentation.toJSON());
+        const ConnDID = (await import("@elastosfoundation/elastos-connectivity-sdk-js")).DID;
+        const didStore = await ConnDID.DIDHelper.openDidStore(appInstanceDIDInfo.storeId);
+
+        logger.log('hive', 'Loading DID document', appInstanceDIDInfo.didString);
+        const didDocument = await didStore.loadDid(appInstanceDIDInfo.didString);
+        // const validityDays = 2;
+        logger.log('hive', 'App instance DID document', didDocument.toJSON());
+        logger.log('hive', 'Creating JWT');
+
+        // Create JWT token with presentation.
+        // const info = await new ConDID.DIDAccess().getExistingAppInstanceDIDInfo();
+        const jwtToken = await didDocument
+          .jwtBuilder()
+          .addHeader(JWTHeader.TYPE, JWTHeader.JWT_TYPE)
+          .addHeader('version', '1.0')
+          .setSubject('DIDAuthResponse')
+          .setAudience(claims.getIssuer())
+          .setIssuedAt(dayjs().unix())
+          .setExpiration(dayjs().add(3, 'month').unix())
+          .setNotBefore(dayjs().subtract(3, 'minutes').unix())
+          .claimsWithJson('presentation', presentation.toString(true))
+          .sign(appInstanceDIDInfo.storePassword);
+
+        logger.log('hive', 'JWT created for presentation:', jwtToken);
+        return jwtToken;
+      } else {
+        throw new Error('No presentation generated');
+      }
+    } catch (e) {
+      // Verification error?
+      // Could not verify the received JWT as valid - reject the authentication request by returning a null token
+      const msg = `The received authentication JWT token signature cannot be verified or failed to verify: ${e}. Is the hive back-end DID published? Are you on the right network?`;
+      throw new Error(msg);
+    }
+  }
+
+  /**
+   * Generates a app ID credential for hive authentication. This credential is generated directly, without user confirmation,
+   */
+  private async generateAppIdCredential(): Promise<VerifiableCredential> {
+    const appDID = this.getThisAppDID();
+
+    const storedAppInstanceDID = await this.identity.get("did").getOrCreateAppInstanceDID(appDID);
+    if (!storedAppInstanceDID)
+      return null;
+
+    const appInstanceDID = storedAppInstanceDID.did;
+
+    // No such credential, so we have to create one. Send an intent to get that from the did app
+    logger.log("hive", "Starting to generate a new App ID credential.");
+
+    // Directly generate the credential without user confirmation.
+    try {
+      const credential = await this.generateApplicationIDCredential(appInstanceDID.toString(), appDID);
+      if (credential) {
+        logger.log("hive", "App ID credential generated:", credential);
+
+        // Save this issued credential for later use.
+        await storedAppInstanceDID.didStore.storeCredential(credential);
+        logger.log("hive", "Storing app ID credential into DID store:", storedAppInstanceDID.didStore, credential);
+
+        return credential;
+      }
+      else
+        return null;
+    }
+    catch (e) {
+      // MasterPasswordCancellation
+      return null;
+    }
+  }
+
+  private async generateApplicationIDCredential(appInstanceDid: string, appDid: string): Promise<VerifiableCredential> {
+    return hiveOperationQueue.add(async () => {
+      const properties = { appInstanceDid, appDid };
+
+      logger.log('hive', "Asking the identity provider to generate app ID credential for appInstanceDid:", appInstanceDid, "appDid:", appDid);
+
       try {
-        createdVaultInfo = await subscriptionServices.subscribe();
+        return callWithUnlock(async () => {
+          const credential = await this.identity.provider.issueCredential(
+            this.identity.did,
+            appInstanceDid,
+            "#app-id-credential",
+            ['https://elastos.org/fakecontext#AppIdCredential'], // TODO: real context
+            moment().add(30, "days").toDate(),
+            properties);
+
+          return credential;
+        }, true, null);
       }
       catch (e) {
-        // Maybe already exist. Ignore this exception.
+        logger.error('identity', "Failed to issue the app id credential...", e);
+        return null;
       }
-
-      if (createdVaultInfo) {
-        logger.log("hive", "Vault was newly created on the provider. Now updating vault address on user's DID");
-        // Vault creation succeeded, we can now save the provider address on ID chain.
-      }
-      else {
-        // Vault already exists on this provider. Nothing to do
-        logger.log("hive", "The vault already exists on the vault provider.");
-      }
-
-      const publicationStarted = await this.publishVaultProviderToIDChain(providerName, vaultAddress);
-      if (publicationStarted) {
-        // Force update the provider address.
-        await AppContext.getProviderAddressByUserDid(this.identity.did, null, true);
-        void this.retrieveVaultStatus();
-      }
-
-      return publicationStarted;
-    }
-    catch (err) {
-      logger.error('hive', "Failed to create vault on the vault provider for DID " + didString + " at address " + vaultAddress, err);
-      return false;
-    }
-  } */
-
-  /* private async publishVaultProviderToIDChain(providerName: string, vaultAddress: string): Promise<boolean> {
-   logger.log("hive", "Requesting identity app to update the hive provider");
-
-   try {
-     let result: { result: { status: string } } = await this.globalIntentService.sendIntent("https://did.elastos.net/sethiveprovider", {
-       name: providerName,
-       address: vaultAddress
-     });
-
-     logger.log("hive", "Got sethiveprovider intent result:", result);
-
-     if (result && result.result && result.result.status && result.result.status == "published") {
-       // Vault address was added to user's DID document and publication is on going.
-       // Now wait a moment
-       return true; // Publishing
-     }
-     else {
-       // Publication was cancelled or errored. Do nothing more. Maybe user will retry.
-       logger.log("hive", "Publication cancelled or errored");
-       return false;
-     }
-   }
-   catch (err) {
-     logger.error("hive", "Error while trying to call the sethiveprovider intent: ", err);
-     return false;
-   }
-    return false;
-  } */
+    });
+  }
 }

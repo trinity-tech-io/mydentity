@@ -17,7 +17,7 @@ const DIDWebLayout: FC<{
     connectivity.registerConnector(webConnector);
 
     return () => { unregisterAllConnectors() }
-  })
+  });
 
   return children
 }

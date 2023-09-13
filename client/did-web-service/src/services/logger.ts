@@ -4,6 +4,7 @@ import moment from "moment";
 const modulesColors: { [module: string]: string } = {
     "default": "#008730",
     "hive": "#5226af",
+    "did": "#06c4ce",
     "connectivity": "#d17506"
 }
 
@@ -46,28 +47,28 @@ class _Logger {
 
     public log(module: string, ...args: any): void {
         const bgColor = getBackgroundColor(module);
-        this.originalDebugLog.apply(this.originalConsole, [
+        this.originalDebugLog?.apply(this.originalConsole, [
             "%c" + moment(new Date().getTime()).format('HH:mm:ss.SSS') + " " + module.toUpperCase() + "*", `background: ${bgColor}; color: #FFF; font-weight:bold; padding:5px;`,
             ...args]);
     }
 
     public warn(module: string, ...args: any): void {
         const bgColor = getBackgroundColor(module);
-        this.originalDebugWarn.apply(this.originalConsole, [
+        this.originalDebugWarn?.apply(this.originalConsole, [
             "%c" + moment(new Date().getTime()).format('HH:mm:ss.SSS') + " " + module.toUpperCase() + "*", `background: ${bgColor}; color: #FFF; font-weight:bold; padding:5px;`,
             ...args]);
     }
 
     public error(module: string, ...args: any): void {
         const bgColor = getBackgroundColor(module);
-        this.originalDebugErr.apply(this.originalConsole, [
+        this.originalDebugErr?.apply(this.originalConsole, [
             "%c" + moment(new Date().getTime()).format('HH:mm:ss.SSS') + " " + module.toUpperCase() + "*", `background: ${bgColor}; color: #FFF; font-weight:bold; padding:5px;`,
             ...args]);
     }
 
     public test(module: string, ...args: any): void {
         const bgColor = getBackgroundColor(module);
-        this.originalDebugLog.apply(this.originalConsole, [
+        this.originalDebugLog?.apply(this.originalConsole, [
             "%c" + moment(new Date().getTime()).format('HH:mm:ss.SSS') + " " + module.toUpperCase() + "* TEST", `background: ${bgColor}; color: #FFF; font-weight:bold; padding:5px;`,
             ...args]);
     }

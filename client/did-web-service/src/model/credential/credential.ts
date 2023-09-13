@@ -181,7 +181,7 @@ export class Credential {
         if (hiveAssetUrl.startsWith("hive://")) {
           // logger.log("credential", "Getting picture from hive url", hiveAssetUrl);
           // NOTE: assume we use the currently active identity to authenticate to target hive vault for calling the picture script
-          const dataUrl = await getHiveScriptPictureDataUrl(hiveAssetUrl, activeIdentity.did);
+          const dataUrl = await getHiveScriptPictureDataUrl(hiveAssetUrl);
           if (dataUrl) {
             logger.log("credential", "Got picture data from hive");
             this.representativeIcon$.next(dataUrl);

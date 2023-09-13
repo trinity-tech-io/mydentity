@@ -77,6 +77,7 @@ const Profile: FC = () => {
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const availableProfileEntries = getAvailableProfileEntries(); // List of addable profile items (that can produce credentials)
 
   const explorerDIDLink = activeIdentity && `https://eid.elastos.io/did?did=${encodeURIComponent(activeIdentity.did)}&is_did=true`;
@@ -186,8 +187,10 @@ const Profile: FC = () => {
     setFilterName(event.target.value);
   };
 
-  const handleAvatarFileChanged = (file: File): void => {
-    callWithUnlock(() => identityProfileFeature.upsertIdentityAvatar(file));
+  const handleAvatarFileChanged = async (file: File): Promise<void> => {
+    setUploadingAvatar(true);
+    await callWithUnlock(() => identityProfileFeature.upsertIdentityAvatar(file));
+    setUploadingAvatar(false);
   }
 
   function descendingComparator(a: Credential, b: Credential, orderBy: OrderBy): number {
@@ -212,23 +215,23 @@ const Profile: FC = () => {
   }
 
   function applySortFilter(array: ProfileCredential[], comparator: ComparatorMethod, query: string): ProfileCredential[] {
-    // hide avatar credential  
+    // hide avatar credential
     const filteredArray = array?.filter(credential => {
-        const fragment = credential.getFragment();
-        return fragment !== 'avatar';
-      });
-      const stabilizedThis: [ProfileCredential, number][] = filteredArray?.map((el, index) => [el, index]);
-      stabilizedThis?.sort((a, b) => {
-        const order = comparator(a[0], b[0]);
-        if (order !== 0) return order;
-        return a[1] - b[1];
-      });
-  
-      if (query) {
-        return filter(filteredArray, (_credential: ProfileCredential) => _credential.verifiableCredential.getId().getFragment().toLowerCase().indexOf(query.toLowerCase()) !== -1);
-      }
-  
-      return stabilizedThis?.map((el) => el[0]);
+      const fragment = credential.getFragment();
+      return fragment !== 'avatar';
+    });
+    const stabilizedThis: [ProfileCredential, number][] = filteredArray?.map((el, index) => [el, index]);
+    stabilizedThis?.sort((a, b) => {
+      const order = comparator(a[0], b[0]);
+      if (order !== 0) return order;
+      return a[1] - b[1];
+    });
+
+    if (query) {
+      return filter(filteredArray, (_credential: ProfileCredential) => _credential.verifiableCredential.getId().getFragment().toLowerCase().indexOf(query.toLowerCase()) !== -1);
+    }
+
+    return stabilizedThis?.map((el) => el[0]);
   }
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - credentials?.length) : 0;
@@ -297,7 +300,8 @@ const Profile: FC = () => {
       autoComplete="off"
     >
       <Stack alignItems="center" spacing={3} sx={{ pt: 5, borderRadius: 2, position: 'relative' }}>
-        <EditableCredentialAvatar credential={avatarCredential} onFileUpload={handleAvatarFileChanged} width={100} height={100} />
+        <EditableCredentialAvatar credential={avatarCredential} width={100} height={100}
+          onFileUpload={handleAvatarFileChanged} updating={uploadingAvatar} />
       </Stack>
     </Box>
 

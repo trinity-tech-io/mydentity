@@ -1,7 +1,6 @@
 import { FileDownloadExecutable } from "@elastosfoundation/hive-js-sdk";
 import { Identity } from "@model/identity/identity";
 import { configService } from "@services/config/config.service";
-import { getScriptingService } from "@services/hive/hive.service";
 import { logger } from "@services/logger";
 import { compressImage, fileToDataUrlImage } from "@utils/pictures";
 
@@ -31,7 +30,7 @@ export async function editAvatarOnHive(identity: Identity, newPictureFile: File)
 
   // Create a script to make this picture available to everyone
   const scriptName = "getMainIdentityAvatar" + randomPictureID;
-  const scriptingService = await getScriptingService(identity.did);
+  const scriptingService = await identity.get("hive").getScriptingService();
   await scriptingService.registerScript(scriptName, new FileDownloadExecutable(scriptName, avatarFileName).setOutput(true), undefined, true, true);
 
   // Prepare the hive url that will be used to fetch the picture

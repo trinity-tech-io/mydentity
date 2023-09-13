@@ -1,3 +1,4 @@
+import { LoadingCircle } from '@components/loading-cards/loading-circle/LoadingCircle';
 import { Credential } from '@model/credential/credential';
 import { FC } from "react";
 import { useDropzone } from "react-dropzone";
@@ -8,7 +9,8 @@ export const EditableCredentialAvatar: FC<{
   onFileUpload: (file: File) => void;
   width?: number;
   height?: number;
-}> = ({ credential, onFileUpload, width, height }) => {
+  updating?: boolean;
+}> = ({ credential, onFileUpload, width, height, updating = false }) => {
 
   const onDrop = async (acceptedFiles: File[]): Promise<void> => {
     if (acceptedFiles?.length > 0) {
@@ -27,7 +29,14 @@ export const EditableCredentialAvatar: FC<{
     <div {...getRootProps()} style={{ ...(isDragActive && { opacity: 0.72 }) }} className='cursor-pointer'>
       <input {...getInputProps()} />
 
-      <CredentialAvatar credential={credential} width={width} height={height} />
+      <div className='relative'>
+        <CredentialAvatar
+          credential={credential}
+          width={width}
+          height={height}
+        />
+        {updating && <LoadingCircle className='absolute top-0 bottom-0 left-0 right-0' />}
+      </div>
     </div>
   )
 }

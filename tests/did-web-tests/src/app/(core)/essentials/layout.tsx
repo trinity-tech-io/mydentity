@@ -14,7 +14,7 @@ const EssentialsLayout: FC<{
     connectivity.registerConnector(essentialsConnector);
 
     return () => { unregisterAllConnectors() }
-  })
+  });
 
   return children
 }

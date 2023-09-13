@@ -2,10 +2,12 @@ import { callWithUnlock } from "@components/security/unlock-key-prompt/UnlockKey
 import { VerifiableCredential, VerifiablePresentation } from "@elastosfoundation/did-js-sdk";
 import { IdentityProvider } from "@services/identity/did.provider";
 import { CredentialsFeature } from "./features/credentials/credentials.feature";
+import { DIDFeature } from "./features/did/did.feature";
 import { HiveFeature } from "./features/hive/hive.feature";
 import { IdentityFeature } from "./features/identity-feature";
 import { ProfileFeature } from "./features/profile/profile.feature";
 import { PublicationFeature } from "./features/publication/publication.feature";
+import { StorageFeature } from "./features/storage/storage.feature";
 import { IdentityDTO } from "./identity.dto";
 
 export class Identity {
@@ -22,7 +24,9 @@ export class Identity {
   constructor() {
     this.addFeature("credentials", new CredentialsFeature(this));
     this.addFeature("profile", new ProfileFeature(this));
+    this.addFeature("did", new DIDFeature(this));
     this.addFeature("hive", new HiveFeature(this));
+    this.addFeature("storage", new StorageFeature(this));
     this.addFeature("publication", new PublicationFeature(this));
   }
 
@@ -39,9 +43,11 @@ export class Identity {
 
   public get(feature: "credentials"): CredentialsFeature;
   public get(feature: "profile"): ProfileFeature;
+  public get(feature: "did"): DIDFeature;
   public get(feature: "hive"): HiveFeature;
+  public get(feature: "storage"): StorageFeature;
   public get(feature: "publication"): PublicationFeature;
-  public get(feature: "credentials" | "profile" | "hive" | "publication"): IdentityFeature {
+  public get(feature: "credentials" | "profile" | "did" | "hive" | "storage" | "publication"): IdentityFeature {
     if (!this.features.has(feature)) {
       throw new Error(`Unhandled user feature '${feature}'`);
     }

@@ -158,7 +158,7 @@ class DIDDocumentsService {
     if (!hiveIconUrl)
       return null;
 
-    return getHiveScriptPictureDataUrl(hiveIconUrl, document.getSubject().toString());
+    return getHiveScriptPictureDataUrl(hiveIconUrl);
   }
 
   /**

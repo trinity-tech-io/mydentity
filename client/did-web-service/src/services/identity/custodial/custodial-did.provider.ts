@@ -144,7 +144,7 @@ export class CustodialDIDProvider implements IdentityProvider {
   }
 
   async getPublicationStatus(identityDid: string): Promise<IdentityPublicationStatusResult> {
-    const { data } = await withCaughtAppException(async () => {
+    const result = await withCaughtAppException(async () => {
       return (await getApolloClient()).mutate<{ getPublicationStatus: IdentityPublicationStatusResult }>({
         mutation: gql`
         mutation getPublicationStatus($identityDid: String!) {
@@ -159,8 +159,8 @@ export class CustodialDIDProvider implements IdentityProvider {
       });
     });
 
-    if (data?.getPublicationStatus) {
-      return data.getPublicationStatus as IdentityPublicationStatusResult;
+    if (result?.data?.getPublicationStatus) {
+      return result.data.getPublicationStatus;
     }
     else {
       throw new Error("Failed to get publication status");
