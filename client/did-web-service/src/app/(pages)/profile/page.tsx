@@ -202,7 +202,7 @@ const Profile: FC = () => {
         {
           const aValue = a.getDisplayValue()?.label ? a.getDisplayValue().label : a.getDisplayValue();
           const bValue = b.getDisplayValue()?.label ? b.getDisplayValue().label : b.getDisplayValue();
-          return aValue?.localeCompare(bValue);
+          return bValue?.localeCompare(aValue);
         }
       default:
     }
