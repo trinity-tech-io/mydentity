@@ -123,6 +123,9 @@ export class HiveFeature implements IdentityFeature {
         logger.error("hive", "Failed to create vault on the hive node");
         return false;
       }
+
+      // Subscription went well, update status
+      await this.retrieveVaultStatus();
     }
 
     let vaultServices = await this.getVaultService();
