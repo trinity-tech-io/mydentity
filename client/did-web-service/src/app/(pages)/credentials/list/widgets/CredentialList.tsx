@@ -1,4 +1,5 @@
 'use client';
+import { CredentialAvatar } from '@components/credential/CredentialAvatar';
 import CredentialBasicInfo from '@components/credential/CredentialBasicInfo';
 import { VerticalStackLoadingCard } from '@components/loading-cards/vertical-stack-loading-card/VerticalStackLoadingCard';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
@@ -63,13 +64,13 @@ export const CredentialListWidget: FC<ConfirmDialogProps> = (props) => {
                 <div key={c.id}>
                   <ListItemButton
                     selected={activeCredential && activeCredential.id === c.id}
-                    onClick={(): void => handleListItemClick(c)}>
-                    <ListItemIcon>
-                      <PersonIcon />
-                    </ListItemIcon>
-                    <CredentialBasicInfo
-                      credential={c}
-                    />
+                    onClick={(): void => handleListItemClick(c)}
+                    style={{ display: 'flex', alignItems: 'center' }} 
+                    >
+                    <div style={{ marginRight: 10 }}>
+                      <CredentialAvatar credential={c} width={60} height={60} />
+                    </div>
+                    <CredentialBasicInfo credential={c} />
                   </ListItemButton>
                   <Divider />
                 </div>
