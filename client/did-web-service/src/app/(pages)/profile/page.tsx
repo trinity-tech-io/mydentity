@@ -301,7 +301,7 @@ const Profile: FC = () => {
     >
       <Stack alignItems="center" spacing={3} sx={{ pt: 5, borderRadius: 2, position: 'relative' }}>
         <EditableCredentialAvatar credential={avatarCredential} width={100} height={100}
-          onFileUpload={handleAvatarFileChanged} updating={uploadingAvatar} />
+          onFileUpload={handleAvatarFileChanged} updating={uploadingAvatar} disabled={!credentials} />
       </Stack>
     </Box>
 

@@ -1,5 +1,6 @@
 import { LoadingCircle } from '@components/loading-cards/loading-circle/LoadingCircle';
 import { Credential } from '@model/credential/credential';
+import clsx from 'clsx';
 import { FC } from "react";
 import { useDropzone } from "react-dropzone";
 import { CredentialAvatar } from './CredentialAvatar';
@@ -10,9 +11,13 @@ export const EditableCredentialAvatar: FC<{
   width?: number;
   height?: number;
   updating?: boolean;
-}> = ({ credential, onFileUpload, width, height, updating = false }) => {
+  disabled?: boolean;
+}> = ({ credential, onFileUpload, width, height, updating = false, disabled = false }) => {
 
   const onDrop = async (acceptedFiles: File[]): Promise<void> => {
+    if (disabled)
+      return;
+
     if (acceptedFiles?.length > 0) {
       const handledFile = acceptedFiles[0];
       onFileUpload(handledFile);
@@ -26,8 +31,8 @@ export const EditableCredentialAvatar: FC<{
   });
 
   return (
-    <div {...getRootProps()} style={{ ...(isDragActive && { opacity: 0.72 }) }} className='cursor-pointer'>
-      <input {...getInputProps()} />
+    <div {...(!disabled && getRootProps())} style={{ ...(isDragActive && { opacity: 0.72 }) }} className={clsx(!disabled && 'cursor-pointer')}>
+      {!disabled && <input {...getInputProps()} />}
 
       <div className='relative'>
         <CredentialAvatar
