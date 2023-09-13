@@ -25,6 +25,7 @@ type GroupConfig = {
   url?: string;
   links?: LinkConfig[];
   requiresAuth?: boolean; // This link group will be shown only if user is signed in
+  requiresActiveIdentity?: boolean; // This link gorup will show only if there is an active identity
 }
 
 const groups: GroupConfig[] = [
@@ -42,7 +43,8 @@ const groups: GroupConfig[] = [
       { title: "Storage", url: "/storage" },
       { title: "Delete identity", url: "/delete-identity" },
     ],
-    requiresAuth: true
+    requiresAuth: true,
+    requiresActiveIdentity: true
   },
   /* {
     icon: <MarketplaceIcon />,
@@ -111,14 +113,18 @@ const GroupElement: FC<{
   sidebarExpanded: boolean;
   onGroupHeaderClicked: () => void;
 }> = ({ group, sidebarExpanded, onGroupHeaderClicked }) => {
-  const { icon, title, links, requiresAuth = false } = group;
+  const { icon, title, links, requiresAuth = false, requiresActiveIdentity = false } = group;
   const pathname = usePathname();
+  const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const isActive = group.url === pathname || group.links?.some(l => l.url === pathname);
   const [open, setOpen] = useState(true);
   const [authUser] = useBehaviorSubject(authUser$);
   const { mounted } = useMounted();
 
   if ((requiresAuth && (!authUser || !mounted))) // render server and client without this item until we know more about "authUser"
+    return null;
+
+  if ((requiresActiveIdentity && (!activeIdentity || !mounted)))
     return null;
 
   return (
