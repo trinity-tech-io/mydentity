@@ -15,7 +15,7 @@ export class CredentialsFeature implements IdentityFeature {
     this.ensureCredentialsFetched();
     logger.log("credentials", "Creating credential", credentialId, types, expirationDate, prop);
 
-    const credential = await this.identity.provider.createCredential(this.identity.did, credentialId, types, expirationDate, prop);
+    const credential = await callWithUnlock(() => this.identity.provider.createCredential(this.identity.did, credentialId, types, expirationDate, prop));
     this.credentials$.next([credential, ...this.credentials$.value]);
     return credential;
   }
@@ -24,7 +24,7 @@ export class CredentialsFeature implements IdentityFeature {
     this.ensureCredentialsFetched();
     logger.log("credentials", "Issuing credential", subjectDid, credentialId, types, expirationDate, prop);
 
-    const credential = await this.identity.provider.issueCredential(this.identity.did, subjectDid, credentialId, types, expirationDate, prop);
+    const credential = await callWithUnlock(() => this.identity.provider.issueCredential(this.identity.did, subjectDid, credentialId, types, expirationDate, prop));
     return credential;
   }
 
@@ -51,7 +51,7 @@ export class CredentialsFeature implements IdentityFeature {
     this.ensureCredentialsFetched();
     logger.log("credentials", "Deleting credential");
 
-    const successfulDeletion = await this.identity.provider.deleteCredential(credential.id);
+    const successfulDeletion = await callWithUnlock(() => this.identity.provider.deleteCredential(credential.id));
     this.credentials$.next(this.credentials$.value?.filter(c => c.id != credential.id));
     return successfulDeletion;
   }

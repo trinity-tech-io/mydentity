@@ -119,9 +119,10 @@ export class UserEmailFeature implements UserFeature {
 
         if (!result?.data?.checkEmailBind) {
             logger.error('Failed to check email bind');
+            return false;
         }
 
-        return result?.data?.checkEmailBind;
+        return true;
     }
 
     /**
