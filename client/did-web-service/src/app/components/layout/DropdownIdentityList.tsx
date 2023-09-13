@@ -1,10 +1,12 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 'use client';
 import { IdentityAvatar } from '@components/identity/IdentityAvatar';
+import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { Identity } from '@model/identity/identity';
 import { makeStyles } from '@mui/styles';
 import { Theme } from '@mui/system';
 import { shortenDID } from '@services/identity/identity.utils';
+import { activeIdentity$ } from '@services/identity/identity.events';
 import { FC } from 'react';
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -15,7 +17,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   textContainer: {
     marginLeft: theme.spacing(2),
-    marginRight: theme.spacing(2),
+    marginRight: theme.spacing(0),
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'flex-start',
@@ -29,13 +31,16 @@ const DropdownIdentityList: FC<{
   setDropdownOpen: (open: boolean) => void;
 }> = ({ identities, setCurrentIdentity, setDropdownOpen }) => {
   const classes = useStyles();
+  const [activeIdentity] = useBehaviorSubject(activeIdentity$);
 
   return (
     <div>
       {identities.map((identity) => (
         <div key={identity.did}>
           <div
-            className="font-medium text-sm hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center py-3 px-3 cursor-pointer"
+            className={`font-medium text-sm hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center py-1 px-0 cursor-pointer ${
+              identity === activeIdentity ? 'text-indigo-600 dark:text-indigo-400' : ''
+            }`}
             onClick={() => {
               setCurrentIdentity(identity);
               setDropdownOpen(false);

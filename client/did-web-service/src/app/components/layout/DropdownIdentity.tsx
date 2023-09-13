@@ -155,7 +155,9 @@ export const DropdownIdentity: FC<{
               />
             </div>
           }
-          <MainButton className="min-w-max" onClick={openNewIdentity}>Create a new identity</MainButton>
+          <div style={{ marginTop: '10px' }}>
+            <MainButton className="min-w-max" onClick={openNewIdentity}>Create a new identity</MainButton>
+          </div>
         </div>
       </Transition>
     </div>
