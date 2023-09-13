@@ -1,9 +1,9 @@
 'use client' // Error components must be Client Components
 
 import { logger } from '@services/logger';
-import { useEffect } from 'react';
+import { FC, useEffect } from 'react';
 
-export default function Error({ error, reset }: { error: Error, reset: () => void }) {
+const Error: FC<{ error: Error, reset: () => void }> = ({ error, reset }) => {
   useEffect(() => {
     try {
       logger.error("Global", error);
@@ -21,3 +21,5 @@ export default function Error({ error, reset }: { error: Error, reset: () => voi
     </div>
   )
 }
+
+export default Error;

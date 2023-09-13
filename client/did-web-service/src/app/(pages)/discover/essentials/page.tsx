@@ -3,7 +3,7 @@ import { MainButton } from "@components/generic/MainButton";
 import { FC } from "react";
 
 const EssentialsPage: FC = () => {
-  const openEssentialsWebsite = () => {
+  const openEssentialsWebsite = (): void => {
     window.open("https://d.web3essentials.io", "_blank");
   }
 

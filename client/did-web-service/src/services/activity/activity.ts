@@ -5,7 +5,7 @@ export class Activity {
 
   constructor(private onDone: DoneCallback) { }
 
-  public done() {
+  public done(): void {
     // Simple simulation of a minimal activity time to not see the activity
     // spinner flash too often
     setTimeout(() => {
@@ -13,7 +13,7 @@ export class Activity {
     }, 1000);
   }
 
-  public equals(activity: Activity) {
+  public equals(activity: Activity): boolean {
     return this.id === activity.id;
   }
 }

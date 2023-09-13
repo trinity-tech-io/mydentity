@@ -56,7 +56,7 @@ export class CredentialsFeature implements IdentityFeature {
     return successfulDeletion;
   }
 
-  private ensureCredentialsFetched() {
+  private ensureCredentialsFetched(): void {
     if (!this.credentials$.value)
       throw new Error("Don't try to add/delete/edit credentials before the credentials list is fetched!");
   }

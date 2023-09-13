@@ -11,7 +11,7 @@ export class StorageFeature implements IdentityFeature {
 
   constructor(private identity: Identity) { }
 
-  private async lazyLoadIndex() {
+  private async lazyLoadIndex(): Promise<void> {
     if (this.index)
       return;
 
@@ -57,7 +57,7 @@ export class StorageFeature implements IdentityFeature {
   public async clean(): Promise<void> {
     await this.lazyLoadIndex();
 
-    for (let fullKey of this.index) {
+    for (const fullKey of this.index) {
       await localStorage.removeItem(fullKey);
     }
 

@@ -15,31 +15,31 @@ export const CredentialPreviewWithDetails: FC<Props> = (props: Props) => {
     const [isShowDisplayable, setShowDisplayable] = useState<boolean>(false);
     const [isShowCredentialDetail, setShowCredentialDetail] = useState<boolean>(false);
 
-    const handleHideDetail = () => {
+    const handleHideDetail = (): void => {
         setIsShowDetail(false);
     }
 
-    const handleShowDetail = () => {
+    const handleShowDetail = (): void => {
         setIsShowDetail(true);
     }
 
-    const handleHideDisplayable = () => {
+    const handleHideDisplayable = (): void => {
         setShowDisplayable(false);
     }
 
-    const handleShowDisplayable = () => {
+    const handleShowDisplayable = (): void => {
         setShowDisplayable(true);
     }
 
-    const handleHideCredentialDetail = () => {
+    const handleHideCredentialDetail = (): void => {
         setShowCredentialDetail(false);
     }
 
-    const handleShowCredentialDetail = () => {
+    const handleShowCredentialDetail = (): void => {
         setShowCredentialDetail(true);
     }
 
-    const getDisplayableEntryValue = (value: any) => {
+    const getDisplayableEntryValue = (value: any): string => {
         if (value instanceof Object) {
             return JSON.stringify(value);
         }

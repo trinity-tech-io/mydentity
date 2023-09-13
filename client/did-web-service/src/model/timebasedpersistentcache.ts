@@ -33,7 +33,7 @@ export class TimeBasedPersistentCache<T extends JSONObject> {
    * If storeGlobally is true, data on disk is not sandbox for the active DID, it's shared by everyone.
    */
   public static async loadOrCreate<T extends JSONObject>(name: string, storeGlobally = false, maxItemsOnDisk = 100): Promise<TimeBasedPersistentCache<T>> {
-    let cache = new TimeBasedPersistentCache<T>(name, maxItemsOnDisk, storeGlobally);
+    const cache = new TimeBasedPersistentCache<T>(name, maxItemsOnDisk, storeGlobally);
     await cache.load();
     return cache;
   }
@@ -42,10 +42,10 @@ export class TimeBasedPersistentCache<T extends JSONObject> {
    * Adds or updates an item to the cache. Item keys are unique.
    * If set() is called again with an existing key, the existing item is overwritten.
    */
-  public set(itemKey: string, data: T, timeValue = 0) {
-    let existingIndex = this.items.findIndex(i => i.key == itemKey);
+  public set(itemKey: string, data: T, timeValue = 0): void {
+    const existingIndex = this.items.findIndex(i => i.key == itemKey);
 
-    let newEntry = {
+    const newEntry = {
       key: itemKey,
       timeValue,
       data
@@ -81,8 +81,8 @@ export class TimeBasedPersistentCache<T extends JSONObject> {
   /**
    * Remove an item from the cache.
    */
-  public remove(itemKey: string) {
-    let existingIndex = this.items.findIndex(i => i.key == itemKey);
+  public remove(itemKey: string): void {
+    const existingIndex = this.items.findIndex(i => i.key == itemKey);
     if (existingIndex >= 0) {
       this.items.splice(existingIndex, 1)
     }
@@ -114,10 +114,10 @@ export class TimeBasedPersistentCache<T extends JSONObject> {
    */
   public async save(): Promise<void> {
     // Keep at most maxItemsOnDisk items.
-    let itemsToSave = this.items.slice(0, Math.min(this.items.length, this.maxItemsOnDisk));
+    const itemsToSave = this.items.slice(0, Math.min(this.items.length, this.maxItemsOnDisk));
 
     const key = "cache" + this.name;
-    localStorage.setItem(key,  JSON.stringify(itemsToSave));
+    localStorage.setItem(key, JSON.stringify(itemsToSave));
   }
 
   /**
@@ -133,7 +133,7 @@ export class TimeBasedPersistentCache<T extends JSONObject> {
   /**
    * Delete cache.
    */
-  public async delete() {
+  public async delete(): Promise<void> {
     const key = "cache" + this.name;
     localStorage.removeItem(key)
   }

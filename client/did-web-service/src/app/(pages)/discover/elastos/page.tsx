@@ -3,7 +3,7 @@ import { MainButton } from "@components/generic/MainButton";
 import { FC } from "react";
 
 const ElastosPage: FC = () => {
-  const openElastosWebsite = () => {
+  const openElastosWebsite = (): void => {
     window.open("https://elastos.org", "_blank");
   }
 

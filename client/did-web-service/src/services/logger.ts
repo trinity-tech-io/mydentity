@@ -77,13 +77,13 @@ class _Logger {
 export const logger = new _Logger();
 
 export class DIDWebConnectivityLogger implements Interfaces.ILogger {
-    log(...args: any) {
+    log(...args: any): void {
         logger.log.apply(logger, ["connectivity", ...args]);
     }
-    warn(...args: any) {
+    warn(...args: any): void {
         logger.warn.apply(logger, ["connectivity", ...args]);
     }
-    error(...args: any) {
+    error(...args: any): void {
         logger.error.apply(logger, ["connectivity", ...args]);
     }
 }

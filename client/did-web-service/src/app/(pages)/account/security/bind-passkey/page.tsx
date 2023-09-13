@@ -1,10 +1,10 @@
 "use client";
 import { FC } from "react";
 import PasskeyBind from './components/PasskeyBind';
-import PasskeyHeader from './components/PasskeyHeader';
 
 import { Breadcrumbs } from "@components/breadcrumbs/Breadcrumbs";
 import clsx from 'clsx';
+import { PasskeyAuth } from "./components/PasskeyAuth";
 
 const BindPassKey: FC = () => {
     return (
@@ -12,7 +12,7 @@ const BindPassKey: FC = () => {
             <Breadcrumbs entries={["security-center", "bind-browser"]} />
 
             <div className={clsx('py-40 w-full text-center min-h-full')} >
-                <PasskeyHeader />
+                <PasskeyAuth />
                 <PasskeyBind />
             </div>
         </div>

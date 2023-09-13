@@ -72,7 +72,7 @@ export class UserEmailFeature implements UserFeature {
         return result;
     }
 
-    public async bindOauthEmail(email: string) {
+    public async bindOauthEmail(email: string): Promise<boolean> {
         logger.log("user", "Bind oauth email address");
 
         const { data } = await withCaughtAppException(async () => {

@@ -3,7 +3,7 @@ import { MainButton } from "@components/generic/MainButton";
 import { FC } from "react";
 
 const TrinityTechPage: FC = () => {
-  const openTrinityTechWebsite = () => {
+  const openTrinityTechWebsite = (): void => {
     window.open("https://trinity-tech.io", "_blank");
   }
 

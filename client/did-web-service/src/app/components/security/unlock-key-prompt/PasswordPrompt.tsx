@@ -8,11 +8,11 @@ export const PasswordPrompt: FC<{
 }> = ({ onConfirm, disabled }) => {
   const [password, setPassword] = useState<string>("");
 
-  const onSubmit = () => {
+  const onSubmit = (): void => {
     onConfirm(password);
   }
 
-  const onInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const onInputChange = (e: ChangeEvent<HTMLInputElement>): void => {
     setPassword(e.currentTarget.value);
   }
 

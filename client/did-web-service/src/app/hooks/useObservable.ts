@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Observable } from "rxjs";
 
-export const useObservable = <T>(observable: Observable<T>, defaultValue: T, callback?: (value: T) => void) => {
+export const useObservable = <T>(observable: Observable<T>, defaultValue: T, callback?: (value: T) => void): [T] => {
   const [value, setValue] = useState<T>(defaultValue);
   const [error, setError] = useState();
 
@@ -17,8 +17,8 @@ export const useObservable = <T>(observable: Observable<T>, defaultValue: T, cal
       error: setError
     });
 
-    return () => subscription.unsubscribe()
-  }, [observable]);
+    return (): void => subscription.unsubscribe()
+  }, [observable, callback]);
 
   return [value];
 }

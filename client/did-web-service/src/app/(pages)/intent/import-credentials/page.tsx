@@ -46,7 +46,7 @@ const ImportCredentialsIntent: FC = () => {
       setIntent(_intent);
     });
     //}, [searchParams?.rid]);
-  }, []);
+  }, [requestId]);
 
   return (
     <div className="col-span-full">

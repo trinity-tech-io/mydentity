@@ -20,11 +20,11 @@ const Dashboard: FC = () => {
     clearOnGoingFlowOperation();
   }, []);
 
-  const signUp = () => {
+  const signUp = (): void => {
     router.push("/signup")
   }
 
-  const signIn = () => {
+  const signIn = (): void => {
     router.push("/signin")
   }
 

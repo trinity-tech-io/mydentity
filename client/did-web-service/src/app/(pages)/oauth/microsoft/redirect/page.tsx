@@ -1,5 +1,6 @@
 'use client';
 
+import { ActivityType } from "@model/activity/activity-type";
 import { ExistingEmailException } from "@model/exceptions/existing-email-exception";
 import { InexistingEmailException } from "@model/exceptions/inexisting-email-exception";
 import { LinearProgress } from "@mui/material";
@@ -7,7 +8,6 @@ import { clearOnGoingFlowOperation, FlowOperation, getOnGoingFlowOperation } fro
 import { oauthMSBindEmail, oauthMSSignIn } from "@services/user/user.service";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FC, useEffect } from "react";
-import { ActivityType } from "@model/activity/activity-type";
 
 const MicrosoftRedirect: FC = () => {
   const router = useRouter();
@@ -44,7 +44,7 @@ const MicrosoftRedirect: FC = () => {
         {
           oauthMSSignIn(code).then(user => {
             if (user) {
-              user.get('activity').createActivity(ActivityType.SIGNED_IN, {message: 'Signed in with Microsoft oauth email.'}).then(activity => {
+              user.get('activity').createActivity(ActivityType.SIGNED_IN, { message: 'Signed in with Microsoft oauth email.' }).then(activity => {
                 clearOnGoingFlowOperation();
                 router.push(`/dashboard`);
               }).catch(e => {
@@ -67,7 +67,7 @@ const MicrosoftRedirect: FC = () => {
         alert('Invalid operation, please try again.');
         return;
     }
-  }, []);
+  }, [code, router]);
 
   return (<div className="col-span-full">
     <div className={"flex flex-col w-full"}>

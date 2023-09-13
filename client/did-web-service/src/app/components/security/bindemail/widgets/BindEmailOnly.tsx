@@ -28,7 +28,7 @@ export const BindEmailOnly: FC = () => {
   const [activeUser] = useBehaviorSubject(authUser$);
   const router = useRouter();
 
-  const doEmailAuth = async () => {
+  const doEmailAuth = async (): Promise<void> => {
     const emailAddress = emailInputRef.current.value;
 
     if (emailAddress !== "") {
@@ -48,12 +48,13 @@ export const BindEmailOnly: FC = () => {
     }
   }
 
-  async function onEmailSubmit(ev?: FormEvent) {
+  async function onEmailSubmit(ev?: FormEvent): Promise<void> {
     ev?.preventDefault();
     emailInputRef.current.blur();
 
     await doEmailAuth();
   }
+
   return (
     <Container component="div" className={clsx(classes.centeredContainer)}>
       {!authEmailSent && <form onSubmit={onEmailSubmit} ref={emailForm}>

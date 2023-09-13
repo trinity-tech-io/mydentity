@@ -18,7 +18,7 @@ export const RequestDetails: FC<{
   console.log("payload", payload)
 
   // User approves the upcoming request - data will be returned to the calling dApp.
-  const approveRequest = async () => {
+  const approveRequest = async (): Promise<void> => {
     setPreparingResponse(true);
 
     // Generate the VP for the Active identity and fulfill the request with its JSON value.

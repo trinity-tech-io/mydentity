@@ -42,21 +42,21 @@ const Security: FC = () => {
           break;
       }
     }
-  }, []);
+  }, [error]);
 
-  const bindDevice = () => {
+  const bindDevice = (): void => {
     // securityFeature.bindDevice();
   }
 
-  const bindPasskey = () => {
+  const bindPasskey = (): void => {
     router.push("/account/security/bind-passkey");
   }
 
-  const bindPassword = () => {
+  const bindPassword = (): void => {
     router.push("/account/security/bind-password");
   }
 
-  const bindEmail = () => {
+  const bindEmail = (): void => {
     router.push("/account/security/bind-email");
   }
 

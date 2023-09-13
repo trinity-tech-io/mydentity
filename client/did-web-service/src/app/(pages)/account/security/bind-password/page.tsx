@@ -19,7 +19,7 @@ const BindPassword: FC = () => {
   const { showSuccessToast } = useToast();
   const router = useRouter();
 
-  const bindPassword = async (password: string) => {
+  const bindPassword = async (password: string): Promise<void> => {
     // Call the bind password API with auto-retry if user unlock method is required.
     const bound = await callWithUnlock(() => securityFeature.bindPassword(password));
     if (bound) {

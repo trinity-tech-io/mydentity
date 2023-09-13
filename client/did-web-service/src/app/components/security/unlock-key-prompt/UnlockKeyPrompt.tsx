@@ -93,7 +93,7 @@ const UnlockKeyPrompt: FC = () => {
       callWithUnlockHandler(request, promptMasterKeyUnlock);
     });
     return () => sub.unsubscribe();
-  }, []);
+  }, [promptMasterKeyUnlock]);
 
   return (
     <Dialog
@@ -205,7 +205,7 @@ async function checkRemoteUnlockStatus(): Promise<void> {
  * Convenience helper to catch unlock exceptions from APIs, prompt user to unlock his master key
  * on the UI, and automatically retry calling the API until the call succeeds or gets cancelled by
  * the user.
- * 
+ *
  * silentCancellation is used to let some methods such as active user actions (create identity, etc) automatically
  * catch cancellation events, while letting behavior subjects throw the exception to be able to know
  * such cancellation happened and then to retry initializing their data later.

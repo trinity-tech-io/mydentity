@@ -28,15 +28,15 @@ const AccountProfile: FC = () => {
   useEffect(() => {
   }, []);
 
-  const showEditDialog = () => {
+  const showEditDialog = (): void => {
     setOpen(true);
   }
 
-  const onClose = () => {
+  const onClose = (): void => {
     setOpen(false);
   }
 
-  const onUpdateUserName = async () => {
+  const onUpdateUserName = async (): Promise<void> => {
     const name = userNameRef.current.value;
     if (name == authUser.name$.value) {
       return;

@@ -10,7 +10,7 @@ export class AppException {
   public timestamp: Date;
   public message: string; // Message displayable to end user
 
-  public static fromJson(payload: any) {
+  public static fromJson(payload: any): AppException {
     if (!AppException.isCustomException(payload))
       return null;
 

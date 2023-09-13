@@ -1,13 +1,14 @@
 'use client';
 
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
+import { ActivityType } from "@model/activity/activity-type";
 import { Typography } from "@mui/material";
 import { authUser$ } from "@services/user/user.events";
 import { checkRawEmailAuthenticationKey, isSignedIn } from "@services/user/user.service";
 import { decode } from '@utils/slugid';
 import { useRouter, useSearchParams } from "next/navigation";
+import router from "next/router";
 import { FC, useEffect, useState } from 'react';
-import { ActivityType } from "@model/activity/activity-type";
 
 const CheckAuthKey: FC = () => {
   const searchParams = useSearchParams();
@@ -23,7 +24,7 @@ const CheckAuthKey: FC = () => {
       if (!isSignedIn()) {
         void checkRawEmailAuthenticationKey(authKey).then(authenticated => {
           if (authenticated) {
-            activeUser?.get('activity').createActivity(ActivityType.SIGNED_IN, {message: 'User signed in with raw email.'}).then(activity => {
+            activeUser?.get('activity').createActivity(ActivityType.SIGNED_IN, { message: 'User signed in with raw email.' }).then(activity => {
               router.push('/dashboard');
             }).catch(e => {
               router.push('/dashboard'); // Still means success.
@@ -41,7 +42,7 @@ const CheckAuthKey: FC = () => {
         });
       }
     }
-  }, [authKey]);
+  }, [authKey, activeUser, router]);
 
   return (
     <div className='m-20 w-full'>

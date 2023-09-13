@@ -17,15 +17,15 @@ export class PromisifiedIndexedDB {
     this.db = new Promise((resolve, reject) => {
       const request = indexedDB.open(databaseName);
 
-      request.onerror = () => reject(request.error);
-      request.onsuccess = () => {
+      request.onerror = (): void => reject(request.error);
+      request.onsuccess = (): void => {
         // If the store is already created, resolve right now, we are ready.
         // Otherwise, resolve in "upgrade".
         if (request.result.objectStoreNames.contains(storeName))
           resolve(request.result);
       }
 
-      request.onupgradeneeded = () => {
+      request.onupgradeneeded = (): void => {
         // If the store does exist, this upgrade method is called, so we resolve only here
         // because we don't want callers to call get/put before the store is actually created.
         if (!request.result.objectStoreNames.contains(storeName))
@@ -46,8 +46,8 @@ export class PromisifiedIndexedDB {
     return this.getObjectStore('readonly').then((store) => {
       return new Promise((resolve, reject) => {
         const request = store.get(key);
-        request.onerror = () => reject(request.error);
-        request.onsuccess = () => resolve(request.result);
+        request.onerror = (): void => reject(request.error);
+        request.onsuccess = (): void => resolve(request.result);
       });
     });
   }
@@ -56,8 +56,8 @@ export class PromisifiedIndexedDB {
     return this.getObjectStore('readwrite').then((store) => {
       return new Promise((resolve, reject) => {
         const request = store.put(value, key);
-        request.onerror = () => reject(request.error);
-        request.onsuccess = () => resolve();
+        request.onerror = (): void => reject(request.error);
+        request.onsuccess = (): void => resolve();
       });
     });
   }

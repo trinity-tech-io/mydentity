@@ -38,10 +38,11 @@ export class AdvancedBehaviorSubject<T> extends BehaviorSubject<T> {
     }
 
     // Call the parent subscribe() method with the same arguments
+    // eslint-disable-next-line prefer-rest-params
     return super.subscribe(...arguments);
   }
 
-  private callInitializer() {
+  private callInitializer(): void {
     if (!this.initializer)
       return;
 

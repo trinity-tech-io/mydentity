@@ -5,6 +5,7 @@ import { makeStyles } from '@mui/styles';
 import { FlowOperation, setOnGoingFlowOperation } from "@services/flow.service";
 import clsx from 'clsx';
 import { useRouter } from "next/navigation";
+import { FC } from 'react';
 
 const useStyles = makeStyles((theme) => ({
   centeredContainer: {
@@ -16,11 +17,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const BindEmailWithMicrosoft = () => {
+const BindEmailWithMicrosoft: FC = () => {
   const classes = useStyles();
   const router = useRouter();
 
-  const signInWithMicrosoft = () => {
+  const signInWithMicrosoft = (): void => {
     setOnGoingFlowOperation(FlowOperation.OnBoardingEmailBinding);
     router.push(`${process.env.NEXT_PUBLIC_BACKEND_URL}/microsoft`);
   };

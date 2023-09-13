@@ -22,7 +22,7 @@ export function useDebounceInput(initialValue?: string, onChange: (value: string
       onChange?.(value);
     });
     return () => { sub.unsubscribe(); }
-  }, [subject]);
+  }, [subject, debounceDelay, onChange]);
 
   return [
     subject,

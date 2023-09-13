@@ -179,7 +179,7 @@ export class SecurityFeature implements UserFeature {
     return [publicKeyCredentialCreationOptions, pkCredentialCreationOptionsJSON]
   }
 
-  private upsertShadowKey(shadowKey: ShadowKey) {
+  private upsertShadowKey(shadowKey: ShadowKey): void {
     const keys = this.shadowKeys$.value;
     this.shadowKeys$.next([
       ...keys.filter(k => !k.equals(shadowKey)),
@@ -187,7 +187,7 @@ export class SecurityFeature implements UserFeature {
     ]);
   }
 
-  private deletePasswordShadowKey() {
+  private deletePasswordShadowKey(): void {
     const keys = this.shadowKeys$.value;
     this.shadowKeys$.next([
       ...keys.filter(k => k.type !== ShadowKeyType.PASSWORD),

@@ -9,8 +9,10 @@
     "@typescript-eslint"
   ],
   "ignorePatterns": [
+    "out/",
     ".eslintrc.js",
-    "tailwind.config.js"
+    "tailwind.config.js",
+    "next.config.js"
   ],
   "rules": {
     // Global

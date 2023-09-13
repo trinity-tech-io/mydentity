@@ -1,9 +1,9 @@
 'use client';
-import React from 'react';
+import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { makeStyles } from '@mui/styles';
-import Box from '@mui/material/Box';
 import clsx from 'clsx';
+import { FC } from 'react';
 
 const useStyles = makeStyles((theme) => ({
   separateBar: {
@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const SeparateLine = () => {
+const SeparateLine: FC = () => {
   const classes = useStyles();
 
   return (

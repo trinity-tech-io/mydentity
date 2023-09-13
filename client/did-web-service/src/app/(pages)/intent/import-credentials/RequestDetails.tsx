@@ -49,17 +49,17 @@ export const RequestDetails: FC<{
   /**
    * Check a few things after entering the screen. Mostly, imported credentials content quality.
    */
-  const runPreliminaryChecks = () => {
+  const runPreliminaryChecks = (): void => {
     //TODO
     setWrongTargetDID(false);
   }
 
-  const getDappIcon = () => {
+  const getDappIcon = (): void => {
     //TODO
     setRequestingAppIconUrl("");
   }
 
-  const fetchApplicationDidInfo = () => {
+  const fetchApplicationDidInfo = (): void => {
     //TODO
     setRequestingAppName('Demo app')
   }
@@ -110,7 +110,7 @@ export const RequestDetails: FC<{
   }
 
   // User approves the upcoming request - data will be returned to the calling dApp.
-  const approveRequest = async () => {
+  const approveRequest = async (): Promise<void> => {
     setPreparingResponse(true);
 
     // Now fulfil the intent. The connector will then be able to

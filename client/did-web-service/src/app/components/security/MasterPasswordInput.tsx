@@ -21,14 +21,14 @@ export const MasterPasswordInput: FC<{
   const newPasswordRef = createRef<HTMLInputElement>()
   const confirmPasswordRef = createRef<HTMLInputElement>()
 
-  const bindPassword = async () => {
+  const bindPassword = async (): Promise<void> => {
     const newPassword = newPasswordRef.current.value;
     setBinding(true);
     await onValidConfirmation(newPassword);
     setBinding(false);
   }
 
-  const refreshPasswordValidity = () => {
+  const refreshPasswordValidity = (): void => {
     const newPassword = newPasswordRef.current.value;
     const confirmPassword = confirmPasswordRef.current.value;
     setPasswordIsValid(newPassword.length > 0 && newPassword === confirmPassword);

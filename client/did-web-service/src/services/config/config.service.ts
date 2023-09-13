@@ -3,7 +3,7 @@ import { PublicClientConfiguration } from "./client-configuration";
 class ConfigService {
   private config: PublicClientConfiguration;
 
-  public init(config: PublicClientConfiguration) {
+  public init(config: PublicClientConfiguration): void {
     this.config = config;
   }
 

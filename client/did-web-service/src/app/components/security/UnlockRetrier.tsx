@@ -12,7 +12,7 @@ export const UnlockRetrier: FC<{
 }> = ({ className }) => {
   const { retryUnlock } = useUnlockKeyPrompt();
 
-  const retryToUnlock = () => {
+  const retryToUnlock = (): void => {
     retryUnlock();
   }
 

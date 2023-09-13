@@ -29,7 +29,7 @@ class ActivityService {
     return activity;
   }
 
-  private updateActivityStatus() {
+  private updateActivityStatus(): void {
     this.isActive$.next(this.activities.length > 0);
   }
 }

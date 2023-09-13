@@ -31,7 +31,7 @@ const RequestCredentialsIntent: FC = () => {
       console.log('intent result', _intent)
     });
     //}, [searchParams?.rid]);
-  }, []);
+  }, [requestId]);
 
   return (
     <div className="col-span-full">

@@ -15,7 +15,7 @@ const SignUp: FC = () => {
   const [signingUp, setSigningUp] = useState(false);
   const router = useRouter();
 
-  const onSignUp = async () => {
+  const onSignUp = async (): Promise<void> => {
     setSigningUp(true);
 
     const createdUser = await signUp(name);

@@ -7,6 +7,7 @@ import { useToast } from "@services/feedback.service";
 import { authenticateWithPasskey } from "@services/user/user.service";
 import clsx from 'clsx';
 import { useRouter } from "next/navigation";
+import { FC } from 'react';
 
 const useStyles = makeStyles((theme) => ({
   centeredContainer: {
@@ -18,12 +19,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const PasskeySignIn = () => {
+const PasskeySignIn: FC = () => {
   const classes = useStyles()
   const router = useRouter()
   const { showSuccessToast } = useToast()
 
-  const signInWithPasskey = async () => {
+  const signInWithPasskey = async (): Promise<void> => {
     const bound = await callWithUnlock(() => authenticateWithPasskey());
 
     if (bound) {
