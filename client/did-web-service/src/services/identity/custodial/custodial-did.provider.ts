@@ -167,28 +167,6 @@ export class CustodialDIDProvider implements IdentityProvider {
     }
   }
 
-  async markIdentityInUse(identityDid: string): Promise<boolean> {
-    const { data } = await withCaughtAppException(async () => {
-      return (await getApolloClient()).mutate<{ markIdentityInUse: boolean }>({
-        mutation: gql`
-        mutation markIdentityInUse($identityDid: String!) {
-          markIdentityInUse(identityDid: $identityDid)
-        }
-      `,
-        variables: {
-          identityDid
-        }
-      });
-    });
-
-    if (data?.markIdentityInUse) {
-      return true;
-    }
-    else {
-      throw new Error("Failed to mark identity in use");
-    }
-  }
-
   async createCredential(identityDid: string, credentialId: string, types: string[],
     expirationDate: Date, properties: any): Promise<Credential> {
     const result = await withCaughtAppException(async () => {

@@ -1,6 +1,5 @@
 import { IdentityPublicationStatusResult } from "@model/identity-publication/identity-publication-status.dto";
 import { Identity } from "@model/identity/identity";
-import moment from "moment";
 import { CustodialDIDProvider } from "./custodial/custodial-did.provider";
 import { IdentityProvider } from "./did.provider";
 import { activeIdentity$ } from "./identity.events";
@@ -57,9 +56,8 @@ class IdentityService {
       return;
     }
 
-    identity.lastUsedAt = moment().toDate();
     try {
-      await this.provider.markIdentityInUse(identity.did);
+      await identity.markIdentityInUse(identity.did);
     } catch (e) {
       // do nothing
     }

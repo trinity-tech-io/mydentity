@@ -23,8 +23,6 @@ export interface IdentityProvider {
   // publish Identity to did chain. Call createDIDPublishTransaction to obtain the payload
   publishIdentity(identityDid: string, payload: string): Promise<string>;
   getPublicationStatus(identityDid: string): Promise<IdentityPublicationStatusResult>;
-  // updates the given identity's last used at date
-  markIdentityInUse(identityDid: string): Promise<boolean>;
 
   /**
    * Adds a new service to the local DID document.

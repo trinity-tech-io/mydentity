@@ -1,6 +1,11 @@
+import { gql } from "@apollo/client";
 import { callWithUnlock } from "@components/security/unlock-key-prompt/UnlockKeyPrompt";
 import { VerifiableCredential, VerifiablePresentation } from "@elastosfoundation/did-js-sdk";
+import { withCaughtAppException } from "@services/error.service";
+import { getApolloClient } from "@services/graphql.service";
 import { IdentityProvider } from "@services/identity/did.provider";
+import moment from "moment";
+import { BehaviorSubject } from "rxjs";
 import { CredentialsFeature } from "./features/credentials/credentials.feature";
 import { DIDFeature } from "./features/did/did.feature";
 import { HiveFeature } from "./features/hive/hive.feature";
@@ -13,7 +18,7 @@ import { IdentityDTO } from "./identity.dto";
 export class Identity {
   did: string;
   createdAt: Date;
-  lastUsedAt: Date;
+  lastUsedAt$ = new BehaviorSubject<Date>(null);
 
   // Local bindings
   public provider: IdentityProvider;
@@ -35,7 +40,7 @@ export class Identity {
     Object.assign(identity, json);
 
     identity.createdAt = new Date(json.createdAt);
-    identity.lastUsedAt = new Date(json.lastUsedAt);
+    identity.lastUsedAt$.next(new Date(json.lastUsedAt));
 
     identity.provider = provider;
     return identity;
@@ -74,5 +79,24 @@ export class Identity {
 
   public equals(otherIdentity: Identity): boolean {
     return this.did === otherIdentity.did;
+  }
+
+  async markIdentityInUse(identityDid: string): Promise<boolean> {
+    const { data } = await withCaughtAppException(async () => {
+      return (await getApolloClient()).mutate<{ markIdentityInUse: boolean }>({
+        mutation: gql`
+        mutation markIdentityInUse($identityDid: String!) {
+          markIdentityInUse(identityDid: $identityDid)
+        }
+      `,
+        variables: {
+          identityDid
+        }
+      });
+    });
+
+    this.lastUsedAt$.next(moment().toDate());
+
+    return data?.markIdentityInUse;
   }
 }
