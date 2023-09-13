@@ -1,10 +1,10 @@
-import AccountIcon from '@assets/images/account.svg';
 import WarningIcon from '@assets/images/warning.svg';
+import { CredentialAvatar } from '@components/credential/CredentialAvatar';
 import { VerticalStackLoadingCard } from '@components/loading-cards/vertical-stack-loading-card/VerticalStackLoadingCard';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { useMounted } from '@hooks/useMounted';
 import { Credential } from '@model/credential/credential';
-import { Avatar, Box, Grid, ListItemButton, ListItemIcon, Stack, Typography } from '@mui/material';
+import { Box, Grid, ListItemButton, ListItemIcon, Stack, Typography } from '@mui/material';
 import Image from 'next/image';
 import { FC } from 'react';
 import IdentityMenu from './IdentityMenu';
@@ -27,9 +27,7 @@ export const CredentialDetailWidget: FC<Props> = (props) => {
             <IdentityMenu credential={selectedCredential} />
           </div>
           <Stack alignItems="center" spacing={3} sx={{ pt: 5, borderRadius: 2, position: 'relative' }}>
-            <Avatar sx={{ ml: 2, width: 120, height: 120 }}>
-              <AccountIcon width={80}/>
-            </Avatar>
+            <CredentialAvatar credential={selectedCredential} width={120} height={120} />
             <Box sx={{ textAlign: 'left', width: '80%' }}>
               <Typography gutterBottom variant="h6">
                 {selectedCredential.getDisplayableTitle()}
@@ -74,7 +72,7 @@ export const CredentialDetailWidget: FC<Props> = (props) => {
                   (!selectedCredential.selfIssued() && issuerInfo?.isPublished) && (
                     <ListItemButton>
                       <ListItemIcon>
-                        <Image unoptimized src={issuerInfo?.avatarIcon} width={30}  height={30} style={{ borderRadius: '50%' }} alt="avatar" />
+                        <Image unoptimized src={issuerInfo?.avatarIcon} width={30} height={30} style={{ borderRadius: '50%' }} alt="avatar" />
                       </ListItemIcon>
 
                       <Typography variant="body1" sx={{ color: 'text.secondary' }}>
