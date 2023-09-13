@@ -24,8 +24,7 @@ export class CredentialsFeature implements IdentityFeature {
     this.ensureCredentialsFetched();
     logger.log("credentials", "Issuing credential", subjectDid, credentialId, types, expirationDate, prop);
 
-    const credential = await callWithUnlock(() => this.identity.provider.issueCredential(this.identity.did, subjectDid, credentialId, types, expirationDate, prop));
-    return credential;
+    return callWithUnlock(() => this.identity.provider.issueCredential(this.identity.did, subjectDid, credentialId, types, expirationDate, prop));
   }
 
   public async importCredential(vc: VerifiableCredential): Promise<Credential> {
@@ -42,9 +41,7 @@ export class CredentialsFeature implements IdentityFeature {
    */
   private async fetchCredentials(): Promise<Credential[]> {
     logger.log("credentials", "Fetching credentials", this.identity.did);
-    const result = await callWithUnlock(() => { return this.identity.provider.listCredentials(this.identity.did) });
-
-    return result;
+    return callWithUnlock(() => this.identity.provider.listCredentials(this.identity.did));
   }
 
   public async deleteCredential(credential: Credential): Promise<boolean> {
