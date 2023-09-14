@@ -30,6 +30,7 @@ import { useRouter } from "next/navigation";
 import { ChangeEvent, FC, MouseEvent, forwardRef, useEffect, useState } from "react";
 import { EditableCredentialAvatar } from '../../components/credential/EditableCredentialAvatar';
 import { OrderBy } from "./order-by";
+import FileCopyIcon from '@mui/icons-material/FileCopy';
 
 const CREDENTIAL_LIST_HEAD = [
   { id: 'name', label: 'Profile item', alignRight: false },
@@ -300,6 +301,23 @@ const Profile: FC = () => {
       autoComplete="off"
     >
       <Stack alignItems="center" spacing={3} sx={{ pt: 5, borderRadius: 2, position: 'relative' }}>
+        <Typography variant="body2" 
+          onClick={(): void => {
+            const textToCopy = activeIdentity?.did?.toString() // set textToCopy: activeIdentity
+            navigator.clipboard.writeText(textToCopy)
+            showSuccessToast('DID copied to clipboard.')
+          }}
+          sx={{
+            textDecoration: 'none', // none/underline
+            cursor: 'pointer',
+            '&:hover': {
+              color: 'blue', 
+            },
+          }}
+        >
+          {activeIdentity?.did?.toString()}
+          <FileCopyIcon style={{ fontSize: 16 , marginLeft: 5}} />
+        </Typography>
         <EditableCredentialAvatar credential={avatarCredential} width={100} height={100}
           onFileUpload={handleAvatarFileChanged} updating={uploadingAvatar} disabled={!credentials} />
       </Stack>
