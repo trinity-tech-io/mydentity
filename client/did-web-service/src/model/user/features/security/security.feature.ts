@@ -1,4 +1,5 @@
 import { gql } from "@apollo/client";
+import { callWithUnlock } from "@components/security/unlock-key-prompt/UnlockKeyPrompt";
 import { gqlShadowKeyFields } from "@graphql/shadow-key.fields";
 import { ChallengeEntity } from "@model/shadow-key/challenge-entity";
 import { ShadowKey } from "@model/shadow-key/shadow-key";
@@ -206,5 +207,38 @@ export class SecurityFeature implements UserFeature {
    */
   public isThisBrowserBound(): boolean {
     return !!this.passkeyKeys$.value?.find(key => key.browser?.isCurrentBrowser());
+  }
+
+
+  /**
+   * Calls an API that returns true is the master key is unlocked, or throws an
+   * authorization exception otherwise. This api does nothing but helping us to unlock the master key
+   * in a loop.
+   */
+  public async checkRemoteUnlockStatus(): Promise<void> {
+    return withCaughtAppException(async () => {
+      await (await getApolloClient()).query({
+        query: gql`
+          query CheckMasterKeyLock {
+            checkMasterKeyLock
+          }
+        `
+      });
+    });
+  }
+
+  /**
+   * Force unlocking the master key, if there is one.
+   * If there is none, this succeeds.
+   *
+   * This method is used to unlock first before trying to call methods that require unlocking.
+   * Some methods auto catch unlock exception and retry with callWithUnlock() but in some cases we prefer to unlock
+   * first (UX reasons), such as when changing password.
+   */
+  public ensureMasterKeyUnlocked(): Promise<boolean> {
+    return callWithUnlock(async () => {
+      await this.checkRemoteUnlockStatus();
+      return true;
+    }, true, false);
   }
 }

@@ -284,8 +284,6 @@ const Profile: FC = () => {
   } */
 
   const handleCellClick = (credential: Credential): void => {
-    const text = 'Your current credential is: ' + credential.getDisplayValue()
-    showSuccessToast(text);
     identityProfileFeature.setActiveCredential(credential)
     router.push("/credentials/list");
   }
@@ -362,7 +360,7 @@ const Profile: FC = () => {
                   // const { id, name, value} = row;
                   const id = credential.id;
                   return (
-                    <TableRow hover key={id} tabIndex={-1} onClick={(): void => handleCellClick(credential)}>
+                    <TableRow hover key={id} tabIndex={-1} onClick={(): void => handleCellClick(credential)} className='cursor-pointer'>
                       <TableCell component="th" scope="row" padding="none">
                         <Stack ml={1} direction="row" alignItems="center" spacing={2}>
                           <CredentialAvatar credential={credential} width={60} height={60} />

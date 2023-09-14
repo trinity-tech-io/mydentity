@@ -1,7 +1,6 @@
 "use client";
 import { Breadcrumbs } from "@components/breadcrumbs/Breadcrumbs";
 import { MasterPasswordInput } from "@components/security/MasterPasswordInput";
-import { callWithUnlock } from "@components/security/unlock-key-prompt/UnlockKeyPrompt";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useMounted } from "@hooks/useMounted";
 import { CircularProgress, Typography } from "@mui/material";
@@ -20,13 +19,17 @@ const BindPassword: FC = () => {
   const router = useRouter();
 
   const bindPassword = async (password: string): Promise<void> => {
-    // Call the bind password API with auto-retry if user unlock method is required.
-    const bound = await callWithUnlock(() => securityFeature.bindPassword(password));
-    if (bound) {
-      showSuccessToast("Master password set successfully");
-      setTimeout(() => {
-        router.push("/account/security");
-      }, 500);
+    // Unlock the master key first, and bind only if unlock is successful.
+    if (await securityFeature.ensureMasterKeyUnlocked()) {
+      // Call the bind password API, fail if master key got unlocked for some reason since we just unlocked it.
+      // Do NOT repeatingly retry
+      const bound = await securityFeature.bindPassword(password);
+      if (bound) {
+        showSuccessToast("Master password set successfully");
+        setTimeout(() => {
+          router.push("/account/security");
+        }, 500);
+      }
     }
   }
 

@@ -1,11 +1,9 @@
-import { gql } from '@apollo/client';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { AppException } from '@model/exceptions/app-exception';
 import { ClientError } from '@model/exceptions/exception-codes';
 import { ShadowKeyType } from '@model/shadow-key/shadow-key-type';
 import { Dialog, Typography } from '@mui/material';
 import { withCaughtAppException } from '@services/error.service';
-import { getApolloClient } from '@services/graphql.service';
 import { AuthKeyInput } from '@services/keyring/auth-key.input';
 import { unlockMasterKey } from '@services/keyring/keyring.service';
 import { logger } from '@services/logger';
@@ -168,6 +166,7 @@ export const useUnlockKeyPrompt = (): {
   retryUnlock: () => Promise<void>;
 } => {
   const { setActions } = useContext(UnlockKeyPromptContext);
+  const [activeUser] = useBehaviorSubject(authUser$);
 
   const promptMasterKeyUnlock = (): Promise<AuthKeyInput> => {
     return new Promise((resolve) => {
@@ -177,28 +176,11 @@ export const useUnlockKeyPrompt = (): {
 
   const retryUnlock = (): Promise<void> => {
     return callWithUnlock(() => {
-      return checkRemoteUnlockStatus();
+      return activeUser.get("security").checkRemoteUnlockStatus();
     })
   }
 
   return { promptMasterKeyUnlock, retryUnlock };
-}
-
-/**
- * Calls an API that returns true is the master key is unlocked, or throws an
- * authorization exception otherwise. This api does nothing but helping us to unlock the master key
- * in a loop.
- */
-async function checkRemoteUnlockStatus(): Promise<void> {
-  return withCaughtAppException(async () => {
-    await (await getApolloClient()).query({
-      query: gql`
-      query CheckMasterKeyLock {
-        checkMasterKeyLock
-      }
-    `
-    });
-  });
 }
 
 /**

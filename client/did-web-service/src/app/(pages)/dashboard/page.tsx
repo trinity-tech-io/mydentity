@@ -8,6 +8,8 @@ import { authUser$ } from "@services/user/user.events";
 import { useRouter } from "next/navigation";
 import { FC, useEffect } from "react";
 import { WelcomeBanner } from "./WelcomeBanner";
+import { AccountAccess } from "./widgets/AccountAccess";
+import { AccountUnlock } from "./widgets/AccountUnlock";
 import { IdentityListWidget } from "./widgets/IdentityList";
 import { RecentActivityWidget } from "./widgets/RecentActivity";
 
@@ -58,6 +60,8 @@ const Dashboard: FC = () => {
         <>
           <RecentActivityWidget />
           <IdentityListWidget />
+          <AccountAccess />
+          <AccountUnlock />
         </>
       }
 

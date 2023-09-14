@@ -1,5 +1,4 @@
 import { MainButton } from '@components/generic/MainButton';
-import { callWithUnlock } from '@components/security/unlock-key-prompt/UnlockKeyPrompt';
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useToast } from "@services/feedback.service";
 import { FlowOperation, getOnGoingFlowOperation } from '@services/flow.service';
@@ -19,23 +18,27 @@ export const PasskeyBind: FC = () => {
   const { showSuccessToast } = useToast();
 
   const bindPasskeyConfirmation = async (): Promise<void> => {
-    // Call the bind password API with auto-retry if user unlock method is required.
-    const bound = await callWithUnlock(() => securityFeature.bindPasskey());
-    if (bound) {
-      showSuccessToast("Browser bound successfully");
+    // Unlock the master key first, and bind only if unlock is successful.
+    if (await securityFeature.ensureMasterKeyUnlocked()) {
+      // Call the bind passkey api, fail if master key got unlocked for some reason since we just unlocked it.
+      // Do NOT repeatingly retry
+      const bound = await securityFeature.bindPasskey();
+      if (bound) {
+        showSuccessToast("Browser bound successfully");
 
-      setTimeout(() => {
-        const onGoingFlowOp = getOnGoingFlowOperation();
-        switch (onGoingFlowOp) {
-          // If we were in the on boarding phase, go back there
-          case FlowOperation.OnBoardingBrowserBinding:
-            router.push("/onboarding");
-            break;
-          // Otherwise, go back to security center
-          default:
-            router.push("/account/security");
-        }
-      }, 200);
+        setTimeout(() => {
+          const onGoingFlowOp = getOnGoingFlowOperation();
+          switch (onGoingFlowOp) {
+            // If we were in the on boarding phase, go back there
+            case FlowOperation.OnBoardingBrowserBinding:
+              router.push("/onboarding");
+              break;
+            // Otherwise, go back to security center
+            default:
+              router.push("/account/security");
+          }
+        }, 200);
+      }
     }
   }
 
