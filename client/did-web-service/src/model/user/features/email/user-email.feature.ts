@@ -25,7 +25,7 @@ export class UserEmailFeature implements UserFeature {
     constructor(protected user: User) { }
 
     private async fetchUserEmails(): Promise<UserEmail[]> {
-        logger.log("user", "list user emails.");
+        logger.log("user", "Fetching user emails.");
 
         const result = await withCaughtAppException(async () => {
             return (await getApolloClient()).query<{

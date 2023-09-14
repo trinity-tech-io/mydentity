@@ -16,7 +16,6 @@ import Queue from "promise-queue";
 import { LoggedUserOutput } from "./logged-user.output";
 import { SignUpInput } from "./sign-up.input";
 import { authUser$, getActiveUser } from "./user.events";
-import { result } from "lodash";
 
 const fetchUserQueue = new Queue(1); // Execute user retrieval from the backend one by one to avoid duplicates
 

@@ -1,4 +1,5 @@
 'use client';
+import { MainButton } from '@components/generic/MainButton';
 import { VerticalStackLoadingCard } from '@components/loading-cards/vertical-stack-loading-card/VerticalStackLoadingCard';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { Identity } from '@model/identity/identity';
@@ -30,6 +31,10 @@ export const IdentityListWidget: FC = _ => {
     router.replace("/profile");
   }
 
+  const openCreateIdentity = (): void => {
+    router.push("/new-identity");
+  }
+
   return (
     <div className="col-span-full xl:col-span-6 bg-white dark:bg-slate-800 shadow-lg rounded-sm border border-slate-200 dark:border-slate-700">
       <header className="px-5 py-4 border-b border-slate-100 dark:border-slate-700">
@@ -58,7 +63,13 @@ export const IdentityListWidget: FC = _ => {
         {/* Table body */}
         {!identities && <VerticalStackLoadingCard />}
         {
-          identities &&
+          identities?.length === 0 && <div className='text-center m-4 flex flex-col'>
+            No identity yet.
+            <MainButton onClick={openCreateIdentity} className="mt-4">Create my first identity</MainButton>
+          </div>
+        }
+        {
+          identities?.length > 0 &&
           <div className="overflow-x-auto">
             <table className="table-auto w-full">
               <tbody className="text-sm divide-y divide-slate-100 dark:divide-slate-700">
