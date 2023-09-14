@@ -4,7 +4,7 @@ import { Browser } from '@prisma/client';
 import { GraphQLError } from "graphql/error";
 import { CurrentUser } from 'src/auth/currentuser.decorator';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { HeaderBrowserId } from 'src/browsers/browser-id-header.decorator';
+import { HeaderBrowserKey } from 'src/browsers/browser-key-header.decorator';
 import { CurrentBrowser } from 'src/browsers/browser-user.decorator';
 import { UserAgent } from 'src/browsers/user-agent-decorator';
 import { AuthKeyInput } from 'src/key-ring/dto/auth-key-input';
@@ -30,11 +30,11 @@ export class UserResolver {
   ) { }
 
   @Mutation(() => LoggedUserOutput, { nullable: true })
-  async signUp(@Args('input') input: SignUpInput, @HeaderBrowserId() browserId: string, @UserAgent() userAgent: string) {
+  async signUp(@Args('input') input: SignUpInput, @HeaderBrowserKey() browserKey: string, @UserAgent() userAgent: string) {
     if (!input.name || input.name.trim() === '')
       throw new AppException(AuthExceptionCode.AuthError, 'User name must be provided.', 401);
 
-    return this.userService.signUp(input, browserId, userAgent);
+    return this.userService.signUp(input, browserKey, userAgent);
   }
 
   /**
@@ -71,8 +71,8 @@ export class UserResolver {
    * @param authKey
    */
   @Mutation(() => LoggedUserOutput, { nullable: true })
-  async checkEmailAuthentication(@Args('authKey') authKey: string, @HeaderBrowserId() browserId: string, @UserAgent() userAgent: string) {
-    return this.userService.checkEmailAuthentication(null, authKey, browserId, userAgent);
+  async checkEmailAuthentication(@Args('authKey') authKey: string, @HeaderBrowserKey() browserKey: string, @UserAgent() userAgent: string) {
+    return this.userService.checkEmailAuthentication(null, authKey, browserKey, userAgent);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -82,10 +82,10 @@ export class UserResolver {
   }
 
   @Mutation(() => RefreshTokenOutput)
-  async refreshToken(@Args('refreshTokenInput') refreshTokenInput: RefreshTokenInput, @HeaderBrowserId() browserId: string, @UserAgent() userAgent: string): Promise<RefreshTokenOutput> {
+  async refreshToken(@Args('refreshTokenInput') refreshTokenInput: RefreshTokenInput, @HeaderBrowserKey() browserKey: string, @UserAgent() userAgent: string): Promise<RefreshTokenOutput> {
     try {
       const user = await this.userService.getUserByToken(refreshTokenInput.refreshToken);
-      return this.userService.refreshAccessToken(user, browserId, userAgent);
+      return this.userService.refreshAccessToken(user, browserKey, userAgent);
     } catch (e) {
       throw new GraphQLError("Can't refresh token", {
         extensions: {
@@ -110,8 +110,8 @@ export class UserResolver {
    * Access tokens are returned as a result of the sign in operation.
    */
   @Query(() => LoggedUserOutput, { nullable: true })
-  async signInWithPasskey(@HeaderBrowserId() headerBrowserId: string, @UserAgent() userAgent: string, @Args('authKey') passkeyAuthKey: AuthKeyInput) {
-    return this.userService.signInWithPasskey(passkeyAuthKey, headerBrowserId, userAgent);
+  async signInWithPasskey(@HeaderBrowserKey() headerBrowserKey: string, @UserAgent() userAgent: string, @Args('authKey') passkeyAuthKey: AuthKeyInput) {
+    return this.userService.signInWithPasskey(passkeyAuthKey, headerBrowserKey, userAgent);
   }
 
   @UseGuards(JwtAuthGuard)

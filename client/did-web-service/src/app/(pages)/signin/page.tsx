@@ -6,7 +6,6 @@ import { EmailSignIn } from './widgets/EmailSignIn';
 import { SignInHeader } from "./widgets/HeaderSignIn";
 import MicrosoftSignIn from './widgets/MicrosoftSignIn';
 import PasskeySignIn from './widgets/PasskeySignIn';
-import { deleteBrowserId } from "@services/browser.service";
 
 const SignInWidget: FC<{
   title: string;

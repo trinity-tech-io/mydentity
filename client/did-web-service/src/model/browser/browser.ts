@@ -1,6 +1,6 @@
 import { ShadowKey } from "@model/shadow-key/shadow-key";
 import { ShadowKeyType } from "@model/shadow-key/shadow-key-type";
-import { getBrowserId } from "@services/browser.service";
+import { getBrowserKey } from "@services/browser.service";
 import { authUser$ } from "@services/user/user.events";
 import { AdvancedBehaviorSubject } from "@utils/advanced-behavior-subject";
 import { browserCache } from "./browser.cache";
@@ -8,6 +8,7 @@ import { BrowserDTO } from "./browser.dto";
 
 export class Browser {
   id: string;
+  key: string;
   createdAt: Date;
   lastUsedAt: Date;
   userAgent: string;
@@ -40,7 +41,7 @@ export class Browser {
   }
 
   public isCurrentBrowser(): boolean {
-    return this.id === getBrowserId();
+    return this.key === getBrowserKey();
   }
 
   public equals(otherBrowser: Browser): boolean {

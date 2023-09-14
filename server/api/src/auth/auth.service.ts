@@ -36,12 +36,12 @@ export class AuthService {
     }
   }
 
-  public async generateUserCredentials(user: User, existingBrowserId?: string, userAgent?: string): Promise<AuthTokens> {
-    const browserId = await this.browsersService.validateOrCreateBrowserId(user, userAgent, existingBrowserId);
+  public async generateUserCredentials(user: User, existingBrowserKey?: string, userAgent?: string): Promise<AuthTokens> {
+    const browserKey = await this.browsersService.validateOrCreateBrowserKey(user, userAgent, existingBrowserKey);
 
     const payload = {
       sub: user.id,
-      browserId
+      browserKey
     };
 
     return {
@@ -52,10 +52,10 @@ export class AuthService {
     };
   }
 
-  async refreshAccessToken(user: User, existingBrowserId?: string, userAgent?: string) {
-    const browserId = await this.browsersService.validateOrCreateBrowserId(user, userAgent, existingBrowserId);
+  async refreshAccessToken(user: User, existingBrowserKey?: string, userAgent?: string) {
+    const browserKey = await this.browsersService.validateOrCreateBrowserKey(user, userAgent, existingBrowserKey);
 
-    const payload = { sub: user.id, browserId };
+    const payload = { sub: user.id, browserKey };
 
     return {
       accessToken: this.jwtTokenService.sign(payload, {

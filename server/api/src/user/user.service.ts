@@ -31,7 +31,7 @@ export class UserService {
   /**
    * Creates a user with only a single name (optional).
    */
-  public async signUp(input: SignUpInput, existingBrowserId: string, userAgent: string): Promise<AuthTokens> {
+  public async signUp(input: SignUpInput, existingBrowserKey: string, userAgent: string): Promise<AuthTokens> {
     // TODO: save name from the input - but cannot generate a VC, this is ok, this is the account profile, not identity profile
 
     const user = await this.prisma.user.create({
@@ -43,7 +43,7 @@ export class UserService {
 
     logger.log('user', 'sign up with new user', user);
 
-    return this.authService.generateUserCredentials(user, existingBrowserId, userAgent);
+    return this.authService.generateUserCredentials(user, existingBrowserKey, userAgent);
   }
 
   /**
@@ -99,13 +99,13 @@ export class UserService {
   /**
    * Just execute with oauth email.
    */
-  async signInByOauthEmail(email: string, browserId: string, userAgent: string) {
+  async signInByOauthEmail(email: string, browserKey: string, userAgent: string) {
     const userEmail: UserEmail & { user: User } = await this.getUserEmailByEmail(email);
     if (!userEmail) {
       return null;
     }
 
-    return await this.authService.generateUserCredentials(userEmail.user, browserId, userAgent);
+    return await this.authService.generateUserCredentials(userEmail.user, browserKey, userAgent);
   }
 
   /**
@@ -194,7 +194,7 @@ export class UserService {
    * This auth key comes from a magic link received by users by email, after requesting
    * to receive a magic link by email.
    */
-  public async checkEmailAuthentication(curUser: UserEntity, temporaryEmailAuthKey: string, existingBrowserId: string, userAgent: string): Promise<AuthTokens> {
+  public async checkEmailAuthentication(curUser: UserEntity, temporaryEmailAuthKey: string, existingBrowserKey: string, userAgent: string): Promise<AuthTokens> {
     const user = await this.prisma.user.findFirst({
       where: {
         temporaryEmailAuthExpiresAt: { gt: new Date() },
@@ -225,15 +225,15 @@ export class UserService {
       })
     }
 
-    return this.authService.generateUserCredentials(user, existingBrowserId, userAgent);
+    return this.authService.generateUserCredentials(user, existingBrowserKey, userAgent);
   }
 
-  public async signInWithPasskey(passkeyAuthKey: AuthKeyInput, headerBrowserId: string, userAgent: string): Promise<AuthTokens> {
+  public async signInWithPasskey(passkeyAuthKey: AuthKeyInput, headerBrowserKey: string, userAgent: string): Promise<AuthTokens> {
     const user = await this.keyRingService.getUserFromWebAuthnResponse(passkeyAuthKey);
     if (!user)
       throw new AppException(AuthExceptionCode.InexistingUser, "No user found matching this browser authentication", 403);
 
-    return this.authService.generateUserCredentials(user, headerBrowserId, userAgent);
+    return this.authService.generateUserCredentials(user, headerBrowserKey, userAgent);
   }
 
   findOne(id: string): Promise<User> {
@@ -242,8 +242,8 @@ export class UserService {
     })
   }
 
-  async refreshAccessToken(user: User, existingBrowserId?: string, userAgent?: string) {
-    return this.authService.refreshAccessToken(user, existingBrowserId, userAgent);
+  async refreshAccessToken(user: User, existingBrowserKey?: string, userAgent?: string) {
+    return this.authService.refreshAccessToken(user, existingBrowserKey, userAgent);
   }
 
   async getUserByToken(token: string): Promise<User> {

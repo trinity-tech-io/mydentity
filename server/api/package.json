@@ -59,6 +59,7 @@
     "socks-proxy-agent": "^8.0.1",
     "string-placeholder": "^1.0.2",
     "ua-parser-js": "^1.0.35",
+    "uuid": "^9.0.1",
     "uuidv4": "^6.2.13"
   },
   "devDependencies": {

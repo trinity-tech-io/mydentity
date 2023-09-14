@@ -3,6 +3,7 @@ import { Browser, User } from '@prisma/client';
 import { logger } from 'src/logger';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as userAgentParser from 'ua-parser-js';
+import { v4 } from 'uuid';
 
 @Injectable()
 export class BrowsersService {
@@ -11,7 +12,7 @@ export class BrowsersService {
   /**
    * Creates a new user bound browser and give it a default name.
    */
-  public create(user: User, userAgent: string): Promise<Browser> {
+  public create(user: User, userAgent: string, existingBrowserKey?: string): Promise<Browser> {
     logger.log("Creating browser with user agent:", userAgent);
 
     const deviceName = this.generateBrowserNameFromUserAgent(userAgent);
@@ -20,7 +21,8 @@ export class BrowsersService {
       data: {
         user: { connect: { id: user.id } },
         userAgent,
-        name: deviceName
+        name: deviceName,
+        key: existingBrowserKey || v4()
       }
     });
   }
@@ -34,24 +36,26 @@ export class BrowsersService {
   }
 
   /**
-   * - If a browser id is given, makes sure it exists in database. If not, create a new one and return another browser id.
-   * - If no browser id is given, create a new one too
+   * - If a browser key is given, makes sure it exists in database for this user. If not, create a new one.
+   * - If no browser key is given, create a new one too
+   * 
+   * Returns the browser key to use.
    */
-  public async validateOrCreateBrowserId(user: User, userAgent: string, existingBrowserId?: string): Promise<string> {
-    let browserId = existingBrowserId;
-    if (existingBrowserId) {
-      const existingBrowser = await this.findOne(existingBrowserId, user);
+  public async validateOrCreateBrowserKey(user: User, userAgent: string, existingBrowserKey?: string): Promise<string> {
+    let browserKey = existingBrowserKey;
+    if (existingBrowserKey) {
+      const existingBrowser = await this.findOne(existingBrowserKey, user);
       if (!existingBrowser)
-        browserId = null; // Consider we have no existing id, to create a new one
+        browserKey = null; // Consider we have no existing key, to create a new one
     }
 
-    if (!browserId) {
-      // No browser id given, so we consider this is a brand new browser and we create a new browser info
-      const browser = await this.create(user, userAgent);
-      browserId = browser.id;
+    if (!browserKey) {
+      // No browser key given, so we consider this is a brand new browser and we create a new browser info
+      const browser = await this.create(user, userAgent, existingBrowserKey);
+      browserKey = browser.key;
     }
 
-    return browserId;
+    return browserKey;
   }
 
   /**
@@ -65,10 +69,10 @@ export class BrowsersService {
     });
   }
 
-  public findOne(browserId: string, user?: User) {
-    return this.prisma.browser.findUnique({
+  public findOne(browserKey: string, user?: User) {
+    return this.prisma.browser.findFirst({
       where: {
-        id: browserId,
+        key: browserKey,
         ...(user && { userId: user.id })
       }
     });

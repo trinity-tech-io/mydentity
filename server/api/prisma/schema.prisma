@@ -144,7 +144,7 @@ model Browser {
   createdAt  DateTime @default(now())
   lastUsedAt DateTime @default(now())
 
-  // clientId  String // Client device uuid (stored in local storage) to better match a browser even after update (user agent change) or when access token is renewed.
+  key       String // Client device uuid (stored in local storage) to better match a browser even after update (user agent change) or when access token is renewed.
   userAgent String // Browser user agent raw string as provided when binding the device. This is purely informative as a browser update can make this change
   name      String // Device name, originally auto defined from the user agent, later optionally configured by users
   user      User   @relation(fields: [userId], references: [id], onDelete: Restrict)

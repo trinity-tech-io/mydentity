@@ -4,7 +4,7 @@ import { ChallengeEntity } from "@model/shadow-key/challenge-entity";
 import { ShadowKeyType } from "@model/shadow-key/shadow-key-type";
 import { User } from "@model/user/user";
 import { UserDTO } from "@model/user/user.dto";
-import { checkNewAccessTokenForBrowserId } from "@services/browser.service";
+import { checkNewAccessTokenForBrowserKey } from "@services/browser.service";
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { getPasskeyChallenge } from "@services/keyring/keyring.service";
@@ -135,7 +135,7 @@ export async function updateUserByToken(accessToken: string, refreshToken: strin
   try {
     const user = await fetchSelfUser(accessToken);
 
-    await checkNewAccessTokenForBrowserId(accessToken);
+    await checkNewAccessTokenForBrowserKey(accessToken);
 
     return user;
   } catch (e) {
@@ -220,7 +220,7 @@ export async function refreshToken(): Promise<string> {
     // Only update active access token.
     localStorage.setItem("access_token", accessToken);
 
-    await checkNewAccessTokenForBrowserId(accessToken);
+    await checkNewAccessTokenForBrowserKey(accessToken);
 
     // Notify user access token changed, websocket will recreated.
     authUser$.next(getActiveUser());

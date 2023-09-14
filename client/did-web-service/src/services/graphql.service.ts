@@ -9,7 +9,7 @@ import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
 import { onRefreshTokenFailed, refreshToken } from '@services/user/user.service';
 import Queue from "promise-queue";
-import { getBrowserId } from './browser.service';
+import { getBrowserKey } from './browser.service';
 import { configService } from './config/config.service';
 
 class GraphQLService {
@@ -81,12 +81,12 @@ class GraphQLService {
 
         // Return the modified headers to the context so httpLink can read them
 
-        const browserId = getBrowserId();
+        const browserKey = getBrowserKey();
         return {
           headers: {
             ...headers,
             authorization: token ? `Bearer ${token}` : "",
-            ...(browserId && { "x-browser-id": browserId })
+            ...(browserKey && { "x-browser-key": browserKey })
           }
         }
       });

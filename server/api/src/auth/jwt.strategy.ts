@@ -8,7 +8,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 
 type JWTPayload = {
   sub: string;
-  browserId: string;
+  browserKey: string;
 };
 
 @Injectable()
@@ -31,16 +31,19 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     if (!user)
       throw new AppException(AuthExceptionCode.InexistingUser, "User not found for the current access token", 401);
 
-    if (!payload.browserId)
-      throw new AppException(AuthExceptionCode.WrongAccessToken, "browserId not found in access token. Sign in again and retry.", 403);
+    if (!payload.browserKey)
+      throw new AppException(AuthExceptionCode.WrongAccessToken, "browserKey not found in access token. Sign in again and retry.", 403);
 
     // Remember last access from this browser
-    const browser = await this.prisma.browser.update({
-      where: { userId: user.id, id: payload.browserId },
-      data: {
-        lastUsedAt: new Date()
-      }
-    });
+    const browser = await this.prisma.browser.findFirst({ where: { userId: user.id, key: payload.browserKey } });
+    if (browser) {
+      this.prisma.browser.update({
+        where: { id: browser.id },
+        data: {
+          lastUsedAt: new Date()
+        }
+      });
+    }
 
     return {
       user,
