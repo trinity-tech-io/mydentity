@@ -1,5 +1,5 @@
 "use client"
-import { VerifiableCredential } from "@elastosfoundation/did-js-sdk";
+import type { VerifiableCredential } from "@elastosfoundation/did-js-sdk";
 import { Credential } from "@model/credential/credential";
 import { Intent } from "@model/intent/intent";
 import { fetchIntent } from "@services/intent.service";

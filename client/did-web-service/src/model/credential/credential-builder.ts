@@ -1,5 +1,6 @@
-import { VerifiableCredential } from "@elastosfoundation/did-js-sdk";
+import type { VerifiableCredential } from "@elastosfoundation/did-js-sdk";
 import { findProfileInfoByTypes } from "@services/identity-profile-info/identity-profile-info.service";
+import { lazyElastosDIDSDKImport } from "@utils/import-helper";
 import { Credential } from "./credential";
 import { CredentialDTO } from "./credential.dto";
 import { ProfileCredential } from "./profile-credential";
@@ -10,6 +11,7 @@ import { ProfileCredential } from "./profile-credential";
 export async function credentialFromJson(json: CredentialDTO): Promise<Credential> {
   let credential: Credential;
 
+  const { VerifiableCredential } = await lazyElastosDIDSDKImport();
   const vc = VerifiableCredential.parse(json.verifiableCredential);
 
   // Check if the VC can be considered as a profile credential. If so, we instanciate a

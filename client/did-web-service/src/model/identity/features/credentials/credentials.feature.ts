@@ -1,5 +1,5 @@
 import { callWithUnlock } from "@components/security/unlock-key-prompt/UnlockKeyPrompt";
-import { VerifiableCredential } from "@elastosfoundation/did-js-sdk";
+import type { VerifiableCredential } from "@elastosfoundation/did-js-sdk";
 import { Credential } from "@model/credential/credential";
 import { Identity } from "@model/identity/identity";
 import { logger } from "@services/logger";

@@ -1,7 +1,8 @@
-import { DID, DIDStore, Mnemonic, RootIdentity, VerifiableCredential } from "@elastosfoundation/did-js-sdk";
+import type { DID, DIDStore, VerifiableCredential } from "@elastosfoundation/did-js-sdk";
 import type { DID as ConnDID } from "@elastosfoundation/elastos-connectivity-sdk-js";
 import { Identity } from "@model/identity/identity";
 import { logger } from "@services/logger";
+import { lazyElastosDIDSDKImport } from "@utils/import-helper";
 import moment from "moment";
 import Queue from "promise-queue";
 import { IdentityFeature } from "../identity-feature";
@@ -144,6 +145,8 @@ export class DIDFeature implements IdentityFeature {
 
     return new Promise(async (resolve, reject) => {
       try {
+        const { Mnemonic, DIDStore, RootIdentity } = await lazyElastosDIDSDKImport();
+
         const mnemonic = await Mnemonic.getInstance(language).generate();
         const didStoreId = this.generateRandomDIDStoreId();
 
@@ -217,6 +220,7 @@ export class DIDFeature implements IdentityFeature {
    * "app dids" are used in the same real app environment. If none provided, the global connectivity application DID is used.
    */
   public async createNewAppInstanceDID(appDID: string = null): Promise<{ didStore: DIDStore, didStoreId: string, did: DID, storePassword: string }> {
+    const { Mnemonic } = await lazyElastosDIDSDKImport();
     const didCreationResult = await this.fastCreateDID(Mnemonic.ENGLISH);
     await this.saveAppInstanceDIDInfo(appDID, didCreationResult.didStoreId, didCreationResult.did.toString(), didCreationResult.storePassword);
 
@@ -249,6 +253,7 @@ export class DIDFeature implements IdentityFeature {
   private openDidStore(storeId: string): Promise<DIDStore> {
     return new Promise(async (resolve) => {
       try {
+        const { DIDStore } = await lazyElastosDIDSDKImport();
         const didStore = await DIDStore.open(storeId);
         resolve(didStore);
       }

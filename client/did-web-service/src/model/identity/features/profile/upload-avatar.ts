@@ -1,7 +1,7 @@
-import { FileDownloadExecutable } from "@elastosfoundation/hive-js-sdk";
 import { Identity } from "@model/identity/identity";
 import { configService } from "@services/config/config.service";
 import { logger } from "@services/logger";
+import { lazyElastosHiveSDKImport } from "@utils/import-helper";
 import { compressImage, fileToDataUrlImage } from "@utils/pictures";
 
 type UploadedHiveAvatar = {
@@ -10,6 +10,8 @@ type UploadedHiveAvatar = {
 }
 
 export async function editAvatarOnHive(identity: Identity, newPictureFile: File): Promise<UploadedHiveAvatar> {
+  const { FileDownloadExecutable } = await lazyElastosHiveSDKImport();
+
   // TODO: ensure vault ready
 
   // TODO: we probably need to delete older pictures from the vault somewhere...

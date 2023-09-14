@@ -1,6 +1,6 @@
 import { gql } from "@apollo/client";
 import { callWithUnlock } from "@components/security/unlock-key-prompt/UnlockKeyPrompt";
-import { VerifiableCredential, VerifiablePresentation } from "@elastosfoundation/did-js-sdk";
+import type { VerifiableCredential, VerifiablePresentation } from "@elastosfoundation/did-js-sdk";
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { IdentityProvider } from "@services/identity/did.provider";

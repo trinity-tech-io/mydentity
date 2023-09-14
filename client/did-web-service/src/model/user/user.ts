@@ -91,22 +91,25 @@ export class User {
   }
 
   public async updateUserName(name: string): Promise<boolean> {
-    logger.log("user", "update user name.");
+    logger.log("user", "Updating user name.");
 
     const result = await withCaughtAppException(async () => {
-      return (await getApolloClient()).mutate<{
-        updateUserProperty: boolean
-      }>({
+      return (await getApolloClient()).mutate<{ updateUserProperty: boolean }>({
         mutation: gql`
-        mutation UpdateUserProperty($input: UserPropertyInput!) {
-          updateUserProperty(input: $input)
-        } `,
+          mutation UpdateUserProperty($input: UserPropertyInput!) {
+            updateUserProperty(input: $input)
+          }
+        `,
         variables: { input: { name } }
       });
     });
 
-    this.name$.next(name);
-    console.info('user', 'update user name successfully.');
-    return result?.data?.updateUserProperty;
+    const updated = result?.data?.updateUserProperty;
+    if (updated) {
+      this.name$.next(name);
+      logger.log('user', 'User name updated successfully.');
+    }
+
+    return updated;
   }
 }

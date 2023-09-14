@@ -1,6 +1,7 @@
-import { DID, DIDBackend, DIDDocument, DIDURL, DefaultDIDAdapter, VerifiableCredential } from "@elastosfoundation/did-js-sdk";
+import type { DIDDocument, DIDURL, VerifiableCredential } from "@elastosfoundation/did-js-sdk";
 import { getHiveScriptPictureDataUrl } from "@services/hive/hive-pictures.service";
 import { logger } from "@services/logger";
+import { lazyElastosDIDSDKImport } from "@utils/import-helper";
 import Queue from "promise-queue";
 import { BehaviorSubject } from "rxjs";
 import { identityService } from "./identity.service";
@@ -34,7 +35,6 @@ class OnlineDIDDocumentsStatus {
 }
 
 class DIDDocumentsService {
-
   /**
    * Subjects that notifiy about online DID Document availabilities.
    */
@@ -45,7 +45,11 @@ class DIDDocumentsService {
   private network = 'mainnet';
 
   constructor() {
-    DIDBackend.initialize(new DefaultDIDAdapter(this.network));
+    // TODO: this could create problems if some modules try to access DID features before this is ready....
+    // but needed for lazy init and bundle zise optimization...
+    lazyElastosDIDSDKImport().then(({ DIDBackend, DefaultDIDAdapter }) => {
+      DIDBackend.initialize(new DefaultDIDAdapter(this.network));
+    });
   }
 
   /**
@@ -70,6 +74,7 @@ class DIDDocumentsService {
     forceRemote: boolean
   ): Promise<DIDDocument> {
     return this.resolveDIDQueue.add(async () => {
+      const { DIDBackend, DID } = await lazyElastosDIDSDKImport();
       logger.log("Identity", "Resolving DID without DID store", didString, forceRemote);
       const did = new DID(didString);
       return DIDBackend.getInstance().resolveDid(did, forceRemote);
@@ -120,8 +125,11 @@ class DIDDocumentsService {
    * - An "avatar", if the did document represents a regular user
    * - An "app icon", if the did document is an application DID
    */
-  public getRepresentativeIcon(document: DIDDocument): Promise<string> {
-    if (!document) return null;
+  public async getRepresentativeIcon(document: DIDDocument): Promise<string> {
+    const { DIDURL } = await lazyElastosDIDSDKImport();
+
+    if (!document)
+      return null;
 
     let hiveIconUrl: string = null;
 
@@ -167,7 +175,9 @@ class DIDDocumentsService {
    * - A "fullname", if the did document represents a regular user
    * - An "app title", if the did document is an application DID
    */
-  public getRepresentativeOwnerName(document: DIDDocument): string {
+  public async getRepresentativeOwnerName(document: DIDDocument): Promise<string> {
+    const { DIDURL } = await lazyElastosDIDSDKImport();
+
     if (!document) return null;
 
     let name: string = null;

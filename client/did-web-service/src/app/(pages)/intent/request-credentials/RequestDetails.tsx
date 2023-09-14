@@ -13,7 +13,6 @@ import { fulfilIntentRequest } from "@services/intent.service";
 import { logger } from "@services/logger";
 import { authUser$ } from "@services/user/user.events";
 import { setQueryParameter } from "@utils/urls";
-import jsonpath from "jsonpath";
 import { FC, useEffect, useState } from "react";
 import { V1Claim } from "./model/v1claim";
 import { ClaimDisplayEntryListWidget } from "./widgets/ClaimDisplayEntryList";
@@ -169,6 +168,7 @@ export const RequestDetails: FC<{
       let matchingCredentials: CredentialDisplayEntry[] = [];
       for (const claim of claimDescription.claims) {
         try {
+          const jsonpath = await import("jsonpath"); // perf optim + nextjs server generation error if not imported lazily anyway
           matchingCredentialJsons = matchingCredentialJsons.concat(jsonpath.query(searcheableCredentials, claim.query));
           logger.log(TAG, "Matching credentials (json)", matchingCredentialJsons);
         }

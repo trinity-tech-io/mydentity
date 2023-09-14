@@ -1,5 +1,5 @@
 import { gql } from "@apollo/client";
-import { JSONObject, VerifiableCredential, VerifiablePresentation } from "@elastosfoundation/did-js-sdk";
+import type { JSONObject, VerifiableCredential, VerifiablePresentation } from "@elastosfoundation/did-js-sdk";
 import { gqlCredentialFields, gqlIssueCredentialFields } from "@graphql/credential.fields";
 import { gqlIdentityFields } from "@graphql/identity.fields";
 import { gqlPresentationFields } from "@graphql/presentation.fields";
@@ -17,6 +17,7 @@ import { TransactionDTO } from "@model/publication/transaction.dto";
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { logger } from "@services/logger";
+import { lazyElastosDIDSDKImport } from "@utils/import-helper";
 import { IdentityProvider } from "../did.provider";
 import { CreateIdentityInput } from "../dto/create-identity.input.dto";
 
@@ -196,6 +197,8 @@ export class CustodialDIDProvider implements IdentityProvider {
 
   async issueCredential(identityDid: string, subjectDid: string, credentialId: string, types: string[],
     expirationDate: Date, properties: any): Promise<VerifiableCredential> {
+    const { VerifiableCredential } = await lazyElastosDIDSDKImport();
+
     const result = await withCaughtAppException(async () => {
       return (await getApolloClient()).mutate<{ issueCredential: IssueCredentialDTO }>({
         mutation: gql`
@@ -293,6 +296,8 @@ export class CustodialDIDProvider implements IdentityProvider {
   }
 
   public async createVerifiablePresentation(identityDid: string, credentialsArg: VerifiableCredential[], realm: string, nonce: string): Promise<VerifiablePresentation> {
+    const { VerifiablePresentation } = await lazyElastosDIDSDKImport();
+
     const credentials: JSONObject[] = [];
     credentialsArg.forEach(c => {
       credentials.push(c.toJSON())

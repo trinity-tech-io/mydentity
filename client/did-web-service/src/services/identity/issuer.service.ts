@@ -1,4 +1,4 @@
-import { DIDDocument } from "@elastosfoundation/did-js-sdk";
+import type { DIDDocument } from "@elastosfoundation/did-js-sdk";
 import { logger } from "@services/logger";
 import { didDocumentService } from "./diddocuments.service";
 

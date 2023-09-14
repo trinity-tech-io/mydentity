@@ -1,7 +1,8 @@
-import { DIDDocument, DIDURL, JSONObject, VerifiableCredential } from "@elastosfoundation/did-js-sdk";
+import type { DIDDocument, DIDURL, JSONObject, VerifiableCredential } from "@elastosfoundation/did-js-sdk";
 import { TimeBasedPersistentCache } from "@model/timebasedpersistentcache";
 import { didDocumentService } from "@services/identity/diddocuments.service";
 import { logger } from "@services/logger";
+import { lazyElastosDIDSDKImport } from "@utils/import-helper";
 import jsonld, { ContextDefinition } from "jsonld";
 import { Url } from "jsonld/jsonld-spec";
 import moment from "moment";
@@ -212,7 +213,7 @@ class CredentialTypesService {
         const docStatus = await didDocumentService.fetchOrAwaitDIDDocumentWithStatus(publisher);
         if (docStatus.document) {
           const serviceId = `${publisher}#${shortType}`;
-          const contextPayload = this.getContextPayloadFromDIDDocument(docStatus.document, serviceId);
+          const contextPayload = await this.getContextPayloadFromDIDDocument(docStatus.document, serviceId);
 
           this.contextsCache.set(contextUrl, contextPayload, moment().unix());
           // NOTE - don't save the cache = not persistent on disk - await this.contextsCache.save();
@@ -252,7 +253,7 @@ class CredentialTypesService {
    * Searches the given service in the DID document. If found, uses the service endpoint to
    * get the right target credential id in the same document, and gets the context payload out of it.
    */
-  public getContextPayloadFromDIDDocument(document: DIDDocument, serviceId: string): ContextPayload {
+  public async getContextPayloadFromDIDDocument(document: DIDDocument, serviceId: string): Promise<ContextPayload> {
     const service = document.getService(serviceId);
     if (!service) {
       logger.warn("credentialtypes", "The DID document has no service with ID: " + serviceId);
@@ -261,6 +262,7 @@ class CredentialTypesService {
 
     const targetCredentialId = service.getServiceEndpoint();
 
+    const { DIDURL } = await lazyElastosDIDSDKImport();
     const credential = this.getCredentialById(document, new DIDURL(targetCredentialId));
     if (!credential) {
       logger.warn("credentialtypes", "The DID document has no credential context credential that matches (service id, credential id): ", serviceId, targetCredentialId);

@@ -1,4 +1,4 @@
-import { VerifiableCredential } from "@elastosfoundation/did-js-sdk";
+import type { VerifiableCredential } from "@elastosfoundation/did-js-sdk";
 import type { Interfaces, Wallet } from "@elastosfoundation/elastos-connectivity-sdk-js";
 
 /**

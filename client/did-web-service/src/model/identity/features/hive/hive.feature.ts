@@ -1,11 +1,6 @@
 import { callWithUnlock } from '@components/security/unlock-key-prompt/UnlockKeyPrompt';
-import {
-  DIDDocument, JWTHeader,
-  JWTParserBuilder,
-  VerifiableCredential,
-  VerifiablePresentation
-} from "@elastosfoundation/did-js-sdk";
-import { AppContext, AppContextProvider, ScriptingService, ServiceEndpoint, Vault, VaultInfo, VaultNotFoundException, VaultSubscription } from "@elastosfoundation/hive-js-sdk";
+import type { DIDDocument, VerifiableCredential } from "@elastosfoundation/did-js-sdk";
+import type { AppContext, AppContextProvider, ScriptingService, Vault, VaultInfo, VaultSubscription } from "@elastosfoundation/hive-js-sdk";
 import { Identity } from "@model/identity/identity";
 import { getRandomQuickStartHiveNodeAddress, hiveOperationQueue } from '@services/hive/hive.service';
 import { VaultStatus } from "@services/hive/vault/vault-status";
@@ -13,7 +8,7 @@ import { identityService } from "@services/identity/identity.service";
 import { logger } from "@services/logger";
 import { AdvancedBehaviorSubject } from "@utils/advanced-behavior-subject";
 import { ObjectCache } from '@utils/caches/object-cache';
-import { lazyElastosHiveSDKImport } from "@utils/import-helper";
+import { lazyElastosDIDSDKImport, lazyElastosHiveSDKImport } from "@utils/import-helper";
 import { awaitSubjectValue } from "@utils/promises";
 import dayjs from 'dayjs';
 import moment from 'moment';
@@ -36,6 +31,7 @@ export class HiveFeature implements IdentityFeature {
     await this.awaitHiveVaultReady();
 
     const appContext = await this.getHiveAppContext();
+    const { Vault } = await lazyElastosHiveSDKImport();
     return new Vault(appContext, null);
   }
 
@@ -167,6 +163,8 @@ export class HiveFeature implements IdentityFeature {
    * Initial check of active user's hive vault status
    */
   private async retrieveVaultStatus(): Promise<void> {
+    const { VaultNotFoundException } = await lazyElastosHiveSDKImport();
+
     // Make sure identity is published
     await this.identity.get("publication").awaitIdentityPublished();
 
@@ -215,11 +213,13 @@ export class HiveFeature implements IdentityFeature {
   }
 
   async getSubscriptionService(): Promise<VaultSubscription> {
+    const { VaultSubscription } = await lazyElastosHiveSDKImport();
     const appContext = await this.getHiveAppContext();
     return new VaultSubscription(appContext);
   }
 
   async getScriptingService(): Promise<ScriptingService> {
+    const { ScriptingService, ServiceEndpoint } = await lazyElastosHiveSDKImport();
     const appContext = await this.getHiveAppContext();
     const serviceEndpoint = new ServiceEndpoint(appContext);
     return new ScriptingService(serviceEndpoint);
@@ -270,6 +270,7 @@ export class HiveFeature implements IdentityFeature {
   private async getHiveAppContext(): Promise<AppContext> {
     return this.appContextCache.get(this.identity.did, {
       create: async () => {
+        const { AppContext } = await lazyElastosHiveSDKImport();
         logger.log('hive', 'Getting app context for', this.identity.did);
         const appContextProvider = await this.getHiveAppContextProvider();
         return AppContext.build(appContextProvider, this.identity.did, process.env.NEXT_PUBLIC_APP_DID);
@@ -288,6 +289,7 @@ export class HiveFeature implements IdentityFeature {
 
     // Parse, but verify on chain that this JWT is valid first
     try {
+      const { JWTParserBuilder, VerifiablePresentation, JWTHeader } = await lazyElastosDIDSDKImport();
       const claims = (await new JWTParserBuilder().setAllowedClockSkewSeconds(300).build().parse(authChallengeJwttoken)).getBody();
       if (claims == null)
         throw new Error('Invalid jwt token as authorization.');

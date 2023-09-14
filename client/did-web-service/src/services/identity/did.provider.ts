@@ -1,4 +1,4 @@
-import { VerifiableCredential, VerifiablePresentation } from "@elastosfoundation/did-js-sdk";
+import type { VerifiableCredential, VerifiablePresentation } from "@elastosfoundation/did-js-sdk";
 import { Credential } from "@model/credential/credential";
 import { IdentityPublicationStatusResult } from "@model/identity-publication/identity-publication-status.dto";
 import { Identity } from "@model/identity/identity";

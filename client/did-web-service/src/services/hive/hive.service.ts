@@ -1,7 +1,7 @@
-import { AppContext, DIDResolverAlreadySetupException, Logger } from '@elastosfoundation/hive-js-sdk';
 import { availableHiveNodeProviders } from "@services/hive/vault/vault-providers";
 import { logger } from '@services/logger';
 import { isClientSide } from '@utils/client-server';
+import { lazyElastosHiveSDKImport } from '@utils/import-helper';
 import Queue from "promise-queue";
 
 export const hiveOperationQueue = new Queue(1); // Semaphore to prevent multiple parrallel access to critical operations
@@ -14,16 +14,19 @@ export function hiveInit(): void {
   if (!isClientSide())
     return;
 
-  try {
-    Logger.setDefaultLevel(Logger.WARNING);
-    AppContext.setupResolver(process.env.NEXT_PUBLIC_RESOLVER_URL, '/anyfakedir/browserside/for/didstores');
-  } catch (e) {
-    if (e instanceof DIDResolverAlreadySetupException) {
-      // silent error, it's ok
-    } else {
-      logger.error('hive', 'AppContext.setupResolver() exception:', e);
+  // TODO: could create bugs as we don't await the completed init. Needed for bundle size reduction
+  lazyElastosHiveSDKImport().then(({ Logger, AppContext, DIDResolverAlreadySetupException }) => {
+    try {
+      Logger.setDefaultLevel(Logger.WARNING);
+      AppContext.setupResolver(process.env.NEXT_PUBLIC_RESOLVER_URL, '/anyfakedir/browserside/for/didstores');
+    } catch (e) {
+      if (e instanceof DIDResolverAlreadySetupException) {
+        // silent error, it's ok
+      } else {
+        logger.error('hive', 'AppContext.setupResolver() exception:', e);
+      }
     }
-  }
+  });
 }
 
 /**

@@ -1,4 +1,10 @@
 /** @type {import('next').NextConfig} */
+
+const path = require("path");
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
+})
+
 const nextConfig = {
   images: {
     unoptimized: true,
@@ -16,8 +22,18 @@ const nextConfig = {
       resourceRegExp: /rdf-canonize-native/
     }));
 
+    config.resolve = {
+      ...config.resolve,
+      alias: {
+        ...config.resolve.alias,
+        // Force thwe WHOLE app and dependencies to use a single version of bn/js. (80kb x 14 duplicates...)
+        // IMPORTANT: this could have side effects as some libs use bn.js v 4 and some others v5 ... to be continued
+        "bn.js": path.resolve(__dirname, '/node_modules/bn.js')
+      }
+    };
+
     return config;
   }
 }
 
-module.exports = nextConfig
+module.exports = withBundleAnalyzer(nextConfig)

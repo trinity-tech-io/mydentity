@@ -1,5 +1,5 @@
 import AccountIcon from '@assets/images/account.svg';
-import { VerifiableCredential } from "@elastosfoundation/did-js-sdk";
+import type { VerifiableCredential } from "@elastosfoundation/did-js-sdk";
 import { JSONObject } from "@model/json";
 import { credentialTypesService } from "@services/credential-types/credential.types.service";
 import { getHiveScriptPictureDataUrl } from "@services/hive/hive-pictures.service";
