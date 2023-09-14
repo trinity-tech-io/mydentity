@@ -2,22 +2,24 @@ import { MainButton } from "@components/generic/MainButton";
 import { JSONObject, VerifiableCredential } from "@elastosfoundation/did-js-sdk";
 import { DID as ConnDID } from "@elastosfoundation/elastos-connectivity-sdk-js";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
+import { ActivityType } from "@model/activity/activity-type";
+import { Credential } from '@model/credential/credential';
 import { Intent } from "@model/intent/intent";
 import { IntentRequestPayload } from "@model/intent/request-payload";
 import { credentialTypesService } from "@services/credential-types/credential.types.service";
 import { activeIdentity$ } from "@services/identity/identity.events";
 import { issuerService } from "@services/identity/issuer.service";
 import { fulfilIntentRequest } from "@services/intent.service";
-import { setQueryParameter } from "@utils/urls";
-import { FC, useEffect, useState } from "react";
-import { ActivityType } from "@model/activity/activity-type";
-import { authUser$ } from "@services/user/user.events";
 import { logger } from "@services/logger";
+import { authUser$ } from "@services/user/user.events";
+import { setQueryParameter } from "@utils/urls";
 import jsonpath from "jsonpath";
+import { FC, useEffect, useState } from "react";
 import { V1Claim } from "./model/v1claim";
+import { ClaimDisplayEntryListWidget } from "./widgets/ClaimDisplayEntryList";
 
 export type CredentialDisplayEntry = {
-  credential: VerifiableCredential;
+  credential: Credential;
   selected: boolean;
   expired: boolean;
 }
@@ -38,6 +40,7 @@ export const RequestDetails: FC<{
   const [requestingAppIcon, setRequestingAppIcon] = useState<string>('');
   const [requestingAppName, setRequestingAppName] = useState<string>('Demo App');
   const [claimsHaveBeenOrganized, setClaimsHaveBeenOrganized] = useState<boolean>(false);
+  const [organizedClaims, setOrganizedClaims] = useState<ClaimDisplayEntry[]>(null);
 
   const payload = intent.requestPayload;
   const [activeUser] = useBehaviorSubject(authUser$);
@@ -46,11 +49,11 @@ export const RequestDetails: FC<{
 
   useEffect(() => {
     runPreliminaryChecks();
+
     if (credentials && payload) {
       fetchApplicationDidInfo(payload);
       organizeRequestedClaims(payload).then(organizedClaims => {
-        logger.log(TAG, "Organized claims", organizedClaims);
-        // setImportedCredentials(importedCredentials);
+        setOrganizedClaims(organizedClaims);
       });
     }
   }, [credentials, payload]);
@@ -193,7 +196,7 @@ export const RequestDetails: FC<{
           }
 
           return {
-            credential: credential.verifiableCredential,
+            credential: credential,
             selected: false, // Don't select anything yet, we'll update this just after
             expired: isExpired
           };
@@ -277,11 +280,16 @@ export const RequestDetails: FC<{
     }
   }
 
-  return <>This app XXX is requesting information from you:
+  // const handleSelectCredential = (credentialDisplayEntry: CredentialDisplayEntry): void => {
+
+  // }
+
+  return <>To run this application we need access to your Identity. Please review the following items we need from you:
     <br /><br />
     Intent: {intent.id}
     <br /><br />
     List of credentials
+    <ClaimDisplayEntryListWidget claimDisplayEntryList={organizedClaims} />
     <br /><br />
     {activeIdentity && <MainButton onClick={approveRequest} busy={preparingResponse}>Approve</MainButton>}
     {!activeIdentity && "Make an identity active to continue"}
