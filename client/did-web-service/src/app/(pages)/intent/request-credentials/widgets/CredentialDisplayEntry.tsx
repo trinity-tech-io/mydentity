@@ -28,6 +28,7 @@ export const CredentialDisplayEntryWidget: FC<Props> = (props) => {
 
   return (
     <div className='flex flex-row mt-4 gap-6'>
+      List of credentials
       <ListItemButton
         onClick={(): void => handleListItemClick(credentialDisplayEntry)}
         style={{ display: 'flex', alignItems: 'center' }}

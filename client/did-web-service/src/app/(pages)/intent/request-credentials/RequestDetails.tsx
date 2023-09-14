@@ -243,12 +243,31 @@ export const RequestDetails: FC<{
     }
   }
 
+  /**
+   * Build a list of credentials ready to be packaged into a presentation, according to selections
+   * done by the user.
+   */
+  const buildDeliverableCredentialsList = (): VerifiableCredential[] => {
+    const selectedCredentials: VerifiableCredential[] = [];
+    for (const organizedClaim of organizedClaims) {
+      for (const displayCredential of organizedClaim.matchingCredentials) {
+        if (displayCredential.selected)
+          selectedCredentials.push(displayCredential.credential.verifiableCredential);
+      }
+    }
+
+    logger.log(TAG, 'Deliverable credentials:', selectedCredentials);
+
+    return selectedCredentials;
+  }
+
   // User approves the upcoming request - data will be returned to the calling dApp.
   const approveRequest = async (): Promise<void> => {
     setPreparingResponse(true);
 
     // Generate the VP for the Active identity and fulfill the request with its JSON value.
-    const selectedCredentials: VerifiableCredential[] = []; // TODO - real selection from user
+    const selectedCredentials: VerifiableCredential[] = buildDeliverableCredentialsList();
+
     const presentation = await activeIdentity.createVerifiablePresentation(
       selectedCredentials,
       payload.realm,
@@ -269,7 +288,7 @@ export const RequestDetails: FC<{
 
       const activity = await activeUser?.get('activity').createActivity(ActivityType.VC_CREATED, { did: activeIdentity.did });
       if (!activity) {
-        logger.warn(`failed to create activity for VC created by ${activeIdentity.did}`);
+        logger.warn(TAG, `failed to create activity for VC created by ${activeIdentity.did}`);
       }
 
       // Send the response to the original app, including the intent id as parameter.
@@ -284,14 +303,16 @@ export const RequestDetails: FC<{
 
   // }
 
-  return <>To run this application we need access to your Identity. Please review the following items we need from you:
-    <br /><br />
-    Intent: {intent.id}
-    <br /><br />
-    List of credentials
-    <ClaimDisplayEntryListWidget claimDisplayEntryList={organizedClaims} />
-    <br /><br />
-    {activeIdentity && <MainButton onClick={approveRequest} busy={preparingResponse}>Approve</MainButton>}
+  return <>
+    { activeIdentity &&
+      <div>
+        To run this application we need access to your Identity. Please review the following items we need from you:
+        <br /><br />
+        <ClaimDisplayEntryListWidget claimDisplayEntryList={organizedClaims} />
+        <br /><br />
+        <MainButton onClick={approveRequest} busy={preparingResponse}>Approve</MainButton>
+      </div>
+    }
     {!activeIdentity && "Make an identity active to continue"}
   </>
 }

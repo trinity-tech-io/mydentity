@@ -37,7 +37,7 @@ export class ActivityFeature implements UserFeature {
     public async createActivity(type: ActivityType, content: any): Promise<Activity> {
         logger.log("activity", "Create activity");
 
-        const result = await (await getApolloClient()).mutate<{ activity: ActivityDto }>({
+        const result = await (await getApolloClient()).mutate<{ createActivity: ActivityDto }>({
             mutation: gql`
         mutation CreateActivity($input: CreateActivityInput!) {
             createActivity(input: $input) {
@@ -51,9 +51,9 @@ export class ActivityFeature implements UserFeature {
             }
         });
 
-        if (result?.data?.activity) {
-            logger.log("activity", "Create activities", result.data.activity);
-            return Activity.fromJson(result.data.activity);
+        if (result?.data?.createActivity) {
+            logger.log("activity", "Create activities", result.data.createActivity);
+            return Activity.fromJson(result.data.createActivity);
         } else {
             throw new Error('Can not create activity.');
         }
