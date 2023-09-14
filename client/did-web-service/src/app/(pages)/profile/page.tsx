@@ -19,6 +19,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { Card, Container, IconButton, MenuItem, Popover, Stack, Table, TableBody, TableCell, TableContainer, TablePagination, TableRow, Typography } from "@mui/material";
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import Box from '@mui/material/Box';
+import FileCopyIcon from '@mui/icons-material/FileCopy';
 import { useToast } from "@services/feedback.service";
 import { findProfileInfoByTypes, getAvailableProfileEntries } from "@services/identity-profile-info/identity-profile-info.service";
 import { ProfileCredentialInfo } from "@services/identity-profile-info/profile-credential-info";
@@ -30,7 +31,6 @@ import { useRouter } from "next/navigation";
 import { ChangeEvent, FC, MouseEvent, forwardRef, useEffect, useState } from "react";
 import { EditableCredentialAvatar } from '../../components/credential/EditableCredentialAvatar';
 import { OrderBy } from "./order-by";
-import FileCopyIcon from '@mui/icons-material/FileCopy';
 
 const CREDENTIAL_LIST_HEAD = [
   { id: 'name', label: 'Profile item', alignRight: false },
