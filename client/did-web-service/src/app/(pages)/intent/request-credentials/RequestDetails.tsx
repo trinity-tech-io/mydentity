@@ -8,10 +8,12 @@ import { credentialTypesService } from "@services/credential-types/credential.ty
 import { activeIdentity$ } from "@services/identity/identity.events";
 import { issuerService } from "@services/identity/issuer.service";
 import { fulfilIntentRequest } from "@services/intent.service";
-import { logger } from "@services/logger";
 import { setQueryParameter } from "@utils/urls";
+import { FC, useState } from "react";
+import { ActivityType } from "@model/activity/activity-type";
+import { authUser$ } from "@services/user/user.events";
+import { logger } from "@services/logger";
 import jsonpath from "jsonpath";
-import { FC, useEffect, useState } from "react";
 import { V1Claim } from "./model/v1claim";
 
 export type CredentialDisplayEntry = {
@@ -38,6 +40,7 @@ export const RequestDetails: FC<{
   const [claimsHaveBeenOrganized, setClaimsHaveBeenOrganized] = useState<boolean>(false);
 
   const payload = intent.requestPayload;
+  const [activeUser] = useBehaviorSubject(authUser$);
 
   logger.log(TAG, "payload", payload)
 
@@ -260,6 +263,11 @@ export const RequestDetails: FC<{
     const fulfilled = await fulfilIntentRequest(intent.id, responsePayload);
     if (fulfilled) {
       // TODO: check fulfilled success - if error report error to user
+
+      const activity = await activeUser?.get('activity').createActivity(ActivityType.VC_CREATED, { did: activeIdentity.did });
+      if (!activity) {
+        logger.warn(`failed to create activity for VC created by ${activeIdentity.did}`);
+      }
 
       // Send the response to the original app, including the intent id as parameter.
       // The web connector will catch this parameter to retrieve the intent response payload and

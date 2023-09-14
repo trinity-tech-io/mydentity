@@ -157,6 +157,7 @@ model Browser {
 
 enum ActivityType {
   VC_CREATED
+  VC_IMPORTED
   VC_SHARED
   VC_SIGNED_BY_THIRD_APP
   DID_CREATED

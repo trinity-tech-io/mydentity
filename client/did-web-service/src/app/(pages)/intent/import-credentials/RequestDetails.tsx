@@ -15,6 +15,8 @@ import { setQueryParameter } from "@utils/urls";
 import { FC, useEffect, useState } from "react";
 import { CredentialPreviewWithDetails } from "./CredentialPreviewWithDetails";
 import { ImportedCredential, ImportedCredentialItem } from "./page";
+import { ActivityType } from "@model/activity/activity-type";
+import { authUser$ } from "@services/user/user.events";
 
 const TAG = 'ImportCredential';
 
@@ -32,6 +34,7 @@ export const RequestDetails: FC<{
   const [requestingAppName, setRequestingAppName] = useState<string>('');
   const { showErrorToast } = useToast();
   const { unlockerIsCancelled } = useUnlockPromptState();
+  const [activeUser] = useBehaviorSubject(authUser$);
 
   const payload = intent.requestPayload;
   useEffect(() => {
@@ -133,6 +136,11 @@ export const RequestDetails: FC<{
     if (!fulfilled) {
       showErrorToast('Import credential error, Please retry after a while.');
       return;
+    }
+
+    const activity = await activeUser?.get('activity').createActivity(ActivityType.VC_IMPORTED, { did: activeIdentity.did });
+    if (!activity) {
+      logger.warn(`failed to create activity for VC created by ${activeIdentity.did}`);
     }
 
     // TODO: check fulfilled success - if error report error to user
