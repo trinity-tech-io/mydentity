@@ -24,7 +24,7 @@ const CheckAuthKey: FC = () => {
       if (!isSignedIn()) {
         void checkRawEmailAuthenticationKey(authKey).then(authenticated => {
           if (authenticated) {
-            activeUser?.get('activity').createActivity(ActivityType.SIGNED_IN, { message: 'User signed in with raw email.' }).then(activity => {
+            activeUser?.get('activity').createActivity(ActivityType.SIGNED_IN, { type: 'RAW_EMAIL' }).then(activity => {
               router.push('/dashboard');
             }).catch(e => {
               router.push('/dashboard'); // Still means success.

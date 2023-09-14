@@ -44,7 +44,7 @@ const MicrosoftRedirect: FC = () => {
         {
           oauthMSSignIn(code).then(user => {
             if (user) {
-              user.get('activity').createActivity(ActivityType.SIGNED_IN, { message: 'Signed in with Microsoft oauth email.' }).then(activity => {
+              user.get('activity').createActivity(ActivityType.SIGNED_IN, { type: 'OAUTH_MICROSOFT' }).then(activity => {
                 clearOnGoingFlowOperation();
                 router.push(`/dashboard`);
               }).catch(e => {
