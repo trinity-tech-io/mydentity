@@ -286,7 +286,7 @@ const Profile: FC = () => {
     const text = 'Your current credential is: ' + credential.getDisplayValue()
     showSuccessToast(text);
     identityProfileFeature.setActiveCredential(credential)
-    router.replace("/credentials/list");
+    router.push("/credentials/list");
   }
 
   return (<div className="col-span-full">
