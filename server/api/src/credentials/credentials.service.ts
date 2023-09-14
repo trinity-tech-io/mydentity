@@ -18,12 +18,11 @@ export class CredentialsService {
   private logger: Logger = new Logger("CredentialsService");
 
   constructor(private prisma: PrismaService,
-      private didService: DidService,
-      private keyRingService: KeyRingService) {
+    private didService: DidService,
+    private keyRingService: KeyRingService) {
   }
 
   async create(input: CreateCredentialInput, user: User, browser: Browser) {
-    this.logger.log("create")
     const storePassword = this.getDIDStorePassword(user?.id, browser?.id);
 
     const vc = await this.didService.createCredential(user.id, input.identityDid, input.credentialId,
@@ -124,7 +123,6 @@ export class CredentialsService {
   }
 
   async createVerifiablePresentation(input: CreateVerifiablePresentationInput, user: User, browser: Browser) {
-    this.logger.log("createVerifiablePresentation")
     const storePassword = this.getDIDStorePassword(user?.id, browser?.id);
 
     const credentials = [];
@@ -158,7 +156,6 @@ export class CredentialsService {
   }
 
   private getDIDStorePassword(userId: string, browserId: string) {
-    this.logger.log('getDIDStorePassword:' + userId + ' browserId:' + browserId);
     const password = this.keyRingService.getMasterKey(userId, browserId);
     return password;
   }

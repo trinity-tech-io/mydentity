@@ -102,7 +102,6 @@ export class IdentityService {
   }
 
   async createDIDPublishTransaction(didString: string, user: User, browser: Browser) {
-    this.logger.log("createDIDPublishTransaction:" + didString)
     const storePassword = this.getDIDStorePassword(user?.id, browser?.id);
 
     const payload = await this.didService.createDIDPublishTransaction(user.id, didString, storePassword);
@@ -116,7 +115,7 @@ export class IdentityService {
    * transaction to be confirmed on chain.
    */
   async publishIdentity(didString: string, payloadObject: any) {
-    this.logger.log("publishIdentity:" + didString)
+    this.logger.log("Publishing identity:" + didString)
 
     const publicationId = await this.didPublishingService.publishDID(didString, payloadObject);
     await this.prisma.identity.update({
@@ -187,8 +186,6 @@ export class IdentityService {
 
   // Updates the given identity's last used at date
   async markIdentityInUse(didString: string) {
-    this.logger.log('markIdentityInUse didString:' + didString);
-
     await this.prisma.identity.update({
       where: {
         did: didString

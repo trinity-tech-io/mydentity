@@ -55,7 +55,7 @@ export class ActivityFeature implements UserFeature {
             logger.log("activity", "Create activities", result.data.createActivity);
             return Activity.fromJson(result.data.createActivity);
         } else {
-            throw new Error('Can not create activity.');
+            //throw new Error('Can not create activity.');
         }
     }
 
