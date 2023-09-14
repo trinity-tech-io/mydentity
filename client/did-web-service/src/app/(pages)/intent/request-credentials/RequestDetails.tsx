@@ -9,7 +9,7 @@ import { activeIdentity$ } from "@services/identity/identity.events";
 import { issuerService } from "@services/identity/issuer.service";
 import { fulfilIntentRequest } from "@services/intent.service";
 import { setQueryParameter } from "@utils/urls";
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { ActivityType } from "@model/activity/activity-type";
 import { authUser$ } from "@services/user/user.events";
 import { logger } from "@services/logger";

@@ -9,13 +9,15 @@ import { identityService } from '@services/identity/identity.service';
 import { authUser$ } from '@services/user/user.events';
 import { useRouter } from 'next/navigation';
 import { FC, useState } from 'react';
+import { ActivityType } from "@model/activity/activity-type";
+import { logger } from "@services/logger";
 
 const TAG = "delete-identity";
 
 const DeleteIdentityPage: FC = () => {
   const { mounted } = useMounted();
   const router = useRouter();
-  const [authUser] = useBehaviorSubject(authUser$);
+  const [activeUser] = useBehaviorSubject(authUser$);
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const [deletingIdentity, setDeletingIdentity] = useState(false);
 
@@ -28,7 +30,13 @@ const DeleteIdentityPage: FC = () => {
     // Go back to dashboard instantly
     router.replace("/dashboard");
     // Deletion
-    await authUser.get("identity").deleteIdentity(identityStringToDelete);
+    const success = await activeUser.get("identity").deleteIdentity(identityStringToDelete);
+    if (success) {
+      const activity = await activeUser?.get('activity').createActivity(ActivityType.DID_DELETED, { did: identityStringToDelete });
+      if (!activity) {
+        logger.warn(`failed to create activity for did ${identityStringToDelete} deleted.`);
+      }
+    }
   }
 
   if (!mounted)
