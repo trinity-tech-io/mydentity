@@ -15,8 +15,8 @@ import { authUser$ } from "@services/user/user.events";
 import { setQueryParameter } from "@utils/urls";
 import { FC, useEffect, useState } from "react";
 import { RequestingApp } from "../components/RequestingApp";
+import { ClaimDisplayEntryListWidget } from "./components/ClaimDisplayEntryList";
 import { V1Claim } from "./model/v1claim";
-import { ClaimDisplayEntryListWidget } from "./widgets/ClaimDisplayEntryList";
 
 export type CredentialDisplayEntry = {
   credential: Credential;
