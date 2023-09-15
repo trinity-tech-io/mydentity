@@ -300,10 +300,6 @@ export const RequestDetails: FC<{
     }
   }
 
-  // const handleSelectCredential = (credentialDisplayEntry: CredentialDisplayEntry): void => {
-
-  // }
-
   return <>
     {activeIdentity &&
       <div>
