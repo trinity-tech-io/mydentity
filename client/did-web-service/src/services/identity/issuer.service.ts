@@ -1,50 +1,34 @@
-import type { DIDDocument } from "@elastosfoundation/did-js-sdk";
-import { logger } from "@services/logger";
+import { Document } from "@model/document/document";
 import { didDocumentService } from "./diddocuments.service";
 
 class IssuerService {
   async getIssuerName(didString: string): Promise<string> {
-    const didDocument = await this.fetchDIDDocument(didString);
+    const document = await this.fetchDocument(didString);
 
     // Get the issuer name
-    return await didDocumentService.getRepresentativeOwnerName(didDocument);
+    return document.getRepresentativeOwnerName();
   }
 
   async getIssuerAvatar(didString: string): Promise<string> {
-    const didDocument = await this.fetchDIDDocument(didString);
+    const document = await this.fetchDocument(didString);
 
     // Get the issuer icon
-    const dataUrl = await didDocumentService.getRepresentativeIcon(didDocument);
-    if (dataUrl) {
-      logger.log('identity', 'dataUrl', dataUrl)
-      return dataUrl;
-    } else
-      return null;
+    return document.getRepresentativeIcon();
   }
 
   async isPublished(didString: string): Promise<boolean> {
-    const didDocument = await this.fetchDIDDocument(didString);
+    const didDocument = await this.fetchDocument(didString);
     return !!didDocument;
   }
 
   /**
    * Fetches the issuer Document
    */
-  private async fetchDIDDocument(didString: string, forceRemote = false): Promise<DIDDocument> {
+  private async fetchDocument(didString: string, forceRemote = false): Promise<Document> {
     // for test
     didString = "did:elastos:iqjN3CLRjd7a4jGCZe6B3isXyeLy7KKDuK"; // Kyc
-
-    const didDocumentStatus = await didDocumentService.fetchOrAwaitDIDDocumentWithStatus(
-      didString,
-      forceRemote
-    );
-
-    if (didDocumentStatus.checked)
-      return didDocumentStatus.document;
-
-    return null;
+    return didDocumentService.resolveDIDDocument(didString, forceRemote);
   }
 }
-
 
 export const issuerService = new IssuerService();

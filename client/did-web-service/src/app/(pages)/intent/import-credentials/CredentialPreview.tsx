@@ -36,7 +36,7 @@ export const CredentialPreview: FC<Props> = (props: Props) => {
                     textAlign: 'left',
                     bgcolor: "#ffffff",
                 }}>
-                <Stack spacing={2} direction="row" px={2} py={2} minWidth={400} maxWidth={400}>
+                <div className='flex flex-row gap-2 p-2' style={{ width: 400 }}>
                     <InfoIcon sx={{ fontSize: 40 }} />
                     {/* <Avatar src={icon}/> */}
                     <Stack alignItems={"left"}>
@@ -56,18 +56,17 @@ export const CredentialPreview: FC<Props> = (props: Props) => {
                             </Typography>
                         }
 
-                        <Item sx={{ my: 1, mx: 'auto', p: 2 }}>
-                            <Stack spacing={2} direction="row" alignItems="center">
-                                <Stack>
-                                    <Image unoptimized src={issuerInfo?.avatarIcon} width={30} height={30} style={{ borderRadius: '50%' }} alt=""/>
-                                </Stack>
-                                <Stack sx={{ maxWidth: 400 }}>
-                                    <Typography fontSize={13} noWrap>{issuerInfo && shortenString(issuerInfo?.name, 30)}</Typography>
-                                </Stack>
+                        <div className='flex flex-row gap-4 items-center w-full mt-4'>
+                            <Stack>
+                                <Image unoptimized src={issuerInfo?.avatarIcon} width={30} height={30} style={{ borderRadius: '50%' }} alt="" />
                             </Stack>
-                        </Item>
+                            <div className='flex flex-col'>
+                                <Typography fontSize={10} fontWeight={300} noWrap>Issued by:</Typography>
+                                <Typography fontSize={13} noWrap>{issuerInfo && shortenString(issuerInfo?.name, 30)}</Typography>
+                            </div>
+                        </div>
                     </Stack>
-                </Stack>
+                </div>
             </Card>
         </Stack>
     )

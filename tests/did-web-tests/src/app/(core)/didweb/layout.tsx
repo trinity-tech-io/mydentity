@@ -15,6 +15,7 @@ const DIDWebLayout: FC<{
       webServiceAPIEndpoint: process.env.NEXT_PUBLIC_BACKEND_URL,
     });
     connectivity.registerConnector(webConnector);
+    connectivity.setApplicationDID("did:elastos:inDxwJsTKBbGkeSJZ5NPA6p8mb3F6i7ytA");
 
     return () => { unregisterAllConnectors() }
   });

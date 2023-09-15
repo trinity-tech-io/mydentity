@@ -5,9 +5,14 @@ import "./LoadingCircle.scss";
 
 export const LoadingCircle: FC<{
   className?: string;
-}> = ({ className }) => {
+  width?: number;
+  height?: number;
+}> = ({ className, width, height }) => {
   return (
-    <div className={clsx("loading-circle", className)}>
+    <div className={clsx("loading-circle", className)} style={{
+      ...(width && { width }),
+      ...(height && { height }),
+    }}>
       <div className="content">
         <div className="animated"></div>
       </div>

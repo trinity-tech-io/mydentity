@@ -3,20 +3,21 @@ import { UnlockRetrier } from "@components/security/UnlockRetrier";
 import { useUnlockPromptState } from "@components/security/unlock-key-prompt/UnlockKeyPrompt";
 import { VerifiableCredential } from "@elastosfoundation/did-js-sdk";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
+import { ActivityType } from "@model/activity/activity-type";
 import { credentialFromVerifiableCredential } from "@model/credential/credential-builder";
 import { Intent } from "@model/intent/intent";
 import { JSONObject } from "@model/json";
-import { Avatar, Stack, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import { useToast } from "@services/feedback.service";
 import { activeIdentity$ } from "@services/identity/identity.events";
 import { fulfilIntentRequest } from "@services/intent.service";
 import { logger } from "@services/logger";
+import { authUser$ } from "@services/user/user.events";
 import { setQueryParameter } from "@utils/urls";
 import { FC, useEffect, useState } from "react";
+import { RequestingApp } from "../components/RequestingApp";
 import { CredentialPreviewWithDetails } from "./CredentialPreviewWithDetails";
 import { ImportedCredential, ImportedCredentialItem } from "./page";
-import { ActivityType } from "@model/activity/activity-type";
-import { authUser$ } from "@services/user/user.events";
 
 const TAG = 'ImportCredential';
 
@@ -30,17 +31,14 @@ export const RequestDetails: FC<{
   const [credentials] = useBehaviorSubject(credentialFeature?.credentials$); // NOTE: keep it to fetch the credentials, required before importing
   const [importedCredentials, setImportedCredentials] = useState<ImportedCredential[]>(null);
   const [wrongTargetDID, setWrongTargetDID] = useState<boolean>(false);
-  const [requestingAppIconUrl, setRequestingAppIconUrl] = useState<string>('');
-  const [requestingAppName, setRequestingAppName] = useState<string>('');
   const { showErrorToast } = useToast();
   const { unlockerIsCancelled } = useUnlockPromptState();
   const [activeUser] = useBehaviorSubject(authUser$);
-
   const payload = intent.requestPayload;
+  const requestingAppDID = intent.requestPayload.caller;
+
   useEffect(() => {
     runPreliminaryChecks();
-    getDappIcon();
-    fetchApplicationDidInfo();
 
     if (payload) {
       organizeImportedCredentials(payload.credentials).then(importedCredentials => {
@@ -55,16 +53,6 @@ export const RequestDetails: FC<{
   const runPreliminaryChecks = (): void => {
     //TODO
     setWrongTargetDID(false);
-  }
-
-  const getDappIcon = (): void => {
-    //TODO
-    setRequestingAppIconUrl("");
-  }
-
-  const fetchApplicationDidInfo = (): void => {
-    //TODO
-    setRequestingAppName('Demo app')
   }
 
   /**
@@ -159,16 +147,7 @@ export const RequestDetails: FC<{
     <br /><br /> */}
     {activeIdentity &&
       <div className=" text-center">
-        <Stack direction="row" justifyContent="center">
-          <Typography>
-          </Typography>
-          {/* {requestingAppIconUrl && <Avatar src={requestingAppIconUrl} sx={{ ml:2, width: 120, height: 120 }}/>}
-        {!requestingAppIconUrl && <Avatar src={requestingAppIconUrl} sx={{ ml:2, width: 120, height: 120 }}/>} */}
-          <Avatar sx={{ ml: 2, width: 120, height: 120 }} />
-        </Stack>
-        <Typography mt={4}>
-          {requestingAppName}
-        </Typography>
+        <RequestingApp applicationDID={requestingAppDID} />
 
         <Typography mt={4}>
           You are going to attach some infomation provided by a third party to your identity.

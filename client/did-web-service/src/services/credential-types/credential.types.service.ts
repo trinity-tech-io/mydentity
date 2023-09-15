@@ -210,10 +210,10 @@ class CredentialTypesService {
           return null;
         }
 
-        const docStatus = await didDocumentService.fetchOrAwaitDIDDocumentWithStatus(publisher);
-        if (docStatus.document) {
+        const document = await didDocumentService.resolveDIDDocument(publisher);
+        if (document) {
           const serviceId = `${publisher}#${shortType}`;
-          const contextPayload = await this.getContextPayloadFromDIDDocument(docStatus.document, serviceId);
+          const contextPayload = await this.getContextPayloadFromDIDDocument(document.getDIDDocument(), serviceId);
 
           this.contextsCache.set(contextUrl, contextPayload, moment().unix());
           // NOTE - don't save the cache = not persistent on disk - await this.contextsCache.save();
