@@ -151,14 +151,9 @@ export const RequestDetails: FC<{
 }
 
   return <>
-    {/* Do you want to save the following content issued by app XXX, to your identity? This credential will not be
-    visible by anyone unless you choose share it later.
-    <br /><br />
-    Intent: {intent.id}
-    <br /><br /> */}
     {activeIdentity &&
       <div className="text-center">
-        <RequestingApp applicationDID={requestingAppDID} className="mb-8" />
+        <RequestingApp applicationDID={requestingAppDID} />
 
         <Typography mt={4}>
           You are going to attach some infomation provided by a third party to your identity.

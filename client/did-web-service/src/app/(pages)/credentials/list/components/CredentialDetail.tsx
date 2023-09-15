@@ -70,7 +70,7 @@ export const CredentialDetailWidget: FC<Props> = (props) => {
 
                 {
                   (!selectedCredential.selfIssued() && issuerInfo?.isPublished) && (
-                    <ListItemButton>
+                    <ListItemButton sx={{ marginTop: 2 }}>
                       <ListItemIcon>
                         <Image unoptimized src={issuerInfo?.avatarIcon} width={30} height={30} style={{ borderRadius: '50%' }} alt="avatar" />
                       </ListItemIcon>
@@ -81,7 +81,7 @@ export const CredentialDetailWidget: FC<Props> = (props) => {
                     </ListItemButton>
                   )}
 
-                <ListItemButton>
+                <ListItemButton sx={{ marginTop: 2 }}>
                   <ListItemIcon>
                     <WarningIcon width={30} />
                   </ListItemIcon>
