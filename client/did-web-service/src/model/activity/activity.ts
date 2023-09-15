@@ -29,7 +29,7 @@ export class Activity {
                     return 'Signed in with raw email.';
                 else if (this.userEmailProvider === UserEmailProvider.MICROSOFT)
                     return 'Signed in with Microsoft oauth email.';
-                return `Signed in with handled type ${this.userEmailProvider}`;
+                return `Signed in with unhandled type ${this.userEmailProvider}.`;
             case ActivityType.IDENTITY_CREATED:
                 return `DID ${this.identityStr} created`;
             case ActivityType.IDENTITY_DELETED:
@@ -38,6 +38,16 @@ export class Activity {
                 return `${this.credentialsCount} verified credentials shared.`;
             case ActivityType.CREDENTIALS_IMPORTED:
                 return `${this.credentialsCount} verified credential imported.`;
+            case ActivityType.BIND_EMAIL:
+                if (this.userEmailProvider == UserEmailProvider.RAW)
+                    return 'Bound with raw email.';
+                else if (this.userEmailProvider === UserEmailProvider.MICROSOFT)
+                    return 'Bound with Microsoft oauth email.';
+                return `Bound with unhandled type ${this.userEmailProvider}.`;
+            case ActivityType.BIND_BROWSER:
+                return `Bound browser.`;
+            case ActivityType.PASSWORD_CHANGED:
+                return `Password changed.`;
             default:
                 break;
         }

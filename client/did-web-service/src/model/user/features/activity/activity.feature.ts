@@ -53,6 +53,7 @@ export class ActivityFeature implements UserFeature {
         } else {
             logger.error('activity', 'Failed to create activity.');
             return null;
+            // throw new Error('Failed to create activity.');
         }
     }
 }

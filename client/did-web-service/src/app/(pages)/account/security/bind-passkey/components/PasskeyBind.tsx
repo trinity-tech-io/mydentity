@@ -5,6 +5,7 @@ import { FlowOperation, getOnGoingFlowOperation } from '@services/flow.service';
 import { authUser$ } from "@services/user/user.events";
 import { useRouter } from "next/navigation";
 import { FC } from 'react';
+import {ActivityType} from "@model/activity/activity-type";
 
 export const PasskeyBind: FC = () => {
   //   onConfirm: (password: string) => void;
@@ -13,8 +14,8 @@ export const PasskeyBind: FC = () => {
   //     onConfirm("");
   //   }
   const router = useRouter();
-  const [authUser] = useBehaviorSubject(authUser$);
-  const securityFeature = authUser?.get("security");
+  const [activeUser] = useBehaviorSubject(authUser$);
+  const securityFeature = activeUser?.get("security");
   const { showSuccessToast } = useToast();
 
   const bindPasskeyConfirmation = async (): Promise<void> => {
@@ -25,6 +26,8 @@ export const PasskeyBind: FC = () => {
       const bound = await securityFeature.bindPasskey();
       if (bound) {
         showSuccessToast("Browser bound successfully");
+
+        await activeUser?.get('activity').createActivity({type: ActivityType.BIND_BROWSER, browserName: undefined});
 
         setTimeout(() => {
           const onGoingFlowOp = getOnGoingFlowOperation();

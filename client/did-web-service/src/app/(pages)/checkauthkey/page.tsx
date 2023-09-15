@@ -21,7 +21,7 @@ const CheckAuthKey: FC = () => {
 
   useEffect(() => {
     if (authKey) {
-      if (!isSignedIn()) {
+      if (!isSignedIn()) { // login
         void checkRawEmailAuthenticationKey(authKey).then(authenticated => {
           if (authenticated) {
             activeUser?.get('activity').createActivity({type: ActivityType.USER_SIGN_IN, userEmailProvider: UserEmailProvider.RAW}).then(activity => {
@@ -32,11 +32,15 @@ const CheckAuthKey: FC = () => {
           } else
             setAuthError(true);
         });
-      } else {
+      } else { // bind email
         setLogined(true);
         void activeUser?.get('email').checkRawEmailBind(authKey).then(bound => {
           if (bound) {
-            router.push('/account/security');
+            activeUser?.get('activity').createActivity({type: ActivityType.BIND_EMAIL, userEmailProvider: UserEmailProvider.RAW}).then(activity => {
+              router.push('/account/security');
+            }).catch(e => {
+              router.push('/account/security'); // Still means success.
+            })
           } else
             setAuthError(true);
         });

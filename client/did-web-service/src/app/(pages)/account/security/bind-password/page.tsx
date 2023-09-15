@@ -8,6 +8,7 @@ import { useToast } from "@services/feedback.service";
 import { authUser$ } from "@services/user/user.events";
 import { useRouter } from "next/navigation";
 import { FC } from "react";
+import { ActivityType } from "@model/activity/activity-type";
 
 const BindPassword: FC = () => {
   const { mounted } = useMounted();
@@ -25,6 +26,9 @@ const BindPassword: FC = () => {
       // Do NOT repeatingly retry
       const bound = await securityFeature.bindPassword(password);
       if (bound) {
+        if (isPasswordBound)
+          await authUser?.get('activity').createActivity({type: ActivityType.PASSWORD_CHANGED});
+
         showSuccessToast("Master password set successfully");
         setTimeout(() => {
           router.push("/account/security");

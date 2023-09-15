@@ -177,7 +177,7 @@ model Activity {
   user      User @relation(fields: [userId], references: [id], onDelete: Restrict)
   type      ActivityType
 
-  userEmailProvider UserEmailProvider // For USER_SIGN_IN or BIND_EMAIL.
+  userEmailProvider UserEmailProvider? // For USER_SIGN_IN or BIND_EMAIL.
   identityStr       String? // For IDENTITY_CREATED and IDENTITY_DELETED.
   credentialsCount  Int? // For CREDENTIALS_IMPORTED and CREDENTIALS_SHARED.
   appDid            String? // Caller of CREDENTIALS_IMPORTED and CREDENTIALS_SHARED.

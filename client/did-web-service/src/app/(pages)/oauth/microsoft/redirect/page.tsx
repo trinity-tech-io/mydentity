@@ -9,11 +9,14 @@ import {oauthMSBindEmail, oauthMSSignIn} from "@services/user/user.service";
 import {useRouter, useSearchParams} from "next/navigation";
 import {FC, useEffect} from "react";
 import {UserEmailProvider} from "@model/user-email/user-email-provider";
+import {useBehaviorSubject} from "@hooks/useBehaviorSubject";
+import {authUser$} from "@services/user/user.events";
 
 const MicrosoftRedirect: FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const code = searchParams.get('code');
+  const [activeUser] = useBehaviorSubject(authUser$);
 
   useEffect(() => {
     if (!code) {
@@ -27,8 +30,13 @@ const MicrosoftRedirect: FC = () => {
         {
           oauthMSBindEmail(code).then(result => {
             if (result) {
-              clearOnGoingFlowOperation();
-              router.push('/account/security');
+              activeUser.get('activity').createActivity({ type: ActivityType.BIND_EMAIL, userEmailProvider: UserEmailProvider.MICROSOFT }).then(activity => {
+                clearOnGoingFlowOperation();
+                router.push('/account/security');
+              }).catch(e => {
+                clearOnGoingFlowOperation();
+                router.push('/account/security');
+              })
             } else {
               clearOnGoingFlowOperation();
               router.push('/account/security?error=unknown');
