@@ -146,8 +146,8 @@ export const RequestDetails: FC<{
     Intent: {intent.id}
     <br /><br /> */}
     {activeIdentity &&
-      <div className=" text-center">
-        <RequestingApp applicationDID={requestingAppDID} />
+      <div className="text-center">
+        <RequestingApp applicationDID={requestingAppDID} className="mb-8" />
 
         <Typography mt={4}>
           You are going to attach some infomation provided by a third party to your identity.

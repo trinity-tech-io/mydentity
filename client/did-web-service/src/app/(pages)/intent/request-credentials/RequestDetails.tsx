@@ -14,6 +14,7 @@ import { logger } from "@services/logger";
 import { authUser$ } from "@services/user/user.events";
 import { setQueryParameter } from "@utils/urls";
 import { FC, useEffect, useState } from "react";
+import { RequestingApp } from "../components/RequestingApp";
 import { V1Claim } from "./model/v1claim";
 import { ClaimDisplayEntryListWidget } from "./widgets/ClaimDisplayEntryList";
 
@@ -40,9 +41,9 @@ export const RequestDetails: FC<{
   const [requestingAppName, setRequestingAppName] = useState<string>('Demo App');
   const [claimsHaveBeenOrganized, setClaimsHaveBeenOrganized] = useState<boolean>(false);
   const [organizedClaims, setOrganizedClaims] = useState<ClaimDisplayEntry[]>(null);
-
-  const payload = intent.requestPayload;
   const [activeUser] = useBehaviorSubject(authUser$);
+  const payload = intent.requestPayload;
+  const requestingAppDID = intent.requestPayload.caller;
 
   logger.log(TAG, "payload", payload)
 
@@ -304,10 +305,13 @@ export const RequestDetails: FC<{
   // }
 
   return <>
-    { activeIdentity &&
+    {activeIdentity &&
       <div>
-        To run this application we need access to your Identity. Please review the following items we need from you:
-        <br /><br />
+        <RequestingApp applicationDID={requestingAppDID} className="mb-4" />
+        <div className="text-center mb-4">
+          This application is requesting to access some of your information.<tr />
+          Please review profile entries you want to share:
+        </div>
         <ClaimDisplayEntryListWidget claimDisplayEntryList={organizedClaims} />
         <br /><br />
         <MainButton onClick={approveRequest} busy={preparingResponse}>Approve</MainButton>

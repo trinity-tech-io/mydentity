@@ -1,17 +1,21 @@
 import { LoadingCircle } from "@components/loading-cards/loading-circle/LoadingCircle";
 import { Avatar, Stack, Typography } from "@mui/material";
 import { didDocumentService } from "@services/identity/diddocuments.service";
+import clsx from "clsx";
 import Image from "next/image";
 import { FC, useEffect, useState } from "react";
 
 export const RequestingApp: FC<{
   applicationDID: string;
-}> = ({ applicationDID }) => {
+  className?: string;
+}> = ({ applicationDID, className }) => {
   const [requestingAppIconUrl, setRequestingAppIconUrl] = useState<string>(null);
   const [requestingAppName, setRequestingAppName] = useState<string>(null);
   const [loaded, setLoaded] = useState(false);
 
-  const updateApplicationData = async () => {
+  console.log(className)
+
+  const updateApplicationData = async (): Promise<void> => {
     if (applicationDID) {
       const applicationDocument = await didDocumentService.resolveDIDDocument(applicationDID);
       setLoaded(true);
@@ -36,7 +40,7 @@ export const RequestingApp: FC<{
     </div>
 
   return (
-    <div>
+    <div className={clsx("flex flex-col items-center", className)}>
       <Stack direction="row" justifyContent="center">
         <Avatar sx={{ width: 120, height: 120 }}  >
           {requestingAppIconUrl && <Image src={requestingAppIconUrl} alt="" width={120} height={120} />}
