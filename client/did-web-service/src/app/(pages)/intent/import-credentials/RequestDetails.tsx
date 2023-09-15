@@ -126,10 +126,10 @@ export const RequestDetails: FC<{
       return;
     }
 
-    const activity = await activeUser?.get('activity').createActivity(ActivityType.VC_IMPORTED, { did: activeIdentity.did });
-    if (!activity) {
-      logger.warn(`failed to create activity for VC created by ${activeIdentity.did}`);
-    }
+    await activeUser?.get('activity').createActivity({type: ActivityType.CREDENTIALS_IMPORTED,
+      credentialsCount: importedCredentials.length,
+      appDid: null,
+    });
 
     // TODO: check fulfilled success - if error report error to user
     // Send the response to the original app, including the intent id as parameter.

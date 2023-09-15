@@ -2,7 +2,6 @@ import {Injectable} from '@nestjs/common';
 import {ActivityEntity} from "./entities/activity.entity";
 import {PrismaService} from "../prisma/prisma.service";
 import {CreateActivityInput} from "./dto/create-activity.input";
-import {UpdateActivityInput} from "./dto/update-activity.input";
 
 @Injectable()
 export class ActivityService {
@@ -27,24 +26,21 @@ export class ActivityService {
     }
 
     public async createActivity(userId: string, input: CreateActivityInput): Promise<ActivityEntity> {
-        return this.prisma.activity.create({
-            data: {
-                type: input.type,
-                content: input.content,
-                user: {connect: {id: userId}}
-            }
-        });
-    }
+        const data = {
+            type: input.type,
+            user: {connect: {id: userId}},
+        }
 
-    public async updateActivity(input: UpdateActivityInput): Promise<ActivityEntity> {
-        return this.prisma.activity.update({
-            where: {
-                id: input.id
-            },
-            data: {
-                type: input.type,
-                content: input.content
-            }
-        });
+        const appendField = (name: string) => {
+            if (input[name] !== undefined && input[name] != null)
+                data[name] = input[name];
+        }
+        appendField('userEmailProvider');
+        appendField('identityStr');
+        appendField('credentialsCount');
+        appendField('appDid');
+        appendField('browserName');
+
+        return this.prisma.activity.create({data});
     }
 }

@@ -1,14 +1,14 @@
 'use client';
 
-import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
-import { ActivityType } from "@model/activity/activity-type";
-import { Typography } from "@mui/material";
-import { authUser$ } from "@services/user/user.events";
-import { checkRawEmailAuthenticationKey, isSignedIn } from "@services/user/user.service";
-import { decode } from '@utils/slugid';
-import { useRouter, useSearchParams } from "next/navigation";
-import router from "next/router";
-import { FC, useEffect, useState } from 'react';
+import {useBehaviorSubject} from "@hooks/useBehaviorSubject";
+import {ActivityType} from "@model/activity/activity-type";
+import {Typography} from "@mui/material";
+import {authUser$} from "@services/user/user.events";
+import {checkRawEmailAuthenticationKey, isSignedIn} from "@services/user/user.service";
+import {decode} from '@utils/slugid';
+import {useRouter, useSearchParams} from "next/navigation";
+import {FC, useEffect, useState} from 'react';
+import {UserEmailProvider} from "@model/user-email/user-email-provider";
 
 const CheckAuthKey: FC = () => {
   const searchParams = useSearchParams();
@@ -24,7 +24,7 @@ const CheckAuthKey: FC = () => {
       if (!isSignedIn()) {
         void checkRawEmailAuthenticationKey(authKey).then(authenticated => {
           if (authenticated) {
-            activeUser?.get('activity').createActivity(ActivityType.SIGNED_IN, { type: 'RAW_EMAIL' }).then(activity => {
+            activeUser?.get('activity').createActivity({type: ActivityType.USER_SIGN_IN, userEmailProvider: UserEmailProvider.RAW}).then(activity => {
               router.push('/dashboard');
             }).catch(e => {
               router.push('/dashboard'); // Still means success.

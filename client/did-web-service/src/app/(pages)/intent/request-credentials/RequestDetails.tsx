@@ -287,10 +287,10 @@ export const RequestDetails: FC<{
     if (fulfilled) {
       // TODO: check fulfilled success - if error report error to user
 
-      const activity = await activeUser?.get('activity').createActivity(ActivityType.VC_CREATED, { did: activeIdentity.did });
-      if (!activity) {
-        logger.warn(TAG, `failed to create activity for VC created by ${activeIdentity.did}`);
-      }
+      await activeUser?.get('activity').createActivity({type: ActivityType.CREDENTIALS_SHARED,
+        credentialsCount: selectedCredentials.length,
+        appDid: null,
+      });
 
       // Send the response to the original app, including the intent id as parameter.
       // The web connector will catch this parameter to retrieve the intent response payload and

@@ -6,7 +6,6 @@ import {CurrentUser} from "../auth/currentuser.decorator";
 import {ActivityEntity} from "./entities/activity.entity";
 import {ActivityService} from "./activity.service";
 import {CreateActivityInput} from "./dto/create-activity.input";
-import {UpdateActivityInput} from "./dto/update-activity.input";
 
 @Resolver()
 export class ActivityResolver {
@@ -28,18 +27,5 @@ export class ActivityResolver {
     @Mutation(() => ActivityEntity)
     createActivity(@CurrentUser() user: UserEntity, @Args('input') input: CreateActivityInput) {
         return this.activityService.createActivity(user.id, input);
-    }
-
-    /**
-     * update the activity
-     */
-    @UseGuards(JwtAuthGuard)
-    @Mutation(() => ActivityEntity)
-    async updateActivity(@CurrentUser() user: UserEntity, @Args('input') input: UpdateActivityInput) {
-        const entity: ActivityEntity = await this.activityService.findOne(user.id, input.id);
-        if (!entity)
-            return null;
-
-        return this.activityService.updateActivity(input);
     }
 }

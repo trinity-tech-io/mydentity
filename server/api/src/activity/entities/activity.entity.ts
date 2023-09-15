@@ -1,6 +1,5 @@
-import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
-import {ActivityType } from '@prisma/client';
-import {GraphQlJson} from "../../utils/graphql/json.types";
+import {Field, Int, ObjectType, registerEnumType} from '@nestjs/graphql';
+import {ActivityType, UserEmailProvider} from '@prisma/client';
 
 @ObjectType()
 export class ActivityEntity {
@@ -10,8 +9,20 @@ export class ActivityEntity {
     @Field(() => ActivityType)
     type: ActivityType;
 
-    @Field(() => GraphQlJson, {nullable: true})
-    content: any;
+    @Field(() => UserEmailProvider)
+    userEmailProvider?: UserEmailProvider;
+
+    @Field(() => String)
+    identityStr?: string;
+
+    @Field(() => Int)
+    credentialsCount?: number;
+
+    @Field(() => String)
+    appDid?: string;
+
+    @Field(() => String)
+    browserName?: string;
 
     @Field(() => Date)
     createdAt: Date;
@@ -19,4 +30,8 @@ export class ActivityEntity {
 
 registerEnumType(ActivityType, {
     name: 'ActivityType',
+});
+
+registerEnumType(UserEmailProvider, {
+    name: 'UserEmailProvider',
 });
