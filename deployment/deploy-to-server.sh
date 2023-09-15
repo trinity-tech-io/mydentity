@@ -1,27 +1,39 @@
 echo "LOCAL EXECUTION"
 echo ""
 
-echo "Usage: $0 [-c] [-t] [-p] [-r]"
-echo "-c: Build the client"
-echo "-t: Build the tests"
-echo "-p: Commit and push"
-echo "-r: Remote execution"
-echo ""
+# Usage is from args parse lines
+usage() { echo "$0 usage:" && grep " .)\ #" $0; exit 0; }
+
+# If no args print usage
+[ $# -eq 0 ] && usage
 
 build_client=false
 build_tests=false
 commit_push=false
 remote_executiion=false
 
-while getopts ":c:t:p:r:" flag; do
-    case "${flag}" in
-        c) build_client=true ;;
-        t) build_tests=true ;;
-        p) commit_push=true ;;
-        r) remote_executiion=true ;;
-        *) echo "Contains invalid option" ;;
+while getopts "ctprh" flag; do
+    case ${flag} in
+        c) # Build the client
+          build_client=true 
+          ;;
+        t) # Build the tests
+          build_tests=true 
+          ;;
+        p) # Commit and push
+          commit_push=true 
+          ;;
+        r) # Remote execution
+          remote_executiion=true 
+          ;;
+        h | *) # Display this help
+          usage
+          ;;
     esac
 done
+
+# echo $build_client $build_tests $commit_push $remote_executiion
+# exit 0;
 
 # Build the client dist locally
 if [ $build_client = true ]
@@ -29,14 +41,9 @@ then
   echo "Building client apps locally"
 
   cd client/did-web-service
+  npm i --legacy-peer-deps
   npm run build
   cd ../..
-
-  # # Push git folder to git
-  # echo "Pushing built clients to git"
-  # git add .
-  # git commit -m "Production build"
-  # git push
 else
   echo "Not building client locally as requested"
 fi
@@ -47,14 +54,9 @@ then
   echo "Building tests apps locally"
 
   cd tests/did-web-tests
+  npm i
   npm run build
   cd ../..
-
-  # # Push git folder to git
-  # echo "Pushing built clients to git"
-  # git add .
-  # git commit -m "Production build"
-  # git push
 else
   echo "Not building tests locally as requested"
 fi
@@ -62,7 +64,7 @@ fi
 # Push git folder to git
 if [ $commit_push = true ]
 then
-  echo "Pushing built clients to git"
+  echo "Pushing built clients and tests to git"
   git add .
   git commit -m "Production build"
   git push

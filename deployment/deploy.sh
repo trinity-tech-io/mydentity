@@ -31,7 +31,12 @@ pm2 delete api || true
 pm2 --name api start npm -- start
 echo '>>>>>> api done !!!'
 
-# client, just deploy static files
 cd ../..
+
+# client, just deploy static files
 rm -rf /var/www/html/app
 cp -r client/did-web-service/out /var/www/html/app
+
+# tests, just deploy static files
+rm -rf /var/www/html/tests
+cp -r tests/did-web-tests/out /var/www/html/tests
