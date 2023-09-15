@@ -1,10 +1,10 @@
 import { CredentialType } from "@model/credential/credential-type";
 import { ProfileCredentialInfo } from "@services/identity-profile-info/profile-credential-info";
 import { CredentialValueConverterAvatar } from "./converters/avatar-converter";
-import { CredentialValueConverterString } from "./converters/string-converter";
 import { CredentialValueConverterDate } from "./converters/date-converter";
 import { CredentialValueConverterGender } from "./converters/gender-converter";
 import { CredentialValueConverterNationality } from "./converters/nationality-converter";
+import { CredentialValueConverterString } from "./converters/string-converter";
 
 /**
  * List of profile credentials that this identity can potentially hold.
@@ -32,7 +32,6 @@ const availableProfileCredentialEntries: ProfileCredentialInfo[] = [
   new ProfileCredentialInfo("birthDate",
     new CredentialType("https://ns.elastos.org/credentials/profile/birthDate/v1#BirthDateCredential"),
     {
-      multipleInstancesAllowed: true,
       converter: new CredentialValueConverterDate("birthDate")
     }
   ),
@@ -46,7 +45,6 @@ const availableProfileCredentialEntries: ProfileCredentialInfo[] = [
   new ProfileCredentialInfo("gender",
     new CredentialType("https://ns.elastos.org/credentials/profile/nationality/v1#GenderCredential"),
     {
-      multipleInstancesAllowed: true,
       converter: new CredentialValueConverterGender("gender")
     }
   ),
@@ -60,42 +58,36 @@ const availableProfileCredentialEntries: ProfileCredentialInfo[] = [
   new ProfileCredentialInfo("nickname",
     new CredentialType("https://ns.elastos.org/credentials/profile/nickname/v1#NicknameCredential"),
     {
-      multipleInstancesAllowed: true,
       converter: new CredentialValueConverterString("nickname") // TODO:
     }
   ),
   new ProfileCredentialInfo("birthPlace",
     new CredentialType("https://ns.elastos.org/credentials/profile/birthPlace/v1#BirthPlaceCredential"),
     {
-      multipleInstancesAllowed: true,
       converter: new CredentialValueConverterString("birthPlace") // TODO:
     }
   ),
   new ProfileCredentialInfo("occupation",
     new CredentialType("https://ns.elastos.org/credentials/profile/occupation/v1#OccupationCredential"),
     {
-      multipleInstancesAllowed: true,
       converter: new CredentialValueConverterString("occupation") // TODO:
     }
   ),
   new ProfileCredentialInfo("education",
     new CredentialType("https://ns.elastos.org/credentials/profile/education/v1#EducationCredential"),
     {
-      multipleInstancesAllowed: true,
       converter: new CredentialValueConverterString("education") // TODO:
     }
   ),
   new ProfileCredentialInfo("interests",
     new CredentialType("https://ns.elastos.org/credentials/profile/interests/v1#InterestsCredential"),
     {
-      multipleInstancesAllowed: true,
       converter: new CredentialValueConverterString("interests") // TODO:
     }
   ),
   new ProfileCredentialInfo("description",
     new CredentialType("https://ns.elastos.org/credentials/profile/description/v1#DescriptionCredential"),
     {
-      multipleInstancesAllowed: true,
       converter: new CredentialValueConverterString("description") // TODO:
     }
   ),
@@ -110,70 +102,60 @@ const availableProfileCredentialEntries: ProfileCredentialInfo[] = [
   new ProfileCredentialInfo("discord",
     new CredentialType("https://ns.elastos.org/credentials/social/discord/v1#DiscordCredential"),
     {
-      multipleInstancesAllowed: true,
       converter: new CredentialValueConverterString("discord") // TODO:
     }
   ),
   new ProfileCredentialInfo("linkedin",
     new CredentialType("https://ns.elastos.org/credentials/social/linkedin/v1#LinkedinCredential"),
     {
-      multipleInstancesAllowed: true,
       converter: new CredentialValueConverterString("linkedin") // TODO:
     }
   ),
   new ProfileCredentialInfo("facebook",
     new CredentialType("https://ns.elastos.org/credentials/social/facebook/v1#FacebookCredential"),
     {
-      multipleInstancesAllowed: true,
       converter: new CredentialValueConverterString("facebook") // TODO:
     }
   ),
   new ProfileCredentialInfo("instagram",
     new CredentialType("https://ns.elastos.org/credentials/social/instagram/v1#InstagramCredential"),
     {
-      multipleInstancesAllowed: true,
       converter: new CredentialValueConverterString("instagram") // TODO:
     }
   ),
   new ProfileCredentialInfo("twitter",
     new CredentialType("https://ns.elastos.org/credentials/social/twitter/v1#TwitterCredential"),
     {
-      multipleInstancesAllowed: true,
       converter: new CredentialValueConverterString("twitter") // TODO:
     }
   ),
   new ProfileCredentialInfo("snapchat",
     new CredentialType("https://ns.elastos.org/credentials/social/snapchat/v1#SnapchatCredential"),
     {
-      multipleInstancesAllowed: true,
       converter: new CredentialValueConverterString("snapchat") // TODO:
     }
   ),
   new ProfileCredentialInfo("telegram",
     new CredentialType("https://ns.elastos.org/credentials/social/telegram/v1#TelegramCredential"),
     {
-      multipleInstancesAllowed: true,
       converter: new CredentialValueConverterString("telegram") // TODO:
     }
   ),
   new ProfileCredentialInfo("wechat",
     new CredentialType("https://ns.elastos.org/credentials/social/wechat/v1#WechatCredential"),
     {
-      multipleInstancesAllowed: true,
       converter: new CredentialValueConverterString("wechat") // TODO:
     }
   ),
   new ProfileCredentialInfo("weibo",
     new CredentialType("https://ns.elastos.org/credentials/social/weibo/v1#WeiboCredential"),
     {
-      multipleInstancesAllowed: true,
       converter: new CredentialValueConverterString("weibo") // TODO:
     }
   ),
   new ProfileCredentialInfo("twitch",
     new CredentialType("https://ns.elastos.org/credentials/social/twitch/v1#TwitchCredential"),
     {
-      multipleInstancesAllowed: true,
       converter: new CredentialValueConverterString("twitch") // TODO:
     }
   ),

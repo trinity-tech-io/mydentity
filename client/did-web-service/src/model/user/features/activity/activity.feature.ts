@@ -56,7 +56,7 @@ export class ActivityFeature implements UserFeature {
             return Activity.fromJson(result.data.createActivity);
         } else {
             logger.error("activity", "Failed to create activity");
-            return null
+            return null;
         }
     }
 
