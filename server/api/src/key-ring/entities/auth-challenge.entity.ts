@@ -1,7 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
-export class ChallengeEntity {
+export class AuthChallengeEntity {
   @Field(() => String, { description: 'The challenge id' })
   id: string;
 

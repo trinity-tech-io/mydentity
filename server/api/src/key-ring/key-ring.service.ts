@@ -1,5 +1,5 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { Challenge, Prisma, User, UserShadowKey, UserShadowKeyType } from '@prisma/client';
+import { AuthChallenge, Prisma, User, UserShadowKey, UserShadowKeyType } from '@prisma/client';
 import { VerifiedAuthenticationResponse, VerifiedRegistrationResponse, VerifyAuthenticationResponseOpts, VerifyRegistrationResponseOpts, verifyAuthenticationResponse, verifyRegistrationResponse } from '@simplewebauthn/server';
 import { AuthenticationResponseJSON, RegistrationResponseJSON } from '@simplewebauthn/server/script/deps';
 import { randombytes_buf, ready } from 'libsodium-wrappers-sumo';
@@ -11,7 +11,7 @@ import { AppException } from 'src/exceptions/app-exception';
 import { KeyRingExceptionCode } from 'src/exceptions/exception-codes';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthKeyInput } from './dto/auth-key-input';
-import { ChallengeEntity } from './entities/challenge.entity';
+import { AuthChallengeEntity } from './entities/auth-challenge.entity';
 
 @Injectable()
 export class KeyRingService {
@@ -70,8 +70,8 @@ export class KeyRingService {
     });
   }
 
-  private async getChallenge(challengeId: string): Promise<Challenge> {
-    const challenge = await this.prisma.challenge.findUnique({
+  private async getChallenge(challengeId: string): Promise<AuthChallenge> {
+    const challenge = await this.prisma.authChallenge.findUnique({
       where: {
         id: challengeId,
         createdAt: {
@@ -471,11 +471,11 @@ export class KeyRingService {
     return shadow.user;
   }
 
-  async generateChallenge(): Promise<ChallengeEntity> {
+  async generateChallenge(): Promise<AuthChallengeEntity> {
     const content = randombytes_buf(128, "hex");
 
     // remove the expired entries
-    await this.prisma.challenge.deleteMany({
+    await this.prisma.authChallenge.deleteMany({
       where: {
         createdAt: {
           lt: new Date(Date.now() - KeyRingService.CHALLENGE_EXPIRATION)
@@ -483,7 +483,7 @@ export class KeyRingService {
       }
     });
 
-    const challenge = await this.prisma.challenge.create({
+    const challenge = await this.prisma.authChallenge.create({
       data: {
         content: content
       }

@@ -5,7 +5,7 @@ import { CurrentUser } from 'src/auth/currentuser.decorator';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CurrentBrowser } from 'src/browsers/browser-user.decorator';
 import { AuthKeyInput } from './dto/auth-key-input';
-import { ChallengeEntity } from './entities/challenge.entity';
+import { AuthChallengeEntity } from './entities/auth-challenge.entity';
 import { ShadowKeyEntity } from './entities/shadow-key.entity';
 import { KeyRingService } from './key-ring.service';
 
@@ -43,7 +43,7 @@ export class KeyRingResolver {
     return this.keyRingService.getAllKeys(user);
   }
 
-  @Query(() => ChallengeEntity)
+  @Query(() => AuthChallengeEntity)
   generateChallenge() {
     return this.keyRingService.generateChallenge();
   }

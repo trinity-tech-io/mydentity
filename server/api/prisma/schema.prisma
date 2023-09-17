@@ -178,7 +178,7 @@ model Activity {
 }
 
 // No need setup the relations with the user
-model Challenge {
+model AuthChallenge {
   id        String   @id @unique @default(uuid())
   content   String
   createdAt DateTime @default(now())
