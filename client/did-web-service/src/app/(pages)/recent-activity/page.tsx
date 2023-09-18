@@ -3,9 +3,9 @@ import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { clearOnGoingFlowOperation } from "@services/flow.service";
 import { authUser$ } from "@services/user/user.events";
 import { FC, useEffect } from "react";
-import { AllIdentityList } from "./widgets/AllIdentityList";
+import { AllRecentActivity } from "./widgets/AllRecentActivity";
 
-const Identities: FC = () => {
+const RecentActivity: FC = () => {
   const [authUser] = useBehaviorSubject(authUser$);
 
   useEffect(() => {
@@ -16,10 +16,10 @@ const Identities: FC = () => {
       {/* Widgets */}
       {authUser &&
         <>
-          <AllIdentityList />
+          <AllRecentActivity />
         </>
       }
   </>)
 }
 
-export default Identities;
+export default RecentActivity;

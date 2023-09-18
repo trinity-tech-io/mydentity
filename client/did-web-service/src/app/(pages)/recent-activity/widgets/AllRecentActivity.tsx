@@ -1,18 +1,11 @@
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { authUser$ } from "@services/user/user.events";
 import { FC } from 'react';
-import { useRouter } from "next/navigation";
 
-export const RecentActivityWidget: FC = _ => {
+export const AllRecentActivity: FC = _ => {
   const [activeUser] = useBehaviorSubject(authUser$);
-  let [activities] = useBehaviorSubject(activeUser?.get('activity').activities$);
-  const router = useRouter()
-  activities = activities.slice(0, 5)
-  // TODO: activities: sorted by recent active time
+  const [activities] = useBehaviorSubject(activeUser?.get('activity').activities$);
 
-  const handleShowAllClick = (): void => {
-    router.push("/recent-activity");
-  }
   return (
     <div className="col-span-full xl:col-span-6 bg-white dark:bg-slate-800 shadow-lg rounded-sm border border-slate-200 dark:border-slate-700">
       <header className="px-5 py-4 border-b border-slate-100 dark:border-slate-700">
@@ -51,19 +44,6 @@ export const RecentActivityWidget: FC = _ => {
                 })
               }
             </tbody>
-            <tfoot>
-                <tr>
-                  <td colSpan={2} className="p-0 text-right">
-                    <div className="flex justify-end">
-                      <button className="bg-indigo-500 hover:bg-indigo-600 text-white font-bold text-xs py-1 px-2 rounded relative"
-                      onClick={handleShowAllClick}
-                      >
-                        <span>Show all</span>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              </tfoot>
           </table>
 
         </div>
