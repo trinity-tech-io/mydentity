@@ -45,7 +45,8 @@ export class ActivityService {
         appendField('identityStr');
         appendField('credentialsCount');
         appendField('appDid');
-        appendField('browserId');
+        if (input.browserId !== undefined && input.browserId != null)
+            data['browser'] = {connect: {id: input.browserId}}
         appendField('browserName');
 
         return this.prisma.activity.create({data});

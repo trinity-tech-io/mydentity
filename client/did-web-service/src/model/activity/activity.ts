@@ -2,6 +2,7 @@ import {ActivityDto} from "@model/activity/activity.dto";
 import {ActivityType} from "@model/activity/activity-type";
 import moment from "moment";
 import {UserEmailProvider} from "@model/user-email/user-email-provider";
+import {Browser} from "@model/browser/browser";
 
 export class Activity {
     public id: string;
@@ -10,6 +11,8 @@ export class Activity {
     public identityStr?: string;
     public credentialsCount?: number;
     public appDid?: string;
+
+    public browser?: Browser;
     public browserName?: string;
     public createdAt: Date;
 
@@ -45,7 +48,10 @@ export class Activity {
                     return 'Bound with Microsoft oauth email.';
                 return `Bound with unhandled type ${this.userEmailProvider}.`;
             case ActivityType.BIND_BROWSER:
-                return `Bound browser.`;
+            {
+                const name = this.browser?.name || this.browserName;
+                return `Bound browser ${name}.`;
+            }
             case ActivityType.PASSWORD_CHANGED:
                 return `Password changed.`;
             default:
