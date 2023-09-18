@@ -139,6 +139,16 @@ export const RequestDetails: FC<{
     window.location.href = redirectUrl;
   }
 
+  // User reject the upcoming request.
+  const rejectRequest = (): void => {
+
+    // Send the response to the original app, including the intent id as parameter.
+    // The web connector will catch this parameter to retrieve the intent response payload and
+    // to deliver it to the app through the connectivity sdk.
+    const redirectUrl = setQueryParameter(intent.redirectUrl, "rid", intent.id);
+    window.location.href = redirectUrl;
+}
+
   return <>
     {/* Do you want to save the following content issued by app XXX, to your identity? This credential will not be
     visible by anyone unless you choose share it later.
@@ -160,7 +170,10 @@ export const RequestDetails: FC<{
             <CredentialPreviewWithDetails key={i} importedCredential={importedCredential} />
           )
         })}
-        <MainButton onClick={approveRequest} busy={preparingResponse} disabled={!credentials}>Import this to my profile</MainButton>
+        <div className="flex items-center space-x-3">
+          <MainButton className="w-1/2" onClick={rejectRequest}>Cancel</MainButton>
+          <MainButton className="w-1/2" onClick={approveRequest} busy={preparingResponse} disabled={!credentials}>Import this to my profile</MainButton>
+        </div>
         {unlockerIsCancelled && <UnlockRetrier className="mt-2" />}
       </div>
     }

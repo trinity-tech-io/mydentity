@@ -300,6 +300,16 @@ export const RequestDetails: FC<{
     }
   }
 
+  // User reject the upcoming request.
+  const rejectRequest = (): void => {
+
+      // Send the response to the original app, including the intent id as parameter.
+      // The web connector will catch this parameter to retrieve the intent response payload and
+      // to deliver it to the app through the connectivity sdk.
+      const redirectUrl = setQueryParameter(intent.redirectUrl, "rid", intent.id);
+      window.location.href = redirectUrl;
+  }
+
   return <>
     {activeIdentity &&
       <div>
@@ -310,7 +320,10 @@ export const RequestDetails: FC<{
         </div>
         <ClaimDisplayEntryListWidget claimDisplayEntryList={organizedClaims} />
         <br /><br />
-        <MainButton onClick={approveRequest} busy={preparingResponse}>Approve</MainButton>
+        <div className="flex items-center space-x-3">
+          <MainButton className="w-1/2" onClick={rejectRequest}>Cancel</MainButton>
+          <MainButton className="w-1/2" onClick={approveRequest} busy={preparingResponse}>Approve</MainButton>
+        </div>
       </div>
     }
     {!activeIdentity && "Make an identity active to continue"}
