@@ -22,6 +22,7 @@ COMMIT;
 -- AlterTable
 ALTER TABLE "Activity" DROP COLUMN "content",
 ADD COLUMN     "appDid" TEXT,
+ADD COLUMN     "browserId" TEXT,
 ADD COLUMN     "browserName" TEXT,
 ADD COLUMN     "credentialsCount" INTEGER,
 ADD COLUMN     "identityStr" TEXT,
@@ -30,3 +31,6 @@ ADD COLUMN     "userEmailProvider" "UserEmailProvider";
 -- AlterTable
 ALTER TABLE "UserEmail" ADD COLUMN     "provider" "UserEmailProvider" NOT NULL,
 ALTER COLUMN "email" SET NOT NULL;
+
+-- AddForeignKey
+ALTER TABLE "Activity" ADD CONSTRAINT "Activity_browserId_fkey" FOREIGN KEY ("browserId") REFERENCES "Browser"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

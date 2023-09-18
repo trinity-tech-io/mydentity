@@ -8,6 +8,7 @@ import { getApolloClient } from "@services/graphql.service";
 import { logger } from "@services/logger";
 import { AdvancedBehaviorSubject } from "@utils/advanced-behavior-subject";
 import { CreateActivityInput } from "@model/activity/create-activity.input";
+import { withCaughtAppException } from "@services/error.service";
 
 export class ActivityFeature implements UserFeature {
     public activities$ = new AdvancedBehaviorSubject<Activity[]>([], () => this.fetchActivities());
@@ -17,13 +18,15 @@ export class ActivityFeature implements UserFeature {
     private async fetchActivities(): Promise<Activity[]> {
         logger.log("activity", "Fetch activities");
 
-        const { data } = await (await getApolloClient()).query<{ activities: ActivityDto[] }>({
-            query: gql`
+        const {data} = await withCaughtAppException(async () => {
+            return await (await getApolloClient()).query<{ activities: ActivityDto[] }>({
+                query: gql`
             query Activities {
                 activities {
                     ${graphQLActivityFields}
                 }
             } `
+            });
         });
 
         if (data) {
@@ -34,17 +37,24 @@ export class ActivityFeature implements UserFeature {
         }
     }
 
-    public async createActivity(input: CreateActivityInput): Promise<Activity> {
+    /**
+     * static function is for login.
+     * when user login, there is no user object there.
+     * @param input
+     */
+    public static async createActivity(input: CreateActivityInput): Promise<Activity> {
         logger.log("activity", "Create activity");
 
-        const result = await (await getApolloClient()).mutate<{ createActivity: ActivityDto }>({
-            mutation: gql`
+        const result = await withCaughtAppException(async () => {
+            return await (await getApolloClient()).mutate<{ createActivity: ActivityDto }>({
+                mutation: gql`
             mutation CreateActivity($input: CreateActivityInput!) {
                 createActivity(input: $input) {
                     ${graphQLActivityFields}
                 }
             } `,
-            variables: {input}
+                variables: {input}
+            });
         });
 
         if (result?.data?.createActivity) {

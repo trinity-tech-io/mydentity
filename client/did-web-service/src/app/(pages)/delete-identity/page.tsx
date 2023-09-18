@@ -10,6 +10,7 @@ import { authUser$ } from '@services/user/user.events';
 import { useRouter } from 'next/navigation';
 import { FC, useState } from 'react';
 import { ActivityType } from "@model/activity/activity-type";
+import { ActivityFeature } from "@model/user/features/activity/activity.feature";
 
 const TAG = "delete-identity";
 
@@ -31,7 +32,7 @@ const DeleteIdentityPage: FC = () => {
     // Deletion
     const success = await activeUser.get("identity").deleteIdentity(identityStringToDelete);
     if (success) {
-      await activeUser?.get('activity').createActivity({type: ActivityType.IDENTITY_DELETED, identityStr: identityStringToDelete});
+      await ActivityFeature.createActivity({type: ActivityType.IDENTITY_DELETED, identityStr: identityStringToDelete});
     }
   }
 

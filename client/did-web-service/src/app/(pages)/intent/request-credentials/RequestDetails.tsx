@@ -17,6 +17,7 @@ import { FC, useEffect, useState } from "react";
 import { RequestingApp } from "../components/RequestingApp";
 import { ClaimDisplayEntryListWidget } from "./components/ClaimDisplayEntryList";
 import { V1Claim } from "./model/v1claim";
+import { ActivityFeature } from "@model/user/features/activity/activity.feature";
 
 export type CredentialDisplayEntry = {
   credential: Credential;
@@ -287,9 +288,9 @@ export const RequestDetails: FC<{
     if (fulfilled) {
       // TODO: check fulfilled success - if error report error to user
 
-      await activeUser?.get('activity').createActivity({type: ActivityType.CREDENTIALS_SHARED,
+      await ActivityFeature.createActivity({type: ActivityType.CREDENTIALS_SHARED,
         credentialsCount: selectedCredentials.length,
-        appDid: null,
+        appDid: requestingAppDID,
       });
 
       // Send the response to the original app, including the intent id as parameter.

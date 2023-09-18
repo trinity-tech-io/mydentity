@@ -13,6 +13,9 @@ export class ActivityService {
         return this.prisma.activity.findMany({
             where: {
                 userId
+            },
+            include: {
+                browser: true,
             }
         });
     }
@@ -21,6 +24,9 @@ export class ActivityService {
         return this.prisma.activity.findFirst({
             where: {
                 id, userId
+            },
+            include: {
+                browser: true,
             }
         });
     }
@@ -39,6 +45,7 @@ export class ActivityService {
         appendField('identityStr');
         appendField('credentialsCount');
         appendField('appDid');
+        appendField('browserId');
         appendField('browserName');
 
         return this.prisma.activity.create({data});

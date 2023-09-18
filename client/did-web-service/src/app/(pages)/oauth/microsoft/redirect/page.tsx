@@ -9,14 +9,12 @@ import {oauthMSBindEmail, oauthMSSignIn} from "@services/user/user.service";
 import {useRouter, useSearchParams} from "next/navigation";
 import {FC, useEffect} from "react";
 import {UserEmailProvider} from "@model/user-email/user-email-provider";
-import {useBehaviorSubject} from "@hooks/useBehaviorSubject";
-import {authUser$} from "@services/user/user.events";
+import {ActivityFeature} from "@model/user/features/activity/activity.feature";
 
 const MicrosoftRedirect: FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const code = searchParams.get('code');
-  const [activeUser] = useBehaviorSubject(authUser$);
 
   useEffect(() => {
     if (!code) {
@@ -30,7 +28,7 @@ const MicrosoftRedirect: FC = () => {
         {
           oauthMSBindEmail(code).then(result => {
             if (result) {
-              activeUser.get('activity').createActivity({ type: ActivityType.BIND_EMAIL, userEmailProvider: UserEmailProvider.MICROSOFT }).then(activity => {
+              ActivityFeature.createActivity({ type: ActivityType.BIND_EMAIL, userEmailProvider: UserEmailProvider.MICROSOFT }).then(activity => {
                 clearOnGoingFlowOperation();
                 router.push('/account/security');
               }).catch(e => {
@@ -42,9 +40,12 @@ const MicrosoftRedirect: FC = () => {
               router.push('/account/security?error=unknown');
             }
           }).catch((e) => {
-            if (e instanceof ExistingEmailException) {
+            if (e && e instanceof ExistingEmailException) {
               clearOnGoingFlowOperation();
               router.push('/account/security?error=emailExists');
+            } else {
+              clearOnGoingFlowOperation();
+              router.push('/account/security?error=unknown');
             }
           });
         }
@@ -53,7 +54,7 @@ const MicrosoftRedirect: FC = () => {
         {
           oauthMSSignIn(code).then(user => {
             if (user) {
-              user.get('activity').createActivity({ type: ActivityType.USER_SIGN_IN, userEmailProvider: UserEmailProvider.MICROSOFT }).then(activity => {
+              ActivityFeature.createActivity({ type: ActivityType.USER_SIGN_IN, userEmailProvider: UserEmailProvider.MICROSOFT }).then(activity => {
                 clearOnGoingFlowOperation();
                 router.push(`/dashboard`);
               }).catch(e => {

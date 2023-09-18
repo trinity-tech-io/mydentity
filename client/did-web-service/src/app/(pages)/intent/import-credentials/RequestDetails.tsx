@@ -18,6 +18,7 @@ import { FC, useEffect, useState } from "react";
 import { RequestingApp } from "../components/RequestingApp";
 import { CredentialPreviewWithDetails } from "./CredentialPreviewWithDetails";
 import { ImportedCredential, ImportedCredentialItem } from "./page";
+import { ActivityFeature } from "@model/user/features/activity/activity.feature";
 
 const TAG = 'ImportCredential';
 
@@ -126,9 +127,9 @@ export const RequestDetails: FC<{
       return;
     }
 
-    await activeUser?.get('activity').createActivity({type: ActivityType.CREDENTIALS_IMPORTED,
+    await ActivityFeature.createActivity({type: ActivityType.CREDENTIALS_IMPORTED,
       credentialsCount: importedCredentials.length,
-      appDid: null,
+      appDid: requestingAppDID,
     });
 
     // TODO: check fulfilled success - if error report error to user

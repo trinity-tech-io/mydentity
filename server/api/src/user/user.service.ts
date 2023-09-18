@@ -150,7 +150,7 @@ export class UserService {
 
     // Send the authentication link by email.
     const magicLink = `${process.env.FRONTEND_URL}/checkauthkey?key=${encode(temporaryEmailAuthKey)}`;
-    this.emailingService.sendEmail(template, "DID Service <email-auth@didservice.io>", emailAddress, subject, {
+    await this.emailingService.sendEmail(template, "DID Service <email-auth@didservice.io>", emailAddress, subject, {
       magicLink
     });
 

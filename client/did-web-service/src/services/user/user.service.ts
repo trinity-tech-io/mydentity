@@ -351,6 +351,7 @@ export async function oauthMSBindEmail(code: string): Promise<boolean> {
   });
 
   if (response?.data && response.data.oauthMSBindEmail) {
+    logger.log("user", "oauth email bound");
     return true;
   }
   else {

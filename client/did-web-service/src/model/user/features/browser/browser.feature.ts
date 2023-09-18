@@ -38,6 +38,10 @@ export class BrowserFeature implements UserFeature {
     return null;
   }
 
+  public async getCurrentBrowser(): Promise<Browser> {
+    return this.browsers$.value.find(b => b.isCurrentBrowser());
+  }
+
   public async deleteBrowser(browserId: string): Promise<boolean> {
     logger.log("browsers", "Deleting browser");
 

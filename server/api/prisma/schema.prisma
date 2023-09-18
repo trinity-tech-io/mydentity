@@ -157,6 +157,7 @@ model Browser {
 
   userId        String
   UserShadowKey UserShadowKey[]
+  Activities    Activity[]
 
   // @@id([userId, clientId])
 }
@@ -181,11 +182,13 @@ model Activity {
   identityStr       String? // For IDENTITY_CREATED and IDENTITY_DELETED.
   credentialsCount  Int? // For CREDENTIALS_IMPORTED and CREDENTIALS_SHARED.
   appDid            String? // Caller of CREDENTIALS_IMPORTED and CREDENTIALS_SHARED.
+  browser           Browser? @relation(fields: [browserId], references: [id], onDelete: Restrict) // For BIND_BROWSER, if no browser, use browserName
   browserName       String? // For BIND_BROWSER
 
   createdAt         DateTime @default(now())
 
   userId            String
+  browserId         String?
 }
 
 // No need setup the relations with the user

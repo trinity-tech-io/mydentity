@@ -97,8 +97,9 @@ export class UserEmailFeature implements UserFeature {
 
     /**
      * Checks the given temporary authentication key and signs the user in if successful
+     * static function is for login/bind.
      */
-    public async checkRawEmailBind(authKey: string): Promise<boolean> {
+    public static async checkRawEmailBind(authKey: string): Promise<boolean> {
         logger.log("user", "Checking temporary authentication key for email bind.");
 
         const result = await withCaughtAppException(async () => {

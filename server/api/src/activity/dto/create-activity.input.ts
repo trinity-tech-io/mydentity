@@ -6,18 +6,21 @@ export class CreateActivityInput {
   @Field(() => ActivityType)
   type: ActivityType;
 
-  @Field(() => UserEmailProvider)
+  @Field(() => UserEmailProvider, {nullable: true})
   userEmailProvider?: UserEmailProvider;
 
-  @Field(() => String)
+  @Field(() => String, {nullable: true})
   identityStr?: string;
 
-  @Field(() => Int)
+  @Field(() => Int, {nullable: true})
   credentialsCount?: number;
 
-  @Field(() => String)
+  @Field(() => String, {nullable: true})
   appDid?: string;
 
-  @Field(() => String)
+  @Field(() => String, {nullable: true})
+  browserId?: string;
+
+  @Field(() => String, {nullable: true})
   browserName?: string;
 }

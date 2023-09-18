@@ -12,5 +12,7 @@ export class CreateActivityInput {
 
   appDid?: string;
 
+  browserId?: string;
+
   browserName?: string;
 }

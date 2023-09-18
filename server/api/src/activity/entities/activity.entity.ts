@@ -1,5 +1,6 @@
 import {Field, Int, ObjectType, registerEnumType} from '@nestjs/graphql';
 import {ActivityType, UserEmailProvider} from '@prisma/client';
+import {BrowserEntity} from "../../browsers/entities/browser.entity";
 
 @ObjectType()
 export class ActivityEntity {
@@ -9,19 +10,22 @@ export class ActivityEntity {
     @Field(() => ActivityType)
     type: ActivityType;
 
-    @Field(() => UserEmailProvider)
+    @Field(() => UserEmailProvider, {nullable: true})
     userEmailProvider?: UserEmailProvider;
 
-    @Field(() => String)
+    @Field(() => String, {nullable: true})
     identityStr?: string;
 
-    @Field(() => Int)
+    @Field(() => Int, {nullable: true})
     credentialsCount?: number;
 
-    @Field(() => String)
+    @Field(() => String, {nullable: true})
     appDid?: string;
 
-    @Field(() => String)
+    @Field(() => BrowserEntity, {nullable: true})
+    browser?: BrowserEntity;
+
+    @Field(() => String, {nullable: true})
     browserName?: string;
 
     @Field(() => Date)
