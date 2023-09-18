@@ -14,11 +14,16 @@ const TAG = 'IdentityListWidget'
 
 export const IdentityListWidget: FC = _ => {
   const [authUser] = useBehaviorSubject(authUser$);
-  let [identities] = useBehaviorSubject(authUser?.get("identity").identities$);
+  const [identities] = useBehaviorSubject(authUser?.get("identity").identities$);
   const router = useRouter()
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const [showToast, setShowToast] = useState<boolean>(false);
-  identities = identities?.slice(0, 5);
+  let sortedIdentities = [...identities].sort((a, b) => {
+    const dateA = new Date(a.lastUsedAt$.getValue()).getTime();
+    const dateB = new Date(b.lastUsedAt$.getValue()).getTime();
+    return dateB - dateA
+  });
+  sortedIdentities = sortedIdentities?.slice(0, 5);
 
   const handleCellClick = (identity: Identity): void => {
     if (identity !== activeIdentity) {
@@ -61,20 +66,20 @@ export const IdentityListWidget: FC = _ => {
       <div>
 
         {/* Table body */}
-        {!identities && <VerticalStackLoadingCard />}
+        {!sortedIdentities && <VerticalStackLoadingCard />}
         {
-          identities?.length === 0 && <div className='text-center m-4 flex flex-col'>
+          sortedIdentities?.length === 0 && <div className='text-center m-4 flex flex-col'>
             No identity yet.
             <MainButton onClick={openCreateIdentity} className="mt-4">Create my first identity</MainButton>
           </div>
         }
         {
-          identities?.length > 0 &&
+          sortedIdentities?.length > 0 &&
           <div className="overflow-x-auto">
             <table className="table-auto w-full">
               <tbody className="text-sm divide-y divide-slate-100 dark:divide-slate-700">
                 {
-                  identities.map(identity => {
+                  sortedIdentities.map(identity => {
                     return (
                       <tr key={identity.did}
                         className="hover:bg-gray-100 hover:text-black dark:hover:bg-slate-500 dark:hover:text-slate-1000 cursor-pointer"
