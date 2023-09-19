@@ -40,13 +40,13 @@ const Home: FC = () => {
             <div>
               <div className="inline-flex flex-col pt-2">
                 <Barcode value="Decentralized Srv" {...BarCodeOptions} height={15}/>
-                <p className="text-white stretch text-xs">Decentralized Identity Web Service</p>
+                <p className="text-white stretch text-xs tracking-[2px]">Decentralized Identity Web Service</p>
               </div>
             </div>
             <div>
               <div className="inline-flex flex-col pt-2">
                 <Barcode value="Elastos" {...BarCodeOptions} height={15}/>
-                <p className="text-white stretch text-xs">Powered by Elastos</p>
+                <p className="text-white stretch text-xs tracking-[1.5px]">Powered by Elastos</p>
               </div>
             </div>
           </div>

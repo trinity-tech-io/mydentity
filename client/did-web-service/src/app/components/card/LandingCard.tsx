@@ -36,12 +36,12 @@ export const LandingCard: FC = () => {
         <div className="w-full">
           <div className="inline-flex flex-col pt-10">
             <Barcode value="Welcome to future" {...BarCodeOptions} height={22}/>
-            <p className="text-white stretch text-sm">Welcome to the future</p>
+            <p className="text-white stretch text-sm tracking-[7px]">Welcome to the future</p>
           </div>
         </div>
         <div className="inline-flex flex-col">
           <Barcode value="identity" {...BarCodeOptions} height={22}/>
-          <p className="text-white stretch text-sm">of identity</p>
+          <p className="text-white stretch text-sm tracking-[9px]">of identity</p>
         </div>
         <Divider className='border-neutral-50 border-opacity-20 pt-1'/>
       </div>
