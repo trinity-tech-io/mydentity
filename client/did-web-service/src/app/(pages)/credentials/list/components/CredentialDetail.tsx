@@ -11,10 +11,7 @@ import { FC } from 'react';
 import { ApplicationRow } from './ApplicationRow';
 import IdentityMenu from './IdentityMenu';
 
-interface Props {
-  selectedCredential: Credential
-}
-export const CredentialDetailWidget: FC<Props> = (props) => {
+export const CredentialDetailWidget: FC = () => {
   const mounted = useMounted();
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const identityProfileFeature = activeIdentity?.get("profile");

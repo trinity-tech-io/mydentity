@@ -15,12 +15,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import { activeIdentity$ } from '@services/identity/identity.events';
 import { FC, useEffect } from 'react';
 
-interface ConfirmDialogProps {
-  onSelected: (credential: Credential) => void;
-}
-
-export const CredentialListWidget: FC<ConfirmDialogProps> = (props) => {
-  const { onSelected } = props;
+export const CredentialListWidget: FC = () => {
   const TAG = "CredentialList";
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const [credentials] = useBehaviorSubject(activeIdentity?.get("credentials").credentials$);
@@ -32,24 +27,14 @@ export const CredentialListWidget: FC<ConfirmDialogProps> = (props) => {
     credential: Credential,
   ): void => {
     identityProfileFeature.setActiveCredential(credential)
-    onSelected(credential);
   };
 
   useEffect(() => {
-    if (activeCredential) {
-      for (let i = 0; i < credentials.length; i++) {
-        const credential = credentials[i]
-        if (activeCredential.id == credential.id) {
-          onSelected(credential)
-        }
-      }
-    }
-
     if (credentials && !activeCredential) {
       identityProfileFeature.setActiveCredential(credentials[0])
     }
 
-  }, [activeCredential, credentials, onSelected, identityProfileFeature]);
+  }, [activeCredential, credentials, identityProfileFeature]);
 
   return (
     <div className="col-span-full xl:col-span-5 bg-white dark:bg-slate-800 shadow-lg rounded-sm border border-slate-200 dark:border-slate-700">
