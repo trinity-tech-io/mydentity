@@ -11,12 +11,12 @@ export class CredentialValueConverterGender extends CredentialValueConverter<str
     super(ProfileCredentialInfoEditionType.Gender);
   }
 
-  // return: male/famle
+  // return: male/female
   public toEditableValue(credential: Credential): string {
     return converGenderFullName(credential.verifiableCredential.getSubject().getProperty(this.subjectKey))
   }
 
-  // return: male/famle
+  // return: male/female
   public toDisplayableValue(credential: Credential): string {
     return converGenderFullName(credential.verifiableCredential.getSubject().getProperty(this.subjectKey))
   }

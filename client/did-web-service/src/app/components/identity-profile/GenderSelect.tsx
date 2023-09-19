@@ -47,10 +47,10 @@ export default function GenderSelect({ onGenderSelect }: GenderSelectProps): Rea
 
 export enum GenderType {
   male = 'male',
-  famle = 'famle'
+  female = 'female'
 }
 
 const gender: readonly GenderType[] = [
   GenderType.male,
-  GenderType.famle
+  GenderType.female
 ];
