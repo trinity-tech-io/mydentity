@@ -77,6 +77,7 @@ export const CreateIdentity: FC<{
           defaultValue={suggestedName}
           variant="outlined"
           size="small"
+          autoComplete="off" 
         />
       </div>
     </form>

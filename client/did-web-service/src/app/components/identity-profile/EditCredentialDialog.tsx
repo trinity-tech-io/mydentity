@@ -110,6 +110,7 @@ function EditCredentialDialog(props: EditCredentialDialogProps): JSX.Element {
                         size="small"
                         InputLabelProps={{ shrink: true }}
                         autoFocus
+                        autoComplete="off"
                     />
                 }
                 {editionType == ProfileCredentialInfoEditionType.Date && <DatePickerCommon selectedDate={selectedDate} onDateChange={handleDateChange} />}

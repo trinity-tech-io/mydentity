@@ -64,9 +64,9 @@ const SignUp: FC = () => {
       </Typography>
 
       <div className="flex flex-col mt-4 gap-4">
-        <TextField label="How should we call you?" onChange={onNameChange} disabled={signingUp} variant="outlined" size="small" />
-        <TextField label="Password" onChange={onPasswordChange} disabled={signingUp} variant="outlined" size="small" />
-        <TextField label="Confirm password" onChange={onPasswordRepeatChange} disabled={signingUp} variant="outlined" size="small" />
+        <TextField label="How should we call you?" onChange={onNameChange} disabled={signingUp} variant="outlined" size="small" autoComplete="off" />
+        <TextField label="Password" onChange={onPasswordChange} disabled={signingUp} variant="outlined" size="small" autoComplete="off" />
+        <TextField label="Confirm password" onChange={onPasswordRepeatChange} disabled={signingUp} variant="outlined" size="small" autoComplete="off" />
         <MainButton onClick={onSignUp} busy={signingUp} disabled={!canSignIn}>Create a user account</MainButton>
       </div>
     </div>
