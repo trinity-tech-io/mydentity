@@ -17,6 +17,7 @@ import { IdentityFeature } from "../identity-feature";
 
 export class HiveFeature implements IdentityFeature {
   public vaultStatus$ = new AdvancedBehaviorSubject<VaultStatus>(null, async () => { this.retrieveVaultStatus(); }); // Latest known vault status for active user
+  public vaultInfo$ = new BehaviorSubject<VaultInfo>(null);
   public vaultAddress$ = new BehaviorSubject<string>(null);
 
   private appContextCache = new ObjectCache<AppContext>();
@@ -185,7 +186,9 @@ export class HiveFeature implements IdentityFeature {
     try {
       // Call the subscription service to actually know if we are registered or not on that vault.
       const subscriptionService = await this.getSubscriptionService();
-      await subscriptionService.checkSubscription();
+      const vaultInfo = await subscriptionService.checkSubscription();
+      this.vaultInfo$.next(vaultInfo);
+      logger.log("hive", "Vault info retrieval completed", vaultInfo);
 
       // Normally, if no exception thrown, "vault" is never null
       this.vaultStatus$.next(VaultStatus.ReadyToUse);
@@ -210,6 +213,7 @@ export class HiveFeature implements IdentityFeature {
   private emitUnknownErrorStatus(): void {
     logger.log("hive", "Emiting unknown error status");
     this.vaultStatus$.next(VaultStatus.UnknownError);
+    this.vaultInfo$.next(null);
   }
 
   async getSubscriptionService(): Promise<VaultSubscription> {
