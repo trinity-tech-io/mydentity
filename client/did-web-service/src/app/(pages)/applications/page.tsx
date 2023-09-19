@@ -14,12 +14,18 @@ const Applications: FC = () => {
     <Breadcrumbs entries={["applications"]} />
 
     <Typography variant="h5">Applications</Typography>
-    <Typography>Applications this identity interacted with</Typography>
-    <div className="mt-8">
-      {
-        interactingApplications?.map((app, i) => <ApplicationRow key={i} application={app} />)
-      }
-    </div>
+
+    {interactingApplications?.length === 0 && <div>
+      No application has interacted with this identity yet.
+    </div>}
+    {interactingApplications?.length > 0 && <>
+      <Typography>Applications this identity interacted with</Typography>
+      <div className="mt-8">
+        {
+          interactingApplications?.map((app, i) => <ApplicationRow key={i} application={app} />)
+        }
+      </div>
+    </>}
   </div>)
 }
 

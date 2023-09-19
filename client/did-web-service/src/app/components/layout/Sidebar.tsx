@@ -26,6 +26,7 @@ type GroupConfig = {
   links?: LinkConfig[];
   requiresAuth?: boolean; // This link group will be shown only if user is signed in
   requiresActiveIdentity?: boolean; // This link gorup will show only if there is an active identity
+  openByDefault?: boolean; // Whether the group is open by default or not
 }
 
 const groups: GroupConfig[] = [
@@ -33,6 +34,12 @@ const groups: GroupConfig[] = [
     icon: <DashboardIcon />,
     title: "Dashboard",
     url: "/dashboard"
+  },
+  {
+    icon: <AccountIcon />,
+    title: "All identities",
+    url: "/identities",
+    requiresAuth: true
   },
   {
     icon: <AccountIcon />,
@@ -45,7 +52,14 @@ const groups: GroupConfig[] = [
       { title: "Delete identity", url: "/delete-identity" },
     ],
     requiresAuth: true,
-    requiresActiveIdentity: true
+    requiresActiveIdentity: true,
+    openByDefault: true
+  },
+  {
+    icon: <DashboardIcon />,
+    title: "Recent activity",
+    url: "/recent-activity",
+    requiresAuth: true
   },
   /* {
     icon: <MarketplaceIcon />,
@@ -114,11 +128,11 @@ const GroupElement: FC<{
   sidebarExpanded: boolean;
   onGroupHeaderClicked: () => void;
 }> = ({ group, sidebarExpanded, onGroupHeaderClicked }) => {
-  const { icon, title, links, requiresAuth = false, requiresActiveIdentity = false } = group;
+  const { icon, title, links, requiresAuth = false, requiresActiveIdentity = false, openByDefault = false } = group;
   const pathname = usePathname();
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const isActive = group.url === pathname || group.links?.some(l => l.url === pathname);
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(openByDefault);
   const [authUser] = useBehaviorSubject(authUser$);
   const { mounted } = useMounted();
 

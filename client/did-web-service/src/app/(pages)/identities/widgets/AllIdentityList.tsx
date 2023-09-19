@@ -1,5 +1,6 @@
 'use client';
 import { MainButton } from '@components/generic/MainButton';
+import { IdentityCellLeft } from '@components/identity/IdentityCellLeft';
 import { VerticalStackLoadingCard } from '@components/loading-cards/vertical-stack-loading-card/VerticalStackLoadingCard';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { Identity } from '@model/identity/identity';
@@ -8,7 +9,6 @@ import { identityService } from '@services/identity/identity.service';
 import { authUser$ } from '@services/user/user.events';
 import { useRouter } from "next/navigation";
 import { FC, useState } from 'react';
-import { IdentityCellLeft } from '@components/identity/IdentityCellLeft';
 
 const TAG = 'IdentityListWidget'
 
@@ -40,7 +40,7 @@ export const AllIdentityList: FC = _ => {
   }
 
   return (
-    <div className="col-span-full xl:col-span-6 bg-white dark:bg-slate-800 shadow-lg rounded-sm border border-slate-200 dark:border-slate-700">
+    <div className="col-span-full bg-white dark:bg-slate-800 shadow-lg rounded-sm border border-slate-200 dark:border-slate-700">
       <header className="px-5 py-4 border-b border-slate-100 dark:border-slate-700">
         <h2 className="font-semibold text-slate-800 dark:text-slate-100">My Identities</h2>
       </header>
