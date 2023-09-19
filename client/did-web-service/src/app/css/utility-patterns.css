@@ -1,6 +1,6 @@
 /* Typography */
 .h1 {
-    @apply text-4xl font-extrabold tracking-tighter;
+    @apply text-6xl font-extrabold tracking-tighter;
 }
 
 .h2 {
@@ -17,7 +17,7 @@
 
 @screen md {
     .h1 {
-        @apply text-5xl;
+        @apply text-6xl;
     }
 
     .h2 {
@@ -54,7 +54,7 @@ input[type="search"]::-webkit-search-decoration,
 input[type="search"]::-webkit-search-cancel-button,
 input[type="search"]::-webkit-search-results-button,
 input[type="search"]::-webkit-search-results-decoration {
-  -webkit-appearance: none;
+    -webkit-appearance: none;
 }
 
 .form-input,
@@ -133,10 +133,18 @@ input[type="search"]::-webkit-search-results-decoration {
 
 /* Chrome, Safari and Opera */
 .no-scrollbar::-webkit-scrollbar {
-  display: none;
+    display: none;
 }
 
 .no-scrollbar {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+.stretch {
+    text-align: justify;
+}
+.stretch:after {
+    content: '';
+    width: 100%;
+    display: inline-block;
 }

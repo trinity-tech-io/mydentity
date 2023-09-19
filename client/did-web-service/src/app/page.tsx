@@ -1,24 +1,64 @@
+"use client";
+import { Button } from '@mui/material';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation'
 import { FC } from 'react';
+import Barcode from 'react-barcode'
 
 const Home: FC = () => {
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24 text-white">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex flex-col">
-        <h1>DID Web Service</h1>
-        <Link href="dashboard" className="btn bg-gray-800 hover:bg-gray-600 text-white px-10 flex-1 m-5">
-          <span>Enter app</span>
-        </Link>
+  const router = useRouter()
+  const BarCodeOptions = {
+    displayValue: false,
+    margin: 0,
+    background: '#ffffffff00',
+    lineColor: '#ffffff',
+    height: 40,
+    width: 1.3
+  }
 
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  return (
+    <main className="flex min-h-screen">
+      <div className="w-2/5 bg-black pt-24 px-8 flex justify-center">
+        <div className="max-w-md flex flex-col">
+          <div className="flex-1">
+            <h1 className="text-white h1">
+              Take back control of your
+            </h1>
+            <div className="inline-flex flex-col pt-2">
+              <Barcode value="identity" {...BarCodeOptions}/>
+              <h5 className="text-white h5 stretch text-lg">i d e n t i t y</h5>
+            </div>
+            <p className="text-gray-300 text-xl">
+              In an era of increasing data breaches, decentralized credentials offer a robust solution for safeguarding personal information.
+            </p>
+          </div>
+          <div className="flex flex-col">
+            <div>
+              <div className="inline-flex flex-col pt-2">
+                <Barcode value="Decentralized Srv" {...BarCodeOptions} height={20}/>
+                <p className="text-white stretch text-xs">Decentralized Identity Web Service</p>
+              </div>
+            </div>
+            <div>
+              <div className="inline-flex flex-col pt-2">
+                <Barcode value="Elastos" {...BarCodeOptions} height={20}/>
+                <p className="text-white stretch text-xs">Powered by Elastos</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="flex-1" style={{background: `url('./landing-bg.png') no-repeat center center / cover`}}>
+        <div className="text-right p-7">
+          <Button
+            className="flex-1 bg-black"
+            variant="contained"
+            onClick={() => {
+              router.push('dashboard')
+            }}
           >
-            By <b>Elastos</b>
-          </a>
+            LAUNCH APP
+          </Button>
         </div>
       </div>
     </main>
