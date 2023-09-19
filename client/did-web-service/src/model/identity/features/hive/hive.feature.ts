@@ -180,10 +180,11 @@ export class HiveFeature implements IdentityFeature {
     const appContext = await this.getHiveAppContext();
     const serviceEndpoint = new ServiceEndpoint(appContext);
 
-    const vaultProviderInDIDDocument = await serviceEndpoint.getProviderAddress();
-    this.vaultAddress$.next(vaultProviderInDIDDocument);
-
+    let vaultProviderInDIDDocument = null;
     try {
+      vaultProviderInDIDDocument = await serviceEndpoint.getProviderAddress();
+      this.vaultAddress$.next(vaultProviderInDIDDocument);
+
       // Call the subscription service to actually know if we are registered or not on that vault.
       const subscriptionService = await this.getSubscriptionService();
       const vaultInfo = await subscriptionService.checkSubscription();
@@ -196,7 +197,7 @@ export class HiveFeature implements IdentityFeature {
       logger.log("hive", "Vault status retrieval completed");
     }
     catch (e) {
-      if (e instanceof VaultNotFoundException) {
+      if (e instanceof VaultNotFoundException && vaultProviderInDIDDocument) {
         // Use has a vault registered in his DID document on chain but he is not subscribed to the
         // vault: so we try to subscribe to that vault, this could be the initial identity creation
         // step.

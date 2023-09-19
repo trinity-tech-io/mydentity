@@ -25,6 +25,10 @@ const StoragePage: FC = () => {
   const [storageUsed, setStorageUsed] = useState<string>('');
   const [storageQuota, setStorageQuota] = useState<string>('');
 
+  const getDisplayableStorageSizeMB = (size: number): number => {
+    return parseFloat((size / (1024 * 1024)).toFixed(2));
+  }
+
   useEffect(() => {
     if (vaultInfo) {
       setStorageUsed(getDisplayableStorageSizeMB(vaultInfo.getStorageUsed()) + " MB")
@@ -34,10 +38,6 @@ const StoragePage: FC = () => {
 
   if (!mounted)
     return null;
-
-  const getDisplayableStorageSizeMB = (size: number): number => {
-    return size / (1024 * 1024)
-  }
 
   return (<div className='col-span-full flex flex-col'>
     <Breadcrumbs entries={["storage"]} />
