@@ -119,13 +119,13 @@ export class ProfileFeature implements IdentityFeature {
   }
 
   // NOTE: Do NOT try catch inside this method to let unlock key exceptions go through
-  public async updateProfileCredential(credential: ProfileCredential, newValue: string): Promise<[boolean, Credential]> {
+  public async updateProfileCredential(credential: ProfileCredential, newValue: string): Promise<Credential> {
     const credentialId = credential.verifiableCredential.getId().toString();
     const profileInfoEntry = findProfileInfoByTypes(credential.verifiableCredential.getType());
 
     const deleted = await this.identity.get("credentials").deleteCredential(credential);
     if (!deleted)
-      return [false, null];
+      return null;
 
     const createdCredential = await this.createProfileCredential(
       credentialId,
@@ -133,7 +133,7 @@ export class ProfileFeature implements IdentityFeature {
       profileInfoEntry.key,
       newValue);
 
-    return [!!createdCredential, createdCredential];
+    return createdCredential
   }
 
   /**

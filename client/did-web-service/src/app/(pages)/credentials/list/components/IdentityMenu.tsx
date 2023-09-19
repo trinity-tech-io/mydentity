@@ -84,19 +84,16 @@ const IdentityMenu: FC<{
       return;
 
     if (editCredentialValue.type == EditionMode.EDIT && editCredentialValue.originCredential) {
-      let isSuccess = false;
-      let result: [boolean, Credential]
       let resultCredential: Credential = null
       try {
-        result = (await identityProfileFeature.updateProfileCredential(editCredentialValue.originCredential, editCredentialValue.value).catch())
+        resultCredential = (await identityProfileFeature.updateProfileCredential(editCredentialValue.originCredential, editCredentialValue.value).catch())
       } catch (error) {
         logger.error(TAG, 'Update credential error: ', error);
       }
 
-      isSuccess = result[0]
+      const isSuccess = resultCredential !== null;
       if (isSuccess) {
         showSuccessToast('Entry has been updated!');
-        resultCredential = result[1]
         identityProfileFeature.setActiveCredential(resultCredential)
       } else {
         showErrorToast('Failed to update the entry...');
