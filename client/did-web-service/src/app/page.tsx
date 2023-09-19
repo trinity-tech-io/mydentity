@@ -3,7 +3,8 @@ import { FC, MouseEventHandler } from 'react';
 import { Button } from '@mui/material';
 import { useRouter } from 'next/navigation'
 import Barcode from 'react-barcode'
-import { LandingCard } from './components/card/landingCard'
+import { LandingCard } from '@components/card/LandingCard';
+import TrinityLogo from '@assets/images/TrinityLogo.svg'
 
 const Home: FC = () => {
   const router = useRouter()
@@ -65,6 +66,9 @@ const Home: FC = () => {
           <div className="flex items-center justify-center w-full">
             <LandingCard />
           </div>
+        </div>
+        <div className="flex justify-end p-7">
+          <TrinityLogo />
         </div>
       </div>
     </main>

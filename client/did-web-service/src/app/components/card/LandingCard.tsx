@@ -35,7 +35,7 @@ export const LandingCard: FC = () => {
         </div>
         <div className="w-full">
           <div className="inline-flex flex-col pt-10">
-            <Barcode value="come2future" {...BarCodeOptions} height={22}/>
+            <Barcode value="Welcome to future" {...BarCodeOptions} height={22}/>
             <p className="text-white stretch text-sm">Welcome to the future</p>
           </div>
         </div>
