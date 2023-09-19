@@ -1,9 +1,9 @@
 "use client";
+import { FC, MouseEventHandler } from 'react';
 import { Button } from '@mui/material';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation'
-import { FC } from 'react';
 import Barcode from 'react-barcode'
+import { LandingCard } from './components/card/landingCard'
 
 const Home: FC = () => {
   const router = useRouter()
@@ -12,8 +12,11 @@ const Home: FC = () => {
     margin: 0,
     background: '#ffffffff00',
     lineColor: '#ffffff',
-    height: 40,
+    height: 35,
     width: 1.3
+  }
+  const launchApp: MouseEventHandler<HTMLButtonElement> = () => {
+    router.push('dashboard')
   }
 
   return (
@@ -35,30 +38,33 @@ const Home: FC = () => {
           <div className="flex flex-col">
             <div>
               <div className="inline-flex flex-col pt-2">
-                <Barcode value="Decentralized Srv" {...BarCodeOptions} height={20}/>
+                <Barcode value="Decentralized Srv" {...BarCodeOptions} height={15}/>
                 <p className="text-white stretch text-xs">Decentralized Identity Web Service</p>
               </div>
             </div>
             <div>
               <div className="inline-flex flex-col pt-2">
-                <Barcode value="Elastos" {...BarCodeOptions} height={20}/>
+                <Barcode value="Elastos" {...BarCodeOptions} height={15}/>
                 <p className="text-white stretch text-xs">Powered by Elastos</p>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div className="flex-1" style={{background: `url('./landing-bg.png') no-repeat center center / cover`}}>
+      <div className="flex flex-1 flex-col landing-bg">
         <div className="text-right p-7">
           <Button
             className="flex-1 bg-black"
             variant="contained"
-            onClick={() => {
-              router.push('dashboard')
-            }}
+            onClick={launchApp}
           >
             LAUNCH APP
           </Button>
+        </div>
+        <div className="flex flex-1">
+          <div className="flex items-center justify-center w-full">
+            <LandingCard />
+          </div>
         </div>
       </div>
     </main>

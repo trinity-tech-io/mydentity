@@ -140,11 +140,27 @@ input[type="search"]::-webkit-search-results-decoration {
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
 }
+
 .stretch {
     text-align: justify;
 }
+
 .stretch:after {
     content: '';
     width: 100%;
     display: inline-block;
+}
+
+.landing-bg {
+    background: url('../../../public/landing-bg.png') no-repeat center center / cover
+}
+
+.noise-bg {
+    background: url('../../../public/Noise.png') no-repeat center center / cover
+}
+
+.circle-bottom-box {
+    right: -170px;
+    bottom: -360px;
+    transform: rotate(335deg);
 }
