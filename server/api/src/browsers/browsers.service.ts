@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Browser, User } from '@prisma/client';
+import { Browser, User } from '@prisma/client/main';
 import { logger } from 'src/logger';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as userAgentParser from 'ua-parser-js';

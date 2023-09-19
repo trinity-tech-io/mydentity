@@ -1,5 +1,5 @@
 import { Field, GraphQLISODateTime, ObjectType } from '@nestjs/graphql';
-import { UserShadowKeyType } from '@prisma/client';
+import { UserShadowKeyType } from '@prisma/client/main';
 import { BrowserEntity } from 'src/browsers/entities/browser.entity';
 
 @ObjectType()

@@ -1,14 +1,14 @@
 import { DIDBackend, DIDDocument, DIDStore, DefaultDIDAdapter, Exceptions, Features, Issuer, Mnemonic, RootIdentity, VerifiableCredential, VerifiablePresentation } from '@elastosfoundation/did-js-sdk';
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
-import { join } from 'path';
 import { AppException } from 'src/exceptions/app-exception';
 import { DIDExceptionCode } from 'src/exceptions/exception-codes';
 import { DidAdapter } from './did.adapter';
+import { PrismaDIDStorage } from './prisma.did.storage';
 
 @Injectable()
 export class DidService {
   private network = 'mainnet';
-  private didStoreCache: { [didStorePath: string]: DIDStore } = {};
+  private didStoreCache: { [context: string]: DIDStore } = {};
   private globalDidAdapter: DidAdapter = null;
 
   private logger: Logger = new Logger("DidService");
@@ -27,30 +27,27 @@ export class DidService {
     }
   }
 
-  async openStore(didStorePath: string): Promise<DIDStore> {
-    if (didStorePath in this.didStoreCache)
-      return this.didStoreCache[didStorePath];
+  async openStore(path: string): Promise<DIDStore> {
+    if (path in this.didStoreCache)
+      return this.didStoreCache[path];
 
-    const didStoreDir = join(__dirname, "../..", "didstores", didStorePath);
-    // this.logger.log('didStoreDir:' + didStoreDir);
-    // Logger.setLevel(Logger.INFO)
+    DIDStore.register("ds", PrismaDIDStorage);
+    const didStore = await DIDStore.open(path, "ds");
+    if (!didStore)
+      throw new AppException(DIDExceptionCode.DIDStorageError, "Can't open did store: " + path, HttpStatus.INTERNAL_SERVER_ERROR);
 
-    const didStore = await DIDStore.open(didStoreDir);
-    if (!didStore) {
-      throw new AppException(DIDExceptionCode.DIDStorageError, "Can't open did store: " + didStoreDir, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-    this.didStoreCache[didStorePath] = didStore;
+    this.didStoreCache[path] = didStore;
     return didStore;
   }
 
   /**
    * Create rootIdentity if no exist, or use the exist rootIdenity.
-   * @param didStorePath
+   * @param context
    * @param storePassword
    * @returns
    */
-  async getRootIdentity(didStorePath: string, storePassword: string) {
-    const didStore = await this.openStore(didStorePath);
+  async getRootIdentity(context: string, storePassword: string) {
+    const didStore = await this.openStore(context);
 
     let rootIdentity: RootIdentity = null;
     if (!(await didStore.containsRootIdentities())) {
@@ -76,9 +73,9 @@ export class DidService {
   }
 
   //  DIDStore
-  async deleteIdentity(didString: string, didStorePath: string) {
+  async deleteIdentity(didString: string, context: string) {
     this.logger.log('deleteIdentity didString:' + didString);
-    const didStore = await this.openStore(didStorePath);
+    const didStore = await this.openStore(context);
 
     // Delete all credentials belonging to this did
     const credentials = await didStore.listCredentials(didString);
@@ -96,15 +93,15 @@ export class DidService {
     return successfulDeletion;
   }
 
-  async storeDIDDocument(didStorePath: string, didDocument: DIDDocument): Promise<void> {
-    const didStore = await this.openStore(didStorePath);
+  async storeDIDDocument(context: string, didDocument: DIDDocument): Promise<void> {
+    const didStore = await this.openStore(context);
     await didStore.storeDid(didDocument);
   }
 
-  async createCredential(didStorePath: string, didString: string, credentialId: string, types: string[], expirationDate: Date, properties, storepass: string) {
+  async createCredential(context: string, didString: string, credentialId: string, types: string[], expirationDate: Date, properties, storepass: string) {
     try {
-      const vc = await this.issueCredential(didStorePath, didString, didString, credentialId, types, expirationDate, properties, storepass);
-      const didStore = await this.openStore(didStorePath);
+      const vc = await this.issueCredential(context, didString, didString, credentialId, types, expirationDate, properties, storepass);
+      const didStore = await this.openStore(context);
       // save to did store
       await didStore.storeCredential(vc, storepass);
       return vc;
@@ -117,9 +114,9 @@ export class DidService {
     }
   }
 
-  async issueCredential(didStorePath: string, didString: string, subjectDid: string, credentialId: string, types: string[], expirationDate: Date, properties, storepass: string) {
+  async issueCredential(context: string, didString: string, subjectDid: string, credentialId: string, types: string[], expirationDate: Date, properties, storepass: string) {
     try {
-      const didStore = await this.openStore(didStorePath);
+      const didStore = await this.openStore(context);
       const didDocument = await didStore.loadDid(didString);
       if (!didDocument)
         throw new AppException(DIDExceptionCode.DIDNotExists, "Can't load did:" + didString, HttpStatus.NOT_FOUND);
@@ -137,33 +134,33 @@ export class DidService {
     }
   }
 
-  async loadCredential(didStorePath: string, credentialId: string, storePassword: string) {
+  async loadCredential(context: string, credentialId: string, storePassword: string) {
     try {
-      const didStore = await this.openStore(didStorePath);
+      const didStore = await this.openStore(context);
       return await didStore.loadCredential(credentialId, storePassword);
     } catch (e) {
       throw new AppException(DIDExceptionCode.DIDStorageError, e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
-  async storeCredential(didStorePath: string, credential: VerifiableCredential, storePassword: string) {
+  async storeCredential(context: string, credential: VerifiableCredential, storePassword: string) {
     try {
-      const didStore = await this.openStore(didStorePath);
+      const didStore = await this.openStore(context);
       return await didStore.storeCredential(credential, storePassword);
     } catch (e) {
       throw new AppException(DIDExceptionCode.DIDStorageError, e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
-  async deleteCredential(didStorePath: string, credentialId: string) {
-    const didStore = await this.openStore(didStorePath);
+  async deleteCredential(context: string, credentialId: string) {
+    const didStore = await this.openStore(context);
     this.logger.log('deleteCredential credentialId: ' + credentialId)
     return didStore.deleteCredential(credentialId);
   }
 
-  async createVerifiablePresentationFromCredentials(didStorePath: string, didString: string,
+  async createVerifiablePresentationFromCredentials(context: string, didString: string,
     vc: VerifiableCredential[], nonce: string, realm: string, storepass: string) {
-    const didStore = await this.openStore(didStorePath);
+    const didStore = await this.openStore(context);
 
     try {
       const vpBuilder = await VerifiablePresentation.createFor(didString, null, didStore);
@@ -178,9 +175,9 @@ export class DidService {
   }
 
   // Get the payload of did transaction.
-  async createDIDPublishTransaction(didStorePath: string, didString: string, storepass: string) {
+  async createDIDPublishTransaction(context: string, didString: string, storepass: string) {
     this.logger.log('createDIDPublishTransaction:' + didString)
-    const didStore = await this.openStore(didStorePath);
+    const didStore = await this.openStore(context);
     const didDocument = await didStore.loadDid(didString);
     if (!didDocument)
       throw new AppException(DIDExceptionCode.DIDNotExists, "Can't load did:" + didString, HttpStatus.NOT_FOUND);

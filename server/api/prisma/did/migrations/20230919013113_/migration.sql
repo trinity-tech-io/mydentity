@@ -1,16 +1,16 @@
 -- CreateTable
 CREATE TABLE "StoreMetadata" (
-    "userId" TEXT NOT NULL,
+    "path" TEXT NOT NULL,
     "version" INTEGER NOT NULL DEFAULT 4,
     "fingerprint" TEXT,
     "defaultRootIndentity" TEXT,
 
-    CONSTRAINT "StoreMetadata_pkey" PRIMARY KEY ("userId")
+    CONSTRAINT "StoreMetadata_pkey" PRIMARY KEY ("path")
 );
 
 -- CreateTable
 CREATE TABLE "RootIdentity" (
-    "userId" TEXT NOT NULL,
+    "path" TEXT NOT NULL,
     "id" TEXT NOT NULL,
     "defaultDid" TEXT,
     "mnemonic" TEXT,
@@ -23,7 +23,7 @@ CREATE TABLE "RootIdentity" (
 
 -- CreateTable
 CREATE TABLE "VerifiableCredential" (
-    "userId" TEXT NOT NULL,
+    "path" TEXT NOT NULL,
     "id" TEXT NOT NULL,
     "did" TEXT NOT NULL,
     "credential" TEXT NOT NULL,
@@ -37,7 +37,7 @@ CREATE TABLE "VerifiableCredential" (
 
 -- CreateTable
 CREATE TABLE "DidDocument" (
-    "userId" TEXT NOT NULL,
+    "path" TEXT NOT NULL,
     "did" TEXT NOT NULL,
     "doc" TEXT,
     "rootIdentityId" TEXT,
@@ -54,7 +54,7 @@ CREATE TABLE "DidDocument" (
 
 -- CreateTable
 CREATE TABLE "PrivateKey" (
-    "userId" TEXT NOT NULL,
+    "path" TEXT NOT NULL,
     "did" TEXT NOT NULL,
     "id" TEXT NOT NULL,
     "context" TEXT NOT NULL,
@@ -63,7 +63,7 @@ CREATE TABLE "PrivateKey" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "StoreMetadata_userId_key" ON "StoreMetadata"("userId");
+CREATE UNIQUE INDEX "StoreMetadata_path_key" ON "StoreMetadata"("path");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "RootIdentity_id_key" ON "RootIdentity"("id");
@@ -76,18 +76,3 @@ CREATE UNIQUE INDEX "DidDocument_did_key" ON "DidDocument"("did");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "PrivateKey_id_key" ON "PrivateKey"("id");
-
--- AddForeignKey
-ALTER TABLE "StoreMetadata" ADD CONSTRAINT "StoreMetadata_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "RootIdentity" ADD CONSTRAINT "RootIdentity_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "VerifiableCredential" ADD CONSTRAINT "VerifiableCredential_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "DidDocument" ADD CONSTRAINT "DidDocument_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "PrivateKey" ADD CONSTRAINT "PrivateKey_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

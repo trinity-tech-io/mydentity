@@ -1,10 +1,11 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../../node_modules/@prisma/client/main"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = env("MAIN_DATABASE_URL")
 }
 
 model User {
@@ -28,26 +29,21 @@ model User {
   Device        Browser[]
   Activities    Activity[]
   UserEmails    UserEmail[]
-  StoreMetadata  StoreMetadata[]
-  RootIdentity   RootIdentity[]
-  VerifiableCredential VerifiableCredential[]
-  DidDocument    DidDocument[]
-  PrivateKey     PrivateKey[]
 }
 
 enum UserEmailProvider {
-    RAW
-    MICROSOFT
+  RAW
+  MICROSOFT
 }
 
 model UserEmail {
-  id        String   @id @unique @default(uuid()) // Unique user ID. Also used as DID store ID to retrieve the DID store.
-  user      User     @relation(fields: [userId], references: [id], onDelete: Restrict)
-  email     String   @unique
+  id        String            @id @unique @default(uuid()) // Unique user ID. Also used as DID store ID to retrieve the DID store.
+  user      User              @relation(fields: [userId], references: [id], onDelete: Restrict)
+  email     String            @unique
   provider  UserEmailProvider
-  createdAt DateTime @default(now())
+  createdAt DateTime          @default(now())
 
-  userId    String
+  userId String
 }
 
 // Corresponds to a RootIdentity in the DID SDK, meaning one mnemonic.
@@ -168,32 +164,32 @@ model Browser {
 }
 
 enum ActivityType {
-    USER_SIGN_IN
-    IDENTITY_CREATED
-    IDENTITY_DELETED
-    CREDENTIALS_IMPORTED
-    CREDENTIALS_SHARED // Also credentials request
-    BIND_EMAIL
-    BIND_BROWSER
-    PASSWORD_CHANGED
+  USER_SIGN_IN
+  IDENTITY_CREATED
+  IDENTITY_DELETED
+  CREDENTIALS_IMPORTED
+  CREDENTIALS_SHARED // Also credentials request
+  BIND_EMAIL
+  BIND_BROWSER
+  PASSWORD_CHANGED
 }
 
 model Activity {
-  id String @id @unique @default(uuid())
-  user      User @relation(fields: [userId], references: [id], onDelete: Restrict)
-  type      ActivityType
+  id   String       @id @unique @default(uuid())
+  user User         @relation(fields: [userId], references: [id], onDelete: Restrict)
+  type ActivityType
 
   userEmailProvider UserEmailProvider? // For USER_SIGN_IN or BIND_EMAIL.
   identityStr       String? // For IDENTITY_CREATED and IDENTITY_DELETED.
   credentialsCount  Int? // For CREDENTIALS_IMPORTED and CREDENTIALS_SHARED.
   appDid            String? // Caller of CREDENTIALS_IMPORTED and CREDENTIALS_SHARED.
-  browser           Browser? @relation(fields: [browserId], references: [id], onDelete: Restrict) // For BIND_BROWSER, if no browser, use browserName
+  browser           Browser?           @relation(fields: [browserId], references: [id], onDelete: Restrict) // For BIND_BROWSER, if no browser, use browserName
   browserName       String? // For BIND_BROWSER
 
-  createdAt         DateTime @default(now())
+  createdAt DateTime @default(now())
 
-  userId            String
-  browserId         String?
+  userId    String
+  browserId String?
 }
 
 // No need setup the relations with the user
@@ -201,58 +197,4 @@ model AuthChallenge {
   id        String   @id @unique @default(uuid())
   content   String
   createdAt DateTime @default(now())
-}
-
-model StoreMetadata {
-  user                 User      @relation(fields: [userId], references: [id], onDelete: Restrict)
-  userId               String    @id @unique
-  version              Int       @default(4)
-  fingerprint          String?
-  defaultRootIndentity String?
-}
-
-model RootIdentity {
-  user                 User       @relation(fields: [userId], references: [id], onDelete: Restrict)
-  userId               String
-  id                   String     @id @unique
-  defaultDid           String?
-  mnemonic             String?
-  privateKey           String?
-  publicKey            String?
-  index                Int
-}
-
-model VerifiableCredential {
-  user                  User       @relation(fields: [userId], references: [id], onDelete: Restrict)
-  userId                String
-  id                    String     @id @unique
-  did                   String
-  credential            String
-  txid                  String?
-  published             DateTime?
-  revoked               Boolean?
-  alias                 String?
-}
-
-model DidDocument {
-  user                  User            @relation(fields: [userId], references: [id], onDelete: Restrict)
-  userId                String
-  did                   String          @id @unique
-  doc                   String?
-  rootIdentityId        String?
-  index                 Int?
-  txid                  String?
-  previousSignature     String?
-  signature             String?
-  published             DateTime?
-  deactivated           Boolean?
-  alias                 String?
-}
-
-model PrivateKey {
-  user                  User            @relation(fields: [userId], references: [id], onDelete: Restrict)
-  userId                String
-  did                   String
-  id                    String           @id @unique
-  context               String
 }

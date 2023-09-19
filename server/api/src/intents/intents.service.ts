@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { Intent } from '@prisma/client';
+import { Intent } from '@prisma/client/main';
 import * as moment from 'moment';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateIntentInput } from './dto/create-intent.input';

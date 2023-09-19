@@ -12,8 +12,8 @@
 - Clone `.env.sample` to `.env`
 - Start docker dependencies (see Docker section below):
   - `docker compose up`
-- `npx prisma generate`
-- `npx prisma migrate deploy`
+- `npm run prisma:generate`
+- `npm run prisma:deploy`
 - Start the API:
   - `npm run dev`
 
@@ -31,20 +31,19 @@
 
 Every time you modify the prisma schema file, you must create a migration locally. This migration will be deployed by others to update the database:
 
-- `npx prisma migrate dev`
+- `npm run prisma:migrate:dev`
 
 ## To execute others migrations after pulling code from git
 
-- `npx prisma migrate deploy`
+- `npm run prisma:deploy`
 
 ## To update typescript type definitions
 
-- `npx prisma generate`
+- `npm run prisma:generate`
 
 ## To view and edit the database
 
-- `npx prisma studio`
-- Open http://localhost:5555/
+- `npm run prisma:studio:main` or `npm run prisma:studio:did`
 # Other useful commands
 
 ## Add a new graphql api

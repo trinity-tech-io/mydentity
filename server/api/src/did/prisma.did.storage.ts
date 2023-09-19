@@ -1,19 +1,20 @@
-import { DIDStorage, RootIdentity, DIDStoreMetadata, DID, DIDMetadata, DIDDocument, CredentialMetadata, DIDURL, ReEncryptor } from '@elastosfoundation/did-js-sdk';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { CredentialMetadata, DID, DIDDocument, DIDMetadata, DIDStorage, DIDStoreMetadata, DIDURL, ReEncryptor, RootIdentity } from '@elastosfoundation/did-js-sdk';
+import { DIDPrismaService } from '../prisma/did.prisma.service';
 
 export class PrismaDIDStorage implements DIDStorage {
-  private prisma: PrismaService;
+  private prisma: DIDPrismaService;
 
-  constructor(private userId: string) {
-    this.prisma = new PrismaService();
+  // NOTE: one new storage instance is created every time we do DID operations.
+  constructor(private path: string) {
+    this.prisma = DIDPrismaService.getInstance(); // Dirty way to access the singleton. It must have been initialized by someone else first.
   }
 
-  async init() : Promise<void> {
+  async init(): Promise<void> {
     await this.prisma.storeMetadata.upsert({
-      where : { userId: this.userId,},
+      where: { path: this.path },
       update: {},
-      create : {
-        userId : this.userId,
+      create: {
+        path: this.path
       }
     });
   }
@@ -22,20 +23,20 @@ export class PrismaDIDStorage implements DIDStorage {
     return null;
   }
 
-  async storeMetadata(metadata: DIDStoreMetadata) : Promise<void> {
+  async storeMetadata(metadata: DIDStoreMetadata): Promise<void> {
     if (metadata == null || metadata.isEmpty())
       await this.prisma.storeMetadata.deleteMany({});
     else {
       await this.prisma.storeMetadata.upsert({
-        where: { userId : this.userId,},
+        where: { path: this.path, },
         update: {
-          fingerprint : metadata.getFingerprint() || null,
-          defaultRootIndentity : metadata.getDefaultRootIdentity() || null
+          fingerprint: metadata.getFingerprint() || null,
+          defaultRootIndentity: metadata.getDefaultRootIdentity() || null
         },
         create: {
-          userId : this.userId,
-          fingerprint : metadata.getFingerprint() || null,
-          defaultRootIndentity : metadata.getDefaultRootIdentity() || null
+          path: this.path,
+          fingerprint: metadata.getFingerprint() || null,
+          defaultRootIndentity: metadata.getDefaultRootIdentity() || null
         }
       });
     }
@@ -43,35 +44,36 @@ export class PrismaDIDStorage implements DIDStorage {
 
   async loadMetadata(): Promise<DIDStoreMetadata> {
     const result = await this.prisma.storeMetadata.findUnique({
-      where : { userId : this.userId,}
+      where: { path: this.path, }
     });
 
     const metadata = new DIDStoreMetadata();
-    if(result.fingerprint)
+    if (result.fingerprint)
       metadata.setFingerprint(result.fingerprint);
-    if(result.defaultRootIndentity)
+    if (result.defaultRootIndentity)
       metadata.setDefaultRootIdentity(result.defaultRootIndentity);
 
     return metadata;
   }
 
-  async storeRootIdentityMetadata(id: string, metadata: RootIdentity.Metadata) : Promise<void> {
+  async storeRootIdentityMetadata(id: string, metadata: RootIdentity.Metadata): Promise<void> {
     await this.prisma.rootIdentity.update({
       where: {
-        userId : this.userId,
-        id : id
+        path: this.path,
+        id: id
       },
       data: {
-        defaultDid : metadata.getDefaultDid().toString() || null,
+        defaultDid: metadata.getDefaultDid().toString() || null,
       },
     });
   }
 
   async loadRootIdentityMetadata(id: string): Promise<RootIdentity.Metadata> {
     const result = await this.prisma.rootIdentity.findUnique({
-      where : {
-        userId : this.userId,
-        id : id},
+      where: {
+        path: this.path,
+        id: id
+      },
     });
 
     const metadata = new RootIdentity.Metadata(id);
@@ -83,28 +85,28 @@ export class PrismaDIDStorage implements DIDStorage {
     return metadata;
   }
 
-  async storeRootIdentity(id: string, mnemonic : string, privateKey: string, publicKey: string, index: number) : Promise<void> {
+  async storeRootIdentity(id: string, mnemonic: string, privateKey: string, publicKey: string, index: number): Promise<void> {
     await this.prisma.rootIdentity.create({
       data: {
-        userId : this.userId,
-        id : id,
-        mnemonic : mnemonic || null,
-        privateKey : privateKey || null,
-        publicKey : publicKey || null,
-        index : index,
+        path: this.path,
+        id: id,
+        mnemonic: mnemonic || null,
+        privateKey: privateKey || null,
+        publicKey: publicKey || null,
+        index: index,
       }
     });
   }
 
   async loadRootIdentity(rid: string): Promise<RootIdentity> {
     const result = await this.prisma.rootIdentity.findUnique({
-      where : {
-        userId : this.userId,
-        id : rid
+      where: {
+        path: this.path,
+        id: rid
       },
-      select : {
+      select: {
         publicKey: true,
-        index : true,
+        index: true,
       }
     });
 
@@ -113,32 +115,35 @@ export class PrismaDIDStorage implements DIDStorage {
 
   async containsRootIdentity(rid: string): Promise<boolean> {
     const result = await this.prisma.rootIdentity.findUnique({
-      where : {
-        userId : this.userId,
-        id : rid},
+      where: {
+        path: this.path,
+        id: rid
+      },
     });
 
     return result != null;
   }
 
-  async updateRootIdentityIndex(rid: string, index: number) : Promise<void> {
+  async updateRootIdentityIndex(rid: string, index: number): Promise<void> {
     await this.prisma.rootIdentity.update({
-      where : {
-        userId : this.userId,
-        id : rid,},
-      data : {
-        index : index,
+      where: {
+        path: this.path,
+        id: rid,
+      },
+      data: {
+        index: index,
       }
     });
   }
 
   async loadRootIdentityPrivateKey(id: string): Promise<string> {
     const result = await this.prisma.rootIdentity.findUnique({
-      where : {
-        userId : this.userId,
-        id : id},
-      select : {
-        privateKey : true,
+      where: {
+        path: this.path,
+        id: id
+      },
+      select: {
+        privateKey: true,
       }
     });
     return result.privateKey;
@@ -146,12 +151,12 @@ export class PrismaDIDStorage implements DIDStorage {
 
   async loadRootIdentityMnemonic(id: string): Promise<string> {
     const result = await this.prisma.rootIdentity.findUnique({
-      where : {
-        userId : this.userId,
-        id : id
+      where: {
+        path: this.path,
+        id: id
       },
-      select : {
-        mnemonic : true,
+      select: {
+        mnemonic: true,
       }
     });
     return result.mnemonic;
@@ -160,26 +165,27 @@ export class PrismaDIDStorage implements DIDStorage {
   async deleteRootIdentity(id: string): Promise<boolean> {
     try {
       await this.prisma.rootIdentity.delete({
-        where : {
-          userId : this.userId,
-          id : id},
+        where: {
+          path: this.path,
+          id: id
+        },
       });
       return true;
-    } catch(e) {
+    } catch (e) {
       return false;
     }
   }
 
   async listRootIdentities(): Promise<RootIdentity[]> {
     const result = await this.prisma.rootIdentity.findMany({
-      where : { userId : this.userId, },
-      select : {
-        publicKey : true,
-        index : true,
+      where: { path: this.path, },
+      select: {
+        publicKey: true,
+        index: true,
       }
     });
 
-    const identities : RootIdentity[] = [];
+    const identities: RootIdentity[] = [];
     for (const identity of result)
       identities.push(RootIdentity.createFromPreDerivedPublicKey(identity.publicKey, identity.index));
 
@@ -188,57 +194,57 @@ export class PrismaDIDStorage implements DIDStorage {
 
   async containsRootIdenities(): Promise<boolean> {
     const result = await this.prisma.rootIdentity.count({
-      where : { userId : this.userId},
+      where: { path: this.path },
     });
     return result != 0;
   }
 
-  async storeDidMetadata(did: DID, metadata: DIDMetadata) : Promise<void> {
+  async storeDidMetadata(did: DID, metadata: DIDMetadata): Promise<void> {
     await this.prisma.didDocument.upsert({
-      where : {
-        userId : this.userId,
-        did : did.toString(),
+      where: {
+        path: this.path,
+        did: did.toString(),
       },
-      update : {
-        index : metadata.getIndex() || null,
-        rootIdentityId : metadata.getRootIdentityId() || null,
-        txid : metadata.getTransactionId() || null,
+      update: {
+        index: metadata.getIndex() || null,
+        rootIdentityId: metadata.getRootIdentityId() || null,
+        txid: metadata.getTransactionId() || null,
         previousSignature: metadata.getPreviousSignature() || null,
-        signature : metadata.getSignature() || null,
-        published : metadata.getPublished() || null,
-        deactivated : metadata.isDeactivated() || null,
-        alias : metadata.getAlias() || null,
+        signature: metadata.getSignature() || null,
+        published: metadata.getPublished() || null,
+        deactivated: metadata.isDeactivated() || null,
+        alias: metadata.getAlias() || null,
       },
-      create : {
-        userId : this.userId,
-        did : did.toString(),
-        index : metadata.getIndex() || null,
-        rootIdentityId : metadata.getRootIdentityId() || null,
-        txid : metadata.getTransactionId() || null,
+      create: {
+        path: this.path,
+        did: did.toString(),
+        index: metadata.getIndex() || null,
+        rootIdentityId: metadata.getRootIdentityId() || null,
+        txid: metadata.getTransactionId() || null,
         previousSignature: metadata.getPreviousSignature() || null,
-        signature : metadata.getSignature() || null,
-        published : metadata.getPublished() || null,
-        deactivated : metadata.isDeactivated() || null,
-        alias : metadata.getAlias() || null,
+        signature: metadata.getSignature() || null,
+        published: metadata.getPublished() || null,
+        deactivated: metadata.isDeactivated() || null,
+        alias: metadata.getAlias() || null,
       }
     });
   }
 
   async loadDidMetadata(did: DID): Promise<DIDMetadata> {
     const result = await this.prisma.didDocument.findUnique({
-      where : {
-        userId : this.userId,
-        did : did.toString()
+      where: {
+        path: this.path,
+        did: did.toString()
       },
-      select : {
-        rootIdentityId : true,
-        index : true,
-        txid : true,
-        previousSignature : true,
-        signature : true,
-        published : true,
-        deactivated : true,
-        alias : true,
+      select: {
+        rootIdentityId: true,
+        index: true,
+        txid: true,
+        previousSignature: true,
+        signature: true,
+        published: true,
+        deactivated: true,
+        alias: true,
       }
     });
 
@@ -264,30 +270,30 @@ export class PrismaDIDStorage implements DIDStorage {
     return metadata;
   }
 
-  async storeDid(doc: DIDDocument) : Promise<void> {
+  async storeDid(doc: DIDDocument): Promise<void> {
     await this.prisma.didDocument.upsert({
       where: {
-        userId : this.userId,
-        did : doc.getSubject().toString(),
+        path: this.path,
+        did: doc.getSubject().toString(),
       },
-      update : {
-        doc : doc.toString(),
+      update: {
+        doc: doc.toString(),
       },
       create: {
-        userId : this.userId,
-        did : doc.getSubject().toString(),
-        doc : doc.toString(),
+        path: this.path,
+        did: doc.getSubject().toString(),
+        doc: doc.toString(),
       }
     });
   }
 
   async loadDid(did: DID): Promise<DIDDocument> {
     const result = await this.prisma.didDocument.findUnique({
-      where : {
-        userId : this.userId,
-        did : did.toString(),
+      where: {
+        path: this.path,
+        did: did.toString(),
       },
-      select : { doc : true, },
+      select: { doc: true, },
     });
 
     if (result && result.doc && result.doc != "")
@@ -299,26 +305,26 @@ export class PrismaDIDStorage implements DIDStorage {
   async deleteDid(did: DID): Promise<boolean> {
     try {
       await this.prisma.didDocument.delete({
-        where : {
-          userId : this.userId,
-          did : did.toString(),
+        where: {
+          path: this.path,
+          did: did.toString(),
         }
       });
 
       await this.prisma.privateKey.deleteMany({
-        where : {
-          userId : this.userId,
-          did : did.toString(),
+        where: {
+          path: this.path,
+          did: did.toString(),
         }
       });
-    } catch(e) {
+    } catch (e) {
       return false;
     }
 
     await this.prisma.verifiableCredential.deleteMany({
-      where : {
-        userId : this.userId,
-        did : did.toString(),
+      where: {
+        path: this.path,
+        did: did.toString(),
       }
     });
 
@@ -327,13 +333,13 @@ export class PrismaDIDStorage implements DIDStorage {
 
   async listDids(): Promise<DID[]> {
     const result = await this.prisma.didDocument.findMany({
-      where : { userId : this.userId, },
-      select : {
-        did : true,
+      where: { path: this.path, },
+      select: {
+        did: true,
       }
     });
 
-    const dids : DID[] = [];
+    const dids: DID[] = [];
     for (const d of result)
       dids.push(DID.from(d.did));
 
@@ -342,9 +348,10 @@ export class PrismaDIDStorage implements DIDStorage {
 
   async containsDid(did: DID): Promise<boolean> {
     const result = await this.prisma.didDocument.count({
-      where : {
-        userId : this.userId,
-        did : did.toString(), },
+      where: {
+        path: this.path,
+        did: did.toString(),
+      },
     });
 
     return result != 0;
@@ -352,37 +359,38 @@ export class PrismaDIDStorage implements DIDStorage {
 
   async containsDids(): Promise<boolean> {
     const result = await this.prisma.didDocument.count({
-      where : { userId : this.userId,},
+      where: { path: this.path, },
     });
     return result != 0;
   }
 
-  async storeCredentialMetadata(id: DIDURL, metadata: CredentialMetadata) : Promise<void> {
+  async storeCredentialMetadata(id: DIDURL, metadata: CredentialMetadata): Promise<void> {
     await this.prisma.verifiableCredential.update({
-      where : {
-        userId : this.userId,
-        id : id.toString(),
+      where: {
+        path: this.path,
+        id: id.toString(),
       },
-      data : {
-        txid  : metadata.getTransactionId() || null,
-        published : metadata.getPublished() || null,
-        revoked : metadata.isRevoked() || null,
-        alias : metadata.getAlias() || null,
+      data: {
+        txid: metadata.getTransactionId() || null,
+        published: metadata.getPublished() || null,
+        revoked: metadata.isRevoked() || null,
+        alias: metadata.getAlias() || null,
       }
     });
   }
 
   async loadCredentialMetadata(id: DIDURL): Promise<CredentialMetadata> {
     const result = await this.prisma.verifiableCredential.findUnique({
-      where : {
-        userId : this.userId,
-        id : id.toString(), },
-      select : {
-        id : true,
-        txid : true,
-        published : true,
+      where: {
+        path: this.path,
+        id: id.toString(),
+      },
+      select: {
+        id: true,
+        txid: true,
+        published: true,
         revoked: true,
-        alias : true,
+        alias: true,
       }
     });
 
@@ -398,7 +406,7 @@ export class PrismaDIDStorage implements DIDStorage {
     return metadata;
   }
 
-  async storeCredential(id: DIDURL, vc: Uint8Array, encrypted: boolean) : Promise<void> {
+  async storeCredential(id: DIDURL, vc: Uint8Array, encrypted: boolean): Promise<void> {
     let data = vc;
 
     if (encrypted) {
@@ -411,30 +419,30 @@ export class PrismaDIDStorage implements DIDStorage {
     }
 
     await this.prisma.verifiableCredential.upsert({
-      where : {
-        userId : this.userId,
-        id : id.toString(),
+      where: {
+        path: this.path,
+        id: id.toString(),
       },
-      update : {
-        credential : data.toString(),
+      update: {
+        credential: data.toString(),
       },
-      create : {
-        userId : this.userId,
-        did : id.getDid().toString(),
-        id : id.toString(),
-        credential : data.toString(),
+      create: {
+        path: this.path,
+        did: id.getDid().toString(),
+        id: id.toString(),
+        credential: data.toString(),
       }
     });
   }
 
   async loadCredential(id: DIDURL): Promise<[Uint8Array, boolean]> {
     const result = await this.prisma.verifiableCredential.findUnique({
-      where : {
-        userId : this.userId,
-        id : id.toString()
+      where: {
+        path: this.path,
+        id: id.toString()
       },
-      select : {
-        credential : true,
+      select: {
+        credential: true,
       }
     });
 
@@ -442,23 +450,25 @@ export class PrismaDIDStorage implements DIDStorage {
     if (content && content[0] == 0x0E && content[1] == 0x0C && content[2] == 0x56 && content[3] == 0x43)
       return [content.slice(4), true];
     else
-        return [content, false];
+      return [content, false];
   }
 
   async containsCredential(id: DIDURL): Promise<boolean> {
     const result = await this.prisma.verifiableCredential.count({
-      where : {
-        userId : this.userId,
-        id : id.toString(),}
+      where: {
+        path: this.path,
+        id: id.toString(),
+      }
     });
     return result != 0;
   }
 
   async containsCredentials(did: DID): Promise<boolean> {
     const result = await this.prisma.verifiableCredential.count({
-      where : {
-        userId : this.userId,
-        did : did.toString(), }
+      where: {
+        path: this.path,
+        did: did.toString(),
+      }
     });
     return result != 0;
   }
@@ -466,64 +476,64 @@ export class PrismaDIDStorage implements DIDStorage {
   async deleteCredential(id: DIDURL): Promise<boolean> {
     try {
       await this.prisma.verifiableCredential.delete({
-        where : {
-          userId : this.userId,
-          id : id.toString(),
+        where: {
+          path: this.path,
+          id: id.toString(),
         },
       });
       return true;
-    } catch(e) {
+    } catch (e) {
       return false;
     }
   }
 
-  async listCredentials(did : DID): Promise<DIDURL[]> {
+  async listCredentials(did: DID): Promise<DIDURL[]> {
     const result = await this.prisma.verifiableCredential.findMany({
-      where : {
-        userId : this.userId,
-        did : did.toString(),
+      where: {
+        path: this.path,
+        did: did.toString(),
       },
-      select : { id : true, }
+      select: { id: true, }
     });
 
-    const didurls : DIDURL[] = [];
+    const didurls: DIDURL[] = [];
     for (const vc of result)
       didurls.push(DIDURL.from(vc.id));
 
     return didurls;
   }
 
-  async containsPrivateKey(id : DIDURL): Promise<boolean> {
+  async containsPrivateKey(id: DIDURL): Promise<boolean> {
     const result = await this.prisma.privateKey.findUnique({
-      where : {
-        userId : this.userId,
-        did : id.getDid().toString(),
-        id : id.toString(),
+      where: {
+        path: this.path,
+        did: id.getDid().toString(),
+        id: id.toString(),
       },
     });
 
     return result != null;
   }
 
-  async storePrivateKey(id: DIDURL, privateKey: string) : Promise<void> {
+  async storePrivateKey(id: DIDURL, privateKey: string): Promise<void> {
     await this.prisma.privateKey.create({
-      data : {
-        userId : this.userId,
-        id : id.toString(),
-        did : id.getDid().toString(),
-        context : privateKey,
+      data: {
+        path: this.path,
+        id: id.toString(),
+        did: id.getDid().toString(),
+        context: privateKey,
       }
     });
   }
 
   async loadPrivateKey(id: DIDURL): Promise<string> {
     const result = await this.prisma.privateKey.findUnique({
-      where : {
-        userId : this.userId,
-        id : id.toString(),
+      where: {
+        path: this.path,
+        id: id.toString(),
       },
-      select : {
-        context : true,
+      select: {
+        context: true,
       }
     });
     return result.context;
@@ -531,7 +541,7 @@ export class PrismaDIDStorage implements DIDStorage {
 
   async containsPrivateKeys(did: DID): Promise<boolean> {
     const result = await this.prisma.privateKey.count({
-      where : { userId : this.userId, did : did.toString(), },
+      where: { path: this.path, did: did.toString(), },
     });
 
     return result != 0;
@@ -540,71 +550,71 @@ export class PrismaDIDStorage implements DIDStorage {
   async deletePrivateKey(id: DIDURL): Promise<boolean> {
     try {
       await this.prisma.privateKey.delete({
-        where : {
-          userId : this.userId,
-          id : id.toString(),
+        where: {
+          path: this.path,
+          id: id.toString(),
         }
       });
       return true;
-    } catch(e) {
+    } catch (e) {
       return false;
     }
   }
 
   async listPrivateKeys(did: DID): Promise<DIDURL[]> {
     const result = await this.prisma.privateKey.findMany({
-      where : { did : did.toString(), },
-      select : {
-        id : true,
+      where: { did: did.toString(), },
+      select: {
+        id: true,
       }
     });
 
-    const didurls : DIDURL[] = [];
+    const didurls: DIDURL[] = [];
     for (const sk of result)
       didurls.push(DIDURL.from(sk.id));
 
     return didurls;
   }
 
-  async changePassword(reEncryptor: ReEncryptor) : Promise<void> {
+  async changePassword(reEncryptor: ReEncryptor): Promise<void> {
     const mnemonicResult = await this.prisma.rootIdentity.findMany({
-      where : { userId : this.userId, },
-      select : {
-        id : true,
-        mnemonic : true,
+      where: { path: this.path, },
+      select: {
+        id: true,
+        mnemonic: true,
       }
     });
 
     for (const result of mnemonicResult) {
       await this.prisma.rootIdentity.update({
-        where : {
-          userId : this.userId,
-          id : result.id
+        where: {
+          path: this.path,
+          id: result.id
         },
-        data : {
-          mnemonic : reEncryptor.reEncrypt(result.mnemonic),
+        data: {
+          mnemonic: reEncryptor.reEncrypt(result.mnemonic),
         }
       });
     }
 
     const privateKeyResult = await this.prisma.privateKey.findMany({
-      where : { userId : this.userId },
+      where: { path: this.path },
     });
 
     for (const sk of privateKeyResult) {
       await this.prisma.privateKey.update({
-        where : {
-          userId : this.userId,
-          id : sk.id
+        where: {
+          path: this.path,
+          id: sk.id
         },
-        data : {
-          context : reEncryptor.reEncrypt(sk.context),
+        data: {
+          context: reEncryptor.reEncrypt(sk.context),
         }
       });
     }
 
     const credentials = await this.prisma.verifiableCredential.findMany({
-      where : { userId : this.userId },
+      where: { path: this.path },
     });
 
     for (const vc of credentials) {
@@ -621,10 +631,10 @@ export class PrismaDIDStorage implements DIDStorage {
 
         await this.prisma.verifiableCredential.update({
           where: {
-            userId: this.userId,
+            path: this.path,
             id: vc.id,
           },
-          data : {
+          data: {
             credential: dataBuffer.toString(),
           }
         });

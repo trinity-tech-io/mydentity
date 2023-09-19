@@ -1,5 +1,5 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { User, UserEmail, UserEmailProvider } from '@prisma/client';
+import { User, UserEmail, UserEmailProvider } from '@prisma/client/main';
 import { randomUUID } from "crypto";
 import * as moment from "moment";
 import { encode } from "slugid";

@@ -1,6 +1,6 @@
 import { VerifiableCredential } from '@elastosfoundation/did-js-sdk';
 import { Injectable, Logger } from '@nestjs/common';
-import { Browser, Credential, User } from '@prisma/client';
+import { Browser, Credential, User } from '@prisma/client/main';
 import { DidService } from 'src/did/did.service';
 import { AppException } from 'src/exceptions/app-exception';
 import { AuthExceptionCode } from 'src/exceptions/exception-codes';

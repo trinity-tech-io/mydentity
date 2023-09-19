@@ -1,6 +1,6 @@
 import { DIDDocument, RootIdentity } from '@elastosfoundation/did-js-sdk';
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
-import { Browser, Identity, User } from '@prisma/client';
+import { Browser, Identity, User } from '@prisma/client/main';
 import { CredentialsService } from 'src/credentials/credentials.service';
 import { AssistTransactionStatus, DIDPublishingService } from 'src/did-publishing/did-publishing.service';
 import { DidService } from 'src/did/did.service';
@@ -26,7 +26,6 @@ export class IdentityService {
   }
 
   async create(createIdentityInput: CreateIdentityInput, user: User, browser: Browser): Promise<Identity> {
-    this.logger.log('create');
     const storePassword = this.getDIDStorePassword(user?.id, browser?.id);
 
     let rootIdentity: RootIdentity = null;
@@ -52,6 +51,7 @@ export class IdentityService {
       identityDid = didDocument.getSubject().toString();
     } catch (e) {
       this.logger.log(`DID creation exception: ${e}`)
+      console.log(e)
       throw new AppException(DIDExceptionCode.DIDStorageError, e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

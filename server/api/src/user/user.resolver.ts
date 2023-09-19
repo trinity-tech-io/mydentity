@@ -1,6 +1,6 @@
 import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { Browser } from '@prisma/client';
+import { Browser } from '@prisma/client/main';
 import { GraphQLError } from "graphql/error";
 import { CurrentUser } from 'src/auth/currentuser.decorator';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
