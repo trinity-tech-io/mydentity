@@ -1,6 +1,6 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { User } from '@prisma/client';
+import { User } from '@prisma/client/main';
 import { BrowsersService } from 'src/browsers/browsers.service';
 import { AuthTokens } from './model/auth-tokens';
 

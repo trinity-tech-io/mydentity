@@ -1,6 +1,6 @@
 import { Field, ObjectType } from '@nestjs/graphql';
+import { UserEmailProvider } from "@prisma/client/main";
 import { UserEntity } from "./user.entity";
-import { UserEmailProvider } from "@prisma/client";
 
 @ObjectType()
 export class UserEmailEntity {

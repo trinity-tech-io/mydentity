@@ -1,7 +1,9 @@
 "use client";
+import HiveIcon from '@assets/images/hive-cross.svg';
 import { Breadcrumbs } from "@components/breadcrumbs/Breadcrumbs";
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { useMounted } from '@hooks/useMounted';
+import { Stack } from '@mui/material';
 import { VaultStatus } from '@services/hive/vault/vault-status';
 import { activeIdentity$ } from '@services/identity/identity.events';
 import { authUser$ } from '@services/user/user.events';
@@ -25,6 +27,10 @@ const StoragePage: FC = () => {
 
   return (<div className='col-span-full flex flex-col'>
     <Breadcrumbs entries={["storage"]} />
+
+    <Stack className='p-4' direction="row" justifyContent="center">
+      <HiveIcon width={80} height={80}  />
+    </Stack>
 
     <div className='font-bold'>Hive storage status</div>
     <div>

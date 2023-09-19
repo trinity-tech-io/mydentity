@@ -1,5 +1,5 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { UserShadowKeyType } from '@prisma/client';
+import { UserShadowKeyType } from '@prisma/client/main';
 
 @InputType()
 export class AuthKeyInput {

@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../node_modules/@prisma/client/did"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DID_DATABASE_URL")
+}
+
+model StoreMetadata {
+  path                 String  @id @unique
+  version              Int     @default(4)
+  fingerprint          String?
+  defaultRootIndentity String?
+}
+
+model RootIdentity {
+  path       String
+  id         String  @id @unique
+  defaultDid String?
+  mnemonic   String?
+  privateKey String?
+  publicKey  String?
+  index      Int
+}
+
+model VerifiableCredential {
+  path       String
+  id         String    @id @unique
+  did        String
+  credential String
+  txid       String?
+  published  DateTime?
+  revoked    Boolean?
+  alias      String?
+}
+
+model DidDocument {
+  path              String
+  did               String    @id @unique
+  doc               String?
+  rootIdentityId    String?
+  index             Int?
+  txid              String?
+  previousSignature String?
+  signature         String?
+  published         DateTime?
+  deactivated       Boolean?
+  alias             String?
+}
+
+model PrivateKey {
+  path    String
+  did     String
+  id      String @id @unique
+  context String
+}

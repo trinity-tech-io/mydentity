@@ -1,10 +1,11 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../../node_modules/@prisma/client/main"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = env("MAIN_DATABASE_URL")
 }
 
 model User {
@@ -31,18 +32,18 @@ model User {
 }
 
 enum UserEmailProvider {
-    RAW
-    MICROSOFT
+  RAW
+  MICROSOFT
 }
 
 model UserEmail {
-  id        String   @id @unique @default(uuid()) // Unique user ID. Also used as DID store ID to retrieve the DID store.
-  user      User     @relation(fields: [userId], references: [id], onDelete: Restrict)
-  email     String   @unique
+  id        String            @id @unique @default(uuid()) // Unique user ID. Also used as DID store ID to retrieve the DID store.
+  user      User              @relation(fields: [userId], references: [id], onDelete: Restrict)
+  email     String            @unique
   provider  UserEmailProvider
-  createdAt DateTime @default(now())
+  createdAt DateTime          @default(now())
 
-  userId    String
+  userId String
 }
 
 // Corresponds to a RootIdentity in the DID SDK, meaning one mnemonic.
@@ -163,32 +164,32 @@ model Browser {
 }
 
 enum ActivityType {
-    USER_SIGN_IN
-    IDENTITY_CREATED
-    IDENTITY_DELETED
-    CREDENTIALS_IMPORTED
-    CREDENTIALS_SHARED // Also credentials request
-    BIND_EMAIL
-    BIND_BROWSER
-    PASSWORD_CHANGED
+  USER_SIGN_IN
+  IDENTITY_CREATED
+  IDENTITY_DELETED
+  CREDENTIALS_IMPORTED
+  CREDENTIALS_SHARED // Also credentials request
+  BIND_EMAIL
+  BIND_BROWSER
+  PASSWORD_CHANGED
 }
 
 model Activity {
-  id String @id @unique @default(uuid())
-  user      User @relation(fields: [userId], references: [id], onDelete: Restrict)
-  type      ActivityType
+  id   String       @id @unique @default(uuid())
+  user User         @relation(fields: [userId], references: [id], onDelete: Restrict)
+  type ActivityType
 
   userEmailProvider UserEmailProvider? // For USER_SIGN_IN or BIND_EMAIL.
   identityStr       String? // For IDENTITY_CREATED and IDENTITY_DELETED.
   credentialsCount  Int? // For CREDENTIALS_IMPORTED and CREDENTIALS_SHARED.
   appDid            String? // Caller of CREDENTIALS_IMPORTED and CREDENTIALS_SHARED.
-  browser           Browser? @relation(fields: [browserId], references: [id], onDelete: Restrict) // For BIND_BROWSER, if no browser, use browserName
+  browser           Browser?           @relation(fields: [browserId], references: [id], onDelete: Restrict) // For BIND_BROWSER, if no browser, use browserName
   browserName       String? // For BIND_BROWSER
 
-  createdAt         DateTime @default(now())
+  createdAt DateTime @default(now())
 
-  userId            String
-  browserId         String?
+  userId    String
+  browserId String?
 }
 
 // No need setup the relations with the user

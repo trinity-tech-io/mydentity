@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.7.17",
-    "@elastosfoundation/did-js-sdk": "^2.3.0",
+    "@elastosfoundation/did-js-sdk": "^2.3.1",
     "@elastosfoundation/elastos-connectivity-sdk-js": "^2.0.6-next",
     "@elastosfoundation/hive-js-sdk": "^2.9.12",
     "@emotion/react": "^11.11.1",

@@ -1,5 +1,5 @@
 import { Field, GraphQLISODateTime, ObjectType } from '@nestjs/graphql';
-import { IntentType } from '@prisma/client';
+import { IntentType } from '@prisma/client/main';
 import { GraphQlJson } from 'src/utils/graphql/json.types';
 
 @ObjectType()

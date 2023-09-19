@@ -1,5 +1,5 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { AuthChallenge, Prisma, User, UserShadowKey, UserShadowKeyType } from '@prisma/client';
+import { AuthChallenge, Prisma, User, UserShadowKey, UserShadowKeyType } from '@prisma/client/main';
 import { VerifiedAuthenticationResponse, VerifiedRegistrationResponse, VerifyAuthenticationResponseOpts, VerifyRegistrationResponseOpts, verifyAuthenticationResponse, verifyRegistrationResponse } from '@simplewebauthn/server';
 import { AuthenticationResponseJSON, RegistrationResponseJSON } from '@simplewebauthn/server/script/deps';
 import { randombytes_buf, ready } from 'libsodium-wrappers-sumo';
@@ -305,7 +305,7 @@ export class KeyRingService {
     return (await this.removeShadowKey(user.id, keyId)) != null;
   }
 
-  async changePassword(newPassword: string, browserId: string, user: User): Promise<UserShadowKey[]>  {
+  async changePassword(newPassword: string, browserId: string, user: User): Promise<UserShadowKey[]> {
     // get the cached secret key if authorized
     const masterKey = this.getMasterKey(user.id, browserId);
     if (masterKey === undefined)

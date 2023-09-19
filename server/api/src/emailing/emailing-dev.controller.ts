@@ -1,5 +1,5 @@
 import { Controller, Get, Param } from '@nestjs/common';
-import { User } from '@prisma/client';
+import { User } from '@prisma/client/main';
 import { CurrentUser } from '../auth/currentuser.decorator';
 import { EmailTemplateType } from './email-template-type';
 import { EmailingService } from './emailing.service';
