@@ -1,6 +1,6 @@
 "use client";
 import { MainButton } from '@components/generic/MainButton';
-import { callWithUnlock } from '@components/security/unlock-key-prompt/UnlockKeyPrompt';
+import { callWithUnlock } from '@components/security/unlock-key-prompt/call-with-unlock';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { useMounted } from '@hooks/useMounted';
 import { Identity } from '@model/identity/identity';
@@ -77,7 +77,7 @@ export const CreateIdentity: FC<{
           defaultValue={suggestedName}
           variant="outlined"
           size="small"
-          autoComplete="off" 
+          autoComplete="off"
         />
       </div>
     </form>

@@ -7,6 +7,7 @@ import { getApolloClient } from "@services/graphql.service";
 import { logger } from "@services/logger";
 import { initialsString } from "@utils/strings";
 import { BehaviorSubject } from "rxjs";
+import { ApplicationsFeature } from "./features/applications/applications.feature";
 import { BrowserFeature } from "./features/browser/browser.feature";
 import { IdentityFeature } from "./features/identity/identity.feature";
 import { SecurityFeature } from "./features/security/security.feature";
@@ -32,6 +33,7 @@ export class User {
     this.addFeature("browser", new BrowserFeature(this));
     this.addFeature("security", new SecurityFeature(this));
     this.addFeature("activity", new ActivityFeature(this));
+    this.addFeature("applications", new ApplicationsFeature(this));
   }
 
   public static async fromJson(json: UserDTO, useCache = true): Promise<User> {
@@ -63,7 +65,8 @@ export class User {
   public get(feature: "browser"): BrowserFeature;
   public get(feature: "security"): SecurityFeature;
   public get(feature: "activity"): ActivityFeature;
-  public get(feature: "email" | "identity" | "browser" | "security" | "activity"): UserFeature {
+  public get(feature: "applications"): ApplicationsFeature;
+  public get(feature: "email" | "identity" | "browser" | "security" | "activity" | "applications"): UserFeature {
     if (!this.features.has(feature)) {
       throw new Error(`Unhandled user feature '${feature}'`);
     }

@@ -7,7 +7,7 @@ import { withCaughtAppException } from '@services/error.service';
 import { AuthKeyInput } from '@services/keyring/auth-key.input';
 import { unlockMasterKey } from '@services/keyring/keyring.service';
 import { logger } from '@services/logger';
-import { CallWithUnlockCallback, isUnlockException, isUnlockPromptCancelledException } from '@services/security/security.service';
+import { isUnlockException } from '@services/security/security.service';
 import { authUser$ } from '@services/user/user.events';
 import React, {
   Dispatch, FC,
@@ -15,9 +15,10 @@ import React, {
   useContext, useEffect,
   useState
 } from 'react';
-import { BehaviorSubject, Subject } from 'rxjs';
 import { PasskeyPrompt } from './PasskeyPrompt';
 import { PasswordPrompt } from './PasswordPrompt';
+import { callWithUnlock } from './call-with-unlock';
+import { UnlockPromptState, UnlockRequest, callWithUnlockRequestEvent$, unlockPromptState$ } from './unlock.events';
 
 type OnUnlockKeyCallback = (authorization: AuthKeyInput) => void;
 
@@ -34,13 +35,6 @@ export const UnlockKeyPromptContext = createContext<UnlockKeyPromptContextType>(
   actions: null,
   setActions: null
 });
-
-type UnlockRequest<T> = {
-  method: CallWithUnlockCallback<T>;
-  resolve: (value: any) => any;
-  reject: (exception: AppException) => any;
-}
-const callWithUnlockRequestEvent$ = new Subject<UnlockRequest<any>>();
 
 export function UnlockKeyPromptContextProvider(props: any): JSX.Element {
   const [actions, setActions] = useState<UnlockKeyPromptActions>(null);
@@ -125,16 +119,6 @@ const UnlockKeyPrompt: FC = () => {
 export default React.memo(UnlockKeyPrompt);
 
 /**
- * Global state for ths unlocker. This is used by UI and services to know if they should retry to fetch some lazy data or not.
- */
-export enum UnlockPromptState {
-  Idle, // The unlocker has not been called, or was unlocked successfully previously.
-  UnlockCancelled, // The unlocking last failed because user cancelled the unlock operation
-}
-
-export const unlockPromptState$ = new BehaviorSubject<UnlockPromptState>(UnlockPromptState.Idle);
-
-/**
  * Convenient hooked booleans to get unlocker state
  */
 export function useUnlockPromptState(): {
@@ -181,32 +165,6 @@ export const useUnlockKeyPrompt = (): {
   }
 
   return { promptMasterKeyUnlock, retryUnlock };
-}
-
-/**
- * Convenience helper to catch unlock exceptions from APIs, prompt user to unlock his master key
- * on the UI, and automatically retry calling the API until the call succeeds or gets cancelled by
- * the user.
- *
- * silentCancellation is used to let some methods such as active user actions (create identity, etc) automatically
- * catch cancellation events, while letting behavior subjects throw the exception to be able to know
- * such cancellation happened and then to retry initializing their data later.
- */
-export async function callWithUnlock<T>(method: CallWithUnlockCallback<T>, silentCancellation = false, defaultValue?: T): Promise<T> {
-  const p = new Promise<T>((resolve, reject) => {
-    unlockPromptState$.next(UnlockPromptState.Idle);
-    callWithUnlockRequestEvent$.next({ method, resolve, reject });
-  }).catch(e => {
-    if (silentCancellation && isUnlockPromptCancelledException(e)) {
-      // Silent, catch the cancellation exception and let the promise return successfully with no value.
-    }
-    else {
-      // For all other errors, rethrow the exception, the caller needs to handle that.
-      throw e;
-    }
-  });
-
-  return (await p) || defaultValue;
 }
 
 /**

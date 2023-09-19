@@ -1,5 +1,4 @@
 import { gql } from "@apollo/client";
-import { callWithUnlock } from "@components/security/unlock-key-prompt/UnlockKeyPrompt";
 import { gqlShadowKeyFields } from "@graphql/shadow-key.fields";
 import { ChallengeEntity } from "@model/shadow-key/challenge-entity";
 import { ShadowKey } from "@model/shadow-key/shadow-key";
@@ -16,6 +15,7 @@ import { AdvancedBehaviorSubject } from "@utils/advanced-behavior-subject";
 import { map } from "rxjs";
 import { User } from "../../user";
 import { UserFeature } from "../user-feature";
+import { callWithUnlock } from "@components/security/unlock-key-prompt/call-with-unlock";
 
 export class SecurityFeature implements UserFeature {
   /**

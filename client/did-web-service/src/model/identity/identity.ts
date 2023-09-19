@@ -1,5 +1,4 @@
 import { gql } from "@apollo/client";
-import { callWithUnlock } from "@components/security/unlock-key-prompt/UnlockKeyPrompt";
 import type { VerifiableCredential, VerifiablePresentation } from "@elastosfoundation/did-js-sdk";
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
@@ -15,6 +14,7 @@ import { ProfileFeature } from "./features/profile/profile.feature";
 import { PublicationFeature } from "./features/publication/publication.feature";
 import { StorageFeature } from "./features/storage/storage.feature";
 import { IdentityDTO } from "./identity.dto";
+import { callWithUnlock } from "@components/security/unlock-key-prompt/call-with-unlock";
 
 export class Identity {
   did: string;

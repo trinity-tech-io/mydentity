@@ -1,10 +1,10 @@
-import { callWithUnlock } from "@components/security/unlock-key-prompt/UnlockKeyPrompt";
 import type { VerifiableCredential } from "@elastosfoundation/did-js-sdk";
 import { Credential } from "@model/credential/credential";
 import { Identity } from "@model/identity/identity";
 import { logger } from "@services/logger";
 import { AdvancedBehaviorSubject } from "@utils/advanced-behavior-subject";
 import { IdentityFeature } from "../identity-feature";
+import { callWithUnlock } from "@components/security/unlock-key-prompt/call-with-unlock";
 
 export class CredentialsFeature implements IdentityFeature {
   public credentials$ = new AdvancedBehaviorSubject<Credential[]>(null, () => { return this.fetchCredentials(); });

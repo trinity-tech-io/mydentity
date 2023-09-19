@@ -1,4 +1,3 @@
-import { callWithUnlock } from '@components/security/unlock-key-prompt/UnlockKeyPrompt';
 import type { DIDDocument, VerifiableCredential } from "@elastosfoundation/did-js-sdk";
 import type { AppContext, AppContextProvider, ScriptingService, Vault, VaultInfo, VaultSubscription } from "@elastosfoundation/hive-js-sdk";
 import { Identity } from "@model/identity/identity";
@@ -14,6 +13,7 @@ import dayjs from 'dayjs';
 import moment from 'moment';
 import { BehaviorSubject } from "rxjs";
 import { IdentityFeature } from "../identity-feature";
+import { callWithUnlock } from "@components/security/unlock-key-prompt/call-with-unlock";
 
 export class HiveFeature implements IdentityFeature {
   public vaultStatus$ = new AdvancedBehaviorSubject<VaultStatus>(null, async () => { this.retrieveVaultStatus(); }); // Latest known vault status for active user

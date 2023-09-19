@@ -1,4 +1,3 @@
-import { callWithUnlock } from "@components/security/unlock-key-prompt/UnlockKeyPrompt";
 import { Credential } from "@model/credential/credential";
 import { ProfileCredential } from "@model/credential/profile-credential";
 import { Identity } from "@model/identity/identity";
@@ -13,6 +12,7 @@ import moment from "moment";
 import { BehaviorSubject, map } from "rxjs";
 import { IdentityFeature } from "../identity-feature";
 import { editAvatarOnHive } from "./upload-avatar";
+import { callWithUnlock } from "@components/security/unlock-key-prompt/call-with-unlock";
 
 /**
  * Caches to store identities names and avatars, so we can show their base information

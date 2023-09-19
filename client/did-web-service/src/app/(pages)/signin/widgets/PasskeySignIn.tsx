@@ -1,6 +1,6 @@
 'use client';
 import { MainButton } from '@components/generic/MainButton';
-import { callWithUnlock } from '@components/security/unlock-key-prompt/UnlockKeyPrompt';
+import { callWithUnlock } from '@components/security/unlock-key-prompt/call-with-unlock';
 import { Icon as ReactIcon } from '@iconify/react';
 import { makeStyles } from '@mui/styles';
 import { useToast } from "@services/feedback.service";

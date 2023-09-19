@@ -64,9 +64,10 @@ export class AppInteractionResolver {
 
   @UseGuards(JwtAuthGuard)
   @Query(() => [IdentityInteractingApplicationEntity], { name: 'interactingApplications' })
-  async findAllInteractingApplications(@Args('identityDid') identityId: string, @CurrentUser() user: User) {
-    await this.identityService.ensureOwnedIdentity(identityId, user);
-    return this.interactingApplicationsService.findIdentityInteractingApplications(identityId);
+  async findAllInteractingApplications(@Args('identityDid', { nullable: true }) identityId: string = null, @CurrentUser() user: User) {
+    if (identityId)
+      await this.identityService.ensureOwnedIdentity(identityId, user);
+    return this.interactingApplicationsService.findIdentityInteractingApplications(identityId, user);
   }
 
   @UseGuards(JwtAuthGuard)

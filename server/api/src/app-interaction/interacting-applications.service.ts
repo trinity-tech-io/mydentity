@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Credential, IdentityInteractingApplication, InteractingApplication, RequestedCredential } from '@prisma/client/main';
+import { Credential, IdentityInteractingApplication, InteractingApplication, RequestedCredential, User } from '@prisma/client/main';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -85,10 +85,13 @@ export class InteractingApplicationsService {
     })
   }
 
-  public async findIdentityInteractingApplications(identityDid: string) {
+  public async findIdentityInteractingApplications(identityDid: string = null, user: User) {
     return this.prisma.identityInteractingApplication.findMany({
       where: {
-        identityDid,
+        ...(identityDid && { identityDid }),
+        identity: {
+          userId: user.id
+        }
       },
       include: {
         interactingApplication: true

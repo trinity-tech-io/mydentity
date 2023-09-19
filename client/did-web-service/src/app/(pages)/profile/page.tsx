@@ -9,17 +9,18 @@ import CreateCredentialDialog from "@components/identity-profile/CreateCredentia
 import EditCredentialDialog, { EditionMode } from "@components/identity-profile/EditCredentialDialog";
 import { VerticalStackLoadingCard } from "@components/loading-cards/vertical-stack-loading-card/VerticalStackLoadingCard";
 import { UnlockRetrier } from '@components/security/UnlockRetrier';
-import { callWithUnlock, useUnlockPromptState } from '@components/security/unlock-key-prompt/UnlockKeyPrompt';
+import { useUnlockPromptState } from '@components/security/unlock-key-prompt/UnlockKeyPrompt';
+import { callWithUnlock } from '@components/security/unlock-key-prompt/call-with-unlock';
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useMounted } from "@hooks/useMounted";
 import { Credential } from "@model/credential/credential";
 import { ProfileCredential } from "@model/credential/profile-credential";
 import AddIcon from '@mui/icons-material/Add';
+import FileCopyIcon from '@mui/icons-material/FileCopy';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { Card, Container, IconButton, MenuItem, Popover, Stack, Table, TableBody, TableCell, TableContainer, TablePagination, TableRow, Typography } from "@mui/material";
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import Box from '@mui/material/Box';
-import FileCopyIcon from '@mui/icons-material/FileCopy';
 import { useToast } from "@services/feedback.service";
 import { findProfileInfoByTypes, getAvailableProfileEntries } from "@services/identity-profile-info/identity-profile-info.service";
 import { ProfileCredentialInfo } from "@services/identity-profile-info/profile-credential-info";
@@ -299,7 +300,7 @@ const Profile: FC = () => {
       autoComplete="off"
     >
       <Stack alignItems="center" spacing={3} sx={{ pt: 5, borderRadius: 2, position: 'relative' }}>
-        <Typography variant="body2" 
+        <Typography variant="body2"
           onClick={(): void => {
             const textToCopy = activeIdentity?.did?.toString() // set textToCopy: activeIdentity
             navigator.clipboard.writeText(textToCopy)
@@ -309,12 +310,12 @@ const Profile: FC = () => {
             textDecoration: 'none', // none/underline
             cursor: 'pointer',
             '&:hover': {
-              color: 'blue', 
+              color: 'blue',
             },
           }}
         >
           {activeIdentity?.did?.toString()}
-          <FileCopyIcon style={{ fontSize: 16 , marginLeft: 5}} />
+          <FileCopyIcon style={{ fontSize: 16, marginLeft: 5 }} />
         </Typography>
         <EditableCredentialAvatar credential={avatarCredential} width={100} height={100}
           onFileUpload={handleAvatarFileChanged} updating={uploadingAvatar} disabled={!credentials} />
