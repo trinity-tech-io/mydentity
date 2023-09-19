@@ -1,5 +1,5 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { User, UserEmail } from '@prisma/client';
+import { User, UserEmail, UserEmailProvider } from '@prisma/client';
 import { randomUUID } from "crypto";
 import * as moment from "moment";
 import { encode } from "slugid";
@@ -150,7 +150,7 @@ export class UserService {
 
     // Send the authentication link by email.
     const magicLink = `${process.env.FRONTEND_URL}/checkauthkey?key=${encode(temporaryEmailAuthKey)}`;
-    this.emailingService.sendEmail(template, "DID Service <email-auth@didservice.io>", emailAddress, subject, {
+    await this.emailingService.sendEmail(template, "DID Service <email-auth@didservice.io>", emailAddress, subject, {
       magicLink
     });
 
@@ -216,6 +216,7 @@ export class UserService {
         },
         create: {
           email: user.temporaryEmail,
+          provider: UserEmailProvider.RAW,
           user: { connect: { id: curUser.id } },
           createdAt: new Date()
         },
@@ -279,6 +280,7 @@ export class UserService {
         where: { email },
         create: {
           email,
+          provider: UserEmailProvider.MICROSOFT,
           user: { connect: { id: user.id } },
           createdAt: new Date()
         },

@@ -17,6 +17,7 @@ import { FC, useEffect, useState } from "react";
 import { RequestingApp } from "../components/RequestingApp";
 import { ClaimDisplayEntryListWidget } from "./components/ClaimDisplayEntryList";
 import { V1Claim } from "./model/v1claim";
+import { ActivityFeature } from "@model/user/features/activity/activity.feature";
 
 export type CredentialDisplayEntry = {
   credential: Credential;
@@ -287,10 +288,10 @@ export const RequestDetails: FC<{
     if (fulfilled) {
       // TODO: check fulfilled success - if error report error to user
 
-      const activity = await activeUser?.get('activity').createActivity(ActivityType.VC_CREATED, { did: activeIdentity.did });
-      if (!activity) {
-        logger.warn(TAG, `failed to create activity for VC created by ${activeIdentity.did}`);
-      }
+      await ActivityFeature.createActivity({type: ActivityType.CREDENTIALS_SHARED,
+        credentialsCount: selectedCredentials.length,
+        appDid: requestingAppDID,
+      });
 
       // Send the response to the original app, including the intent id as parameter.
       // The web connector will catch this parameter to retrieve the intent response payload and
@@ -298,6 +299,16 @@ export const RequestDetails: FC<{
       const redirectUrl = setQueryParameter(intent.redirectUrl, "rid", intent.id);
       window.location.href = redirectUrl;
     }
+  }
+
+  // User reject the upcoming request.
+  const rejectRequest = (): void => {
+
+      // Send the response to the original app, including the intent id as parameter.
+      // The web connector will catch this parameter to retrieve the intent response payload and
+      // to deliver it to the app through the connectivity sdk.
+      const redirectUrl = setQueryParameter(intent.redirectUrl, "rid", intent.id);
+      window.location.href = redirectUrl;
   }
 
   return <>
@@ -310,7 +321,10 @@ export const RequestDetails: FC<{
         </div>
         <ClaimDisplayEntryListWidget claimDisplayEntryList={organizedClaims} />
         <br /><br />
-        <MainButton onClick={approveRequest} busy={preparingResponse}>Approve</MainButton>
+        <div className="flex items-center space-x-3">
+          <MainButton className="w-1/2" onClick={rejectRequest}>Cancel</MainButton>
+          <MainButton className="w-1/2" onClick={approveRequest} busy={preparingResponse}>Approve</MainButton>
+        </div>
       </div>
     }
     {!activeIdentity && "Make an identity active to continue"}

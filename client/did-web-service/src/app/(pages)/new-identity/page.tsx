@@ -1,13 +1,13 @@
 "use client";
-import { CreateIdentity } from '@components/identity-creation/CreateIdentity';
-import { useMounted } from '@hooks/useMounted';
-import { useRouter } from 'next/navigation';
-import { FC } from 'react';
-import { ActivityType } from "@model/activity/activity-type";
-import { logger } from "@services/logger";
-import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
-import { authUser$ } from "@services/user/user.events";
-import { Identity } from "@model/identity/identity";
+import {CreateIdentity} from '@components/identity-creation/CreateIdentity';
+import {useMounted} from '@hooks/useMounted';
+import {useRouter} from 'next/navigation';
+import {FC} from 'react';
+import {ActivityType} from "@model/activity/activity-type";
+import {useBehaviorSubject} from "@hooks/useBehaviorSubject";
+import {authUser$} from "@services/user/user.events";
+import {Identity} from "@model/identity/identity";
+import {ActivityFeature} from "@model/user/features/activity/activity.feature";
 
 const NewIdentityPage: FC = () => {
   const { mounted } = useMounted();
@@ -19,10 +19,7 @@ const NewIdentityPage: FC = () => {
   }
 
   const onIdentityCreated = async (identity: Identity): Promise<void> => {
-    const activity = await activeUser?.get('activity').createActivity(ActivityType.DID_CREATED, { did: identity.did });
-    if (!activity) {
-      logger.warn(`failed to create activity for did ${identity.did} created.`);
-    }
+    await ActivityFeature.createActivity({type: ActivityType.IDENTITY_CREATED, identityStr: identity.did});
 
     showProfile();
   }

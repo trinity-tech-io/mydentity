@@ -12,18 +12,17 @@ import { IdentityCellLeft } from '@components/identity/IdentityCellLeft';
 
 const TAG = 'IdentityListWidget'
 
-export const IdentityListWidget: FC = _ => {
+export const AllIdentityList: FC = _ => {
   const [authUser] = useBehaviorSubject(authUser$);
   const [identities] = useBehaviorSubject(authUser?.get("identity").identities$);
   const router = useRouter()
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const [showToast, setShowToast] = useState<boolean>(false);
-  let sortedIdentities = [...identities].sort((a, b) => {
+  const sortedIdentities = [...identities].sort((a, b) => {
     const dateA = new Date(a.lastUsedAt$.getValue()).getTime();
     const dateB = new Date(b.lastUsedAt$.getValue()).getTime();
     return dateB - dateA
   });
-  sortedIdentities = sortedIdentities?.slice(0, 5);
 
   const handleCellClick = (identity: Identity): void => {
     if (identity !== activeIdentity) {
@@ -40,9 +39,6 @@ export const IdentityListWidget: FC = _ => {
     router.push("/new-identity");
   }
 
-  const handleShowAllClick = (): void => {
-    router.push("/identities");
-  }
   return (
     <div className="col-span-full xl:col-span-6 bg-white dark:bg-slate-800 shadow-lg rounded-sm border border-slate-200 dark:border-slate-700">
       <header className="px-5 py-4 border-b border-slate-100 dark:border-slate-700">
@@ -101,20 +97,6 @@ export const IdentityListWidget: FC = _ => {
                   })
                 }
               </tbody>
-
-              <tfoot>
-                <tr>
-                  <td colSpan={2} className="p-3 text-right">
-                    <div className="flex justify-end">
-                      <button className="bg-indigo-500 hover:bg-indigo-600 text-white font-bold text-xs py-1 px-2 rounded relative"
-                      onClick={handleShowAllClick}
-                      >
-                        <span>Show all</span>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              </tfoot>
             </table>
           </div>
         }

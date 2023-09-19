@@ -1,1 +1,1 @@
-export const graphQLActivityFields = `id type content createdAt`;
+export const graphQLActivityFields = `id type userEmailProvider identityStr credentialsCount appDid browserName createdAt`;

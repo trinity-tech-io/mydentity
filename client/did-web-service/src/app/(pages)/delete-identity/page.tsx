@@ -10,7 +10,7 @@ import { authUser$ } from '@services/user/user.events';
 import { useRouter } from 'next/navigation';
 import { FC, useState } from 'react';
 import { ActivityType } from "@model/activity/activity-type";
-import { logger } from "@services/logger";
+import { ActivityFeature } from "@model/user/features/activity/activity.feature";
 
 const TAG = "delete-identity";
 
@@ -32,10 +32,7 @@ const DeleteIdentityPage: FC = () => {
     // Deletion
     const success = await activeUser.get("identity").deleteIdentity(identityStringToDelete);
     if (success) {
-      const activity = await activeUser?.get('activity').createActivity(ActivityType.DID_DELETED, { did: identityStringToDelete });
-      if (!activity) {
-        logger.warn(`failed to create activity for did ${identityStringToDelete} deleted.`);
-      }
+      await ActivityFeature.createActivity({type: ActivityType.IDENTITY_DELETED, identityStr: identityStringToDelete});
     }
   }
 

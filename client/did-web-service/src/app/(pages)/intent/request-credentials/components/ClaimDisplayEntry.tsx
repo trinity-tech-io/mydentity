@@ -53,9 +53,11 @@ export const ClaimDisplayEntryWidget: FC<Props> = (props) => {
     <>
     { claimDisplayEntry &&
       <div key={claimDisplayEntry.claimDescription.reason} className='flex flex-col'>
-        <div className="flex flex-row p-4"> { claimDisplayEntry.claimDescription.reason } </div>
-        <div className="text-right pr-4">
-          { selectionSummary }
+        <div className="flex flex-row p-4">
+          <div className="flex flex-row p-1"> { claimDisplayEntry.claimDescription.reason } </div>
+          <div className="absolute right-1 p-1">
+            { selectionSummary }
+          </div>
         </div>
 
         { claimDisplayEntry.matchingCredentials &&

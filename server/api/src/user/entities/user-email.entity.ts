@@ -1,5 +1,6 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import {UserEntity} from "./user.entity";
+import { UserEntity } from "./user.entity";
+import { UserEmailProvider } from "@prisma/client";
 
 @ObjectType()
 export class UserEmailEntity {
@@ -9,7 +10,10 @@ export class UserEmailEntity {
     @Field(() => UserEntity)
     user: UserEntity;
 
-    @Field({nullable: true})
+    @Field(() => UserEmailProvider)
+    provider: UserEmailProvider;
+
+    @Field()
     email: string;
 
     @Field(() => Date)

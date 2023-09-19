@@ -1,13 +1,15 @@
 'use client';
 
-import { ActivityType } from "@model/activity/activity-type";
-import { ExistingEmailException } from "@model/exceptions/existing-email-exception";
-import { InexistingEmailException } from "@model/exceptions/inexisting-email-exception";
-import { LinearProgress } from "@mui/material";
-import { clearOnGoingFlowOperation, FlowOperation, getOnGoingFlowOperation } from "@services/flow.service";
-import { oauthMSBindEmail, oauthMSSignIn } from "@services/user/user.service";
-import { useRouter, useSearchParams } from "next/navigation";
-import { FC, useEffect } from "react";
+import {ActivityType} from "@model/activity/activity-type";
+import {ExistingEmailException} from "@model/exceptions/existing-email-exception";
+import {InexistingEmailException} from "@model/exceptions/inexisting-email-exception";
+import {LinearProgress} from "@mui/material";
+import {clearOnGoingFlowOperation, FlowOperation, getOnGoingFlowOperation} from "@services/flow.service";
+import {oauthMSBindEmail, oauthMSSignIn} from "@services/user/user.service";
+import {useRouter, useSearchParams} from "next/navigation";
+import {FC, useEffect} from "react";
+import {UserEmailProvider} from "@model/user-email/user-email-provider";
+import {ActivityFeature} from "@model/user/features/activity/activity.feature";
 
 const MicrosoftRedirect: FC = () => {
   const router = useRouter();
@@ -26,16 +28,24 @@ const MicrosoftRedirect: FC = () => {
         {
           oauthMSBindEmail(code).then(result => {
             if (result) {
-              clearOnGoingFlowOperation();
-              router.push('/account/security');
+              ActivityFeature.createActivity({ type: ActivityType.BIND_EMAIL, userEmailProvider: UserEmailProvider.MICROSOFT }).then(activity => {
+                clearOnGoingFlowOperation();
+                router.push('/account/security');
+              }).catch(e => {
+                clearOnGoingFlowOperation();
+                router.push('/account/security');
+              })
             } else {
               clearOnGoingFlowOperation();
               router.push('/account/security?error=unknown');
             }
           }).catch((e) => {
-            if (e instanceof ExistingEmailException) {
+            if (e && e instanceof ExistingEmailException) {
               clearOnGoingFlowOperation();
               router.push('/account/security?error=emailExists');
+            } else {
+              clearOnGoingFlowOperation();
+              router.push('/account/security?error=unknown');
             }
           });
         }
@@ -44,7 +54,7 @@ const MicrosoftRedirect: FC = () => {
         {
           oauthMSSignIn(code).then(user => {
             if (user) {
-              user.get('activity').createActivity(ActivityType.SIGNED_IN, { type: 'OAUTH_MICROSOFT' }).then(activity => {
+              ActivityFeature.createActivity({ type: ActivityType.USER_SIGN_IN, userEmailProvider: UserEmailProvider.MICROSOFT }).then(activity => {
                 clearOnGoingFlowOperation();
                 router.push(`/dashboard`);
               }).catch(e => {

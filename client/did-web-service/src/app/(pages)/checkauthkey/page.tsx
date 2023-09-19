@@ -1,14 +1,14 @@
 'use client';
 
-import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
-import { ActivityType } from "@model/activity/activity-type";
-import { Typography } from "@mui/material";
-import { authUser$ } from "@services/user/user.events";
-import { checkRawEmailAuthenticationKey, isSignedIn } from "@services/user/user.service";
-import { decode } from '@utils/slugid';
-import { useRouter, useSearchParams } from "next/navigation";
-import router from "next/router";
-import { FC, useEffect, useState } from 'react';
+import {ActivityType} from "@model/activity/activity-type";
+import {Typography} from "@mui/material";
+import {checkRawEmailAuthenticationKey, isSignedIn} from "@services/user/user.service";
+import {decode} from '@utils/slugid';
+import {useRouter, useSearchParams} from "next/navigation";
+import {FC, useEffect, useState} from 'react';
+import {UserEmailProvider} from "@model/user-email/user-email-provider";
+import {ActivityFeature} from "@model/user/features/activity/activity.feature";
+import {UserEmailFeature} from "@model/user/features/email/user-email.feature";
 
 const CheckAuthKey: FC = () => {
   const searchParams = useSearchParams();
@@ -16,15 +16,14 @@ const CheckAuthKey: FC = () => {
   const authKey = encodedAuthKey ? decode(encodedAuthKey as string) : null;
   const [authError, setAuthError] = useState(false);
   const [logined, setLogined] = useState(false);
-  const [activeUser] = useBehaviorSubject(authUser$);
   const router = useRouter();
 
   useEffect(() => {
     if (authKey) {
-      if (!isSignedIn()) {
+      if (!isSignedIn()) { // login
         void checkRawEmailAuthenticationKey(authKey).then(authenticated => {
           if (authenticated) {
-            activeUser?.get('activity').createActivity(ActivityType.SIGNED_IN, { type: 'RAW_EMAIL' }).then(activity => {
+            ActivityFeature.createActivity({type: ActivityType.USER_SIGN_IN, userEmailProvider: UserEmailProvider.RAW}).then(activity => {
               router.push('/dashboard');
             }).catch(e => {
               router.push('/dashboard'); // Still means success.
@@ -32,17 +31,21 @@ const CheckAuthKey: FC = () => {
           } else
             setAuthError(true);
         });
-      } else {
+      } else { // bind email
         setLogined(true);
-        void activeUser?.get('email').checkRawEmailBind(authKey).then(bound => {
+        UserEmailFeature.checkRawEmailBind(authKey).then(bound => {
           if (bound) {
-            router.push('/account/security');
+            ActivityFeature.createActivity({type: ActivityType.BIND_EMAIL, userEmailProvider: UserEmailProvider.RAW}).then(activity => {
+              router.push('/account/security');
+            }).catch(e => {
+              router.push('/account/security'); // Still means success.
+            })
           } else
             setAuthError(true);
         });
       }
     }
-  }, [authKey, activeUser, router]);
+  }, [authKey, router]);
 
   return (
     <div className='m-20 w-full'>

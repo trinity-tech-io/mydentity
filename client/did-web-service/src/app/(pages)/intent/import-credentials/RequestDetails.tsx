@@ -18,6 +18,7 @@ import { FC, useEffect, useState } from "react";
 import { RequestingApp } from "../components/RequestingApp";
 import { CredentialPreviewWithDetails } from "./CredentialPreviewWithDetails";
 import { ImportedCredential, ImportedCredentialItem } from "./page";
+import { ActivityFeature } from "@model/user/features/activity/activity.feature";
 
 const TAG = 'ImportCredential';
 
@@ -126,10 +127,10 @@ export const RequestDetails: FC<{
       return;
     }
 
-    const activity = await activeUser?.get('activity').createActivity(ActivityType.VC_IMPORTED, { did: activeIdentity.did });
-    if (!activity) {
-      logger.warn(`failed to create activity for VC created by ${activeIdentity.did}`);
-    }
+    await ActivityFeature.createActivity({type: ActivityType.CREDENTIALS_IMPORTED,
+      credentialsCount: importedCredentials.length,
+      appDid: requestingAppDID,
+    });
 
     // TODO: check fulfilled success - if error report error to user
     // Send the response to the original app, including the intent id as parameter.
@@ -139,15 +140,20 @@ export const RequestDetails: FC<{
     window.location.href = redirectUrl;
   }
 
+  // User reject the upcoming request.
+  const rejectRequest = (): void => {
+
+    // Send the response to the original app, including the intent id as parameter.
+    // The web connector will catch this parameter to retrieve the intent response payload and
+    // to deliver it to the app through the connectivity sdk.
+    const redirectUrl = setQueryParameter(intent.redirectUrl, "rid", intent.id);
+    window.location.href = redirectUrl;
+}
+
   return <>
-    {/* Do you want to save the following content issued by app XXX, to your identity? This credential will not be
-    visible by anyone unless you choose share it later.
-    <br /><br />
-    Intent: {intent.id}
-    <br /><br /> */}
     {activeIdentity &&
       <div className="text-center">
-        <RequestingApp applicationDID={requestingAppDID} className="mb-8" />
+        <RequestingApp applicationDID={requestingAppDID} />
 
         <Typography mt={4}>
           You are going to attach some infomation provided by a third party to your identity.
@@ -160,7 +166,10 @@ export const RequestDetails: FC<{
             <CredentialPreviewWithDetails key={i} importedCredential={importedCredential} />
           )
         })}
-        <MainButton onClick={approveRequest} busy={preparingResponse} disabled={!credentials}>Import this to my profile</MainButton>
+        <div className="flex items-center space-x-3">
+          <MainButton className="w-1/2" onClick={rejectRequest}>Cancel</MainButton>
+          <MainButton className="w-1/2" onClick={approveRequest} busy={preparingResponse} disabled={!credentials}>Import this to my profile</MainButton>
+        </div>
         {unlockerIsCancelled && <UnlockRetrier className="mt-2" />}
       </div>
     }
