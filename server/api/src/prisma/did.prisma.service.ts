@@ -7,7 +7,6 @@ export class DIDPrismaService extends PrismaClient implements OnModuleInit {
 
   constructor() {
     super();
-    console.log("CONSTRUCT SERVICE");
     DIDPrismaService.instance = this;
   }
 

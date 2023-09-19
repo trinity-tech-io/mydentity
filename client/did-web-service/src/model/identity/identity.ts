@@ -6,6 +6,7 @@ import { getApolloClient } from "@services/graphql.service";
 import { IdentityProvider } from "@services/identity/did.provider";
 import moment from "moment";
 import { BehaviorSubject } from "rxjs";
+import { ApplicationsFeature } from "./features/applications/applications.feature";
 import { CredentialsFeature } from "./features/credentials/credentials.feature";
 import { DIDFeature } from "./features/did/did.feature";
 import { HiveFeature } from "./features/hive/hive.feature";
@@ -33,6 +34,7 @@ export class Identity {
     this.addFeature("hive", new HiveFeature(this));
     this.addFeature("storage", new StorageFeature(this));
     this.addFeature("publication", new PublicationFeature(this));
+    this.addFeature("applications", new ApplicationsFeature(this));
   }
 
   public static async fromJson(json: IdentityDTO, provider: IdentityProvider): Promise<Identity> {
@@ -52,7 +54,8 @@ export class Identity {
   public get(feature: "hive"): HiveFeature;
   public get(feature: "storage"): StorageFeature;
   public get(feature: "publication"): PublicationFeature;
-  public get(feature: "credentials" | "profile" | "did" | "hive" | "storage" | "publication"): IdentityFeature {
+  public get(feature: "applications"): ApplicationsFeature;
+  public get(feature: "credentials" | "profile" | "did" | "hive" | "storage" | "publication" | "applications"): IdentityFeature {
     if (!this.features.has(feature)) {
       throw new Error(`Unhandled user feature '${feature}'`);
     }

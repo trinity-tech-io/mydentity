@@ -3,10 +3,11 @@
  */
 
 
-/* type Includer<T> = {
+
+type Includer<T> = {
   include: T;
 }
-export const prismaUserIncludes = true;
+/* export const prismaUserIncludes = true;
 
 export const prismaProjectIncludes: Includer<Prisma.ProjectInclude> = {
   include: {
@@ -14,3 +15,9 @@ export const prismaProjectIncludes: Includer<Prisma.ProjectInclude> = {
   }
 }
  */
+
+/* export const prismaCredentialIncludes: Includer<PrismaMain.CredentialInclude> = {
+  include: {
+    ver: true
+  }
+} */

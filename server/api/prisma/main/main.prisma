@@ -76,21 +76,26 @@ model Identity {
 
   credentials Credential[]
 
-  publicationId String?
-  publishedAt   DateTime?
+  publicationId                  String?
+  publishedAt                    DateTime?
+  IdentityInteractingApplication IdentityInteractingApplication[]
 }
 
 // Metadata for Verifiable Credentials, with additional information
 model Credential {
   id String @id @unique @default(uuid()) // This ID never changes so we can for example attach permanent UI properties to it
 
-  createdAt    DateTime @default(now())
-  identity     Identity @relation(fields: [identityDid], references: [did], onDelete: Restrict)
+  createdAt    DateTime                        @default(now())
+  identity     Identity                        @relation(fields: [identityDid], references: [did], onDelete: Restrict)
   credentialId String // ID of the real credential, that changes when "updating" the data (actually, delete and create a new VC)
+  importedBy   IdentityInteractingApplication? @relation(fields: [importedById], references: [id], onDelete: Restrict) // If the credential was imported and we know the app that did it, that's the info about that app
 
   // TODO: save the full credential types for easy query by type later
 
-  identityDid String // Related identity
+  identityDid  String // Related identity
+  importedById String?
+
+  RequestedCredentials RequestedCredential[]
 }
 
 enum IntentType {
@@ -197,4 +202,48 @@ model AuthChallenge {
   id        String   @id @unique @default(uuid())
   content   String
   createdAt DateTime @default(now())
+}
+
+// Third party application that interacted with our service to import credentials, request credentials, etc
+// An interacting application entry is shared by the whole service (all users share the same - so we can handle global
+// stats about an app, possibly cache some info).
+model InteractingApplication {
+  id        String   @id @unique @default(uuid())
+  createdAt DateTime @default(now())
+
+  did String @unique // Application DID of the calling app. This DID is purely informative (given by the app), it's not been verified
+
+  IdentityInteractingApplication IdentityInteractingApplication[]
+}
+
+// Mapping between an identity and an application that interacted with it
+model IdentityInteractingApplication {
+  id        String   @id @unique @default(uuid())
+  createdAt DateTime @default(now())
+
+  identity               Identity               @relation(fields: [identityDid], references: [did], onDelete: Restrict)
+  interactingApplication InteractingApplication @relation(fields: [interactingApplicationId], references: [id], onDelete: Restrict)
+
+  identityDid              String
+  interactingApplicationId String
+
+  ImportedCredentials Credential[]
+  RequestedCredential RequestedCredential[]
+
+  @@unique([identityDid, interactingApplicationId])
+}
+
+// Mapping of interacting application with credentials they requested to users. This way we can
+// show users which of their credentials where shared to which third party app.
+model RequestedCredential {
+  id        String   @id @unique @default(uuid())
+  createdAt DateTime @default(now())
+
+  credential             Credential                     @relation(fields: [credentialId], references: [id], onDelete: Restrict)
+  interactingApplication IdentityInteractingApplication @relation(fields: [interactingApplicationId], references: [id], onDelete: Restrict)
+
+  credentialId             String
+  interactingApplicationId String
+
+  @@unique([credentialId, interactingApplicationId])
 }

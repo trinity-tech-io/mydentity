@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { AppInteractionModule } from 'src/app-interaction/app-interaction.module';
 import { DIDModule } from 'src/did/did.module';
 import { IdentityModule } from 'src/identity/identity.module';
 import { KeyRingModule } from 'src/key-ring/key-ring.module';
@@ -15,7 +16,8 @@ import { CredentialsService } from './credentials.service';
     PrismaModule,
     DIDModule,
     IdentityModule,
-    KeyRingModule
+    KeyRingModule,
+    AppInteractionModule
   ],
   exports: [
     CredentialsService

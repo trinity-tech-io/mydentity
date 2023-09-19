@@ -20,6 +20,7 @@ import { logger } from "@services/logger";
 import { lazyElastosDIDSDKImport } from "@utils/import-helper";
 import { IdentityProvider } from "../did.provider";
 import { CreateIdentityInput } from "../dto/create-identity.input.dto";
+import { ImportCredentialInput } from "./import-credential.input";
 
 export class CustodialDIDProvider implements IdentityProvider {
   async createIdentity(name: string, hiveVaultProvider: string): Promise<Identity> {
@@ -225,19 +226,24 @@ export class CustodialDIDProvider implements IdentityProvider {
       return null;
   }
 
-  async importCredential(identityDid: string, credential: VerifiableCredential): Promise<Credential> {
+  async importCredential(identityDid: string, credential: VerifiableCredential, importingApplicationDid?: string): Promise<Credential> {
+    const input: ImportCredentialInput = {
+      identityDid,
+      credentialString: credential.toString(),
+      importingApplicationDid
+    }
+
     const result = await withCaughtAppException(async () => {
       return (await getApolloClient()).mutate<{ importCredential: CredentialDTO }>({
         mutation: gql`
-        mutation importCredential($identityDid: String!, $credentialString: String!) {
-          importCredential(input: { identityDid: $identityDid, credentialString: $credentialString}) {
-            ${gqlCredentialFields}
+          mutation importCredential($input: ImportCredentialInput!) {
+            importCredential(input: $input) {
+              ${gqlCredentialFields}
+            }
           }
-        }
-      `,
+        `,
         variables: {
-          identityDid,
-          credentialString: credential.toString()
+          input
         }
       });
     });

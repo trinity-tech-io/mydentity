@@ -1,12 +1,14 @@
 import { VerifiableCredential } from '@elastosfoundation/did-js-sdk';
 import { Injectable, Logger } from '@nestjs/common';
-import { Browser, Credential, User } from '@prisma/client/main';
+import { Browser, Credential, IdentityInteractingApplication, User } from '@prisma/client/main';
+import { InteractingApplicationsService } from 'src/app-interaction/interacting-applications.service';
 import { DidService } from 'src/did/did.service';
 import { AppException } from 'src/exceptions/app-exception';
 import { AuthExceptionCode } from 'src/exceptions/exception-codes';
 import { KeyRingService } from 'src/key-ring/key-ring.service';
 import { logger } from 'src/logger';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { mapAsync } from 'src/utils/map-async';
 import { CreateCredentialInput } from './dto/create-credential.input';
 import { CreateVerifiablePresentationInput } from './dto/create-verifiablePresentation.input';
 import { ImportCredentialInput } from './dto/import-credential.input';
@@ -19,7 +21,9 @@ export class CredentialsService {
 
   constructor(private prisma: PrismaService,
     private didService: DidService,
-    private keyRingService: KeyRingService) {
+    private keyRingService: KeyRingService,
+    private interactingApplicationService: InteractingApplicationsService
+  ) {
   }
 
   async create(input: CreateCredentialInput, user: User, browser: Browser) {
@@ -44,17 +48,25 @@ export class CredentialsService {
     const storePassword = this.getDIDStorePassword(user?.id, browser?.id);
 
     const vc = VerifiableCredential.parse(input.credentialString);
-    this.logger.log("storeCredential")
     await this.didService.storeCredential(user.id, vc, storePassword);
 
-    const credentials = await this.prisma.credential.create({
+    // If there is an info about an importing application DID, get or create an app information,
+    // then use this info to save the "imported by" information in the credential.
+    let identityInteractingApplication: IdentityInteractingApplication;
+    if (input.importingApplicationDid) {
+      identityInteractingApplication = await this.interactingApplicationService.getOrCreateIdentityInteractionApplicationByDid(input.identityDid, input.importingApplicationDid);
+    }
+
+    const credential = await this.prisma.credential.create({
       data: {
         identityDid: input.identityDid,
         credentialId: vc.id.toString(),
+        importedById: identityInteractingApplication?.id
       },
     });
+
     return {
-      ...credentials,
+      ...credential,
       verifiableCredential: vc.toString(),
     };
   }
@@ -79,23 +91,22 @@ export class CredentialsService {
       where: { identityDid },
     });
 
+    return mapAsync(credentials, c => this.credentialWithStringVC(c, user, browser), c => !!c);
+  }
+
+  public async credentialWithStringVC(credential: Credential, user: User, browser: Browser): Promise<CredentialWithStringVC> {
     const storePassword = this.getDIDStorePassword(user?.id, browser?.id);
 
-    const output: CredentialWithStringVC[] = [];
-    for (const c of credentials) {
-      const didCredential = await this.didService.loadCredential(user.id, c.credentialId, storePassword);
-      if (!didCredential) {
-        logger.warn(`Credential with id ${c.id} has no matching VerifiableCredential in the DID Store...`);
-        continue;
-      }
-
-      output.push({
-        ...c,
-        verifiableCredential: didCredential.toString(),
-      });
+    const didCredential = await this.didService.loadCredential(user.id, credential.credentialId, storePassword);
+    if (!didCredential) {
+      logger.warn(`Credential with id ${credential.id} has no matching VerifiableCredential in the DID Store...`);
+      return null;
     }
 
-    return output;
+    return {
+      ...credential,
+      verifiableCredential: didCredential.toString()
+    }
   }
 
   async remove(id: string, user: User) {

@@ -27,11 +27,11 @@ export class CredentialsFeature implements IdentityFeature {
     return callWithUnlock(() => this.identity.provider.issueCredential(this.identity.did, subjectDid, credentialId, types, expirationDate, prop));
   }
 
-  public async importCredential(vc: VerifiableCredential): Promise<Credential> {
+  public async importCredential(vc: VerifiableCredential, importingApplicationDid?: string): Promise<Credential> {
     this.ensureCredentialsFetched();
     logger.log("credentials", "Importing credential", vc);
 
-    const credential = await callWithUnlock(() => this.identity.provider.importCredential(this.identity.did, vc), true, null);
+    const credential = await callWithUnlock(() => this.identity.provider.importCredential(this.identity.did, vc, importingApplicationDid), true, null);
     this.credentials$.next([credential, ...this.credentials$.value]);
     return credential;
   }

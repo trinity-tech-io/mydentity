@@ -6,6 +6,7 @@ import { ActivityType } from "@model/activity/activity-type";
 import { Credential } from '@model/credential/credential';
 import { Intent } from "@model/intent/intent";
 import { IntentRequestPayload } from "@model/intent/request-payload";
+import { ActivityFeature } from "@model/user/features/activity/activity.feature";
 import { credentialTypesService } from "@services/credential-types/credential.types.service";
 import { activeIdentity$ } from "@services/identity/identity.events";
 import { issuerService } from "@services/identity/issuer.service";
@@ -17,7 +18,6 @@ import { FC, useEffect, useState } from "react";
 import { RequestingApp } from "../components/RequestingApp";
 import { ClaimDisplayEntryListWidget } from "./components/ClaimDisplayEntryList";
 import { V1Claim } from "./model/v1claim";
-import { ActivityFeature } from "@model/user/features/activity/activity.feature";
 
 export type CredentialDisplayEntry = {
   credential: Credential;
@@ -249,12 +249,12 @@ export const RequestDetails: FC<{
    * Build a list of credentials ready to be packaged into a presentation, according to selections
    * done by the user.
    */
-  const buildDeliverableCredentialsList = (): VerifiableCredential[] => {
-    const selectedCredentials: VerifiableCredential[] = [];
+  const buildDeliverableCredentialsList = (): Credential[] => {
+    const selectedCredentials: Credential[] = [];
     for (const organizedClaim of organizedClaims) {
       for (const displayCredential of organizedClaim.matchingCredentials) {
         if (displayCredential.selected)
-          selectedCredentials.push(displayCredential.credential.verifiableCredential);
+          selectedCredentials.push(displayCredential.credential);
       }
     }
 
@@ -268,10 +268,10 @@ export const RequestDetails: FC<{
     setPreparingResponse(true);
 
     // Generate the VP for the Active identity and fulfill the request with its JSON value.
-    const selectedCredentials: VerifiableCredential[] = buildDeliverableCredentialsList();
+    const selectedCredentials = buildDeliverableCredentialsList();
 
     const presentation = await activeIdentity.createVerifiablePresentation(
-      selectedCredentials,
+      selectedCredentials.map(c => c.verifiableCredential),
       payload.realm,
       payload.nonce);
 
@@ -288,10 +288,16 @@ export const RequestDetails: FC<{
     if (fulfilled) {
       // TODO: check fulfilled success - if error report error to user
 
-      await ActivityFeature.createActivity({type: ActivityType.CREDENTIALS_SHARED,
+      await ActivityFeature.createActivity({
+        type: ActivityType.CREDENTIALS_SHARED,
         credentialsCount: selectedCredentials.length,
         appDid: requestingAppDID,
       });
+
+      // Record that we share those credentials to this app
+      if (payload.caller) {
+        await activeIdentity.get("applications").recordRequestedCredentials(payload.caller, selectedCredentials);
+      }
 
       // Send the response to the original app, including the intent id as parameter.
       // The web connector will catch this parameter to retrieve the intent response payload and
@@ -303,12 +309,11 @@ export const RequestDetails: FC<{
 
   // User reject the upcoming request.
   const rejectRequest = (): void => {
-
-      // Send the response to the original app, including the intent id as parameter.
-      // The web connector will catch this parameter to retrieve the intent response payload and
-      // to deliver it to the app through the connectivity sdk.
-      const redirectUrl = setQueryParameter(intent.redirectUrl, "rid", intent.id);
-      window.location.href = redirectUrl;
+    // Send the response to the original app, including the intent id as parameter.
+    // The web connector will catch this parameter to retrieve the intent response payload and
+    // to deliver it to the app through the connectivity sdk.
+    const redirectUrl = setQueryParameter(intent.redirectUrl, "rid", intent.id);
+    window.location.href = redirectUrl;
   }
 
   return <>

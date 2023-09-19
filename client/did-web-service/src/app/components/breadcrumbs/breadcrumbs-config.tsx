@@ -12,7 +12,8 @@ export type BreadcrumbsEntry =
   "bind-password" |
   "credentials-list" |
   "delete-identity" |
-  "storage";
+  "storage" |
+  "applications";
 
 export const allBreadcrumbsItems: BreadcrumbsItem[] = [
   { key: "dashboard", icon: <HomeIcon />, title: "Dashboard", path: "/dashboard" },
@@ -25,6 +26,7 @@ export const allBreadcrumbsItems: BreadcrumbsItem[] = [
   { key: "credentials-list", title: "All credentials", path: '/account/credentials/list' },
   { key: "delete-identity", title: "Identity deletion", path: '/delete-identity' },
   { key: "storage", title: "Storage", path: '/storage' },
+  { key: "applications", title: "Applications", path: '/applications' },
 ];
 
 export function bcEntryToItem(entry: BreadcrumbsEntry): BreadcrumbsItem {

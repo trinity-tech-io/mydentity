@@ -5,10 +5,11 @@ import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { useMounted } from '@hooks/useMounted';
 import { Credential } from '@model/credential/credential';
 import { Box, Grid, ListItemButton, ListItemIcon, Stack, Typography } from '@mui/material';
+import { activeIdentity$ } from '@services/identity/identity.events';
 import Image from 'next/image';
 import { FC } from 'react';
+import { ApplicationRow } from './ApplicationRow';
 import IdentityMenu from './IdentityMenu';
-import { activeIdentity$ } from '@services/identity/identity.events';
 
 interface Props {
   selectedCredential: Credential
@@ -20,6 +21,7 @@ export const CredentialDetailWidget: FC<Props> = (props) => {
   const [activeCredential] = useBehaviorSubject(identityProfileFeature?.activeCredential$);
   const [issuerInfo] = useBehaviorSubject(activeCredential?.issuerInfo$);
   const [isConform] = useBehaviorSubject(activeCredential?.isConform$);
+  const [requestingApplications] = useBehaviorSubject(activeCredential?.requestingApplications$);
 
   return (
     <div className="col-span-full xl:col-span-7 bg-white dark:bg-slate-800 shadow-lg rounded-sm border border-slate-200 dark:border-slate-700">
@@ -72,16 +74,16 @@ export const CredentialDetailWidget: FC<Props> = (props) => {
                 }
 
                 {(!activeCredential.selfIssued() && issuerInfo?.isPublished) && (
-                    <ListItemButton sx={{ marginTop: 2 }}>
-                      <ListItemIcon>
-                        <Image unoptimized src={issuerInfo?.avatarIcon} width={30} height={30} style={{ borderRadius: '50%' }} alt="avatar" />
-                      </ListItemIcon>
+                  <ListItemButton sx={{ marginTop: 2 }}>
+                    <ListItemIcon>
+                      <Image unoptimized src={issuerInfo?.avatarIcon} width={30} height={30} style={{ borderRadius: '50%' }} alt="avatar" />
+                    </ListItemIcon>
 
-                      <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-                        Created by {issuerInfo?.name}
-                      </Typography>
-                    </ListItemButton>
-                  )}
+                    <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+                      Created by {issuerInfo?.name}
+                    </Typography>
+                  </ListItemButton>
+                )}
 
                 <ListItemButton sx={{ marginTop: 2 }}>
                   <ListItemIcon>
@@ -100,6 +102,19 @@ export const CredentialDetailWidget: FC<Props> = (props) => {
                       </Typography>
                     )}
                 </ListItemButton>
+
+                {/* Shared with apps */}
+                {requestingApplications?.length > 0 &&
+                  <Grid item>
+                    <Typography variant="h6">Shared with apps</Typography>
+                    <Typography>The following apps got access to this credential:</Typography>
+                    {
+                      requestingApplications?.map((app, i) => <div key={i} className='my-4'>
+                        <ApplicationRow application={app} />
+                      </div>)
+                    }
+                  </Grid>
+                }
               </Grid>
             </Box>
           </Stack>

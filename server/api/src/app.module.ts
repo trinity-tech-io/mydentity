@@ -19,6 +19,7 @@ import { IntentsModule } from './intents/intents.module';
 import { KeyRingModule } from './key-ring/key-ring.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { UserModule } from './user/user.module';
+import { AppInteractionModule } from './app-interaction/app-interaction.module';
 
 
 @Module({
@@ -42,7 +43,8 @@ import { UserModule } from './user/user.module';
     ActivityModule,
     BrowsersModule,
     KeyRingModule,
-    DIDPublishingModule
+    DIDPublishingModule,
+    AppInteractionModule
   ],
   controllers: [
     AppController

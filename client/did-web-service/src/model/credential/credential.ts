@@ -1,7 +1,13 @@
+import { gql } from '@apollo/client';
 import AccountIcon from '@assets/images/account.svg';
 import type { VerifiableCredential } from "@elastosfoundation/did-js-sdk";
+import { gqlIdentityInteractingApplicationFields } from '@graphql/identity-interacting-application.fields';
+import { IdentityInteractingApplication } from '@model/identity-interacting-application/identity-interacting-application';
+import { IdentityInteractingApplicationDTO } from '@model/identity-interacting-application/identity-interacting-application.dto';
 import { JSONObject } from "@model/json";
 import { credentialTypesService } from "@services/credential-types/credential.types.service";
+import { withCaughtAppException } from '@services/error.service';
+import { getApolloClient } from '@services/graphql.service';
 import { getHiveScriptPictureDataUrl } from "@services/hive/hive-pictures.service";
 import { findProfileInfoByTypes } from '@services/identity-profile-info/identity-profile-info.service';
 import { activeIdentity$ } from "@services/identity/identity.events";
@@ -22,8 +28,8 @@ type ValueItem = {
 
 export class Credential {
   public issuerInfo$ = new AdvancedBehaviorSubject<IssuerInfo>(null, () => this.fetchIssuerInfo());
-
   public isConform$ = new AdvancedBehaviorSubject<boolean>(null, () => this.verifyCredential());
+  public requestingApplications$ = new AdvancedBehaviorSubject<IdentityInteractingApplication[]>(null, () => this.fetchRequestingApplications());
 
   // Path to display the icon that best represents this credential.
   public representativeIcon$ = new BehaviorSubject<string | JSX.Element>(null);
@@ -359,6 +365,34 @@ export class Credential {
    */
   private async verifyCredential(): Promise<boolean> {
     return await credentialTypesService.verifyCredential(this.verifiableCredential);
+  }
+
+  /**
+   * Fetches the list of applications that got access to this credential
+   */
+  private async fetchRequestingApplications(): Promise<IdentityInteractingApplication[]> {
+    const result = await withCaughtAppException(async () => {
+      return (await getApolloClient()).query<{ interactingApplicationsForCredential: IdentityInteractingApplicationDTO[] }>({
+        query: gql`
+          query interactingApplicationsForCredential($credentialId: String!) {
+            interactingApplicationsForCredential(credentialId: $credentialId) {
+              ${gqlIdentityInteractingApplicationFields}
+            }
+          }
+        `,
+        variables: {
+          credentialId: this.id
+        }
+      });
+    });
+
+    if (result?.data?.interactingApplicationsForCredential) {
+      const applications = await Promise.all(result.data.interactingApplicationsForCredential.map(app => IdentityInteractingApplication.fromJson(app)));
+      logger.log("applications", "Fetched credential interacting applications:", applications);
+      return applications;
+    }
+
+    return null;
   }
 
   public equals(otherCredential: Credential): boolean {

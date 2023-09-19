@@ -7,6 +7,7 @@ import { ActivityType } from "@model/activity/activity-type";
 import { credentialFromVerifiableCredential } from "@model/credential/credential-builder";
 import { Intent } from "@model/intent/intent";
 import { JSONObject } from "@model/json";
+import { ActivityFeature } from "@model/user/features/activity/activity.feature";
 import { Typography } from "@mui/material";
 import { useToast } from "@services/feedback.service";
 import { activeIdentity$ } from "@services/identity/identity.events";
@@ -18,7 +19,6 @@ import { FC, useEffect, useState } from "react";
 import { RequestingApp } from "../components/RequestingApp";
 import { CredentialPreviewWithDetails } from "./CredentialPreviewWithDetails";
 import { ImportedCredential, ImportedCredentialItem } from "./page";
-import { ActivityFeature } from "@model/user/features/activity/activity.feature";
 
 const TAG = 'ImportCredential';
 
@@ -114,7 +114,7 @@ export const RequestDetails: FC<{
     let fulfilled = false;
     try {
       for (const importedCredential of importedCredentials) {
-        await credentialFeature.importCredential(importedCredential.credential.verifiableCredential);
+        await credentialFeature.importCredential(importedCredential.credential.verifiableCredential, payload.caller);
       }
 
       fulfilled = await fulfilIntentRequest(intent.id, responsePayload);
@@ -127,7 +127,8 @@ export const RequestDetails: FC<{
       return;
     }
 
-    await ActivityFeature.createActivity({type: ActivityType.CREDENTIALS_IMPORTED,
+    await ActivityFeature.createActivity({
+      type: ActivityType.CREDENTIALS_IMPORTED,
       credentialsCount: importedCredentials.length,
       appDid: requestingAppDID,
     });
@@ -148,7 +149,7 @@ export const RequestDetails: FC<{
     // to deliver it to the app through the connectivity sdk.
     const redirectUrl = setQueryParameter(intent.redirectUrl, "rid", intent.id);
     window.location.href = redirectUrl;
-}
+  }
 
   return <>
     {activeIdentity &&
