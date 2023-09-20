@@ -13,8 +13,6 @@ export const RequestingApp: FC<{
   const [requestingAppName, setRequestingAppName] = useState<string>(null);
   const [loaded, setLoaded] = useState(false);
 
-  console.log(className)
-
   const updateApplicationData = async (): Promise<void> => {
     if (applicationDID) {
       const applicationDocument = await didDocumentService.resolveDIDDocument(applicationDID);

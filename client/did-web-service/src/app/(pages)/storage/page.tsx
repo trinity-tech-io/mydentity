@@ -43,10 +43,16 @@ const StoragePage: FC = () => {
     <Breadcrumbs entries={["storage"]} />
 
     <Stack className='p-4' direction="row" justifyContent="center">
-      <HiveIcon width={80} height={80}  />
+      <HiveIcon width={80} height={80} />
     </Stack>
 
-    <div className='font-bold'>Hive storage status</div>
+    <Typography>
+      We have associated your identity with an Elastos <b>Hive Storage</b>.
+      Hive is a decentralized network of independant servers that store data. You can choose to use a default vault provider,
+      or your own vault storage at home. For now, only your identity avatar is stored on your hive vault.
+    </Typography>
+
+    <div className='font-bold mt-4'>Hive storage status</div>
     <div>
       {vaultStatus === VaultStatus.NotChecked && "Checking"}
       {vaultStatus === VaultStatus.Subscribing && "Subscribing"}
@@ -54,9 +60,22 @@ const StoragePage: FC = () => {
       {vaultStatus === VaultStatus.UnknownError && "Failed to retrieve status"}
     </div>
 
+    <div className='font-bold mt-4'>Information about your vault</div>
     {
       vaultInfo &&
-      <><Grid container spacing={2} sx={{ mt: 1 }}>
+      <><Grid container spacing={2} sx={{}}>
+
+        <Grid item xs={6}>
+          <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+            Storage provider:
+          </Typography>
+        </Grid>
+        <Grid item xs={6}>
+          <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+            {vaultAddress}
+          </Typography>
+        </Grid>
+
         <Grid item xs={6}>
           <Typography variant="body1" sx={{ color: 'text.secondary' }}>
             Max storage:
@@ -81,7 +100,7 @@ const StoragePage: FC = () => {
 
         <Grid item xs={6}>
           <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-            Started time:
+            Creation date:
           </Typography>
         </Grid>
         <Grid item xs={6}>
@@ -91,9 +110,6 @@ const StoragePage: FC = () => {
         </Grid>
       </Grid></>
     }
-
-    <div className='font-bold mt-4'>Storage provider</div>
-    <div>{vaultAddress}</div>
   </div>)
 }
 

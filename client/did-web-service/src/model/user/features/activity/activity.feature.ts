@@ -40,7 +40,6 @@ export class ActivityFeature implements UserFeature {
 
     // TODO: better let the API do that instea of client
     private sortRecentActivitiesFirst(activities: Activity[]): Activity[] {
-        console.log(activities)
         return activities.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
     }
 
