@@ -139,7 +139,7 @@ const Profile: FC = () => {
     if (editCredentialValue.type == EditionMode.EDIT && editCredentialValue.originCredential) {
       let isSuccess = false;
       try {
-        isSuccess = await identityProfileFeature.updateProfileCredential(editCredentialValue.originCredential, editCredentialValue.value);
+        isSuccess = !!(await identityProfileFeature.updateProfileCredential(editCredentialValue.originCredential, editCredentialValue.value));
       } catch (error) {
         logger.error(TAG, 'Update credential error', error);
       }

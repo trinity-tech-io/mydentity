@@ -55,7 +55,7 @@ export const AllIdentityList: FC = _ => {
                   <div className="font-semibold text-left">Identity</div>
                 </th>
                 <th className="p-2 whitespace-nowrap" style={{ width: '30%' }}>
-                  <div className="font-semibold text-left">Creation Date</div>
+                  <div className="font-semibold text-left">last used</div>
                 </th>
               </tr>
             </thead>
@@ -91,7 +91,7 @@ export const AllIdentityList: FC = _ => {
                           </div>
                         </td>
                         <td className="p-2 whitespace-nowrap">
-                          <div className="text-left">{identity.createdAt.toLocaleDateString()}</div>
+                          <div className="text-left">{identity.lastUsedAt$.getValue().toLocaleDateString()}</div>
                         </td>
                       </tr>)
                   })

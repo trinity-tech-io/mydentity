@@ -1,9 +1,9 @@
 /* Typography */
 .h1 {
-    @apply text-6xl font-extrabold tracking-tighter;
+    @apply text-4xl font-extrabold tracking-tighter;
 }
 
-.h2 {
+.h2, .sm:h2 {
     @apply text-3xl font-extrabold tracking-tighter;
 }
 
