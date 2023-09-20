@@ -1,5 +1,8 @@
-.noise-bg {
-    background: url('../../../../public/Noise.png') no-repeat center center / cover
+.noise1-bg {
+    background: url('../../../../public/Noise1.png') repeat center center
+}
+.noise2-bg {
+    background: url('../../../../public/Noise2.png') repeat center center
 }
 
 .card-wrapper {

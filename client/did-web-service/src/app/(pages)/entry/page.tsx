@@ -1,6 +1,7 @@
 "use client";
 import { FC } from "react";
 import TextBarcode from "@components/text-barcode/TextBarcode";
+import { SignCard } from "@components/card"
 
 const EntryPage: FC = () => {
   return (
@@ -19,6 +20,9 @@ const EntryPage: FC = () => {
           height={30}
           textClassName="tracking-[2px]"
         />
+      </div>
+      <div>
+        <SignCard />
       </div>
     </div>
   );
