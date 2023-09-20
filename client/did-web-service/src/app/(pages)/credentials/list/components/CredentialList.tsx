@@ -5,16 +5,15 @@ import { VerticalStackLoadingCard } from '@components/loading-cards/vertical-sta
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { useMounted } from '@hooks/useMounted';
 import { Credential } from '@model/credential/credential';
-import PersonIcon from '@mui/icons-material/Person';
 import { Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
 import { activeIdentity$ } from '@services/identity/identity.events';
-import { FC, useEffect } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { FiltersDropdown } from "./FiltersDropdown";
+import { filterCredentials, arraysAreEqual } from './FilterConditions'; 
 
 export const CredentialListWidget: FC = () => {
   const TAG = "CredentialList";
@@ -23,6 +22,8 @@ export const CredentialListWidget: FC = () => {
   const mounted = useMounted();
   const identityProfileFeature = activeIdentity?.get("profile");
   const [activeCredential] = useBehaviorSubject(identityProfileFeature?.activeCredential$);
+  const [selectedFilter, setSelectedFilter] = useState<string>(''); // State to hold the selected filter
+  const [filteredCredentials, setFilteredCredentials] = useState<Credential[]>(credentials);
 
   const handleListItemClick = (
     credential: Credential,
@@ -34,8 +35,22 @@ export const CredentialListWidget: FC = () => {
     if (credentials && !activeCredential) {
       identityProfileFeature.setActiveCredential(credentials[0])
     }
+    if (selectedFilter && credentials) {
+      const filtered = filterCredentials(selectedFilter, credentials, activeIdentity)
+      if (filtered && !arraysAreEqual(filtered, filteredCredentials)) {
+        setFilteredCredentials(filtered);
+        identityProfileFeature.setActiveCredential(filtered.length > 0 ? filtered[0] : null);
+      }
+    } else {
+      if (!filteredCredentials) {
+        setFilteredCredentials(credentials);
+      }
+    }
+  }, [activeCredential, credentials, identityProfileFeature,selectedFilter,filteredCredentials, activeIdentity]);
 
-  }, [activeCredential, credentials, identityProfileFeature]);
+  const handleFilterChange = (filter: string): void => {
+    setSelectedFilter(filter); // Update the selected filter when it changes
+  };
 
   return (
     <div className="col-span-full xl:col-span-5 bg-white dark:bg-slate-800 shadow-lg rounded-sm border border-slate-200 dark:border-slate-700">
@@ -43,15 +58,15 @@ export const CredentialListWidget: FC = () => {
         <Typography ml={2} my={3} variant="subtitle1">
           Credentials
         </Typography>
-        <FiltersDropdown/>
+        <FiltersDropdown onFilterChange={handleFilterChange}/>
       </div>
       <Divider />
       <Box sx={{ width: '100%', bgcolor: 'background.paper' }}>
-        {(!credentials || !mounted) && <VerticalStackLoadingCard />}
-        {mounted && credentials &&
+        {(!filteredCredentials || !mounted) && <VerticalStackLoadingCard />}
+        {mounted && filteredCredentials &&
           <List component="nav" aria-label="main mailbox folders">
             {
-              credentials.map(c =>
+              filteredCredentials.map(c =>
                 <div key={c.id}>
                   <ListItemButton
                     selected={activeCredential && activeCredential.id === c.id}
