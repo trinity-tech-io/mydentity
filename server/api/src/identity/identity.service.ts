@@ -88,7 +88,7 @@ export class IdentityService {
     this.logger.log('deleteIdentity didString:' + didString);
     const successfulDeletion = await this.didService.deleteIdentity(didString, user.id);
     if (successfulDeletion) {
-      await this.credentialsService.deleteIdentityCredentials(didString);
+      await this.credentialsService.deleteIdentityCredentials(didString, user);
 
       await this.prisma.identity.delete({
         where: {

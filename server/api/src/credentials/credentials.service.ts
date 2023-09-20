@@ -114,22 +114,26 @@ export class CredentialsService {
     if (!credential)
       return false;
 
-    const successfulDeletion = await this.didService.deleteCredential(user.id, credential.credentialId);
-    if (successfulDeletion)
-      await this.prisma.credential.delete({ where: { id } });
+    const vcDeleted = await this.didService.deleteCredential(user.id, credential.credentialId);
+    // Continue with credential deletion even if the DID side failed, in order to recover
+    // from locked situation (DID side deleted but not DB side)
 
-    return successfulDeletion;
+    // Delete link to requested credentials
+    await this.prisma.requestedCredential.deleteMany({ where: { credentialId: id } });
+
+    // Delete the credential itself
+    await this.prisma.credential.delete({ where: { id } });
+
+    return vcDeleted;
   }
 
-  async deleteIdentityCredentials(identityDid: string): Promise<Credential[]> {
+  async deleteIdentityCredentials(identityDid: string, user: User): Promise<Credential[]> {
     const credentials = await this.prisma.credential.findMany({ where: { identityDid } });
-    await this.prisma.credential.deleteMany({
-      where: {
-        id: {
-          in: credentials.map(c => c.id)
-        }
-      }
-    });
+
+    for (const c of credentials) {
+      await this.remove(c.id, user);
+    }
+
     return credentials;
   }
 

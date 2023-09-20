@@ -446,6 +446,9 @@ export class PrismaDIDStorage implements DIDStorage {
       }
     });
 
+    if (!result)
+      return [null, false];
+
     const content = Buffer.from(result.credential);
     if (content && content[0] == 0x0E && content[1] == 0x0C && content[2] == 0x56 && content[3] == 0x43)
       return [content.slice(4), true];

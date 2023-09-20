@@ -203,7 +203,7 @@ async function callWithUnlockHandler(request: UnlockRequest<any>, promptMasterKe
       }
     }
     else {
-      logger.error("security", "Unhandler callWithUnlock() exception:", e);
+      logger.error("security", "Unhandled callWithUnlock() exception:", e);
     }
   }
 }
