@@ -1,9 +1,7 @@
 import { FC } from "react";
-import { Button, Card } from "@mui/material";
-import { styled } from '@mui/system';
+import { Card, styled } from "@mui/material";
 import ChipIcon from "@assets/images/card/Chip.svg";
 import TextBarcode from "@components/text-barcode/TextBarcode";
-import "./style.css";
 import DarkButton from "@components/button/DarkButton";
 
 const CardStyled = styled(Card)(({ theme }) => ({
@@ -11,6 +9,9 @@ const CardStyled = styled(Card)(({ theme }) => ({
     paddingTop: "158%",
     display: "block",
     content: "''",
+  },
+  ".noise-bg": {
+    background: "url('./Noise2.png') repeat center center",
   },
   ".body": {
     position: "absolute",
@@ -21,39 +22,39 @@ const CardStyled = styled(Card)(({ theme }) => ({
     "&:before, &:after": {
       opacity: 0.2,
       content: "''",
-      position: 'absolute',
-      width: '70%',
-      height: '100%',
-      background: 'linear-gradient(to bottom, rgba(255, 255, 255, 100%), rgba(255, 255, 255, 25%), transparent)',
-      transform: 'rotate(-50deg)',
+      position: "absolute",
+      width: "70%",
+      height: "100%",
+      background:
+        "linear-gradient(to bottom, rgba(255, 255, 255, 100%), rgba(255, 255, 255, 25%), transparent)",
+      transform: "rotate(-50deg)",
       zIndex: -1,
     },
     "&:before": {
-      top: '-40%',
+      top: "-40%",
       left: 0,
     },
     "&:after": {
-      top: '-20%',
-      left: '-10%',
-      transform: 'rotate(-47deg)',
-    }
+      top: "-20%",
+      left: "-10%",
+      transform: "rotate(-47deg)",
+    },
+    ".ellipse": {
+      bottom: "20%",
+      width: "100%",
+      height: "42%",
+      background:
+        "linear-gradient(to bottom, rgba(255, 211, 187, 100%), rgba(255, 211, 187, 40%), transparent)",
+      borderTopLeftRadius: "100%",
+    },
   },
 }));
 
 const SignCard: FC = () => {
   return (
     <CardStyled className="inline-block w-[450px] bg-black border-white border-opacity-30 border-2 rounded-3xl relative drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]">
-      <div className="body noise2-bg">
-        <div className="absolute" style={
-            {
-              opacity: 0.2,
-              bottom: '20%',
-              width: '100%',
-              height: '42%',
-              background: 'linear-gradient(to bottom, rgba(255, 211, 187, 100%), rgba(255, 211, 187, 40%), transparent)',
-              borderTopLeftRadius: '100%'
-            }
-          } />
+      <div className="body noise-bg">
+        <div className="absolute opacity-20 ellipse" />
         <div className="px-6 py-8 h-full flex flex-col">
           <div className="flex pb-7">
             <div className="flex-1" />
@@ -77,7 +78,9 @@ const SignCard: FC = () => {
             />
           </div>
           <div className="flex justify-center">
-            <DarkButton color="primary" className="w-3/5">SIGN IN</DarkButton>
+            <DarkButton color="primary" className="w-3/5">
+              SIGN IN
+            </DarkButton>
           </div>
         </div>
       </div>
