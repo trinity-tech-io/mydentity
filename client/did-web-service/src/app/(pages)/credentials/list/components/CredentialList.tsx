@@ -39,7 +39,7 @@ export const CredentialListWidget: FC = () => {
       const filtered = filterCredentials(selectedFilter, credentials, activeIdentity)
       if (filtered && !arraysAreEqual(filtered, filteredCredentials)) {
         setFilteredCredentials(filtered);
-        identityProfileFeature.setActiveCredential(filtered.length > 0 ? filtered[0] : null);
+        identityProfileFeature.setActiveCredential(filtered[0] || null);
       }
     } else {
       if (!filteredCredentials) {
