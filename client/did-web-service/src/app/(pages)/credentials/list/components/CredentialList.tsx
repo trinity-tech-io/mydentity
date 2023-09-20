@@ -14,6 +14,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import { activeIdentity$ } from '@services/identity/identity.events';
 import { FC, useEffect } from 'react';
+import { FiltersDropdown } from "./FiltersDropdown";
 
 export const CredentialListWidget: FC = () => {
   const TAG = "CredentialList";
@@ -38,7 +39,12 @@ export const CredentialListWidget: FC = () => {
 
   return (
     <div className="col-span-full xl:col-span-5 bg-white dark:bg-slate-800 shadow-lg rounded-sm border border-slate-200 dark:border-slate-700">
-      <Typography ml={2} my={3} variant="subtitle1">Credentials</Typography>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Typography ml={2} my={3} variant="subtitle1">
+          Credentials
+        </Typography>
+        <FiltersDropdown/>
+      </div>
       <Divider />
       <Box sx={{ width: '100%', bgcolor: 'background.paper' }}>
         {(!credentials || !mounted) && <VerticalStackLoadingCard />}
