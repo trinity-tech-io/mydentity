@@ -159,8 +159,25 @@ input[type="search"]::-webkit-search-results-decoration {
     background: url('../../../public/Noise.png') no-repeat center center / cover
 }
 
+.card-wrapper {
+    display: inline-block;
+    position: relative;
+}
+.card-wrapper:after {
+    padding-top: 63.29%;
+    display: block;
+    content: '';
+}
+.card-wrapper>.body {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+}
+
 .circle-bottom-box {
-    right: -170px;
-    bottom: -360px;
+    left: 38%;
+    top: 63%;
     transform: rotate(335deg);
 }
