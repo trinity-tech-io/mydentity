@@ -7,6 +7,7 @@ import { Grid, Stack, Typography } from '@mui/material';
 import { VaultStatus } from '@services/hive/vault/vault-status';
 import { activeIdentity$ } from '@services/identity/identity.events';
 import { authUser$ } from '@services/user/user.events';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FC, useEffect, useState } from 'react';
 
@@ -110,6 +111,9 @@ const StoragePage: FC = () => {
         </Grid>
       </Grid></>
     }
+
+    <Link target="_blank" href="https://hivehub.xyz/" className='mt-4'>Manage my hive vault on hivehub.xyz</Link>
+
   </div>)
 }
 
