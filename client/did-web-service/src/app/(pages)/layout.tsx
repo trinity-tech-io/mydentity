@@ -1,17 +1,18 @@
-'use client';
-import React, { FC, ReactNode, useEffect, useState } from 'react';
-import AppThemeProvider from '../theming/AppThemeContext';
+"use client";
+import React, { FC, ReactNode, useEffect, useState } from "react";
+import { SnackbarProvider } from "notistack";
+import { filter } from "rxjs";
+import { usePathname } from "next/navigation";
 
-import { UnlockKeyPromptContextProvider } from '@components/security/unlock-key-prompt/UnlockKeyPrompt';
-import { onNewError$ } from '@services/error.service';
-import { useToast } from '@services/feedback.service';
-import { initSync } from '@services/init.service';
-import { isUnlockException } from '@services/security/security.service';
-import { SnackbarProvider } from 'notistack';
-import { filter } from 'rxjs';
-import { Header } from '../components/layout/Header';
-import Sidebar from '../components/layout/Sidebar';
-import ThemeRegistry from '../theming/ThemeRegistry';
+import { UnlockKeyPromptContextProvider } from "@components/security/unlock-key-prompt/UnlockKeyPrompt";
+import { onNewError$ } from "@services/error.service";
+import { useToast } from "@services/feedback.service";
+import { initSync } from "@services/init.service";
+import { isUnlockException } from "@services/security/security.service";
+import { Header } from "@components/layout/Header";
+import Sidebar from "@components/layout/Sidebar";
+import AppThemeProvider from "../theming/AppThemeContext";
+import ThemeRegistry from "../theming/ThemeRegistry";
 
 initSync();
 
@@ -26,46 +27,56 @@ const LayoutCore: FC<{ children: ReactNode }> = ({ children }) => {
 
   // Show API errors as error toast messages
   useEffect(() => {
-    const sub = onNewError$.pipe(filter(v => !!v)).subscribe(e => {
+    const sub = onNewError$.pipe(filter((v) => !!v)).subscribe((e) => {
       // Filter out this specific weak-exception as this is a master password unlock requirement handled somewhere else.
       if (!isUnlockException(e)) {
         showErrorToast(e.appExceptionCode + " - " + e.message);
       }
     });
-    return () => { sub.unsubscribe() };
+    return () => {
+      sub.unsubscribe();
+    };
   });
 
   return (
     <div className="flex h-screen overflow-hidden">
-
       {/* Sidebar */}
       <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
       {/* Content area */}
       <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden bg-slate-100 dark:bg-slate-700">
-
         {/*  Site header */}
         <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
         <main>
           <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto ">
-
             {/* Main content */}
-            <div className="grid grid-cols-12 gap-6">
-              {children}
-            </div>
-
+            <div className="grid grid-cols-12 gap-6">{children}</div>
           </div>
         </main>
-
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default function RootLayout({ children }: { children: React.ReactNode }): any {
-
+const EntryLayout: FC<{ children: ReactNode }> = ({ children }) => {
   return (
+    <main className="container landing-bg min-h-screen min-w-full p-12">
+      {children}
+    </main>
+  );
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}): any {
+  const pathname = usePathname();
+  const isEntryPage = pathname.startsWith("/entry");
+  return isEntryPage ? (
+    <EntryLayout>{children}</EntryLayout>
+  ) : (
     <ThemeRegistry>
       <AppThemeProvider>
         <SnackbarProvider>
@@ -75,6 +86,5 @@ export default function RootLayout({ children }: { children: React.ReactNode }):
         </SnackbarProvider>
       </AppThemeProvider>
     </ThemeRegistry>
-  )
+  );
 }
-
