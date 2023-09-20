@@ -20,6 +20,9 @@
     "prisma:migrate:dev:main": "npx prisma migrate dev --schema prisma/main/main.prisma",
     "prisma:migrate:dev:did": "npx prisma migrate dev --schema prisma/did/did.prisma",
     "prisma:migrate:dev": "npm run prisma:migrate:dev:main && npm run prisma:migrate:dev:did",
+    "prisma:migrate:reset:main": "npx prisma migrate reset --schema prisma/main/main.prisma",
+    "prisma:migrate:reset:did": "npx prisma migrate reset --schema prisma/did/did.prisma",
+    "prisma:migrate:reset": "npm run prisma:migrate:reset:main && npm run prisma:migrate:reset:did",
     "prisma:deploy:main": "npx prisma migrate deploy --schema prisma/main/main.prisma",
     "prisma:deploy:did": "npx prisma migrate deploy --schema prisma/did/did.prisma",
     "prisma:deploy": "npm run prisma:deploy:main && npm run prisma:deploy:did",
@@ -31,7 +34,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "update": "npm i --legacy-peer-deps && npm run prisma:generate && npm run prisma:generate"
+    "update": "npm i --legacy-peer-deps && npm run prisma:generate && npm run prisma:deploy"
   },
   "dependencies": {
     "@apollo/server": "^4.9.0",
