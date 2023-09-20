@@ -4,6 +4,7 @@ import Barcode from 'react-barcode'
 import ChipIcon from '@assets/images/card/Chip.svg';
 import WaveLogoIcon from '@assets/images/card/WaveLogo.svg';
 import CircleVector from '@assets/images/card/Circle.svg';
+import TextBarcode from "@components/text-barcode/TextBarcode";
 
 export const LandingCard: FC = () => {
   const BarCodeOptions = {
@@ -34,15 +35,20 @@ export const LandingCard: FC = () => {
           </div>
         </div>
         <div className="w-full">
-          <div className="inline-flex flex-col pt-10">
-            <Barcode value="Welcome to future" {...BarCodeOptions} height={22}/>
-            <p className="text-white stretch text-sm tracking-[7px]">Welcome to the future</p>
-          </div>
+          <TextBarcode
+            value="Welcome to future"
+            text="Welcome to the future"
+            outerClassName="pt-10"
+            textClassName="text-sm tracking-[7px]"
+            height={22}
+          />
         </div>
-        <div className="inline-flex flex-col">
-          <Barcode value="identity" {...BarCodeOptions} height={22}/>
-          <p className="text-white stretch text-sm tracking-[9px]">of identity</p>
-        </div>
+        <TextBarcode
+          value="identity"
+          text="of identity"
+          textClassName="text-sm tracking-[9px]"
+          height={22}
+        />
         <Divider className='border-neutral-50 border-opacity-20 pt-1'/>
       </div>
     </Card>
