@@ -1,7 +1,7 @@
 import { didDocumentService } from "@services/identity/diddocuments.service";
 import { AdvancedBehaviorSubject } from "@utils/advanced-behavior-subject";
 import { BehaviorSubject } from "rxjs";
-import { InteractingApplicationDTO } from "./requested-credentials.dto";
+import { InteractingApplicationDTO } from "../interacting-application/interacting-application.dto";
 
 export class InteractingApplication {
   id: string;
