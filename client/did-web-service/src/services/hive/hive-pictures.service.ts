@@ -1,5 +1,5 @@
 import { Identity } from "@model/identity/identity";
-import { activeIdentity$ } from "@services/identity/identity.events";
+import { awaitActiveIdentity } from "@services/identity/identity.events";
 import { logger } from "@services/logger";
 import { PermanentCache } from "@utils/caches/permanent-cache";
 import { isClientSide } from "@utils/client-server";
@@ -21,12 +21,20 @@ const cache = isClientSide() && new PermanentCache<string, CacheCustomData>('hiv
  * Returns a cached data url hive script picture.
  * For example, credential issuers avatar pictures.
  */
-export function getHiveScriptPictureDataUrl(hiveScriptUrl: string): Promise<string> {
+export async function getHiveScriptPictureDataUrl(hiveScriptUrl: string): Promise<string> {
   // NOTE: This method is supposed to allow anonymous access to hive script pictures but for now it doesn't,
   // and it requires an identity to generate the hive authentication. So we use the active identity
-  const identity = activeIdentity$.value;
-  if (!identity)
+  /* const identity = activeIdentity$.value;
+  if (!identity) {
+    // NOTE: Can be a problem some day as this means an active user without active identity (deleted) can't fetch hive pictures!
+    logger.warn("hive", "getHiveScriptPictureDataUrl() called with no active identity! Will return nothing");
     return null;
+  } */
+
+  // Because some features from the user itself can request access to hive pictures, even before an active identity is set,
+  // we await for an active identity to happen here. This is dirty as we should normally not need to depend on an identity to fetch
+  // hive pictures. To be improved.
+  const identity = await awaitActiveIdentity();
 
   // The cache will queue requests to avoid fetching multiple times in case of concurrent access to the same resource.
   return cache.get(hiveScriptUrl + identity.did, { hiveScriptUrl, identity });

@@ -15,7 +15,7 @@ import { UnlockPromptState, callWithUnlockRequestEvent$, unlockPromptState$ } fr
 export async function callWithUnlock<T>(method: CallWithUnlockCallback<T>, silentCancellation = false, defaultValue?: T): Promise<T> {
   const p = new Promise<T>((resolve, reject) => {
     unlockPromptState$.next(UnlockPromptState.Idle);
-    callWithUnlockRequestEvent$.next({ method, resolve, reject });
+    callWithUnlockRequestEvent$.next({ method, resolve, reject, handled: false });
   }).catch(e => {
     if (silentCancellation && isUnlockPromptCancelledException(e)) {
       // Silent, catch the cancellation exception and let the promise return successfully with no value.

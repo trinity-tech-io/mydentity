@@ -121,5 +121,4 @@ class IdentityService {
   }
 }
 
-
 export const identityService = new IdentityService();

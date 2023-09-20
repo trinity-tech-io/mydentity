@@ -1,12 +1,18 @@
-import type { DIDDocument } from "@elastosfoundation/did-js-sdk";
+import { DIDDocument } from "@elastosfoundation/did-js-sdk";
 import { Document } from "@model/document/document";
 import { logger } from "@services/logger";
 import { ObjectCache } from "@utils/caches/object-cache";
+import { PermanentCache } from "@utils/caches/permanent-cache";
 import { lazyElastosDIDSDKImport } from "@utils/import-helper";
 import Queue from "promise-queue";
 
 class DIDDocumentsService {
-  private documentsCache = new ObjectCache<Document>();
+  private documentsPermanentCache = new PermanentCache<string, unknown>("did-documents", async (didString) => {
+    const forceRemote = false; // TODO
+    const resolvedDocument = await this.fetchDIDDocumentWithoutDIDStore(didString, forceRemote);
+    return resolvedDocument.toString();
+  }, 30 * 60); // 30 minutes cache expiration
+  private documentsMemoryCache = new ObjectCache<Document>();
 
   private resolveDIDQueue = new Queue(1);
 
@@ -17,13 +23,15 @@ class DIDDocumentsService {
    * without fetching again.
    */
   public resolveDIDDocument(didString: string, forceRemote = false): Promise<Document> {
-    return this.documentsCache.get(didString, {
+    return this.documentsMemoryCache.get(didString, {
       create: async () => {
-        const resolvedDocument = await this.fetchDIDDocumentWithoutDIDStore(didString, forceRemote);
-        logger.log("identity", "Resolved on chain document: ", resolvedDocument);
-        return new Document(resolvedDocument);
+        // Try to get from the disk cache
+        const documentString = await this.documentsPermanentCache.get(didString);
+        const didDocument = await DIDDocument.parseAsync(documentString);
+        return new Document(didDocument);
       },
-    }, forceRemote);
+      // TODO: forceRemote not passed to permanent storage!
+    }, !forceRemote);
   }
 
   private fetchDIDDocumentWithoutDIDStore(didString: string, forceRemote: boolean): Promise<DIDDocument> {

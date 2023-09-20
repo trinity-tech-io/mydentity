@@ -82,6 +82,11 @@ const UnlockKeyPrompt: FC = () => {
 
   useEffect(() => {
     const sub = callWithUnlockRequestEvent$.subscribe(request => {
+      if (!request || request.handled)
+        return;
+
+      request.handled = true;
+
       callWithUnlockHandler(request, promptMasterKeyUnlock);
     });
     return () => sub.unsubscribe();
@@ -173,6 +178,7 @@ export const useUnlockKeyPrompt = (): {
 async function callWithUnlockHandler(request: UnlockRequest<any>, promptMasterKeyUnlock: () => Promise<AuthKeyInput>): Promise<void> {
   try {
     const result = await withCaughtAppException(() => {
+      console.log("callWithUnlockHandler is calling method")
       return request.method();
     });
     request.resolve(result);

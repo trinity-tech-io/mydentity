@@ -1,7 +1,7 @@
 # Setup
 
 - Clone `.env.sample` to `.env.local`
-- `npm i -D`
+- `npm i -D --legacy-peer-deps`
 # Start the front end app
 
 - `npm run dev`
