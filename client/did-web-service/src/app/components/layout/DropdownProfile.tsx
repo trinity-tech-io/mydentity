@@ -18,7 +18,7 @@ export const DropdownUserProfile: FC<{
   const router = useRouter();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [activeUser] = useBehaviorSubject(authUser$);
-  const isLogin = !!activeUser;
+  const isSignedIn = !!activeUser;
   const [userName] = useBehaviorSubject(activeUser?.name$);
   const [userNameInitials] = useBehaviorSubject(activeUser?.nameInitials$);
   const [userTypeDesc, setUserTypeDesc] = useState('UNKNOWN');
@@ -58,7 +58,7 @@ export const DropdownUserProfile: FC<{
   }, [accessToken, dropdownOpen, refreshToken]);
 
   const onIconClick = () => {
-    if (!isLogin) {
+    if (!isSignedIn) {
       // setSignInOpen(!signInOpen);
       window.location.href = '/signin';
     } else {
@@ -90,13 +90,13 @@ export const DropdownUserProfile: FC<{
         onClick={() => onIconClick()}
         aria-expanded={dropdownOpen}
       >
-        {isLogin ? (
+        {isSignedIn ? (
           <LettersAvatar text={userNameInitials} />) : (
           <Avatar sx={{ ml: 0, width: 40, height: 40 }}>
             <AccountIcon width={20} />
           </Avatar>
         )}
-        {isLogin && (
+        {isSignedIn && (
           <div className="flex items-center truncate">
             <span className="truncate ml-2 text-sm font-medium dark:text-slate-300 group-hover:text-slate-800 dark:group-hover:text-slate-200">Hey <b>{userName}</b></span>
             <svg className="w-3 h-3 shrink-0 ml-2 fill-current text-slate-400" viewBox="0 0 12 12">
@@ -106,7 +106,7 @@ export const DropdownUserProfile: FC<{
         )}
       </button>
 
-      {isLogin && (
+      {isSignedIn && (
 
         <Transition
           className={`origin-top-right z-10 absolute top-full min-w-44 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 py-1.5 rounded shadow-lg overflow-hidden mt-1 ${align === 'right' ? 'right-0' : 'left-0'}`}

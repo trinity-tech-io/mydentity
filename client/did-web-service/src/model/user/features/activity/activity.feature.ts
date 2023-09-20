@@ -2,13 +2,13 @@ import { gql } from "@apollo/client";
 import { graphQLActivityFields } from "@graphql/activity.fields";
 import { Activity } from "@model/activity/activity";
 import { ActivityDto } from "@model/activity/activity.dto";
+import { CreateActivityInput } from "@model/activity/create-activity.input";
 import { UserFeature } from "@model/user/features/user-feature";
 import { User } from "@model/user/user";
+import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { logger } from "@services/logger";
 import { AdvancedBehaviorSubject } from "@utils/advanced-behavior-subject";
-import { CreateActivityInput } from "@model/activity/create-activity.input";
-import { withCaughtAppException } from "@services/error.service";
 
 export class ActivityFeature implements UserFeature {
     public activities$ = new AdvancedBehaviorSubject<Activity[]>([], () => this.fetchActivities());
@@ -18,7 +18,7 @@ export class ActivityFeature implements UserFeature {
     private async fetchActivities(): Promise<Activity[]> {
         logger.log("activity", "Fetch activities");
 
-        const {data} = await withCaughtAppException(async () => {
+        const { data } = await withCaughtAppException(async () => {
             return await (await getApolloClient()).query<{ activities: ActivityDto[] }>({
                 query: gql`
             query Activities {
@@ -31,10 +31,17 @@ export class ActivityFeature implements UserFeature {
 
         if (data) {
             logger.log("activity", "Get activities", data.activities);
-            return data.activities.map(a => Activity.fromJson(a));
+            const activities = await Promise.all(data.activities.map(a => Activity.fromJson(a)));
+            return this.sortRecentActivitiesFirst(activities);
         } else {
             throw new Error('Can not get activities.');
         }
+    }
+
+    // TODO: better let the API do that instea of client
+    private sortRecentActivitiesFirst(activities: Activity[]): Activity[] {
+        console.log(activities)
+        return activities.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
     }
 
     /**
@@ -53,7 +60,7 @@ export class ActivityFeature implements UserFeature {
                     ${graphQLActivityFields}
                 }
             } `,
-                variables: {input}
+                variables: { input }
             });
         });
 

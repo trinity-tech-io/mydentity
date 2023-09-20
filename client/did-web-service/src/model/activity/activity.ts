@@ -1,8 +1,6 @@
-import {ActivityDto} from "@model/activity/activity.dto";
-import {ActivityType} from "@model/activity/activity-type";
+import { ActivityDto } from "@model/activity/activity.dto";
+import { Browser } from "@model/browser/browser";
 import moment from "moment";
-import {UserEmailProvider} from "@model/user-email/user-email-provider";
-import {Browser} from "@model/browser/browser";
 
 export class Activity {
     public id: string;
@@ -16,48 +14,19 @@ export class Activity {
     public browserName?: string;
     public createdAt: Date;
 
-    public static fromJson(json: ActivityDto): Activity {
+    public static async fromJson(json: ActivityDto): Promise<Activity> {
         const activity: Activity = new Activity();
-        return Object.assign(activity, json);
+        Object.assign(activity, json);
+
+        activity.createdAt = new Date(json.createdAt);
+
+        if (json.browser)
+            activity.browser = await Browser.fromJson(json.browser);
+
+        return activity;
     }
 
     public getCreatedAtStr(): string {
         return (moment(this.createdAt)).format('DD-MMM-YYYY HH:mm:ss')
     }
-
-    public getDescription(): string {
-        switch (this.type) {
-            case ActivityType.USER_SIGN_IN:
-                if (this.userEmailProvider == UserEmailProvider.RAW)
-                    return 'Signed in with raw email.';
-                else if (this.userEmailProvider === UserEmailProvider.MICROSOFT)
-                    return 'Signed in with Microsoft oauth email.';
-                return `Signed in with unhandled type ${this.userEmailProvider}.`;
-            case ActivityType.IDENTITY_CREATED:
-                return `DID ${this.identityStr} created`;
-            case ActivityType.IDENTITY_DELETED:
-                return `DID ${this.identityStr} deleted`;
-            case ActivityType.CREDENTIALS_SHARED:
-                return `${this.credentialsCount} verified credentials shared.`;
-            case ActivityType.CREDENTIALS_IMPORTED:
-                return `${this.credentialsCount} verified credential imported.`;
-            case ActivityType.BIND_EMAIL:
-                if (this.userEmailProvider == UserEmailProvider.RAW)
-                    return 'Bound with raw email.';
-                else if (this.userEmailProvider === UserEmailProvider.MICROSOFT)
-                    return 'Bound with Microsoft oauth email.';
-                return `Bound with unhandled type ${this.userEmailProvider}.`;
-            case ActivityType.BIND_BROWSER:
-            {
-                const name = this.browser?.name || this.browserName;
-                return `Bound browser ${name}.`;
-            }
-            case ActivityType.PASSWORD_CHANGED:
-                return `Password changed.`;
-            default:
-                break;
-        }
-        return '';
-    }
-
 }

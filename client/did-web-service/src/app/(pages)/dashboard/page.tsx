@@ -11,8 +11,7 @@ import { WelcomeBanner } from "./WelcomeBanner";
 import { AccountAccess } from "./widgets/AccountAccess";
 import { AccountUnlock } from "./widgets/AccountUnlock";
 import { IdentityListWidget } from "./widgets/IdentityList";
-import { RecentActivityWidget } from "./widgets/RecentActivity";
-import { RecentApplicationsWidget } from "./widgets/RecentApplications";
+import { RecentActivityWidget } from "./widgets/recent-activity/RecentActivity";
 
 const Dashboard: FC = () => {
   const [authUser] = useBehaviorSubject(authUser$);
@@ -61,7 +60,7 @@ const Dashboard: FC = () => {
         <>
           <RecentActivityWidget />
           <IdentityListWidget />
-          <RecentApplicationsWidget />
+          {/* Duplicate with recent activity <RecentApplicationsWidget /> */}
           <AccountAccess />
           <AccountUnlock />
         </>

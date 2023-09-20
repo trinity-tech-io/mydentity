@@ -1,6 +1,7 @@
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { authUser$ } from "@services/user/user.events";
 import { FC } from 'react';
+import { RecentApp } from "./RecentApp";
 
 export const RecentApplicationsWidget: FC = _ => {
   const [activeUser] = useBehaviorSubject(authUser$);
@@ -21,28 +22,17 @@ export const RecentApplicationsWidget: FC = _ => {
             <thead className="text-xs font-semibold uppercase text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-700 dark:bg-opacity-50">
               <tr>
                 <th className="p-2 whitespace-nowrap">
-                  <div className="font-semibold text-left">DATE</div>
+                  <div className="font-semibold text-left">Application</div>
                 </th>
                 <th className="p-2 whitespace-nowrap">
-                  <div className="font-semibold text-left">Activity</div>
+                  <div className="font-semibold text-left">Operation</div>
                 </th>
               </tr>
             </thead>
             {/* Table body */}
             <tbody className="text-sm divide-y divide-slate-100 dark:divide-slate-700">
               {
-                applications && applications.length > 0 && applications.map(application => {
-                  return (
-                    <tr key={application.id}>
-                      <td className="p-2 whitespace-nowrap">
-                        <div className="text-left">{application.id}</div>
-                      </td>
-                      <td className="p-2 whitespace-nowrap">
-                        <div className="text-left font-medium text-green-500">xxx</div>
-                      </td>
-                    </tr>
-                  )
-                })
+                applications && applications.length > 0 && applications.map(application => <RecentApp key={application.id} application={application} />)
               }
             </tbody>
           </table>

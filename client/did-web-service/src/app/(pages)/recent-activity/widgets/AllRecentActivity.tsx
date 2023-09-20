@@ -1,6 +1,7 @@
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { authUser$ } from "@services/user/user.events";
 import { FC } from 'react';
+import { RecentActivityRow } from "../../dashboard/widgets/recent-activity/RecentActivityRow";
 
 export const AllRecentActivity: FC = _ => {
   const [activeUser] = useBehaviorSubject(authUser$);
@@ -30,18 +31,7 @@ export const AllRecentActivity: FC = _ => {
             {/* Table body */}
             <tbody className="text-sm divide-y divide-slate-100 dark:divide-slate-700">
               {
-                activities && activities.length > 0 && activities.map(activity => {
-                  return (
-                    <tr key={activity.id}>
-                      <td className="p-2 whitespace-nowrap">
-                        <div className="text-left">{activity.getCreatedAtStr()}</div>
-                      </td>
-                      <td className="p-2 whitespace-nowrap">
-                        <div className="text-left font-medium text-green-500">{activity.getDescription()}</div>
-                      </td>
-                    </tr>
-                  )
-                })
+                activities && activities.length > 0 && activities.map((activity, i) => <RecentActivityRow activity={activity} key={i} />)
               }
             </tbody>
           </table>

@@ -1,6 +1,5 @@
 import { didDocumentService } from "@services/identity/diddocuments.service";
 import { AdvancedBehaviorSubject } from "@utils/advanced-behavior-subject";
-import { BehaviorSubject } from "rxjs";
 import { InteractingApplicationDTO } from "./interacting-application.dto";
 
 export class InteractingApplication {
@@ -8,8 +7,8 @@ export class InteractingApplication {
   createdAt: Date;
   did: string;
 
-  public name$ = new AdvancedBehaviorSubject<string>(null, () => this.fetchAppDocument());
-  public icon$ = new BehaviorSubject<string>(null); // No lazy fetching, accessing name will fetch the icon as well.
+  public icon$ = new AdvancedBehaviorSubject<string>(null, () => this.fetchAppDocument());
+  public name$ = new AdvancedBehaviorSubject<string>(null); // No lazy fetching, accessing icon will fetch the name as well.
 
   public static async fromJson(json: InteractingApplicationDTO): Promise<InteractingApplication> {
     const application = new InteractingApplication();
@@ -17,6 +16,16 @@ export class InteractingApplication {
 
     application.createdAt = new Date(json.createdAt);
 
+    return application;
+  }
+
+  /**
+   * Creates an InteractingApplication on the client side without counterpart on the backend.
+   * Used to display any kind of "app DID" that is not provided as a InteractingApplication object initially.
+   */
+  public static async fromLocalDid(did: string): Promise<InteractingApplication> {
+    const application = new InteractingApplication();
+    application.did = did;
     return application;
   }
 
