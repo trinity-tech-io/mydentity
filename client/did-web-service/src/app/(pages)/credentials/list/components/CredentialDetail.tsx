@@ -1,9 +1,9 @@
+import CheckIcon from '@assets/images/check-full.svg';
 import WarningIcon from '@assets/images/warning.svg';
 import { CredentialAvatar } from '@components/credential/CredentialAvatar';
 import { VerticalStackLoadingCard } from '@components/loading-cards/vertical-stack-loading-card/VerticalStackLoadingCard';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { useMounted } from '@hooks/useMounted';
-import { Credential } from '@model/credential/credential';
 import { Box, Grid, ListItemButton, ListItemIcon, Stack, Typography } from '@mui/material';
 import { activeIdentity$ } from '@services/identity/identity.events';
 import Image from 'next/image';
@@ -82,23 +82,22 @@ export const CredentialDetailWidget: FC = () => {
                   </ListItemButton>
                 )}
 
-                <ListItemButton sx={{ marginTop: 2 }}>
-                  <ListItemIcon>
-                    <WarningIcon width={30} />
-                  </ListItemIcon>
-                  {
-                    (isConform) && (
-                      <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-                        This credential is conform to a known type that can be shared by any application.
-                      </Typography>
-                    )}
-                  {
-                    (!isConform) && (
-                      <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-                        This credential doesn't conform to known credential formats and can hardly be reused by many applications.
-                      </Typography>
-                    )}
-                </ListItemButton>
+
+                <div className='mt-4 flex flex-row items-center gap-4 p-4 text-white rounded-lg' style={{ backgroundColor: isConform ? "#1daa1f" : "#a8251e" }}>
+                  {isConform && <>
+                    <CheckIcon height={40} />
+                    <Typography variant="body1">
+                      This credential is conform to a format published by its issuer. It can be easily reused by multiple applications.
+                    </Typography>
+                  </>
+                  }
+                  {!isConform && <>
+                    <WarningIcon height={40} />
+                    <Typography variant="body1">
+                      This credential doesn't have a published format and can hardly be reused by third party applications.
+                    </Typography>
+                  </>}
+                </div>
 
                 {/* Shared with apps */}
                 {requestingApplications?.length > 0 &&
