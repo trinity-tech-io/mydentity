@@ -21,7 +21,7 @@ export class Browser {
   public activeShadowKey$ = new AdvancedBehaviorSubject<ShadowKey>(null, async () => {
     authUser$.subscribe(user => {
       return user?.get("security").shadowKeys$.subscribe(keys => {
-        this.activeShadowKey$.next(keys.find(k => k.type === ShadowKeyType.WEBAUTHN && k.browser?.equals(this)));
+        this.activeShadowKey$.next(keys?.find(k => k.type === ShadowKeyType.WEBAUTHN && k.browser?.equals(this)));
       });
     });
   });

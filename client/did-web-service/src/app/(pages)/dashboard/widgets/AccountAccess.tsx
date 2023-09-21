@@ -1,7 +1,10 @@
+import CheckIcon from '@assets/images/check-full.svg';
+import CrossIcon from '@assets/images/cross-full.svg';
 import { MainButton } from "@components/generic/MainButton";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { Typography } from "@mui/material";
 import { authUser$ } from "@services/user/user.events";
+import clsx from 'clsx';
 import { isNil } from "lodash";
 import { useRouter } from "next/navigation";
 import { FC, useEffect, useState } from 'react';
@@ -71,6 +74,18 @@ export const AccountAccess: FC = _ => {
       <header className="px-2 py-1 border-b border-slate-100 dark:border-slate-700">
         <h2 className="font-semibold text-slate-800 dark:text-slate-100">Account access</h2>
       </header>
+
+      <div className='p-2'>
+        <div className={clsx("col-span-6 flex flex-row gap-2", boundEmails?.length == 0 && "opacity-30")}>
+          {boundEmails?.length == 0 && <><CrossIcon width={20} /> I can't sign in using an email address</>}
+          {boundEmails?.length > 0 && <><CheckIcon width={20} /> I can sign in from anywhere with my email address</>}
+        </div>
+        <div className={clsx("col-span-6 flex flex-row gap-2", passkeys?.length == 0 && "opacity-30")}>
+          {passkeys?.length == 0 && <><CrossIcon width={20} /> I can't sign in with this browser</>}
+          {passkeys?.length > 0 && <><CheckIcon width={20} /> I can sign in from current browser using biometrics</>}
+        </div>
+      </div>
+
       <div className="py-2 flex flex-row items-center gap-4">
         <SecurityStatus state={securityState} />
         <Typography>{advice}</Typography>

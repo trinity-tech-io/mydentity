@@ -31,7 +31,7 @@ export const CreateIdentityStep: FC = () => {
 
       {!identityBeingCreated &&
         <div className="flex flex-row justify-center mt-10">
-          <a onClick={navigateToPostSignInLandingPage}>I'll do this later, just taking a first look for now.</a>
+          <a className="cursor-pointer" onClick={() => navigateToPostSignInLandingPage()}>I'll do this later, just taking a first look for now.</a>
         </div>
       }
     </>

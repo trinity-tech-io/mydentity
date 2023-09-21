@@ -49,11 +49,11 @@ export function clearPostSignInUrl(): void {
  * Usually, this wil lbe the dashboard. But in case there is a post sign in url defined,
  * then the user is sent back to that url.
  */
-export function usePostSignInFlow(): { navigateToPostSignInLandingPage: () => void } {
+export function usePostSignInFlow(): { navigateToPostSignInLandingPage: (defaultLanding?: string) => void } {
   const router = useRouter();
 
   return {
-    navigateToPostSignInLandingPage(): void {
+    navigateToPostSignInLandingPage(defaultLanding?: string): void {
       const postSignInUrl = getPostSignInUrl();
       if (postSignInUrl) {
         logger.log("flow", "Navigating to post sign in landing page:", postSignInUrl);
@@ -61,8 +61,9 @@ export function usePostSignInFlow(): { navigateToPostSignInLandingPage: () => vo
         clearPostSignInUrl();
       }
       else {
-        logger.log("flow", "Navigating to post sign in landing page (dashboard)");
-        router.replace("/dashboard");
+        const targetPage = defaultLanding || "/dashboard";
+        logger.log("flow", `Navigating to post sign in landing page ${targetPage}`);
+        router.replace(targetPage);
       }
     }
   }

@@ -17,7 +17,7 @@ const NewIdentityPage: FC = () => {
   const { navigateToPostSignInLandingPage } = usePostSignInFlow();
 
   const showProfile = (): void => {
-    router.replace("/profile");
+    navigateToPostSignInLandingPage("/profile");
   }
 
   const onIdentityCreated = async (identity: Identity): Promise<void> => {
