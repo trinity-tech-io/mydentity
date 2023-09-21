@@ -83,21 +83,24 @@ export const CredentialDetailWidget: FC = () => {
                 )}
 
 
-                <div className='mt-4 flex flex-row items-center gap-4 p-4 text-white rounded-lg' style={{ backgroundColor: isConform ? "#1daa1f" : "#a8251e" }}>
-                  {isConform && <>
-                    <CheckIcon height={40} />
-                    <Typography variant="body1">
-                      This credential is conform to a format published by its issuer. It can be easily reused by multiple applications.
-                    </Typography>
-                  </>
-                  }
-                  {!isConform && <>
-                    <WarningIcon height={40} />
-                    <Typography variant="body1">
-                      This credential doesn't have a published format and can hardly be reused by third party applications.
-                    </Typography>
-                  </>}
-                </div>
+                { (null != isConform) &&
+                  <div className='mt-4 flex flex-row items-center gap-4 p-4 text-white rounded-lg' style={{ backgroundColor: isConform ? "#1daa1f" : "#a8251e" }}>
+                    {isConform && <>
+                      <CheckIcon height={40} />
+                      <Typography variant="body1">
+                        This credential is conform to a format published by its issuer. It can be easily reused by multiple applications.
+                      </Typography>
+                    </>
+                    }
+                    {!isConform && <>
+                      <WarningIcon height={40} />
+                      <Typography variant="body1">
+                        This credential doesn't have a published format and can hardly be reused by third party applications.
+                      </Typography>
+                    </>}
+                  </div>
+                }
+
 
                 {/* Shared with apps */}
                 {requestingApplications?.length > 0 &&
