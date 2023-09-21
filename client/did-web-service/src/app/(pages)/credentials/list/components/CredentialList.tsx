@@ -35,15 +35,20 @@ export const CredentialListWidget: FC = () => {
     if (credentials && !activeCredential) {
       identityProfileFeature.setActiveCredential(credentials[0])
     }
-    if (selectedFilter && credentials) {
+    // Refresh: When filter conditions change or credentials change
+    if ((selectedFilter || credentials)) {
       const filtered = filterCredentials(selectedFilter, credentials, activeIdentity)
+      // Refresh: when filtered changes
       if (filtered && !arraysAreEqual(filtered, filteredCredentials)) {
         setFilteredCredentials(filtered);
         identityProfileFeature.setActiveCredential(filtered[0] || null);
-      } else if (filtered.length === 0 || !filtered) {
+      } 
+      // Refresh: When filtered is empty, activeCredential is null
+      else if (filtered.length === 0 || !filtered) {
        identityProfileFeature.setActiveCredential(null);
       }
     } else {
+      // When the page refreshes, setFilteredCredentials
       if (!filteredCredentials) {
         setFilteredCredentials(credentials);
       }
