@@ -33,11 +33,12 @@ async function importCredentials() {
   let credential = await vcb.id("#testinstance1268")
     .properties({
       //prescription1: "Take 3 pills per day during one week.",
-      stub: "test",
+      prescription1: "Drink more",
+      prescription2: "Eat less",
       displayable: {
         icon: "nowhere",
         title: "Medical certificate",
-        description: "${prescription1}"
+        description: "${prescription1}, ${prescription2}"
       }
     }).type("did://elastos/insTmxdDDuS9wHHfeYD1h5C2onEHh3D8Vq/CredTypeWithService#CredTypeWithService").seal(storePass);
   console.log("Generated credential:", credential);
