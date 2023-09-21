@@ -1,8 +1,7 @@
-import { Theme } from "@mui/material";
-import { makeStyles } from "@mui/styles";
+import { styled } from "@mui/material";
 import { FC } from "react";
 import Barcode from "react-barcode";
-import clsx from 'clsx';
+import clsx from "clsx";
 
 interface TextBarcodeType {
   value: string;
@@ -11,21 +10,22 @@ interface TextBarcodeType {
   outerClassName?: string;
   textClassName?: string;
 }
-
-const useStyles = makeStyles((theme: Theme) => ({
-  stretch: {
-    textAlign: 'justify',
-    '&:after': {
-      content: "''",
-      width: '100%',
-      display: 'inline-block'
-    }
+const TextStyled = styled("h5")(({ theme }) => ({
+  textAlign: "justify",
+  "&:after": {
+    content: "''",
+    width: "100%",
+    display: "inline-block",
   },
 }));
-
 const TextBarcode: FC<TextBarcodeType> = (props) => {
-  const { value, text, height = 35, outerClassName = "", textClassName = "" } = props;
-  const classes = useStyles();
+  const {
+    value,
+    text,
+    height = 35,
+    outerClassName = "",
+    textClassName = "",
+  } = props;
   const BarCodeOptions = {
     displayValue: false,
     margin: 0,
@@ -36,15 +36,11 @@ const TextBarcode: FC<TextBarcodeType> = (props) => {
   };
 
   return (
-    <div
-      className={clsx('inline-flex flex-col', outerClassName)}
-    >
+    <div className={clsx("inline-flex flex-col", outerClassName)}>
       <Barcode value={value} {...BarCodeOptions} height={height} />
-      <h5
-        className={clsx('text-white h5', classes.stretch, textClassName)}
-      >
+      <TextStyled className={clsx("text-white h5", textClassName)}>
         {text}
-      </h5>
+      </TextStyled>
     </div>
   );
 };

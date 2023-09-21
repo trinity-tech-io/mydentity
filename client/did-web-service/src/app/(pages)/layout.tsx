@@ -62,7 +62,7 @@ const LayoutCore: FC<{ children: ReactNode }> = ({ children }) => {
 
 const EntryLayout: FC<{ children: ReactNode }> = ({ children }) => {
   return (
-    <main className="container landing-bg min-h-screen min-w-full p-12 relative pb-[86px]">
+    <main className="container relative landing-bg min-h-screen min-w-full p-4 pt-8 pb-[86px] md:p-12">
       {children}
       <div className="absolute left-0 bottom-0 w-full">
         <div className="flex justify-end p-7">
@@ -81,7 +81,9 @@ export default function RootLayout({
   const pathname = usePathname();
   const isEntryPage = pathname.startsWith("/entry");
   return isEntryPage ? (
-    <EntryLayout>{children}</EntryLayout>
+    <ThemeRegistry>
+      <EntryLayout>{children}</EntryLayout>
+    </ThemeRegistry>
   ) : (
     <ThemeRegistry>
       <AppThemeProvider>

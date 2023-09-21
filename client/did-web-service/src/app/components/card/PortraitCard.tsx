@@ -5,6 +5,8 @@ import ChipIcon from "@assets/images/card/Chip.svg";
 const CardStyled = styled(Card)(({ theme }) => ({
   maxWidth: 300,
   minWidth: 180,
+  backgroundColor: "black",
+  borderRadius: "1.5rem",
   "&:after": {
     paddingTop: "158%",
     display: "block",
@@ -58,17 +60,19 @@ interface PortraitCardType {
 const PortraitCard: FC<PortraitCardType> = (props) => {
   const { content, footer } = props;
   return (
-    <CardStyled className="inline-block w-[45%] xl:w-[40%] md:w-[25%] h-full bg-black border-white border-opacity-30 border-2 rounded-3xl relative drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]">
+    <CardStyled className="inline-block w-[45%] xl:w-[40%] md:w-[25%] h-full border-white border-opacity-30 border-2 rounded-3xl relative drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]">
       <div className="body noise-bg">
         <div className="absolute opacity-20 ellipse" />
-        <div className="px-6 py-8 h-full flex flex-col">
-          <div className="flex pb-7">
+        <div className="px-4 py-6 md:px-6 md:py-8 h-full flex flex-col">
+          <div className="flex pb-4 md:pb-7">
             <div className="flex-1" />
-            <div className="h-9">
+            <div className="h-6 md:h-9">
               <ChipIcon width="100%" height="100%" viewBox="0 0 50 38" />
             </div>
           </div>
-          <div className="text-left m-auto ml-0 pb-[40%]">{content}</div>
+          <div className="flex flex-1 pt-[10%]">
+            <div className="text-left">{content}</div>
+          </div>
           <div className="flex justify-center">{footer}</div>
         </div>
       </div>

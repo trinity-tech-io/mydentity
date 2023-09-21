@@ -12,6 +12,10 @@ const DarkButton = styled(Button)(({ theme }) => ({
   "&:hover": {
     background: "#666e76 !important",
   },
+  [theme.breakpoints.down('md')]: {
+    fontSize: 12,
+    padding: "6px 14px",
+  },
 }));
 
 export default DarkButton;
