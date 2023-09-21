@@ -1,12 +1,15 @@
 "use client"
 import { DID as ConnDID } from "@elastosfoundation/elastos-connectivity-sdk-js";
 import { Intent } from "@model/intent/intent";
-import { setPostSignInUrl } from "@services/flow.service";
 import { fetchIntent } from "@services/intent.service";
 import { useSearchParams } from "next/navigation";
 import { FC, useEffect, useState } from "react";
 import { PreparingRequest } from "../components/PreparingRequest";
 import { RequestDetails } from "./RequestDetails";
+import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
+import { setPostSignInUrl, clearPostSignInUrl } from "@services/flow.service";
+import { activeIdentity$ } from "@services/identity/identity.events";
+import { authUser$ } from "@services/user/user.events";
 
 // TODO: this will cause build error: Static generation failed due to dynamic usage on /intent/request-credentials, reason: searchParams.rid
 //const RequestCredentialsIntent: FC<{
@@ -19,9 +22,8 @@ const RequestCredentialsIntent: FC = () => {
   const requestId = searchParams.get('rid');
   const [loadingIntent, setLoadingIntent] = useState(true);
   const [intent, setIntent] = useState<Intent<ConnDID.CredentialDisclosureRequest>>(null);
-
-  // Remember the current url to come back after signing in, if needed.
-  setPostSignInUrl(window.location.href);
+  const [activeUser] = useBehaviorSubject(authUser$);
+  const [activeIdentity] = useBehaviorSubject(activeIdentity$);
 
   // Try to find an intent that corresponds to the given intent ID.
   useEffect(() => {
@@ -35,6 +37,17 @@ const RequestCredentialsIntent: FC = () => {
     });
     //}, [searchParams?.rid]);
   }, [requestId]);
+
+  // Remember where to come back in case sign up/in is needed
+  useEffect(() => {
+    if (!activeUser || !activeIdentity) {
+      // Remember the current url to come back after signing in, if needed.
+      setPostSignInUrl(window.location.href);
+    }
+    else {
+      clearPostSignInUrl();
+    }
+  }, [activeUser, activeIdentity]);
 
   return (
     <div className="col-span-full">

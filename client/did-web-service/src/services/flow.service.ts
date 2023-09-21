@@ -41,6 +41,7 @@ export function getPostSignInUrl(): string {
 }
 
 export function clearPostSignInUrl(): void {
+  logger.log("flow", "Clearing post sign in url");
   localStorage.removeItem(POST_SIGN_IN_URL);
 }
 
@@ -58,7 +59,6 @@ export function usePostSignInFlow(): { navigateToPostSignInLandingPage: (default
       if (postSignInUrl) {
         logger.log("flow", "Navigating to post sign in landing page:", postSignInUrl);
         router.replace(postSignInUrl);
-        clearPostSignInUrl();
       }
       else {
         const targetPage = defaultLanding || "/dashboard";

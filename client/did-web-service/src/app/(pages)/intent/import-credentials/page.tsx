@@ -7,6 +7,10 @@ import { useSearchParams } from "next/navigation";
 import { FC, useEffect, useState } from "react";
 import { PreparingRequest } from "../components/PreparingRequest";
 import { RequestDetails } from "./RequestDetails";
+import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
+import { setPostSignInUrl, clearPostSignInUrl } from "@services/flow.service";
+import { activeIdentity$ } from "@services/identity/identity.events";
+import { authUser$ } from "@services/user/user.events";
 
 // Displayable version of a verifiable credential subject entry (a credential can contain several information
 // in its subject).
@@ -34,6 +38,8 @@ const ImportCredentialsIntent: FC = () => {
   const requestId = searchParams.get('rid');
   const [loadingIntent, setLoadingIntent] = useState(true);
   const [intent, setIntent] = useState<Intent<VerifiableCredential[]>>(null);
+  const [activeUser] = useBehaviorSubject(authUser$);
+  const [activeIdentity] = useBehaviorSubject(activeIdentity$);
 
   // Try to find an intent that corresponds to the given intent ID.
   useEffect(() => {
@@ -47,6 +53,18 @@ const ImportCredentialsIntent: FC = () => {
     });
     //}, [searchParams?.rid]);
   }, [requestId]);
+
+  // Remember where to come back in case sign up/in is needed
+  useEffect(() => {
+    if (!activeUser || !activeIdentity) {
+      // Remember the current url to come back after signing in, if needed.
+      setPostSignInUrl(window.location.href);
+    }
+    else {
+      clearPostSignInUrl();
+    }
+  }, [activeUser, activeIdentity]);
+
 
   return (
     <div className="col-span-full">
