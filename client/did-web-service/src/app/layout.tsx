@@ -2,6 +2,7 @@
 // import { Inter } from 'next/font/google';
 import React, { FC } from 'react';
 import './globals.scss';
+import ThemeRegistry from './theming/ThemeRegistry';
 
 // const inter = Inter({ subsets: ['latin'] })
 
@@ -14,7 +15,9 @@ const RootLayout: FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <html lang="en">
       <body /* className={inter.className} */ suppressHydrationWarning={true}>
-        {children}
+        <ThemeRegistry>
+          {children}
+        </ThemeRegistry>
       </body>
     </html>
   )

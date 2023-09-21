@@ -3,7 +3,7 @@ import { FC } from "react";
 import { useMediaQuery, useTheme } from "@mui/material";
 import { PortraitCard } from "@components/card";
 import TextBarcode from "@components/text-barcode/TextBarcode";
-import DarkButton from "@components/button/DarkButton";
+import { DarkButton } from "@components/button";
 
 const EntryPage: FC = () => {
   const theme = useTheme();

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { LandingCard } from "@components/card";
 import TextBarcode from "@components/text-barcode/TextBarcode";
 import TrinityLogo from "@assets/images/TrinityLogo.svg";
+import { BlackButton } from "@components/button";
 
 const Home: FC = () => {
   const router = useRouter();
@@ -38,9 +39,9 @@ const Home: FC = () => {
           <LandingCard />
         </div>
         <div className="text-center p-7">
-          <Button className="bg-black" variant="contained" onClick={launchApp}>
+          <BlackButton variant="contained" onClick={launchApp}>
             LAUNCH APP
-          </Button>
+          </BlackButton>
         </div>
       </div>
       <div className="bg-black p-6">
@@ -101,13 +102,13 @@ const Home: FC = () => {
       </div>
       <div className="flex flex-1 flex-col landing-bg">
         <div className="text-right p-7">
-          <Button
-            className="flex-1 bg-black"
+          <BlackButton
+            className="flex-1"
             variant="contained"
             onClick={launchApp}
           >
             LAUNCH APP
-          </Button>
+          </BlackButton>
         </div>
         <div className="flex flex-1">
           <div className="flex items-center justify-center w-full">
