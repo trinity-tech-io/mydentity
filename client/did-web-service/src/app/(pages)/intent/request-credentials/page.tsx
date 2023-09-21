@@ -1,6 +1,7 @@
 "use client"
 import { DID as ConnDID } from "@elastosfoundation/elastos-connectivity-sdk-js";
 import { Intent } from "@model/intent/intent";
+import { setPostSignInUrl } from "@services/flow.service";
 import { fetchIntent } from "@services/intent.service";
 import { useSearchParams } from "next/navigation";
 import { FC, useEffect, useState } from "react";
@@ -18,6 +19,9 @@ const RequestCredentialsIntent: FC = () => {
   const requestId = searchParams.get('rid');
   const [loadingIntent, setLoadingIntent] = useState(true);
   const [intent, setIntent] = useState<Intent<ConnDID.CredentialDisclosureRequest>>(null);
+
+  // Remember the current url to come back after signing in, if needed.
+  setPostSignInUrl(window.location.href);
 
   // Try to find an intent that corresponds to the given intent ID.
   useEffect(() => {

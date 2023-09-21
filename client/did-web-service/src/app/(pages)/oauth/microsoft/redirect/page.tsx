@@ -1,20 +1,21 @@
 'use client';
 
-import {ActivityType} from "@model/activity/activity-type";
-import {ExistingEmailException} from "@model/exceptions/existing-email-exception";
-import {InexistingEmailException} from "@model/exceptions/inexisting-email-exception";
-import {LinearProgress} from "@mui/material";
-import {clearOnGoingFlowOperation, FlowOperation, getOnGoingFlowOperation} from "@services/flow.service";
-import {oauthMSBindEmail, oauthMSSignIn} from "@services/user/user.service";
-import {useRouter, useSearchParams} from "next/navigation";
-import {FC, useEffect} from "react";
-import {UserEmailProvider} from "@model/user-email/user-email-provider";
-import {ActivityFeature} from "@model/user/features/activity/activity.feature";
+import { ActivityType } from "@model/activity/activity-type";
+import { ExistingEmailException } from "@model/exceptions/existing-email-exception";
+import { InexistingEmailException } from "@model/exceptions/inexisting-email-exception";
+import { UserEmailProvider } from "@model/user-email/user-email-provider";
+import { ActivityFeature } from "@model/user/features/activity/activity.feature";
+import { LinearProgress } from "@mui/material";
+import { clearOnGoingFlowOperation, FlowOperation, getOnGoingFlowOperation, usePostSignInFlow } from "@services/flow.service";
+import { oauthMSBindEmail, oauthMSSignIn } from "@services/user/user.service";
+import { useRouter, useSearchParams } from "next/navigation";
+import { FC, useEffect } from "react";
 
 const MicrosoftRedirect: FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const code = searchParams.get('code');
+  const { navigateToPostSignInLandingPage } = usePostSignInFlow();
 
   useEffect(() => {
     if (!code) {
@@ -56,10 +57,10 @@ const MicrosoftRedirect: FC = () => {
             if (user) {
               ActivityFeature.createActivity({ type: ActivityType.USER_SIGN_IN, userEmailProvider: UserEmailProvider.MICROSOFT }).then(activity => {
                 clearOnGoingFlowOperation();
-                router.push(`/dashboard`);
+                navigateToPostSignInLandingPage();
               }).catch(e => {
                 clearOnGoingFlowOperation();
-                router.push(`/dashboard`);
+                navigateToPostSignInLandingPage();
               })
             } else {
               clearOnGoingFlowOperation();

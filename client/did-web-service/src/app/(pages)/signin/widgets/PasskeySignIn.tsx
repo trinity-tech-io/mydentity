@@ -4,9 +4,9 @@ import { callWithUnlock } from '@components/security/unlock-key-prompt/call-with
 import { Icon as ReactIcon } from '@iconify/react';
 import { makeStyles } from '@mui/styles';
 import { useToast } from "@services/feedback.service";
+import { usePostSignInFlow } from '@services/flow.service';
 import { authenticateWithPasskey } from "@services/user/user.service";
 import clsx from 'clsx';
-import { useRouter } from "next/navigation";
 import { FC } from 'react';
 
 const useStyles = makeStyles((theme) => ({
@@ -21,15 +21,15 @@ const useStyles = makeStyles((theme) => ({
 
 const PasskeySignIn: FC = () => {
   const classes = useStyles()
-  const router = useRouter()
-  const { showSuccessToast } = useToast()
+  const { showSuccessToast } = useToast();
+  const { navigateToPostSignInLandingPage } = usePostSignInFlow();
 
   const signInWithPasskey = async (): Promise<void> => {
     const bound = await callWithUnlock(() => authenticateWithPasskey());
 
     if (bound) {
       showSuccessToast("Successful sign in");
-      router.replace("/dashboard");
+      navigateToPostSignInLandingPage();
     }
   }
 

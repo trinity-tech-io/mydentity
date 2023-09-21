@@ -332,6 +332,8 @@ export const RequestDetails: FC<{
         </div>
       </div>
     }
-    {!activeIdentity && "Make an identity active to continue"}
+
+    {!activeUser && "Please sign in or sign up to continue"}
+    {activeUser && !activeIdentity && "Please make an identity active to continue"}
   </>
 }

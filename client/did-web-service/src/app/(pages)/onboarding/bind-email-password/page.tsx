@@ -4,6 +4,7 @@ import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useMounted } from "@hooks/useMounted";
 import { Typography } from "@mui/material";
 import { useToast } from "@services/feedback.service";
+import { usePostSignInFlow } from "@services/flow.service";
 import { authUser$ } from "@services/user/user.events";
 import { useRouter } from "next/navigation";
 import { FC } from "react";
@@ -14,15 +15,16 @@ const BindEmailPassword: FC = () => {
   const securityFeature = authUser?.get("security");
   const { showSuccessToast } = useToast();
   const router = useRouter();
+  const { navigateToPostSignInLandingPage } = usePostSignInFlow();
 
   const bindPassword = async (password: string): Promise<void> => {
     const bound = await securityFeature.bindPassword(password);
     if (bound) {
       showSuccessToast("Master password successfully created");
 
-      // Go to dashboard after a while
+      // Go to next page after a while
       setTimeout(() => {
-        router.replace("/dashboard");
+        navigateToPostSignInLandingPage();
       }, 2000);
     }
   }

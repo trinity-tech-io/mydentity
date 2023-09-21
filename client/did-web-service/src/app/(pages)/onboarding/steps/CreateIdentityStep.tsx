@@ -1,8 +1,8 @@
 import { CreateIdentity } from "@components/identity-creation/CreateIdentity";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { Typography } from "@mui/material";
+import { usePostSignInFlow } from "@services/flow.service";
 import { authUser$ } from "@services/user/user.events";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FC, useState } from "react";
 
@@ -11,9 +11,10 @@ export const CreateIdentityStep: FC = () => {
   const [authUser] = useBehaviorSubject(authUser$);
   const [userName] = useBehaviorSubject(authUser?.name$);
   const [identityBeingCreated, setIdentityBeingCreated] = useState(false);
+  const { navigateToPostSignInLandingPage } = usePostSignInFlow();
 
   const onIdentityCreated = (): void => {
-    router.push("/dashboard");
+    navigateToPostSignInLandingPage();
   }
 
   const onIdentityCreating = (): void => {
@@ -30,7 +31,7 @@ export const CreateIdentityStep: FC = () => {
 
       {!identityBeingCreated &&
         <div className="flex flex-row justify-center mt-10">
-          <Link href="/dashboard">I'll do this later, just taking a first look for now.</Link>
+          <a onClick={navigateToPostSignInLandingPage}>I'll do this later, just taking a first look for now.</a>
         </div>
       }
     </>
