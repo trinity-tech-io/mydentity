@@ -79,7 +79,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }): any {
   const pathname = usePathname();
-  const isEntryPage = pathname.startsWith("/entry");
+  const isEntryPage = pathname.startsWith("/entry") || pathname.startsWith("/register");
   return isEntryPage ? (
     <ThemeRegistry>
       <EntryLayout>{children}</EntryLayout>

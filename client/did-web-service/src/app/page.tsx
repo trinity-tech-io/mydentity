@@ -1,11 +1,31 @@
 "use client";
 import { FC, MouseEventHandler } from "react";
-import { Button, useMediaQuery, useTheme } from "@mui/material";
+import { useMediaQuery, useTheme } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { LandingCard } from "@components/card";
 import TextBarcode from "@components/text-barcode/TextBarcode";
-import TrinityLogo from "@assets/images/TrinityLogo.svg";
 import { BlackButton } from "@components/button";
+import TrinityLogo from "@assets/images/TrinityLogo.svg";
+
+const WelcomeCard: FC = () => (
+  <LandingCard>
+    <div>
+      <TextBarcode
+        value="Welcome to future"
+        text="Welcome to the future"
+        textClassName="text-sm tracking-[7px]"
+        height={22}
+      />
+      <br />
+      <TextBarcode
+        value="identity"
+        text="of identity"
+        textClassName="text-sm tracking-[9px]"
+        height={22}
+      />
+    </div>
+  </LandingCard>
+);
 
 const Home: FC = () => {
   const router = useRouter();
@@ -36,7 +56,7 @@ const Home: FC = () => {
           </p>
         </div>
         <div className="flex items-center justify-center">
-          <LandingCard />
+          <WelcomeCard />
         </div>
         <div className="text-center p-7">
           <BlackButton variant="contained" onClick={launchApp}>
@@ -112,7 +132,7 @@ const Home: FC = () => {
         </div>
         <div className="flex flex-1">
           <div className="flex items-center justify-center w-full">
-            <LandingCard />
+            <WelcomeCard />
           </div>
         </div>
         <div className="flex justify-end p-7">

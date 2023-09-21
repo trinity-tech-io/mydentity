@@ -4,8 +4,10 @@ import { useMediaQuery, useTheme } from "@mui/material";
 import { PortraitCard } from "@components/card";
 import TextBarcode from "@components/text-barcode/TextBarcode";
 import { DarkButton } from "@components/button";
+import { useRouter } from "next/navigation";
 
 const EntryPage: FC = () => {
+  const router = useRouter();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const barcodeHeight = isMobile ? 20 : 25;
@@ -95,7 +97,13 @@ const EntryPage: FC = () => {
             </>
           }
           footer={
-            <DarkButton color="primary" className="w-4/5 md:w-3/5">
+            <DarkButton
+              color="primary"
+              className="w-4/5 md:w-3/5"
+              onClick={(): void => {
+                router.push("register");
+              }}
+            >
               SIGN UP
             </DarkButton>
           }
