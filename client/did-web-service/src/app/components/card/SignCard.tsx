@@ -1,10 +1,10 @@
-import { FC } from "react";
+import { FC, ReactNode } from "react";
 import { Card, styled } from "@mui/material";
 import ChipIcon from "@assets/images/card/Chip.svg";
-import TextBarcode from "@components/text-barcode/TextBarcode";
-import DarkButton from "@components/button/DarkButton";
 
 const CardStyled = styled(Card)(({ theme }) => ({
+  maxWidth: 300,
+  minWidth: 180,
   "&:after": {
     paddingTop: "158%",
     display: "block",
@@ -50,9 +50,15 @@ const CardStyled = styled(Card)(({ theme }) => ({
   },
 }));
 
-const SignCard: FC = () => {
+interface SignCardType {
+  content: ReactNode;
+  footer: ReactNode;
+}
+
+const SignCard: FC<SignCardType> = (props) => {
+  const { content, footer } = props;
   return (
-    <CardStyled className="inline-block w-[450px] bg-black border-white border-opacity-30 border-2 rounded-3xl relative drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]">
+    <CardStyled className="inline-block w-[45%] xl:w-[40%] md:w-[25%] h-full bg-black border-white border-opacity-30 border-2 rounded-3xl relative drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]">
       <div className="body noise-bg">
         <div className="absolute opacity-20 ellipse" />
         <div className="px-6 py-8 h-full flex flex-col">
@@ -62,26 +68,8 @@ const SignCard: FC = () => {
               <ChipIcon width="100%" height="100%" viewBox="0 0 50 38" />
             </div>
           </div>
-          <div className="text-left m-auto ml-0 pb-32">
-            <TextBarcode
-              value="Forging"
-              text="Forging your"
-              textClassName="text-sm tracking-[4px]"
-              height={22}
-            />
-            <br />
-            <TextBarcode
-              value="idenjourney"
-              text="identity journey"
-              textClassName="text-sm tracking-[6px]"
-              height={22}
-            />
-          </div>
-          <div className="flex justify-center">
-            <DarkButton color="primary" className="w-3/5">
-              SIGN IN
-            </DarkButton>
-          </div>
+          <div className="text-left m-auto ml-0 pb-[40%]">{content}</div>
+          <div className="flex justify-center">{footer}</div>
         </div>
       </div>
     </CardStyled>

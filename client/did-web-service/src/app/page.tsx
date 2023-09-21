@@ -1,6 +1,5 @@
 "use client";
 import { FC, MouseEventHandler } from "react";
-import Barcode from "react-barcode";
 import { Button, useMediaQuery, useTheme } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { LandingCard } from "@components/card/LandingCard";
@@ -11,14 +10,6 @@ const Home: FC = () => {
   const router = useRouter();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const BarCodeOptions = {
-    displayValue: false,
-    margin: 0,
-    background: "#ffffffff00",
-    lineColor: "#ffffff",
-    height: 35,
-    width: 1.3,
-  };
   const launchApp: MouseEventHandler<HTMLButtonElement> = () => {
     router.push("dashboard");
   };

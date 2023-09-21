@@ -11,6 +11,7 @@ import { initSync } from "@services/init.service";
 import { isUnlockException } from "@services/security/security.service";
 import { Header } from "@components/layout/Header";
 import Sidebar from "@components/layout/Sidebar";
+import TrinityLogo from "@assets/images/TrinityLogo.svg";
 import AppThemeProvider from "../theming/AppThemeContext";
 import ThemeRegistry from "../theming/ThemeRegistry";
 
@@ -61,8 +62,13 @@ const LayoutCore: FC<{ children: ReactNode }> = ({ children }) => {
 
 const EntryLayout: FC<{ children: ReactNode }> = ({ children }) => {
   return (
-    <main className="container landing-bg min-h-screen min-w-full p-12">
+    <main className="container landing-bg min-h-screen min-w-full p-12 relative pb-[86px]">
       {children}
+      <div className="absolute left-0 bottom-0 w-full">
+        <div className="flex justify-end p-7">
+          <TrinityLogo />
+        </div>
+      </div>
     </main>
   );
 };

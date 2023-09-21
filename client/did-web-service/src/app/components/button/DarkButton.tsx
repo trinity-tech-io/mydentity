@@ -3,7 +3,6 @@ import { Button, styled } from "@mui/material";
 const DarkButton = styled(Button)(({ theme }) => ({
   background: "#323B45 !important",
   borderRadius: 4,
-  fontSize: 16,
   padding: "8px 18px",
   color: "white",
   "&:disabled": {
