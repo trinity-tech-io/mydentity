@@ -99,10 +99,14 @@ export class UserService {
   /**
    * Just execute with oauth email.
    */
-  async signInByOauthEmail(email: string, browserKey: string, userAgent: string) {
+  async signInByOauthEmail(email: string, browserKey: string, userAgent: string, callback: (userEmail: UserEmail) => Promise<void>=null) {
     const userEmail: UserEmail & { user: User } = await this.getUserEmailByEmail(email);
     if (!userEmail) {
       return null;
+    }
+
+    if (callback) {
+      await callback(userEmail);
     }
 
     return await this.authService.generateUserCredentials(userEmail.user, browserKey, userAgent);
@@ -194,7 +198,7 @@ export class UserService {
    * This auth key comes from a magic link received by users by email, after requesting
    * to receive a magic link by email.
    */
-  public async checkEmailAuthentication(curUser: UserEntity, temporaryEmailAuthKey: string, existingBrowserKey: string, userAgent: string): Promise<AuthTokens> {
+  public async checkEmailAuthentication(curUser: UserEntity, temporaryEmailAuthKey: string, existingBrowserKey: string, userAgent: string, callback: (user: User, userEmail: UserEmail) => Promise<void> = null): Promise<AuthTokens> {
     const user = await this.prisma.user.findFirst({
       where: {
         temporaryEmailAuthExpiresAt: { gt: new Date() },
@@ -224,6 +228,18 @@ export class UserService {
           // do nothing.
         }
       })
+    }
+
+    if (callback) {
+      const userEmail = await this.prisma.userEmail.findFirst({
+        where: {
+          email: user.temporaryEmail,
+        }
+      });
+      if (!userEmail) {
+        throw new AppException(AuthExceptionCode.InexistingEmail, "No email address with auth key existing.", 401);
+      }
+      await callback(user, userEmail);
     }
 
     return this.authService.generateUserCredentials(user, existingBrowserKey, userAgent);
@@ -263,11 +279,9 @@ export class UserService {
 
   /**
    * Bind oauth email to user.
-   * @param user
-   * @param email
    */
-  async bindOauthEmail(user: UserEntity, email: string) {
-    const userEmail: UserEmailEntity = await this.prisma.userEmail.findFirst({
+  async bindOauthEmail(user: UserEntity, email: string, callback: (userEmail: UserEmailEntity)=>Promise<void>=null) {
+    let userEmail: UserEmailEntity = await this.prisma.userEmail.findFirst({
       where: { email },
       include: { user: true }
     })
@@ -276,7 +290,7 @@ export class UserService {
       logger.log('user', 'failed to bind user email as exists on other user.', user, userEmail);
       return null;
     } else if (!userEmail) {
-      await this.prisma.userEmail.upsert({
+      userEmail = await this.prisma.userEmail.upsert({
         where: { email },
         create: {
           email,
@@ -286,8 +300,15 @@ export class UserService {
         },
         update: {
           // do nothing.
+        },
+        include: {
+          user: true
         }
       })
+    }
+
+    if (callback) {
+      await callback(userEmail);
     }
 
     logger.log('user', 'bind user with email successfully', user, email);

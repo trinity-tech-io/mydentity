@@ -4,9 +4,15 @@ import {UserEmailProvider} from "@model/user-email/user-email-provider";
 export class CreateActivityInput {
   type: ActivityType;
 
+  userEmailId?: string;
+
   userEmailProvider?: UserEmailProvider;
 
-  identityStr?: string;
+  userEmailAddress?: string;
+
+  identityId?: string;
+
+  identityDid?: string;
 
   credentialsCount?: number;
 

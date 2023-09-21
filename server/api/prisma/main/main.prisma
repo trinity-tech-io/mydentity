@@ -44,6 +44,8 @@ model UserEmail {
   createdAt DateTime          @default(now())
 
   userId String
+
+  activities Activity[]
 }
 
 // Corresponds to a RootIdentity in the DID SDK, meaning one mnemonic.
@@ -75,6 +77,7 @@ model Identity {
   identityRootId String
 
   credentials Credential[]
+  activities  Activity[]
 
   publicationId                  String?
   publishedAt                    DateTime?
@@ -184,17 +187,23 @@ model Activity {
   user User         @relation(fields: [userId], references: [id], onDelete: Restrict)
   type ActivityType
 
+  userEmail         UserEmail? @relation(fields: [userEmailId], references: [id]) // For BIND_EMAIL.
   userEmailProvider UserEmailProvider? // For USER_SIGN_IN or BIND_EMAIL.
-  identityStr       String? // For IDENTITY_CREATED and IDENTITY_DELETED.
+                                       // May not the same as userEmail.provider. For example, MS email, but sign-in by auth key.
+  userEmailAddress  String? // For BIND_EMAIL.
+  identity          Identity? @relation(fields: [identityId], references: [did]) // For IDENTITY_CREATED
+  identityDid       String? // For IDENTITY_CREATED and IDENTITY_DELETED.
   credentialsCount  Int? // For CREDENTIALS_IMPORTED and CREDENTIALS_SHARED.
   appDid            String? // Caller of CREDENTIALS_IMPORTED and CREDENTIALS_SHARED.
-  browser           Browser?           @relation(fields: [browserId], references: [id], onDelete: Restrict) // For BIND_BROWSER, if no browser, use browserName
+  browser           Browser? @relation(fields: [browserId], references: [id], onDelete: Restrict) // For BIND_BROWSER, if no browser, use browserName
   browserName       String? // For BIND_BROWSER
 
   createdAt DateTime @default(now())
 
-  userId    String
-  browserId String?
+  userId            String
+  browserId         String?
+  identityId        String?
+  userEmailId       String?
 }
 
 // No need setup the relations with the user

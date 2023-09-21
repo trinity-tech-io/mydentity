@@ -16,6 +16,8 @@ export class ActivityService {
             },
             include: {
                 browser: true,
+                userEmail: {include: {user: true}},
+                identity: true,
             }
         });
     }
@@ -27,6 +29,8 @@ export class ActivityService {
             },
             include: {
                 browser: true,
+                userEmail: {include: {user: true}},
+                identity: true,
             }
         });
     }
@@ -41,12 +45,20 @@ export class ActivityService {
             if (input[name] !== undefined && input[name] != null)
                 data[name] = input[name];
         }
+        const appendObj = (objName: string, isConnectDid=false) => {
+            const name = `${objName}Id`;
+            if (input[name] !== undefined && input[name] != null)
+                data[objName] = isConnectDid ? {connect: {did: input[name]}} : {connect: {id: input[name]}};
+        }
+
+        appendObj('userEmail');
         appendField('userEmailProvider');
-        appendField('identityStr');
+        appendField('userEmailAddress');
+        appendObj('identity');
+        appendField('identityDid');
         appendField('credentialsCount');
         appendField('appDid');
-        if (input.browserId !== undefined && input.browserId != null)
-            data['browser'] = {connect: {id: input.browserId}}
+        appendObj('browser');
         appendField('browserName');
 
         return this.prisma.activity.create({data});

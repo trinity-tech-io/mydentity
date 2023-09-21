@@ -1,10 +1,7 @@
 'use client';
 
-import { ActivityType } from "@model/activity/activity-type";
 import { ExistingEmailException } from "@model/exceptions/existing-email-exception";
 import { InexistingEmailException } from "@model/exceptions/inexisting-email-exception";
-import { UserEmailProvider } from "@model/user-email/user-email-provider";
-import { ActivityFeature } from "@model/user/features/activity/activity.feature";
 import { LinearProgress } from "@mui/material";
 import { clearOnGoingFlowOperation, FlowOperation, getOnGoingFlowOperation, usePostSignInFlow } from "@services/flow.service";
 import { oauthMSBindEmail, oauthMSSignIn } from "@services/user/user.service";
@@ -29,13 +26,7 @@ const MicrosoftRedirect: FC = () => {
         {
           oauthMSBindEmail(code).then(result => {
             if (result) {
-              ActivityFeature.createActivity({ type: ActivityType.BIND_EMAIL, userEmailProvider: UserEmailProvider.MICROSOFT }).then(activity => {
-                clearOnGoingFlowOperation();
-                router.push('/account/security');
-              }).catch(e => {
-                clearOnGoingFlowOperation();
-                router.push('/account/security');
-              })
+              router.push('/account/security');
             } else {
               clearOnGoingFlowOperation();
               router.push('/account/security?error=unknown');
@@ -55,13 +46,8 @@ const MicrosoftRedirect: FC = () => {
         {
           oauthMSSignIn(code).then(user => {
             if (user) {
-              ActivityFeature.createActivity({ type: ActivityType.USER_SIGN_IN, userEmailProvider: UserEmailProvider.MICROSOFT }).then(activity => {
-                clearOnGoingFlowOperation();
-                navigateToPostSignInLandingPage();
-              }).catch(e => {
-                clearOnGoingFlowOperation();
-                navigateToPostSignInLandingPage();
-              })
+              clearOnGoingFlowOperation();
+              navigateToPostSignInLandingPage();
             } else {
               clearOnGoingFlowOperation();
               router.push(`/signin?error=unknown`);

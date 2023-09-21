@@ -8,7 +8,7 @@ export class UserEmail {
     createdAt: string;
     user: User;
 
-    public static fromJson(json: UserEmailDTO, user: User): UserEmail {
+    public static fromJson(json: UserEmailDTO, user: User=null): UserEmail {
         const email: UserEmail = Object.assign(new UserEmail(), json);
         email.user = user;
         return email;

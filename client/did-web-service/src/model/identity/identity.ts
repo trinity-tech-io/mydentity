@@ -37,7 +37,7 @@ export class Identity {
     this.addFeature("applications", new ApplicationsFeature(this));
   }
 
-  public static async fromJson(json: IdentityDTO, provider: IdentityProvider): Promise<Identity> {
+  public static async fromJson(json: IdentityDTO, provider: IdentityProvider=null): Promise<Identity> {
     const identity = new Identity();
     Object.assign(identity, json);
 

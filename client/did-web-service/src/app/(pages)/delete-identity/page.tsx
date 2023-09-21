@@ -32,7 +32,7 @@ const DeleteIdentityPage: FC = () => {
     // Deletion
     const success = await activeUser.get("identity").deleteIdentity(identityStringToDelete);
     if (success) {
-      await ActivityFeature.createActivity({type: ActivityType.IDENTITY_DELETED, identityStr: identityStringToDelete});
+      await ActivityFeature.createActivity({type: ActivityType.IDENTITY_DELETED, identityDid: identityStringToDelete});
     }
   }
 

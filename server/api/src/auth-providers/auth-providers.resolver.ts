@@ -13,12 +13,17 @@ import { UserService } from "../user/user.service";
 import { MsBindEmailInput } from "./dto/ms-bind-email.input";
 import { MsSignInInput } from "./dto/ms-sign-in.input";
 import { MicrosoftProfileService } from "./microsoft-profile.service";
+import { ActivityType, User, UserEmail, UserEmailProvider } from "@prisma/client/main";
+import { BrowsersService } from "../browsers/browsers.service";
+import { ActivityService } from "../activity/activity.service";
 
 @Resolver(() => UserEntity)
 export class AuthProviderResolver {
     constructor(
         private readonly userService: UserService,
         private readonly microsoftProfileService: MicrosoftProfileService,
+        private readonly browsersService: BrowsersService,
+        private readonly activityService: ActivityService,
     ) { }
 
     private async getEmailByMsCode(code: string) {
@@ -43,7 +48,17 @@ export class AuthProviderResolver {
     @Mutation(() => LoggedUserOutput, { nullable: true })
     async oauthMSSignIn(@HeaderBrowserKey() browserKey: string, @UserAgent() userAgent: string, @Args('input') input: MsSignInInput) {
         const email = await this.getEmailByMsCode(input.code);
-        const result = await this.userService.signInByOauthEmail(email, browserKey, userAgent);
+        const result = await this.userService.signInByOauthEmail(email, browserKey, userAgent, async (userEmail: UserEmail & {user: User}) => {
+            const browser = await this.browsersService.findOne(browserKey);
+            await this.activityService.createActivity(userEmail.user.id, {
+                type: ActivityType.USER_SIGN_IN,
+                userEmailId: userEmail.id,
+                userEmailProvider: UserEmailProvider.MICROSOFT,
+                userEmailAddress: userEmail.email,
+                browserId: browser.id,
+                browserName: browser.name,
+            });
+        });
         if (!result) {
             throw new AppException(AuthExceptionCode.InexistingEmail, `Email ${email} already belongs to other user.`, 401);
         }
@@ -57,7 +72,14 @@ export class AuthProviderResolver {
     @Mutation(() => Boolean)
     async oauthMSBindEmail(@CurrentUser() user: UserEntity, @Args('input') input: MsBindEmailInput) {
         const email = await this.getEmailByMsCode(input.code);
-        const resultUser = await this.userService.bindOauthEmail(user, email);
+        const resultUser = await this.userService.bindOauthEmail(user, email, async (userEmail) => {
+            await this.activityService.createActivity(user.id, {
+                type: ActivityType.BIND_EMAIL,
+                userEmailId: userEmail.id,
+                userEmailProvider: UserEmailProvider.MICROSOFT,
+                userEmailAddress: userEmail.email,
+            });
+        });
         if (!resultUser) {
             throw new AppException(AuthExceptionCode.EmailAlreadyExists, `Email ${email} already belongs to other user.`, 401);
         }

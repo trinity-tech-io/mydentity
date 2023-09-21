@@ -6,11 +6,20 @@ export class CreateActivityInput {
   @Field(() => ActivityType)
   type: ActivityType;
 
+  @Field(() => String, { nullable: true })
+  userEmailId?: string;
+
   @Field(() => UserEmailProvider, { nullable: true })
   userEmailProvider?: UserEmailProvider;
 
   @Field(() => String, { nullable: true })
-  identityStr?: string;
+  userEmailAddress?: string;
+
+  @Field(() => String, { nullable: true })
+  identityId?: string;
+
+  @Field(() => String, { nullable: true })
+  identityDid?: string;
 
   @Field(() => Int, { nullable: true })
   credentialsCount?: number;

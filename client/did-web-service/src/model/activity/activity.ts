@@ -1,12 +1,17 @@
 import { ActivityDto } from "@model/activity/activity.dto";
 import { Browser } from "@model/browser/browser";
 import moment from "moment";
+import { UserEmail } from "@model/user-email/user-email";
+import { Identity } from "@model/identity/identity";
 
 export class Activity {
     public id: string;
     public type: string;
+    public userEmail?: UserEmail;
     public userEmailProvider?: string;
-    public identityStr?: string;
+    public userEmailAddress?: string;
+    public identity?: Identity;
+    public identityDid?: string;
     public credentialsCount?: number;
     public appDid?: string;
 
@@ -18,10 +23,16 @@ export class Activity {
         const activity: Activity = new Activity();
         Object.assign(activity, json);
 
-        activity.createdAt = new Date(json.createdAt);
+        if (json.userEmail)
+            activity.userEmail = UserEmail.fromJson(json.userEmail);
+
+        if (json.identity)
+            activity.identity = await Identity.fromJson(json.identity);
 
         if (json.browser)
             activity.browser = await Browser.fromJson(json.browser);
+
+        activity.createdAt = new Date(json.createdAt);
 
         return activity;
     }

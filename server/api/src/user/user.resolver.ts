@@ -1,6 +1,6 @@
 import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { Browser } from '@prisma/client/main';
+import { Browser, UserEmailProvider, ActivityType } from '@prisma/client/main';
 import { GraphQLError } from "graphql/error";
 import { CurrentUser } from 'src/auth/currentuser.decorator';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
@@ -20,13 +20,17 @@ import { RequestEmailAuthenticationResult } from "./entities/request-email-authe
 import { UserEmailEntity } from "./entities/user-email.entity";
 import { UserEntity } from './entities/user.entity';
 import { UserService } from './user.service';
+import { BrowsersService } from "../browsers/browsers.service";
+import { ActivityService } from "../activity/activity.service";
 
 @Resolver(() => UserEntity)
 export class UserResolver {
   private readonly INVALID_REFRESH_TOKEN = 'INVALID_REFRESH_TOKEN';
 
   constructor(
-    private readonly userService: UserService
+    private readonly userService: UserService,
+    private readonly browsersService: BrowsersService,
+    private readonly activityService: ActivityService,
   ) { }
 
   @Mutation(() => LoggedUserOutput, { nullable: true })
@@ -68,17 +72,36 @@ export class UserResolver {
 
   /**
    * verify email auth key to sign-in.
-   * @param authKey
    */
   @Mutation(() => LoggedUserOutput, { nullable: true })
   async checkEmailAuthentication(@Args('authKey') authKey: string, @HeaderBrowserKey() browserKey: string, @UserAgent() userAgent: string) {
-    return this.userService.checkEmailAuthentication(null, authKey, browserKey, userAgent);
+    return await this.userService.checkEmailAuthentication(null, authKey, browserKey, userAgent, async (user, userEmail) => {
+      const browser = await this.browsersService.findOne(browserKey);
+      await this.activityService.createActivity(user.id, {
+        type: ActivityType.USER_SIGN_IN,
+        userEmailId: userEmail.id,
+        userEmailProvider: UserEmailProvider.RAW,
+        userEmailAddress: userEmail.email,
+        browserId: browser.id,
+        browserName: browser.name,
+      });
+    });
   }
 
+  /**
+   * Only for raw email address.
+   */
   @UseGuards(JwtAuthGuard)
   @Mutation(() => LoggedUserOutput, { nullable: true })
   async checkEmailBind(@CurrentUser() user: UserEntity, @Args('authKey') authKey: string, @CurrentBrowser() browser: Browser, @UserAgent() userAgent: string) {
-    return this.userService.checkEmailAuthentication(user, authKey, browser?.id, userAgent);
+    return this.userService.checkEmailAuthentication(user, authKey, browser?.id, userAgent, async (user, userEmail) => {
+      await this.activityService.createActivity(user.id, {
+        type: ActivityType.BIND_EMAIL,
+        userEmailId: userEmail.id,
+        userEmailProvider: UserEmailProvider.RAW,
+        userEmailAddress: userEmail.email,
+      });
+    });
   }
 
   @Mutation(() => RefreshTokenOutput)
