@@ -55,9 +55,10 @@ export class Credential {
 
   protected getDisplayableCredentialTitle(): string {
     // If the credential implements the DisplayableCredential type, get the title from there.
-    const credProps = this.verifiableCredential.getSubject();
+    const credProps = this.verifiableCredential.getSubject().getProperties();
     if ("displayable" in credProps) {
       this.displayTitle = (credProps["displayable"] as JSONObject)["title"] as string;
+      return this.displayTitle
     }
     else {
       return null;
