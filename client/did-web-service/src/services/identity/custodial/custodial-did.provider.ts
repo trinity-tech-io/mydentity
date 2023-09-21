@@ -258,12 +258,12 @@ export class CustodialDIDProvider implements IdentityProvider {
     const result = await withCaughtAppException(async () => {
       return (await getApolloClient()).query<{ credentials: CredentialDTO[] }>({
         query: gql`
-        query ListCredentials($identityDid: String!) {
-          credentials(identityDid: $identityDid) {
-            ${gqlCredentialFields}
+          query ListCredentials($identityDid: String!) {
+            credentials(identityDid: $identityDid) {
+              ${gqlCredentialFields}
+            }
           }
-        }
-      `,
+        `,
         variables: {
           identityDid
         }

@@ -1,13 +1,11 @@
 import {
   ApolloClient,
   from,
-  fromPromise,
   InMemoryCache
 } from '@apollo/client';
 import { BatchHttpLink } from '@apollo/client/link/batch-http';
 import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
-import { onRefreshTokenFailed, refreshToken } from '@services/user/user.service';
 import Queue from "promise-queue";
 import { getBrowserKey } from './browser.service';
 import { configService } from './config/config.service';
@@ -29,16 +27,14 @@ class GraphQLService {
         batchInterval: 50 // Wait no more than N ms after first batched operation
       });
 
-      // TODO: Only log the error. This can work with withClientState()
       const errLink = onError(({ graphQLErrors, networkError, operation, forward }) => {
-        //console.error('GraphQL service errors', graphQLErrors, networkError);
+        //console.error('GraphQL service errors', graphQLErrors, networkError, operation);
         if (graphQLErrors) {
           // skip when no local token.
-          if (!localStorage.getItem('access_token')) {
+          if (!localStorage.getItem('access_token'))
             return;
-          }
 
-          for (const err of graphQLErrors) {
+          /* for (const err of graphQLErrors) {
             switch (err.extensions.code) {
               case 'UNAUTHENTICATED': // handle token expired.
                 return fromPromise(
@@ -61,7 +57,7 @@ class GraphQLService {
                 onRefreshTokenFailed();
                 break;
             }
-          }
+          } */
           // })
         }
 
@@ -96,14 +92,8 @@ class GraphQLService {
         cache: new InMemoryCache(),
         // No cache, this creates issues when switching user (ie: fetch self user uses cached data from previous user)
         defaultOptions: {
-          watchQuery: {
-            fetchPolicy: 'no-cache',
-            errorPolicy: 'ignore',
-          },
-          query: {
-            fetchPolicy: 'no-cache',
-            errorPolicy: 'all',
-          },
+          watchQuery: { fetchPolicy: 'no-cache' },
+          query: { fetchPolicy: 'no-cache' }
         }
       });
 

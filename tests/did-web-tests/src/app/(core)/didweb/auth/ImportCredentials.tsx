@@ -2,8 +2,9 @@ import { MainButton } from "@components/MainButton";
 import type { ImportedCredential } from "@elastosfoundation/elastos-connectivity-sdk-js/typings/did";
 import { FC, useEffect, useState } from "react";
 
-async function importCredentials() {
+async function importCredentials(withDisplayableCredential: boolean) {
   console.log("Creating and importing a credential");
+
   let storeId = "client-side-store";
   let storePass = "unsafepass";
   let passphrase = ""; // Mnemonic passphrase
@@ -28,19 +29,29 @@ async function importCredentials() {
   let targetDID = DID.from("did:elastos:insTmxdDDuS9wHHfeYD1h5C2onEHh3D8Vq");
   console.log("Target DID:", targetDID);
 
+  const credentialTypes = [
+    withDisplayableCredential && "https://ns.elastos.org/credentials/displayable/v1#DisplayableCredential"
+  ].filter(t => !!t);
+
   // Create the credential
   let vcb = new VerifiableCredential.Builder(issuer, targetDID);
-  let credential = await vcb.id("#testinstance1268")
+  let credential = await vcb.id("#testinstance" + Math.random())
     .properties({
       //prescription1: "Take 3 pills per day during one week.",
       prescription1: "Drink more",
       prescription2: "Eat less",
-      displayable: {
-        icon: "nowhere",
-        title: "Medical certificate",
-        description: "${prescription1}, ${prescription2}"
-      }
-    }).type("did://elastos/insTmxdDDuS9wHHfeYD1h5C2onEHh3D8Vq/CredTypeWithService#CredTypeWithService").seal(storePass);
+      subField: {
+        firstSubValue: "Yes",
+        secondSubValue: "Tomorrow"
+      },
+      ...(withDisplayableCredential && {
+        displayable: {
+          icon: "nowhere",
+          title: "Medical certificate",
+          description: "${prescription1}, ${prescription2}"
+        }
+      })
+    }).types(...credentialTypes).seal(storePass);
   console.log("Generated credential:", credential);
 
   // Send the credential to the identity wallet
@@ -72,14 +83,15 @@ export const ImportCredentials: FC = () => {
     return () => unsub;
   }, []);
 
-  const testImport = async () => {
+  const testImport = async (withDisplayableCredential: boolean) => {
     setAwaitingResult(true);
-    await importCredentials();
+    await importCredentials(withDisplayableCredential);
   }
 
   return (
     <>
-      <MainButton onClick={testImport} busy={awaitingResult}>Import credential</MainButton>
+      <MainButton onClick={() => testImport(true)} busy={awaitingResult}>Import displayable credential</MainButton>
+      <MainButton onClick={() => testImport(false)} busy={awaitingResult}>Import non displayable credential</MainButton>
       {
         importedVCs &&
         <div className="flex flex-col">
