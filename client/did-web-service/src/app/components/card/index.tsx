@@ -1,3 +1,4 @@
-import SignCard from "./SignCard";
+import LandingCard from "./LandingCard";
+import PortraitCard from "./PortraitCard";
 
-export { SignCard };
+export { LandingCard, PortraitCard };

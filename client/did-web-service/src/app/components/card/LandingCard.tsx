@@ -28,7 +28,7 @@ const CardStyled = styled(Card)(({ theme }) => ({
   },
 }));
 
-export const LandingCard: FC = () => {
+const LandingCard: FC = () => {
   return (
     <CardStyled className="max-xl:w-11/12 lg:w-[450px] sm:w-8/12 inline-block bg-black border-white border-opacity-30 border-2 rounded-3xl relative drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]">
       <div className="body noise-bg">
@@ -78,3 +78,4 @@ export const LandingCard: FC = () => {
     </CardStyled>
   );
 };
+export default LandingCard;

@@ -2,7 +2,7 @@
 import { FC, MouseEventHandler } from "react";
 import { Button, useMediaQuery, useTheme } from "@mui/material";
 import { useRouter } from "next/navigation";
-import { LandingCard } from "@components/card/LandingCard";
+import { LandingCard } from "@components/card";
 import TextBarcode from "@components/text-barcode/TextBarcode";
 import TrinityLogo from "@assets/images/TrinityLogo.svg";
 

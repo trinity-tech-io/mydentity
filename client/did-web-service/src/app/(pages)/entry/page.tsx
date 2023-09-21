@@ -1,6 +1,6 @@
 "use client";
 import { FC } from "react";
-import { SignCard } from "@components/card";
+import { PortraitCard } from "@components/card";
 import TextBarcode from "@components/text-barcode/TextBarcode";
 import DarkButton from "@components/button/DarkButton";
 
@@ -23,7 +23,7 @@ const EntryPage: FC = () => {
         />
       </div>
       <div className="flex justify-center gap-1 md:gap-4">
-        <SignCard
+        <PortraitCard
           content={
             <>
               <TextBarcode
@@ -47,7 +47,7 @@ const EntryPage: FC = () => {
             </DarkButton>
           }
         />
-        <SignCard
+        <PortraitCard
           content={
             <>
               <TextBarcode

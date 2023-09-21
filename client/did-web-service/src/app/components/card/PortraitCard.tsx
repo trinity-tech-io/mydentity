@@ -50,12 +50,12 @@ const CardStyled = styled(Card)(({ theme }) => ({
   },
 }));
 
-interface SignCardType {
+interface PortraitCardType {
   content: ReactNode;
   footer: ReactNode;
 }
 
-const SignCard: FC<SignCardType> = (props) => {
+const PortraitCard: FC<PortraitCardType> = (props) => {
   const { content, footer } = props;
   return (
     <CardStyled className="inline-block w-[45%] xl:w-[40%] md:w-[25%] h-full bg-black border-white border-opacity-30 border-2 rounded-3xl relative drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]">
@@ -75,4 +75,4 @@ const SignCard: FC<SignCardType> = (props) => {
     </CardStyled>
   );
 };
-export default SignCard;
+export default PortraitCard;
