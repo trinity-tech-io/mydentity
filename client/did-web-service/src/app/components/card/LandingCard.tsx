@@ -3,6 +3,7 @@ import { Box, Divider, styled } from "@mui/material";
 import ChipIcon from "@assets/images/card/Chip.svg";
 import WaveLogoIcon from "@assets/images/card/WaveLogo.svg";
 import CircleVector from "@assets/images/card/Circle.svg";
+import clsx from "clsx";
 
 const CardStyled = styled(Box)(({ theme }) => ({
   borderRadius: "1.5rem",
@@ -32,9 +33,17 @@ const CardStyled = styled(Box)(({ theme }) => ({
   },
 }));
 
-const LandingCard: FC<{ children?: ReactNode }> = ({children}) => {
+const LandingCard: FC<{ className?: string; children?: ReactNode }> = ({
+  className = "",
+  children,
+}) => {
   return (
-    <CardStyled className="max-xl:w-11/12 lg:w-[450px] sm:w-8/12 inline-block bg-black border-white border-opacity-30 border-2 relative drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]">
+    <CardStyled
+      className={clsx(
+        "inline-block border-white border-opacity-30 border-2 relative drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]",
+        className
+      )}
+    >
       <div className="body noise-bg">
         <div className="absolute w-4/6">
           <CircleVector width="100%" height="100%" viewBox="0 0 349 354" />
@@ -52,9 +61,7 @@ const LandingCard: FC<{ children?: ReactNode }> = ({children}) => {
               <WaveLogoIcon width="100%" height="100%" viewBox="0 0 32 40" />
             </div>
           </div>
-          <div className="flex flex-1 items-end">
-            {children}
-          </div>
+          <div className="flex flex-1 items-end">{children}</div>
           <Divider />
         </div>
       </div>

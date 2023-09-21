@@ -1,5 +1,5 @@
 "use client";
-import { FC } from "react";
+import { FC, MouseEventHandler } from "react";
 import { useMediaQuery, useTheme } from "@mui/material";
 import { PortraitCard } from "@components/card";
 import TextBarcode from "@components/text-barcode/TextBarcode";
@@ -11,6 +11,10 @@ const EntryPage: FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const barcodeHeight = isMobile ? 20 : 25;
+
+  const handleButton: MouseEventHandler<HTMLButtonElement> = (e) => {
+    router.push(e.currentTarget.value);
+  };
 
   return (
     <div className="text-center">
@@ -65,7 +69,12 @@ const EntryPage: FC = () => {
             </>
           }
           footer={
-            <DarkButton color="primary" className="w-4/5 md:w-3/5">
+            <DarkButton
+              color="primary"
+              className="w-4/5 md:w-3/5"
+              value="dashboard"
+              onClick={handleButton}
+            >
               SIGN IN
             </DarkButton>
           }
@@ -100,9 +109,8 @@ const EntryPage: FC = () => {
             <DarkButton
               color="primary"
               className="w-4/5 md:w-3/5"
-              onClick={(): void => {
-                router.push("register");
-              }}
+              value="register"
+              onClick={handleButton}
             >
               SIGN UP
             </DarkButton>

@@ -8,7 +8,7 @@ import { BlackButton } from "@components/button";
 import TrinityLogo from "@assets/images/TrinityLogo.svg";
 
 const WelcomeCard: FC = () => (
-  <LandingCard>
+  <LandingCard className="max-xl:w-11/12 lg:w-[450px] sm:w-8/12 bg-black">
     <div>
       <TextBarcode
         value="Welcome to future"
@@ -32,7 +32,7 @@ const Home: FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const launchApp: MouseEventHandler<HTMLButtonElement> = () => {
-    router.push("dashboard");
+    router.push("entry");
   };
 
   return isMobile ? (
