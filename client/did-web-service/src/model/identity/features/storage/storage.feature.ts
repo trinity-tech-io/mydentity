@@ -17,7 +17,6 @@ export class StorageFeature implements IdentityFeature {
 
     const rawIndex = await localStorage.getItem(INDEX_STORAGE_KEY) || null;
     this.index = rawIndex ? JSON.parse(rawIndex) : [];
-    //console.log("Connectivity files index", this.index);
   }
 
   private async saveIndex(): Promise<void> {

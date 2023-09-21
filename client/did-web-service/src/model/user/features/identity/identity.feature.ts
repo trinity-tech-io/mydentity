@@ -43,7 +43,7 @@ export class IdentityFeature implements UserFeature {
   }
 
   private async fetchIdentities(): Promise<Identity[]> {
-    logger.log("identities", "Fetching identities");
+    logger.log("identities", "Fetching identities", this.user);
     return identityService.listIdentities();
   }
 }

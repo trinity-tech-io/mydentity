@@ -28,7 +28,6 @@ const RequestCredentialsIntent: FC = () => {
     fetchIntent<ConnDID.CredentialDisclosureRequest>(requestId).then(_intent => {
       setLoadingIntent(false);
       setIntent(_intent);
-      console.log('intent result', _intent)
     });
     //}, [searchParams?.rid]);
   }, [requestId]);

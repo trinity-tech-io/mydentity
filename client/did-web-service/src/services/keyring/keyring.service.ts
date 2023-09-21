@@ -123,7 +123,6 @@ export async function getPasskeyChallenge(): Promise<ChallengeEntity> {
         }
     }
     `,
-      fetchPolicy: "network-only",
       variables: {}
     });
   });

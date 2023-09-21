@@ -94,6 +94,17 @@ class GraphQLService {
       this.apolloClient = new ApolloClient({
         link: from([errLink, authLink, httpLink]),
         cache: new InMemoryCache(),
+        // No cache, this creates issues when switching user (ie: fetch self user uses cached data from previous user)
+        defaultOptions: {
+          watchQuery: {
+            fetchPolicy: 'no-cache',
+            errorPolicy: 'ignore',
+          },
+          query: {
+            fetchPolicy: 'no-cache',
+            errorPolicy: 'all',
+          },
+        }
       });
 
       this.initialized = true;

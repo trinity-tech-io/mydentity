@@ -1,9 +1,11 @@
+import { callWithUnlock } from "@components/security/unlock-key-prompt/call-with-unlock";
 import { Credential } from "@model/credential/credential";
 import { ProfileCredential } from "@model/credential/profile-credential";
 import { Identity } from "@model/identity/identity";
 import { withCaughtAppException } from "@services/error.service";
 import { AvatarInfoToSubject } from "@services/identity-profile-info/converters/avatar-converter";
 import { findProfileInfoByKey, findProfileInfoByTypes } from "@services/identity-profile-info/identity-profile-info.service";
+import { logger } from "@services/logger";
 import { AdvancedBehaviorSubject } from "@utils/advanced-behavior-subject";
 import { PermanentCache } from "@utils/caches/permanent-cache";
 import { isClientSide } from "@utils/client-server";
@@ -12,7 +14,6 @@ import moment from "moment";
 import { BehaviorSubject, map } from "rxjs";
 import { IdentityFeature } from "../identity-feature";
 import { editAvatarOnHive } from "./upload-avatar";
-import { callWithUnlock } from "@components/security/unlock-key-prompt/call-with-unlock";
 
 /**
  * Caches to store identities names and avatars, so we can show their base information
@@ -173,7 +174,7 @@ export class ProfileFeature implements IdentityFeature {
     }
     else {
       // TODO - to user
-      console.log("Failed to upload avatar to hive");
+      logger.error("profile", "Failed to upload avatar to hive");
     }
   }
 

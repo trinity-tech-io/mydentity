@@ -61,28 +61,18 @@ export async function saveAuthUser(user: User): Promise<void> {
 /**
  * Based on the authenticated user id, fetch the whole user profile and
  * updates the active user state.
- *
- * @param curToken current access token for user data transferring.
- * @param refreshToken current refresh token.
  */
-export async function fetchSelfUser(curToken?: string, refreshToken?: string): Promise<User> {
+export async function fetchSelfUser(): Promise<User> {
   return fetchUserQueue.add(async () => {
     logger.log("users", "Fetching self user profile");
-
-    if (curToken) {
-      // update for apollo client
-      localStorage.setItem("access_token", curToken);
-    }
-    if (refreshToken)
-      localStorage.setItem("refresh_token", refreshToken);
 
     const result = await withCaughtAppException(async () => {
       return (await getApolloClient()).query<{ getSelfUser: UserDTO }>({
         query: gql`
-        query GetSelfUser {
-          getSelfUser { ${graphQLPublicUserFields} }
-        }
-      `
+          query GetSelfUser {
+            getSelfUser { ${graphQLPublicUserFields} }
+          }
+        `
       });
     });
 
@@ -127,26 +117,27 @@ export async function authenticateWithEmailAddress(emailAddress: string): Promis
  * those tokens are saved as new active tokens to identity the active user and call APIs later.
  */
 export async function updateUserByToken(accessToken: string, refreshToken: string): Promise<User> {
-  const curAccessToken = localStorage.getItem('access_token');
-  const curRefreshToken = localStorage.getItem('refresh_token');
   localStorage.setItem("access_token", accessToken);
   localStorage.setItem("refresh_token", refreshToken);
 
   try {
-    const user = await fetchSelfUser(accessToken);
+    const user = await fetchSelfUser();
 
     await checkNewAccessTokenForBrowserKey(accessToken);
+
+    logger.log("user", "Updated user by token, got user:", user);
 
     return user;
   } catch (e) {
     logger.error('userService', 'failed to fetch user info.: ', e);
-    localStorage.setItem("access_token", curAccessToken);
-    localStorage.setItem("refresh_token", curRefreshToken);
+    signOut();
     return null;
   }
 }
 
 export function signOut(): void {
+  logger.log("user", "Signing out from current user. Deleting user and access tokens");
+
   localStorage.removeItem("authenticated_user")
   localStorage.removeItem("access_token");
   localStorage.removeItem("refresh_token");
@@ -291,8 +282,7 @@ export async function authenticateWithPasskey(): Promise<boolean> {
       `,
       variables: {
         authKey: authKey,
-      },
-      fetchPolicy: "network-only" // No apollo cache, force fetch
+      }
     });
   });
 

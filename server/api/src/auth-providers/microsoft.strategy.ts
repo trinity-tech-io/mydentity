@@ -42,7 +42,6 @@ export class MicrosoftStrategy extends PassportStrategy(Strategy, 'microsoft') {
     profile: any,
     done: VerifyCallback,
   ): Promise<any> {
-    console.log(`microsoft validate:`, profile);
     done(null, this.getUserByProfile(profile, accessToken));
   }
 }

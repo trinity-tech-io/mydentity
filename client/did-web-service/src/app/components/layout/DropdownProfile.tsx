@@ -33,7 +33,6 @@ export const DropdownUserProfile: FC<{
 
   // close on click outside
   useEffect(() => {
-    // console.log('>>>>>> enter useEffect')
     const updateUserDesc = (user: User) => {
       if (user.type === 'MICROSOFT') {
         setUserTypeDesc('Microsoft');

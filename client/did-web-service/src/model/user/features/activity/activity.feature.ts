@@ -16,7 +16,7 @@ export class ActivityFeature implements UserFeature {
     constructor(protected user: User) { }
 
     private async fetchActivities(): Promise<Activity[]> {
-        logger.log("activity", "Fetch activities");
+        logger.log("activity", "Fetch activities", this.user);
 
         const { data } = await withCaughtAppException(async () => {
             return await (await getApolloClient()).query<{ activities: ActivityDto[] }>({

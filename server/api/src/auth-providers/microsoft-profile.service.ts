@@ -1,6 +1,6 @@
-import {Injectable} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from "@nestjs/config";
 import * as request from 'request';
-import {ConfigService} from "@nestjs/config";
 
 @Injectable()
 export class MicrosoftProfileService {
@@ -60,7 +60,7 @@ export class MicrosoftProfileService {
 
         const data = JSON.parse(body);
         const email = data.mail;
-        console.log('[microsoft] User Email:', email);
+
         resolve(email);
         return email;
       });
