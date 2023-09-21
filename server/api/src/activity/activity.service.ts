@@ -54,7 +54,7 @@ export class ActivityService {
         appendObj('userEmail');
         appendField('userEmailProvider');
         appendField('userEmailAddress');
-        appendObj('identity');
+        appendObj('identity', true);
         appendField('identityDid');
         appendField('credentialsCount');
         appendField('appDid');

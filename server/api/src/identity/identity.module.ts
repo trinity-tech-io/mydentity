@@ -7,6 +7,7 @@ import { KeyRingModule } from 'src/key-ring/key-ring.module';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { IdentityResolver } from './identity.resolver';
 import { IdentityService } from './identity.service';
+import { ActivityModule } from "../activity/activity.module";
 
 @Module({
   providers: [
@@ -19,7 +20,8 @@ import { IdentityService } from './identity.service';
     KeyRingModule,
     DIDModule,
     DIDPublishingModule,
-    AuthModule
+    AuthModule,
+    ActivityModule,
   ],
   exports: [
     IdentityService

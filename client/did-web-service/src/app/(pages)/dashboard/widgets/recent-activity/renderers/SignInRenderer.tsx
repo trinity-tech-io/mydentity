@@ -25,7 +25,7 @@ export const SignInRenderer: FC<{ activity: Activity }> = ({ activity }) => {
         </Avatar>
       )}
       <div>
-        You signed in from browser {activity.browserName}
+        You signed in with email address {activity.userEmailAddressStr} from browser {activity.browserNameStr}
       </div>
     </div>
   )

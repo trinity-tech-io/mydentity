@@ -8,6 +8,8 @@ import { AuthProvidersController } from './auth-providers.controller';
 import { AuthProviderResolver } from "./auth-providers.resolver";
 import { MicrosoftProfileService } from './microsoft-profile.service';
 import { MicrosoftStrategy } from './microsoft.strategy';
+import { ActivityModule } from "../activity/activity.module";
+import { BrowsersModule } from "../browsers/browsers.module";
 
 @Module({
   imports: [
@@ -23,6 +25,8 @@ import { MicrosoftStrategy } from './microsoft.strategy';
     }),
     forwardRef(() => AuthModule),
     UserModule,
+    ActivityModule,
+    BrowsersModule,
   ],
   controllers: [AuthProvidersController],
   providers: [

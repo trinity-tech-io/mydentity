@@ -14,7 +14,7 @@ export const BindEmailRenderer: FC<{ activity: Activity }> = ({ activity }) => {
     <div className='flex flex-row gap-2 items-center'>
 
       <div>
-        Bound email address {/* TODO: show email address */}
+        Bound email address {activity.userEmailAddressStr}
       </div>
     </div>
   )

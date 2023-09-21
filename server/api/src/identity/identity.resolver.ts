@@ -1,6 +1,6 @@
 import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { Browser, User } from '@prisma/client/main';
+import { Browser, User, ActivityType } from '@prisma/client/main';
 import { CurrentUser } from 'src/auth/currentuser.decorator';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CurrentBrowser } from 'src/browsers/browser-user.decorator';
@@ -12,22 +12,29 @@ import { IdentityEntity } from './entities/identity.entity';
 import { PublishResultEntity } from './entities/publish-result.entity';
 import { TransactionEntity } from './entities/transaction.entity';
 import { IdentityService } from './identity.service';
+import { ActivityService } from "../activity/activity.service";
 
 @Resolver(() => IdentityEntity)
 export class IdentityResolver {
-  constructor(private readonly identityService: IdentityService) { }
+  constructor(private readonly identityService: IdentityService,
+              private readonly activityService: ActivityService
+  ) { }
 
   @UseGuards(JwtAuthGuard)
   @Mutation(() => IdentityEntity)
-  createIdentity(@Args('input') createIdentityInput: CreateIdentityInput, @CurrentUser() user: User, @CurrentBrowser() browser: Browser) {
-    return this.identityService.create(createIdentityInput, user, browser);
+  async createIdentity(@Args('input') createIdentityInput: CreateIdentityInput, @CurrentUser() user: User, @CurrentBrowser() browser: Browser) {
+    const identity = await this.identityService.create(createIdentityInput, user, browser);
+    await this.activityService.createActivity(user.id, {type: ActivityType.IDENTITY_CREATED, identityId: identity.did, identityDid: identity.did})
+    return identity;
   }
 
   @UseGuards(JwtAuthGuard)
   @Mutation(() => Boolean)
   async deleteIdentity(@Args('identityDid') identityDid: string, @CurrentUser() user: User) {
     await this.identityService.ensureOwnedIdentity(identityDid, user);
-    return this.identityService.deleteIdentity(identityDid, user);
+    const result = await this.identityService.deleteIdentity(identityDid, user);
+    await this.activityService.createActivity(user.id, {type: ActivityType.IDENTITY_DELETED, identityDid: identityDid});
+    return result;
   }
 
   @UseGuards(JwtAuthGuard)

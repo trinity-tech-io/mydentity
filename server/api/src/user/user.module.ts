@@ -5,6 +5,8 @@ import { PrismaModule } from 'src/prisma/prisma.module';
 import { CommonEmailingModule } from "../emailing/emailing.module";
 import { UserResolver } from './user.resolver';
 import { UserService } from './user.service';
+import { ActivityModule } from "../activity/activity.module";
+import { BrowsersModule } from "../browsers/browsers.module";
 
 @Module({
   providers: [
@@ -16,6 +18,8 @@ import { UserService } from './user.service';
     forwardRef(() => AuthModule),
     forwardRef(() => CommonEmailingModule),
     forwardRef(() => KeyRingModule),
+    forwardRef(() => ActivityModule),
+    forwardRef(() => BrowsersModule),
   ],
   exports: [
     UserResolver,

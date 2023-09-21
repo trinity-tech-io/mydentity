@@ -18,6 +18,9 @@ export class ActivityEntity {
     @Field(() => UserEmailProvider, { nullable: true })
     userEmailProvider?: UserEmailProvider;
 
+    @Field(() => String, { nullable: true })
+    userEmailAddress?: string;
+
     @Field(() => IdentityEntity, { nullable: true })
     identity?: IdentityEntity;
 

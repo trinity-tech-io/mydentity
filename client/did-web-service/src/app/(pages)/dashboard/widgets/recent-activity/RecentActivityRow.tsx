@@ -48,7 +48,7 @@ export const RecentActivityRow: FC<{
         <div>{renderer}</div>
       </td>
       <td className="p-2 whitespace-nowrap">
-        <div className="text-left">{activity.getCreatedAtStr()}</div>
+        <div className="text-left">{activity.createdAtStr}</div>
       </td>
     </tr>
   )

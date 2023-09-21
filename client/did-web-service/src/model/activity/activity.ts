@@ -7,17 +7,16 @@ import { Identity } from "@model/identity/identity";
 export class Activity {
     public id: string;
     public type: string;
-    public userEmail?: UserEmail;
+    private userEmail?: UserEmail;
     public userEmailProvider?: string;
-    public userEmailAddress?: string;
-    public identity?: Identity;
-    public identityDid?: string;
+    private userEmailAddress?: string;
+    private identity?: Identity;
+    private identityDid?: string;
     public credentialsCount?: number;
     public appDid?: string;
-
-    public browser?: Browser;
-    public browserName?: string;
-    public createdAt: Date;
+    private browser?: Browser;
+    private browserName?: string;
+    private createdAt: Date;
 
     public static async fromJson(json: ActivityDto): Promise<Activity> {
         const activity: Activity = new Activity();
@@ -37,7 +36,19 @@ export class Activity {
         return activity;
     }
 
-    public getCreatedAtStr(): string {
+    public get createdAtStr(): string {
         return (moment(this.createdAt)).format('DD-MMM-YYYY HH:mm:ss')
+    }
+
+    public get userEmailAddressStr(): string {
+        return this.userEmail ? this.userEmail.email : this.userEmailAddress;
+    }
+
+    public get browserNameStr(): string {
+        return this.browser ? this.browser.name : this.browserName;
+    }
+
+    public get identityDidStr(): string {
+        return this.identity ? this.identity.did : this.identityDid;
     }
 }

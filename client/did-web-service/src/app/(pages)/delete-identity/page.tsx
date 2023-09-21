@@ -9,8 +9,6 @@ import { identityService } from '@services/identity/identity.service';
 import { authUser$ } from '@services/user/user.events';
 import { useRouter } from 'next/navigation';
 import { FC, useState } from 'react';
-import { ActivityType } from "@model/activity/activity-type";
-import { ActivityFeature } from "@model/user/features/activity/activity.feature";
 
 const TAG = "delete-identity";
 
@@ -30,10 +28,7 @@ const DeleteIdentityPage: FC = () => {
     // Go back to dashboard instantly
     router.replace("/dashboard");
     // Deletion
-    const success = await activeUser.get("identity").deleteIdentity(identityStringToDelete);
-    if (success) {
-      await ActivityFeature.createActivity({type: ActivityType.IDENTITY_DELETED, identityDid: identityStringToDelete});
-    }
+    await activeUser.get("identity").deleteIdentity(identityStringToDelete);
   }
 
   if (!mounted)
