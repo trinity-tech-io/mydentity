@@ -7,6 +7,7 @@ import { UserDTO } from "@model/user/user.dto";
 import { checkNewAccessTokenForBrowserKey } from "@services/browser.service";
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
+import { identityService } from "@services/identity/identity.service";
 import { getPasskeyChallenge } from "@services/keyring/keyring.service";
 import { logger } from "@services/logger";
 import { MsSignUpInput } from "@services/user/ms-sign-up.input";
@@ -141,7 +142,9 @@ export function signOut(): void {
   localStorage.removeItem("authenticated_user")
   localStorage.removeItem("access_token");
   localStorage.removeItem("refresh_token");
+
   authUser$.next(null);
+  identityService.setActiveIdentity(null);
 }
 
 /**
