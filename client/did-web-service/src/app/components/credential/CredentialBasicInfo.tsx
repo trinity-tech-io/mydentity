@@ -2,6 +2,7 @@ import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { Credential } from '@model/credential/credential';
 import { Box, Grid, ListItemButton, ListItemIcon, Typography } from "@mui/material";
 import Image from 'next/image';
+import { JsonViewer } from './JsonViewer';
 
 interface Props {
     credential: Credential;
@@ -18,7 +19,7 @@ function CredentialBasicInfo(props: Props): JSX.Element {
       </Typography>
 
       <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-        {credential.getDisplayValue()}
+        <JsonViewer data={credential.getDisplayValue()}></JsonViewer>
       </Typography>
 
       <Grid container spacing={2} sx={{ mt: 1 }}>

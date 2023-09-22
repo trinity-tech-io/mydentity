@@ -76,7 +76,7 @@ export class Credential {
     }
   }
 
-  protected getDisplayableCredentialDescription(): string {
+  protected getDisplayableCredentialDescription(): any {
     const credProps = this.verifiableCredential.getSubject().getProperties();
     if ("displayable" in credProps) {
       // rawDescription sample: hello ${firstName} ${lastName.test}
@@ -101,15 +101,40 @@ export class Credential {
         return description;
       }
     }
+    // the type is not displayable
+    const otherDescription = this.getOtherDescription()
+    if (otherDescription != null && otherDescription != undefined) {
+      return otherDescription
+    }
     else {
       return null;
     }
   }
 
-  /**
-   * Tries to extract a user friendly "description" of the credential, ie a readable summary
-   * of its content.
-   */
+  // the type is not displayable
+  protected getOtherDescription(): any {
+    const subject = this.verifiableCredential.getSubject().getProperties();
+    const concatenatedValues: any[] = [];  // Initialize an array with a single element
+    let allValuesValid = true;  // Assume all values are valid initially
+
+    // if the type is not displayable , but the json contains only one field and the field type is string/number/boolean, then we just show that value as value, but without the blue "name" key (don't use json ui tree)
+    for (const key in subject) {
+      const value = subject[key];
+      const type = typeof value;
+      if (type === 'string' || type === 'boolean' || type === 'number') {
+        concatenatedValues.push(value)
+      } else {
+        allValuesValid = false;
+      }
+    }
+    if (allValuesValid) {
+      return concatenatedValues
+    }
+
+    // if the type is not displayable credential, and the json contains more than one string/boolean/number field, then we show the json tree.
+    return subject
+  }
+
   protected prepareDisplayValue(): void {
     const displayableCredentialDescription = this.getDisplayableCredentialDescription();
     if (displayableCredentialDescription)
@@ -128,11 +153,13 @@ export class Credential {
     return this.displayValue
   }
 
-  /**
-   * Values representing the credential content, if the credential is not a DisplayableCredential.
-   * typically, this is the list JSON fields.
-   * Returns null if nothing can be displayed easily.
-   */
+  public getContentTree = (): any => {
+    const subject = this.verifiableCredential.getSubject().getProperties();
+  // TODO:
+
+    return subject
+  }
+
   public getValueItems = (): ValueItem[] => {
     const fragment = this.verifiableCredential.getId().getFragment();
     if (fragment === "avatar")
@@ -213,21 +240,35 @@ export class Credential {
     else { // No remote picture to fetch
       // If the credential implements the DisplayableCredential interface, we get the icon from this.
       if ("displayable" in subject) {
-        this.representativeIcon$.next((subject["displayable"] as JSONObject)["icon"] as string);
+        const icon = (subject["displayable"] as JSONObject)["icon"] as string
+        if (icon !== "nowhere")
+          this.representativeIcon$.next(icon);
+        else {
+          // Fallback for old style credentials - try to guess an icon, or use a defaut one.
+          this.setDefaultIcon()
+        }
       }
       else {
         // Fallback for old style credentials - try to guess an icon, or use a defaut one.
-
-        const fragmentInfo = this.verifiableCredential.getType();
-        // TODO: NOT GOOD HERE - SHOULD BE IN THE PROFILE CREDENTIAL CLASS
-        const profileInfo = findProfileInfoByTypes(fragmentInfo);
-        const fragment = profileInfo?.key;
-        const key = defaultProfileIcons[fragment]
-        this.representativeIcon$.next(key);
+        this.setDefaultIcon()
       }
 
       this.loadIconWithFallback();
     }
+  }
+
+  private setDefaultIcon(): void {
+    const fragmentInfo = this.verifiableCredential.getType();
+    // TODO: NOT GOOD HERE - SHOULD BE IN THE PROFILE CREDENTIAL CLASS
+    const profileInfo = findProfileInfoByTypes(fragmentInfo);
+    const fragment = profileInfo?.key;
+    const key = defaultProfileIcons[fragment]
+    if (key === undefined || key === null) {
+      const defaultIcon = defaultProfileIcons['default'];
+      this.representativeIcon$.next(defaultIcon);
+    }
+    else
+      this.representativeIcon$.next(key);
   }
 
   /**

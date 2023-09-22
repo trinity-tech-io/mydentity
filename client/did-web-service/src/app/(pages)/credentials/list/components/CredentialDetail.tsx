@@ -1,5 +1,6 @@
 import CheckIcon from '@assets/images/check-full.svg';
 import WarningIcon from '@assets/images/warning.svg';
+import { JsonViewer } from "@components/credential/JsonViewer";
 import { CredentialAvatar } from '@components/credential/CredentialAvatar';
 import { VerticalStackLoadingCard } from '@components/loading-cards/vertical-stack-loading-card/VerticalStackLoadingCard';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
@@ -36,7 +37,7 @@ export const CredentialDetailWidget: FC = () => {
               </Typography>
 
               <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-                {activeCredential.getDisplayValue()}
+                <JsonViewer data={activeCredential.getDisplayValue()}></JsonViewer>
               </Typography>
 
               <Grid container spacing={2} sx={{ mt: 1 }}>
