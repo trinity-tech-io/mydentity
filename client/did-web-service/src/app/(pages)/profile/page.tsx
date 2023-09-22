@@ -150,7 +150,7 @@ const Profile: FC = () => {
       let isSuccess = false;
       try {
         // Call the API with auto-retry if user unlock method is required.
-        isSuccess = await callWithUnlock(async () => !!await identityProfileFeature.createProfileCredential('', editCredentialValue.info.typesForCreation(), editCredentialValue.info.key, editCredentialValue.value));
+        isSuccess = !!await identityProfileFeature.createProfileCredential('', editCredentialValue.info.typesForCreation(), editCredentialValue.info.key, editCredentialValue.value);
       } catch (error) {
         logger.error(TAG, 'Create credential error', error);
       }
