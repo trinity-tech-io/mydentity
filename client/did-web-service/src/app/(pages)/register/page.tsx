@@ -2,7 +2,8 @@
 import React, { FC, useRef, useState } from "react";
 import clsx from "clsx";
 // import Xarrow from "react-xarrows";
-import { Card, useMediaQuery, useTheme, styled, FormControl, Input, InputAdornment, Fade, Box } from "@mui/material";
+import { Card, useMediaQuery, useTheme, styled, FormControl, Input, InputAdornment, Fade, Box, IconButton } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import TextBarcode from "@components/text-barcode/TextBarcode";
 import { BlackButton } from "@components/button";
 import { LandingCard } from "@components/card";
@@ -38,6 +39,10 @@ const CaseWrapper = styled(Box)(({ theme }) => ({
     transform: "translateX(-100%) rotateY(-180deg)",
   },
 }));
+
+const IconButtonStyled = styled(IconButton)(({ theme }) => ({
+  color: 'white'
+}))
 
 const CardCase = styled(Card)(({ theme }) => ({
   minWidth: 180,
@@ -77,15 +82,50 @@ const FormControlStyled = styled(FormControl)(({ theme }) => ({
       opacity: 0.3,
     },
   },
-  input: {
+  "#holder-name": {
     fontWeight: 600,
     fontSize: "15pt",
     textAlign: "center",
     caretColor: "white",
     color: "rgb(255 255 255 / 65%)",
   },
+  ".password-input": {
+    color: "white",
+  },
+  ".password-input.redacted": {
+    fontFamily: 'Redacted Script'
+  }
 }));
 
+const PasswordInput: FC = () => {
+  const [showPassword, setShowPassword] = React.useState(false);
+  const handleClickShowPassword: React.MouseEventHandler = () =>
+    setShowPassword((show) => !show);
+  const handleMouseDownPassword: React.MouseEventHandler = (event) => {
+    event.preventDefault();
+  };
+
+  return (
+    <Input
+      type={showPassword?"input":"password"}
+      className={clsx("password-input", !showPassword&&"redacted")}
+      inputProps={{
+        maxLength: 100,
+      }}
+      endAdornment={
+        <InputAdornment position="end">
+          <IconButtonStyled
+            aria-label="toggle password visibility"
+            onClick={handleClickShowPassword}
+            onMouseDown={handleMouseDownPassword}
+          >
+            {showPassword ? <VisibilityOff /> : <Visibility />}
+          </IconButtonStyled>
+        </InputAdornment>
+      }
+    />
+  );
+};
 const RegisterPage: FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -146,13 +186,13 @@ const RegisterPage: FC = () => {
                         <div className="px-[10%] pb-4 w-full">
                           <FormControlStyled fullWidth>
                             <label
-                              htmlFor="name-adornment"
+                              htmlFor="holder-name"
                               className="text-white text-[10px]"
                             >
                               ACCOUNT NAME
                             </label>
                             <Input
-                              id="name-adornment"
+                              id="holder-name"
                               inputProps={{
                                 maxLength: 30,
                               }}
@@ -172,7 +212,30 @@ const RegisterPage: FC = () => {
             <div className="card-face back">
               <CardCase className="relative w-full md:pb-2">
                 <div className="absolute inset-0 p-2">
-                  <div className="dashed-body w-full h-full rounded-2xl p-1.5"></div>
+                  <div className="dashed-body w-full h-full rounded-2xl p-1.5">
+                    <div className="px-6 py-8 w-full">
+                      <div className="flex flex-col gap-5">
+                        <FormControlStyled fullWidth>
+                          <label
+                            htmlFor="name-adornment"
+                            className="text-white text-[10px] text-left pb-2"
+                          >
+                            PASSWORD
+                          </label>
+                          <PasswordInput />
+                        </FormControlStyled>
+                        <FormControlStyled fullWidth>
+                          <label
+                            htmlFor="name-adornment"
+                            className="text-white text-[10px] text-left pb-2"
+                          >
+                            CONFIRM PASSWORD
+                          </label>
+                          <PasswordInput />
+                        </FormControlStyled>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </CardCase>
             </div>
