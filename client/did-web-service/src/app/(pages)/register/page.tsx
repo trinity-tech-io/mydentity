@@ -23,6 +23,54 @@ import TextBarcode from "@components/text-barcode/TextBarcode";
 import { BlackButton } from "@components/button";
 import { LandingCard } from "@components/card";
 
+const DescriptionText = styled("div")(({ theme }) => ({
+  ".fade-in": {
+    animation: `blurFadeIn 2000ms ${theme.transitions.easing.easeInOut} forwards`,
+    MsAnimation: `blurFadeIn 2000ms ${theme.transitions.easing.easeInOut} forwards`,
+    WebkitAnimation: `blurFadeIn 2000ms ${theme.transitions.easing.easeInOut} forwards`,
+    MozAnimation: `blurFadeIn 2000ms ${theme.transitions.easing.easeInOut} forwards`,
+  },
+  ".fade-out": {
+    animation: `blurFadeOut 2000ms ${theme.transitions.easing.easeInOut} forwards`,
+    MsAnimation: `blurFadeOut 2000ms ${theme.transitions.easing.easeInOut} forwards`,
+    WebkitAnimation: `blurFadeOut 2000ms ${theme.transitions.easing.easeInOut} forwards`,
+    MozAnimation: `blurFadeOut 2000ms ${theme.transitions.easing.easeInOut} forwards`,
+  },
+  "@keyframes blurFadeIn": {
+    "0%": {
+      opacity: 0,
+      textShadow: "0px 0px 20px #fff",
+      WebkitTransform: "scale(1.2)",
+      transform: "scale(1.2)",
+    },
+    "30%": {
+      opacity: 1,
+      textShadow: "0px 0px 0px #fff",
+      WebkitTransform: "scale(1)",
+      transform: "scale(1)",
+    },
+    "100%": {
+      transform: "scale(1)",
+    },
+  },
+  "@keyframes blurFadeOut": {
+    "0%": {
+      opacity: 1,
+      textShadow: "0px 0px 0px #fff",
+      WebkitTransform: "scale(1.2)",
+      transform: "scale(1.2)",
+    },
+    "30%": {
+      opacity: 0,
+      textShadow: "0px 0px 20px #fff",
+      WebkitTransform: "scale(0)",
+      transform: "scale(0)",
+    },
+    "100%": {
+      transform: "scale(0)",
+    },
+  },
+}));
 const CaseWrapper = styled(Box)(({ theme }) => ({
   minWidth: 180,
   perspective: 600,
@@ -205,29 +253,61 @@ const RegisterPage: FC = () => {
 
   return (
     <div className="text-center">
-      <div className="inline-block text-left mb-6 md:mb-10">
-        <TextBarcode
-          value={
-            isMobile
-              ? "personalize card holder"
-              : "Let's personalize this virtual card holder"
-          }
-          text="Let's personalize this virtual card holder with your"
-          height={30}
-          textClassName={
-            isMobile ? "tracking-[1px] text-sm" : "tracking-[3px] text-xl"
-          }
-        />
-        <br />
-        <TextBarcode
-          value={
-            isMobile ? "preferred nickname" : "preferred nickname as an account"
-          }
-          text="preferred nickname as an account name."
-          height={30}
-          textClassName={isMobile ? "" : "tracking-[3px] text-xl"}
-        />
-      </div>
+      <DescriptionText className="inline-block text-left mb-6 md:mb-10 relative">
+        <div className={visibleNextForm ? "fade-out" : "fade-in"}>
+          <TextBarcode
+            value={
+              isMobile
+                ? "personalize card holder"
+                : "Let's personalize this virtual card holder"
+            }
+            text="Let's personalize this virtual card holder with your"
+            height={30}
+            textClassName={
+              isMobile ? "tracking-[1px] text-sm" : "tracking-[3px] text-xl"
+            }
+          />
+          <br />
+          <TextBarcode
+            value={
+              isMobile
+                ? "preferred nickname"
+                : "preferred nickname as an account"
+            }
+            text="preferred nickname as an account name."
+            height={30}
+            textClassName={isMobile ? "" : "tracking-[3px] text-xl"}
+          />
+        </div>
+        <div
+          className={clsx(
+            "absolute w-full top-0",
+            visibleNextForm ? "fade-in" : "opacity-0"
+          )}
+        >
+          <TextBarcode
+            value={
+              isMobile
+                ? "personalize card holder"
+                : "Let's personalize this virtual card holder"
+            }
+            text="Now, let's add a robust password. We'll guide you next on"
+            height={30}
+            textClassName={isMobile ? "text-sm" : "tracking-[1px] text-xl"}
+          />
+          <br />
+          <TextBarcode
+            value={
+              isMobile
+                ? "preferred nickname"
+                : "preferred nickname as an account"
+            }
+            text="how to secure your account and identities."
+            height={30}
+            textClassName={isMobile ? "" : "tracking-[2px] text-xl"}
+          />
+        </div>
+      </DescriptionText>
       <div className="w-4/5 max-w-md flex items-center flex-col m-auto">
         <CaseWrapper className="wrapper relative w-full md:pb-2">
           <div className={clsx("card", visibleNextForm && "is-flipped")}>
