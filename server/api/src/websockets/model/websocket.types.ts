@@ -2,6 +2,7 @@
  * server -> client.
  */
 export enum WebSocketEventType {
+  INVALID_TOKEN = 'invalid_token',
   ACTIVITY_CREATED = 'activity_created'
 }
 
@@ -9,5 +10,5 @@ export enum WebSocketEventType {
  * client -> server.
  */
 export enum WebSocketActionType {
-  // Add more type here.
+  HANDSHAKE = 'handshake'
 }

@@ -3,17 +3,20 @@ import { configService } from "./config/config.service";
 import { InternalElastosConnector } from "./elastos-connector/internal-elastos-connector";
 import { hiveInit } from "./hive/hive.service";
 import { DIDWebConnectivityLogger, logger } from "./logger";
+import { webSocketsService } from "@services/websockets/websockets.service";
 
 export function initSync(): void {
   logger.init(console);
   configService.init({
     frontendUrl: process.env.NEXT_PUBLIC_FRONTEND_URL,
     backendUrl: process.env.NEXT_PUBLIC_BACKEND_URL,
+    wsUrl: process.env.NEXT_PUBLIC_WS_URL,
     appDid: process.env.NEXT_PUBLIC_APP_DID
   });
 
   connectorInit(); // NOTE: Async and we can't wait for it here as the root init must be synchronous. TODO: try to improve this in case some early code need this.
   hiveInit();
+  webSocketsService.init();
 }
 
 async function connectorInit(): Promise<void> {

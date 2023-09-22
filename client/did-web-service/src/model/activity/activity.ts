@@ -17,6 +17,7 @@ export class Activity {
     public appDid?: string;
     private browser?: Browser;
     private browserName?: string;
+    private createdAt: Date;
 
     public static async fromJson(json: ActivityDto): Promise<Activity> {
         const activity: Activity = new Activity();

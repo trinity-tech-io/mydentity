@@ -47,7 +47,7 @@ export class WebSocketService {
    */
   private getMessageHandler<T extends ReceivedWSUserMessage>(type: WebSocketActionType): Subject<T> {
     if (!this.onMessageSubjects.has(type))
-      this.onMessageSubjects.set(type, new Subject());
+      this.onMessageSubjects.set(type, new Subject<T>());
     return <Subject<T>>this.onMessageSubjects.get(type);
   }
 

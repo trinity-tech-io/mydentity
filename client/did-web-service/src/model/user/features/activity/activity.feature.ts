@@ -9,11 +9,25 @@ import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { logger } from "@services/logger";
 import { AdvancedBehaviorSubject } from "@utils/advanced-behavior-subject";
+import { onMessage } from "@services/websockets/websocket.events";
+import { WebSocketEventType } from "@services/websockets/websocket.types";
 
 export class ActivityFeature implements UserFeature {
     public activities$ = new AdvancedBehaviorSubject<Activity[]>([], () => this.fetchActivities());
 
-    constructor(protected user: User) { }
+    constructor(protected user: User) {
+        this.connectSocketEvents();
+    }
+
+    private connectSocketEvents(): void {
+        onMessage.subscribe(async e => {
+            if (e.event === WebSocketEventType.ACTIVITY_CREATED) {
+                logger.log('activity feature: ACTIVITY_CREATED, ', e.data);
+                const activity = await Activity.fromJson(e.data);
+                this.activities$.next(this.activities$.value.concat([activity]));
+            }
+        });
+    }
 
     private async fetchActivities(): Promise<Activity[]> {
         logger.log("activity", "Fetch activities", this.user);
