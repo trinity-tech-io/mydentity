@@ -17,9 +17,8 @@ const availableProfileCredentialEntries: ProfileCredentialInfo[] = [
     new CredentialType("https://ns.elastos.org/credentials/profile/name/v1#NameCredential"),
     { converter: new CredentialValueConverterString("name") }
   ),
-  // TODO: user https://ns.elastos.org/credentials/profile/avatar/v1 with schema:avatar  - keep old fields for compatibility
   new ProfileCredentialInfo("avatar",
-    new CredentialType("https://webservice.org#AvatarCredential"),
+    new CredentialType("https://ns.elastos.org/credentials/profile/avatar/v1#AvatarCredential"),
     { converter: new CredentialValueConverterAvatar("avatar") }
   ),
   new ProfileCredentialInfo("email",
@@ -43,7 +42,7 @@ const availableProfileCredentialEntries: ProfileCredentialInfo[] = [
     }
   ),
   new ProfileCredentialInfo("gender",
-    new CredentialType("https://ns.elastos.org/credentials/profile/nationality/v1#GenderCredential"),
+    new CredentialType("https://ns.elastos.org/credentials/profile/gender/v1#GenderCredential"),
     {
       converter: new CredentialValueConverterGender("gender")
     }
