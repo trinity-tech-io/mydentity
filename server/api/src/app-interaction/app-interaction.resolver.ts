@@ -38,12 +38,15 @@ export class AppInteractionResolver {
   async requestedCredentials(@Args('identityInteractingAppId') identityInteractingAppId: string, @CurrentUser() user: User, @CurrentBrowser() browser: Browser) {
     const requestedCredentials = await this.interactingApplicationsService.findRequestedCredentials(identityInteractingAppId);
 
-    return mapAsync(requestedCredentials, async (rc) => {
+    const results = await mapAsync(requestedCredentials, async (rc) => {
       return {
         ...rc,
         credential: await this.credentialsService.credentialWithStringVC(rc.credential, user, browser)
       }
     });
+
+    // Filter null, in case for some reason the real VC could not be loaded
+    return results.filter(c => !!c?.credential);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -51,9 +54,12 @@ export class AppInteractionResolver {
   async importedCredentials(@Args('identityInteractingAppId') identityInteractingAppId: string, @CurrentUser() user: User, @CurrentBrowser() browser: Browser) {
     const importedCredentials = await this.interactingApplicationsService.findImportedCredentials(identityInteractingAppId);
 
-    return mapAsync(importedCredentials, async (c) => {
+    const results = await mapAsync(importedCredentials, async (c) => {
       return this.credentialsService.credentialWithStringVC(c, user, browser)
     });
+
+    // Filter null, in case for some reason the real VC could not be loaded
+    return results.filter(c => !!c);
   }
 
   /* @UseGuards(JwtAuthGuard)

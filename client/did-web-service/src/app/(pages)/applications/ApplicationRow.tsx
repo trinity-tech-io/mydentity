@@ -21,8 +21,8 @@ export const ApplicationRow: FC<{
         <div className="font-bold">{appName}</div>
         <div>{application.interactingApplication.did}</div>
       </div>
-      <div>{requestedCredentials?.length} credential(s) obtained</div>
-      <div>{importedCredentials?.length} credential(s) imported</div>
+      {requestedCredentials && <div>{requestedCredentials.length} credential(s) obtained</div>}
+      {importedCredentials && <div>{importedCredentials?.length} credential(s) imported</div>}
     </div>
   );
 }

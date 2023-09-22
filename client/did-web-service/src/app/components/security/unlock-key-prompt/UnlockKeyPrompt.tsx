@@ -48,6 +48,7 @@ export function UnlockKeyPromptContextProvider(props: any): JSX.Element {
   )
 }
 
+
 const UnlockKeyPrompt: FC = () => {
   const { actions, setActions } = useContext(UnlockKeyPromptContext);
   const [authUser] = useBehaviorSubject(authUser$);
@@ -191,7 +192,7 @@ async function callWithUnlockHandler(request: UnlockRequest<any>, promptMasterKe
       if (auth) {
         // Client side auth provided: try to unlock on the API side and call the original api again
         await unlockMasterKey(auth);
-        const result = await callWithUnlock(request.method)
+        const result = await callWithUnlock(request.method, request.silentCancellation, request.defaultValue, false);
         request.resolve(result);
       }
       else {
@@ -202,7 +203,7 @@ async function callWithUnlockHandler(request: UnlockRequest<any>, promptMasterKe
       }
     }
     else {
-      logger.error("security", "Unhandled callWithUnlock() exception:", e);
+      logger.error("security", "Unhandled callWithUnlock() exception (will get stuck):", e);
     }
   }
 }

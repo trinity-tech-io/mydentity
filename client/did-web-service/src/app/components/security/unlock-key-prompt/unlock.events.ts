@@ -17,6 +17,8 @@ export type UnlockRequest<T> = {
   resolve: (value: any) => any;
   reject: (exception: AppException) => any;
   handled: boolean; // This request has already been handled
+  silentCancellation: boolean;
+  defaultValue: T;
 }
 
 /**

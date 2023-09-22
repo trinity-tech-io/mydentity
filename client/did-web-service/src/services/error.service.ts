@@ -41,8 +41,9 @@ function handleGraphQLError(error: GraphQLError): AppException {
   const appException = AppException.fromJson(originalError);
   if (appException) {
     // Graphql call failed because of a custom exception of our API
-    if (isUnlockException(appException))
-      logger.warn("graphql", "Master key needs to be unlocked");
+    if (isUnlockException(appException)) {
+      // Silent, will be caught by callers
+    }
     else
       logger.error("graphql", "Custom API exception when calling GraphQL method:", originalMethod, originalError);
     return appException;
@@ -123,7 +124,7 @@ export async function withCaughtAppException<T>(call: () => Promise<T>, errorRet
       // Already converted to an app exception
       caughtExceptions = [e];
     }
-    if (e instanceof ApolloError) {
+    else if (e instanceof ApolloError) {
       caughtExceptions = handleApolloError(e);
     }
     else if (e instanceof GraphQLError) {

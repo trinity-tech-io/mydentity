@@ -1,11 +1,12 @@
 import { ActivityDto } from "@model/activity/activity.dto";
 import { Browser } from "@model/browser/browser";
-import moment from "moment";
-import { UserEmail } from "@model/user-email/user-email";
 import { Identity } from "@model/identity/identity";
+import { UserEmail } from "@model/user-email/user-email";
+import moment from "moment";
 
 export class Activity {
     public id: string;
+    public createdAt: Date;
     public type: string;
     private userEmail?: UserEmail;
     public userEmailProvider?: string;
@@ -16,7 +17,6 @@ export class Activity {
     public appDid?: string;
     private browser?: Browser;
     private browserName?: string;
-    private createdAt: Date;
 
     public static async fromJson(json: ActivityDto): Promise<Activity> {
         const activity: Activity = new Activity();
