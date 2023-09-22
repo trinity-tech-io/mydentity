@@ -20,6 +20,7 @@ import { KeyRingModule } from './key-ring/key-ring.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { UserModule } from './user/user.module';
 import { AppInteractionModule } from './app-interaction/app-interaction.module';
+import { CommonWsModule } from "./websockets/ws.module";
 
 
 @Module({
@@ -44,7 +45,8 @@ import { AppInteractionModule } from './app-interaction/app-interaction.module';
     BrowsersModule,
     KeyRingModule,
     DIDPublishingModule,
-    AppInteractionModule
+    AppInteractionModule,
+    CommonWsModule
   ],
   controllers: [
     AppController
