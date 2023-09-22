@@ -6,11 +6,12 @@ const BlackButton = styled(Button)(({ theme }) => ({
   padding: "8px 18px",
   color: "white",
   "&:disabled": {
-    backgroundColor: "#666e76 !important",
+    opacity: '0.7 !important',
+    backgroundColor: "#343434 !important",
     color: "#fff !important",
   },
   "&:hover": {
-    background: "#323B45 !important",
+    background: "#222 !important",
   },
   [theme.breakpoints.down('md')]: {
     fontSize: 12,

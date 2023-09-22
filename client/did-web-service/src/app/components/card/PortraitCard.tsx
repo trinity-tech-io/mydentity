@@ -13,7 +13,7 @@ const CardStyled = styled(Card)(({ theme }) => ({
     content: "''",
   },
   ".noise-bg": {
-    background: "url('./Noise2.png') repeat center center",
+    background: "url('./noise2.png') repeat center center",
   },
   ".body": {
     position: "absolute",

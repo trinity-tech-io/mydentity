@@ -1,12 +1,23 @@
 "use client";
-import { FC } from "react";
-import { Card, useMediaQuery, useTheme, styled, FormControl, Input, InputAdornment } from "@mui/material";
+import { ChangeEventHandler, FC, useRef, useState } from "react";
+// import Xarrow from "react-xarrows";
+import {
+  Card,
+  useMediaQuery,
+  useTheme,
+  styled,
+  FormControl,
+  Input,
+  InputAdornment,
+  Fade,
+} from "@mui/material";
 import TextBarcode from "@components/text-barcode/TextBarcode";
 import { BlackButton } from "@components/button";
 import { LandingCard } from "@components/card";
 
 const CardCase = styled(Card)(({ theme }) => ({
   minWidth: 180,
+  backgroundImage: "url('./dark-leather.png')",
   backgroundColor: "black",
   borderRadius: "1.5rem",
   "&:after": {
@@ -18,6 +29,7 @@ const CardCase = styled(Card)(({ theme }) => ({
     border: "2px dashed rgb(50 38 38)",
   },
   ".compartment": {
+    backgroundImage: "url('./dark-leather.png')",
     backgroundColor: "black",
     width: "100%",
     height: "33%",
@@ -50,9 +62,16 @@ const FormControlStyled = styled(FormControl)(({ theme }) => ({
   },
 }));
 
-const EntryPage: FC = () => {
+const RegisterPage: FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const [holderName, setHolderName] = useState("");
+  const [visibleNext, setVisibleNext] = useState(false);
+
+  const handleInputName: ChangeEventHandler<HTMLInputElement> = (e) => {
+    setVisibleNext(true);
+    setHolderName(e.target.value);
+  };
 
   return (
     <div className="text-center">
@@ -79,8 +98,8 @@ const EntryPage: FC = () => {
           textClassName={isMobile ? "" : "tracking-[3px] text-xl"}
         />
       </div>
-      <div className="flex justify-center">
-        <CardCase className="w-4/5 max-w-md relative">
+      <div className="w-4/5 max-w-md flex items-center flex-col m-auto">
+        <CardCase className="relative w-full md:pb-2">
           <div className="absolute inset-0 p-2">
             <div className="dashed-body w-full h-full rounded-2xl p-1.5">
               <div className="flex flex-col h-full">
@@ -88,7 +107,7 @@ const EntryPage: FC = () => {
                   <LandingCard className="w-full bg-[#523E21]" />
                 </div>
                 <div className="basis-[50%] overflow-hidden pt-2 relative">
-                  <LandingCard className="w-full bg-black" />
+                  <LandingCard className="w-full bg-neutral-950" />
                   <div className="compartment absolute bottom-0" />
                 </div>
                 <div className="basis-[39%] flex items-center">
@@ -108,6 +127,7 @@ const EntryPage: FC = () => {
                         startAdornment={
                           <InputAdornment position="start"></InputAdornment>
                         }
+                        onChange={handleInputName}
                       />
                     </FormControlStyled>
                   </div>
@@ -116,9 +136,14 @@ const EntryPage: FC = () => {
             </div>
           </div>
         </CardCase>
+        <div className="p-8 w-full">
+          <Fade in={visibleNext}>
+            <BlackButton className="w-full" disabled={!holderName.length}>NEXT</BlackButton>
+          </Fade>
+        </div>
       </div>
     </div>
   );
 };
 
-export default EntryPage;
+export default RegisterPage;
