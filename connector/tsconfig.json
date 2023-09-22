@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "declaration": true,
+    "outDir": "dist",
+    "target": "es2020",
+    "moduleResolution": "Node",
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "lib": [
+      "es2020",
+      "dom"
+    ],
+    "paths": {
+      "@elastosfoundation/did-js-sdk": [
+        "./node_modules/@elastosfoundation/did-js-sdk"
+      ]
+    }
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules/*",
+    "dist/*"
+  ]
+}

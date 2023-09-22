@@ -4,6 +4,13 @@ This repo contains the front end web app and the related API backend for the **D
 
 This web app aims at helping users easily get a W3C DID and manage it. The app allows custodial DID creation, credentials imports and delivery, discovery of DID related services and more.
 
+# Contents
+
+- The DID Web app front end (client/ folder)
+- The DID Web app back end (server/ folder)
+- The external test app to test web interactions (tests/ folder)
+- The Elastos connectivity SDK connector (connector/ folder)
+- The DID Web App SDK (sdk/ folder)
 # Tech stack
 
 - Front-end
@@ -19,7 +26,7 @@ This web app aims at helping users easily get a W3C DID and manage it. The app a
   - graphql
   - Elastos DID JS SDK
 
-# Setup
+# Setup (main app)
 
 - Setup the [React web app](/client/did-web-service/README.md)
 - Setup the [API server](/server/api/README.md)
