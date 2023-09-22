@@ -10,7 +10,6 @@ import EditCredentialDialog, { EditionMode } from "@components/identity-profile/
 import { VerticalStackLoadingCard } from "@components/loading-cards/vertical-stack-loading-card/VerticalStackLoadingCard";
 import { UnlockRetrier } from '@components/security/UnlockRetrier';
 import { useUnlockPromptState } from '@components/security/unlock-key-prompt/UnlockKeyPrompt';
-import { callWithUnlock } from '@components/security/unlock-key-prompt/call-with-unlock';
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useMounted } from "@hooks/useMounted";
 import { Credential } from "@model/credential/credential";
@@ -191,7 +190,7 @@ const Profile: FC = () => {
 
   const handleAvatarFileChanged = async (file: File): Promise<void> => {
     setUploadingAvatar(true);
-    await callWithUnlock(() => identityProfileFeature.upsertIdentityAvatar(file));
+    await identityProfileFeature.upsertIdentityAvatar(file);
     setUploadingAvatar(false);
   }
 
