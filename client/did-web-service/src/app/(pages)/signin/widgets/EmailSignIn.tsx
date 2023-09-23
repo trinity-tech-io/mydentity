@@ -1,20 +1,40 @@
-import { MainButton } from '@components/generic/MainButton';
-import { Icon as ReactIcon } from '@iconify/react';
+import { DarkButton } from "@components/button";
+import { Icon as ReactIcon } from "@iconify/react";
 import { InexistingEmailException } from "@model/exceptions/inexisting-email-exception";
-import { Container, TextField } from '@mui/material';
-import { makeStyles } from '@mui/styles';
+import { FormControl, InputLabel, OutlinedInput, styled } from "@mui/material";
 import { FlowOperation, setOnGoingFlowOperation } from "@services/flow.service";
 import { authenticateWithEmailAddress } from "@services/user/user.service";
-import clsx from 'clsx';
 import { FC, FormEvent, useRef, useState } from "react";
 
-const useStyles = makeStyles((theme) => ({
-  centeredContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    minHeight: '20vh',
+const FormControlStyled = styled(FormControl)(({ theme }) => ({
+  paddingTop: "1.2rem",
+  input: {
+    color: "white",
+  },
+  ".MuiOutlinedInput-root": {
+    fieldset: {
+      opacity: 0.6,
+      borderColor: "white",
+    },
+  },
+  ".MuiOutlinedInput-root.Mui-focused, .MuiOutlinedInput-root:hover:not(.Mui-disabled, .Mui-error)":
+    {
+      fieldset: {
+        opacity: 0.8,
+        borderColor: "white",
+      },
+    },
+  ".MuiInputLabel-root, .MuiInputLabel-root.Mui-focused:not(.Mui-error)": {
+    color: "white",
+    fontSize: "10px",
+    transform: "unset",
+    WebkitTransform: "unset",
+  },
+  "#email-address": {
+    fontWeight: 600,
+    fontSize: "13pt",
+    caretColor: "white",
+    color: "rgb(255 255 255 / 65%)",
   },
 }));
 
@@ -22,7 +42,6 @@ export const EmailSignIn: FC = () => {
   const emailInputRef = useRef(null);
   const [authEmailSent, setAuthEmailSent] = useState(false);
   const emailForm = useRef(null);
-  const classes = useStyles();
   const [errorMsg, setErrorMsg] = useState(null);
 
   const doEmailAuth = async (): Promise<void> => {
@@ -34,18 +53,18 @@ export const EmailSignIn: FC = () => {
       setOnGoingFlowOperation(FlowOperation.EmailSignIn);
 
       try {
-        void await authenticateWithEmailAddress(emailAddress);
+        void (await authenticateWithEmailAddress(emailAddress));
       } catch (error) {
         if (error instanceof InexistingEmailException) {
-          setErrorMsg('This email address is unknown.');
+          setErrorMsg("This email address is unknown.");
         } else {
-          setErrorMsg('Unknown error, please try again.');
+          setErrorMsg("Unknown error, please try again.");
         }
 
         setAuthEmailSent(false);
       }
     }
-  }
+  };
 
   async function onEmailSubmit(ev?: FormEvent): Promise<void> {
     ev?.preventDefault();
@@ -55,36 +74,43 @@ export const EmailSignIn: FC = () => {
   }
 
   return (
-    <Container component="div" className={clsx(classes.centeredContainer)}>
-      {
-        !authEmailSent &&
-        <form onSubmit={onEmailSubmit} ref={emailForm} className='w-full my-4'>
-          <TextField
-            inputRef={emailInputRef}
-            label="Your email address"
-            placeholder="Input email address"
-            className="w-full"
-            size='small'
-            type='email'
-            name="email"
-          />
+    <>
+      {!authEmailSent && (
+        <form onSubmit={onEmailSubmit} ref={emailForm} className="w-full my-4">
+          <FormControlStyled variant="standard" className="w-full">
+            <InputLabel shrink>Input email address</InputLabel>
+            <OutlinedInput
+              id="email-address"
+              size="small"
+              placeholder="Your email address"
+              className="w-full"
+              inputProps={{ ref: emailInputRef }}
+            />
+          </FormControlStyled>
         </form>
-      }
-      {!authEmailSent &&
-        <MainButton
-          leftIcon={<ReactIcon icon="material-symbols:key" />}
-          onClick={doEmailAuth}
-          className="w-full"
-        >
-          Send magic key to email
-        </MainButton>
-      }
-      {authEmailSent && <div className='text-center mt-10'>Magic link sent, please check your mailbox.</div>}
-      {errorMsg && <>
-        <div className='text-red-600'>{errorMsg}</div>
-      </>
-      }
-    </Container>
+      )}
+      <div className="py-4 w-full">
+        {!authEmailSent && (
+          <DarkButton
+            startIcon={<ReactIcon icon="material-symbols:key" />}
+            onClick={doEmailAuth}
+            className="w-full mt-4"
+          >
+            Send magic key to email
+          </DarkButton>
+        )}
+      </div>
+      {authEmailSent && (
+        <div className="text-center mt-10">
+          Magic link sent, please check your mailbox.
+        </div>
+      )}
+      {errorMsg && (
+        <>
+          <div className="text-red-600">{errorMsg}</div>
+        </>
+      )}
+    </>
   );
 };
 

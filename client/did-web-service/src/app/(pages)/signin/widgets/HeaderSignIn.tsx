@@ -5,7 +5,7 @@ import { FC } from "react";
 export const SignInHeader: FC = () => {
   return (
     <div className="w-full flex justify-center">
-      <div className="md:w-3/5">
+      <div className="md:w-3/5 max-w-2xl">
         <Typography variant="h4" className="w-full text-white text-center">
           Hello, we've missed you! Welcome back.
         </Typography>

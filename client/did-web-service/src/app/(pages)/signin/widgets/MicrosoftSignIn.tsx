@@ -1,6 +1,7 @@
 "use client";
 import { DarkButton } from "@components/button";
 import { Icon as ReactIcon } from "@iconify/react";
+import { Container } from "@mui/material";
 import { FlowOperation, setOnGoingFlowOperation } from "@services/flow.service";
 import clsx from "clsx";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -27,10 +28,11 @@ const MicrosoftSignIn: FC = () => {
   };
 
   return (
-    <div className="relative w-full flex flex-col p-4">
+    <>
       <DarkButton
         startIcon={<ReactIcon icon="logos:microsoft-icon" />}
         onClick={signInWithMicrosoft}
+        className="w-full"
       >
         Sign in with Microsoft
       </DarkButton>
@@ -39,7 +41,7 @@ const MicrosoftSignIn: FC = () => {
           <div className="text-red-600">{errorMsg}</div>
         </>
       )}
-    </div>
+    </>
   );
 };
 
