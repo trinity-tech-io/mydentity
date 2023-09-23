@@ -14,6 +14,7 @@ import Sidebar from "@components/layout/Sidebar";
 import TrinityLogo from "@assets/images/TrinityLogo.svg";
 import AppThemeProvider from "../theming/AppThemeContext";
 import ThemeRegistry from "../theming/ThemeRegistry";
+import { styled } from "@mui/material";
 
 initSync();
 
@@ -60,10 +61,28 @@ const LayoutCore: FC<{ children: ReactNode }> = ({ children }) => {
   );
 };
 
+const EllipseBg = styled("div")(({ theme }) => ({
+  bottom: 0,
+  right: 0,
+  height: "60%",
+  background:
+    "linear-gradient(to bottom, rgba(255, 211, 187, 100%), rgba(255, 211, 187, 40%), transparent)",
+  borderTopLeftRadius: "100%",
+}));
+
 const EntryLayout: FC<{ children: ReactNode }> = ({ children }) => {
+  const pathname = usePathname();
+  const isSigninPage = pathname.startsWith("/signin");
   return (
-    <main className="container relative landing-bg min-h-screen min-w-full px-4 pt-8 pb-[86px] md:px-12 md:pt-12">
-      {children}
+    <main
+      className={`container relative ${
+        isSigninPage ? "bg-black" : "landing-bg"
+      } min-h-screen min-w-full px-4 pt-8 pb-[86px] md:px-12 md:pt-12`}
+    >
+      {isSigninPage && (
+        <EllipseBg className="absolute opacity-20 w-full md:w-1/2" />
+      )}
+      <div className="relative">{children}</div>
       <div className="absolute left-0 bottom-0 w-full">
         <div className="flex justify-end p-7">
           <TrinityLogo />
@@ -77,13 +96,14 @@ export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
-}): any {
+}): React.JSX.Element {
   const pathname = usePathname();
-  const isEntryPage = pathname.startsWith("/entry") || pathname.startsWith("/register");
+  const isEntryPage =
+    pathname.startsWith("/entry") ||
+    pathname.startsWith("/register") ||
+    pathname.startsWith("/signin");
   return isEntryPage ? (
-    <ThemeRegistry>
-      <EntryLayout>{children}</EntryLayout>
-    </ThemeRegistry>
+    <EntryLayout>{children}</EntryLayout>
   ) : (
     <ThemeRegistry>
       <AppThemeProvider>

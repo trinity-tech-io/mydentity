@@ -177,6 +177,10 @@ const FormControlStyled = styled(FormControl)(({ theme }) => ({
   },
   ".MuiFormHelperText-root": {
     marginLeft: 0,
+    display: 'none'
+  },
+  ".MuiFormHelperText-root.Mui-error": {
+    display: 'block'
   },
 }));
 

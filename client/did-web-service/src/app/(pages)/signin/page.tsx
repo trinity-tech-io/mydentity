@@ -1,11 +1,14 @@
 "use client";
-import { Typography } from "@mui/material";
-import { signOut } from "@services/user/user.service";
 import { FC, useEffect } from "react";
+import { Icon as ReactIcon } from '@iconify/react';
+import { signOut } from "@services/user/user.service";
+import { Box, Typography, styled } from "@mui/material";
 import { EmailSignIn } from './widgets/EmailSignIn';
 import { SignInHeader } from "./widgets/HeaderSignIn";
 import MicrosoftSignIn from './widgets/MicrosoftSignIn';
 import PasskeySignIn from './widgets/PasskeySignIn';
+import { DarkButton } from "@components/button";
+import SeparateLineText from "@components/separate-line";
 
 const SignInWidget: FC<{
   title: string;
@@ -17,31 +20,53 @@ const SignInWidget: FC<{
   </div>
 }
 
+const CardStyled = styled(Box)(({theme})=>({
+  borderRadius: "1rem",
+  overflow: 'hidden',
+  "&:before": {
+    opacity: 0.1,
+    content: "''",
+    position: "absolute",
+    width: "100%",
+    height: "200%",
+    background:
+      "linear-gradient(to bottom, rgba(163, 163, 163, 100%), rgba(255, 255, 255, 25%), transparent)",
+    transform: "rotate(-20deg)",
+    transformOrigin: 'top left',
+    top: 0,
+    right: "-40%",
+  }
+}))
 const SignIn: FC = () => {
   useEffect(() => {
     signOut();
   }, []);
 
   return (
-    <div className="col-span-full flex flex-col justify-center items-center">
-      <div className='w-full text-center'>
+    <div className='w-full'>
+      <div className="flex flex-col justify-center items-center">
         {/* SignInHeader */}
         <SignInHeader />
 
-        <div className="grid grid-cols-12 bg-red mt-10 gap-4">
-          <SignInWidget title="Social account">
-            {/* Sign in with Microsoft oauth */}
-            <MicrosoftSignIn />
-          </SignInWidget>
+        <div className="p-10 w-full flex justify-center">
+          <CardStyled className="md:w-1/2 border-2 border-white border-opacity-30 w-full bg-[#1E1E1E] relative p-10 flex flex-col justify-center items-center">
+            <div className="flex pb-4">
+              <MicrosoftSignIn />
+            </div>
+            <SeparateLineText text="or sign in with your email" />
 
-          <SignInWidget title="Email magic key">
-            {/* Sign in with magic key by email */}
-            <EmailSignIn />
-          </SignInWidget>
+            {/* <div className="grid grid-cols-12 bg-red mt-10 gap-4"> */}
 
-          <SignInWidget title="Browser">
-            <PasskeySignIn />
-          </SignInWidget>
+              <SignInWidget title="Email magic key">
+                {/* Sign in with magic key by email */}
+                <EmailSignIn />
+              </SignInWidget>
+
+              <SignInWidget title="Browser">
+                <PasskeySignIn />
+              </SignInWidget>
+            {/* </div> */}
+          </CardStyled>
         </div>
       </div>
     </div>

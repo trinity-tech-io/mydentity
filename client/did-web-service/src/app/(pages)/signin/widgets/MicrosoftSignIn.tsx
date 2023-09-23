@@ -1,5 +1,5 @@
 'use client';
-import { MainButton } from '@components/generic/MainButton';
+import { DarkButton } from '@components/button';
 import { Icon as ReactIcon } from '@iconify/react';
 import { makeStyles } from '@mui/styles';
 import { FlowOperation, setOnGoingFlowOperation } from "@services/flow.service";
@@ -40,12 +40,12 @@ const MicrosoftSignIn: FC = () => {
 
   return (
     <div className={clsx(classes.centeredContainer, 'relative')}>
-      <MainButton
-        leftIcon={<ReactIcon icon="logos:microsoft-icon" />}
+      <DarkButton
+        startIcon={<ReactIcon icon="logos:microsoft-icon" />}
         onClick={signInWithMicrosoft}
       >
         Sign in with Microsoft
-      </MainButton>
+      </DarkButton>
       {errorMsg && <>
         <div className='text-red-600'>{errorMsg}</div>
       </>

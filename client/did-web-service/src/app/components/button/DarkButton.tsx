@@ -5,6 +5,7 @@ const DarkButton = styled(Button)(({ theme }) => ({
   borderRadius: 4,
   padding: "8px 18px",
   color: "white",
+  textTransform: "capitalize",
   "&:disabled": {
     backgroundColor: "#c0c0c0 !important",
     color: "#fff !important",
@@ -12,7 +13,7 @@ const DarkButton = styled(Button)(({ theme }) => ({
   "&:hover": {
     background: "#666e76 !important",
   },
-  [theme.breakpoints.down('md')]: {
+  [theme.breakpoints.down("md")]: {
     fontSize: 12,
     padding: "6px 14px",
   },

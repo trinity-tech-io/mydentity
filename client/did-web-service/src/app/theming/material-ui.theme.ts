@@ -1,5 +1,6 @@
 import { createTheme } from "@mui/material";
 
+
 export const theme = createTheme({
   breakpoints: {
     values: {
@@ -8,6 +9,20 @@ export const theme = createTheme({
       md: 768,
       lg: 1024,
       xl: 1280,
+    },
+  },
+  typography: {
+    h1: {
+      fontWeight: 700,
+    },
+    h2: {
+      fontWeight: 700,
+    },
+    h3: {
+      fontWeight: 600,
+    },
+    h4: {
+      fontWeight: 600,
     },
   },
   palette: {
