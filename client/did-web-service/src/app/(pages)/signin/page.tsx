@@ -48,24 +48,23 @@ const SignIn: FC = () => {
         {/* SignInHeader */}
         <SignInHeader />
 
-        <div className="p-10 w-full flex justify-center">
-          <CardStyled className="md:w-1/2 border-2 border-white border-opacity-30 w-full bg-[#1E1E1E] relative p-10 flex flex-col justify-center items-center">
-            <div className="flex pb-4">
+        <div className="max-sm:pt-4 md:p-10 w-full flex justify-center">
+          <CardStyled className="md:w-1/2 border-2 border-white border-opacity-30 w-full bg-[#1E1E1E] relative max-sm:p-5 md:p-10 flex flex-col justify-center items-center">
+            <div className="w-full md:w-3/4">
               <MicrosoftSignIn />
-            </div>
-            <SeparateLineText text="or sign in with your email" />
-
-            {/* <div className="grid grid-cols-12 bg-red mt-10 gap-4"> */}
+              <SeparateLineText text="or sign in with your email" />
 
               <SignInWidget title="Email magic key">
                 {/* Sign in with magic key by email */}
                 <EmailSignIn />
               </SignInWidget>
 
+              <SeparateLineText text="or sign in with your browser" />
+
               <SignInWidget title="Browser">
                 <PasskeySignIn />
               </SignInWidget>
-            {/* </div> */}
+            </div>
           </CardStyled>
         </div>
       </div>

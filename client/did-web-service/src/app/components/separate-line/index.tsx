@@ -5,7 +5,9 @@ import clsx from "clsx";
 import { FC } from "react";
 
 const DividerStyled = styled(Divider)(({ theme }) => ({
-  borderColor: "rgb(250 250 250 / 0.2)",
+  "&:before, &:after": {
+    borderTopColor: "#C4C4C4",
+  },
 }));
 
 const SeparateLineText: FC<{ text: string; textClassName?: string }> = ({
@@ -13,16 +15,14 @@ const SeparateLineText: FC<{ text: string; textClassName?: string }> = ({
   textClassName = "",
 }) => {
   return (
-    <div className="relative">
+    <DividerStyled>
       <Typography
-        variant="subtitle1"
-        className={clsx("text-base font-bold text-white", textClassName)}
+        variant="caption"
+        className={clsx("px-4 font-bold text-white", textClassName)}
       >
         {text}
       </Typography>
-      <DividerStyled className="absolute top-1/2 w-[140px] left-[-160px]" />
-      <DividerStyled className="absolute top-1/2 w-[140px] right-[-160px]" />
-    </div>
+    </DividerStyled>
   );
 };
 
