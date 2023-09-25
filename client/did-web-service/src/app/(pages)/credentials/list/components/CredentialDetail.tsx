@@ -44,7 +44,7 @@ export const CredentialDetailWidget: FC = () => {
               </Typography>
 
               <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-                <JsonViewer data={activeCredential.getDisplayValue()}></JsonViewer>
+              {activeCredential.getDisplayValue() && <JsonViewer data={activeCredential.getDisplayValue()} />}
               </Typography>
 
               <Grid container spacing={2} sx={{ mt: 1 }}>

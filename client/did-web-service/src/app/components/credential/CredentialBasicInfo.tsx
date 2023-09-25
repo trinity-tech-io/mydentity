@@ -19,7 +19,7 @@ function CredentialBasicInfo(props: Props): JSX.Element {
       </Typography>
 
       <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-        <JsonViewer data={credential.getDisplayValue()}></JsonViewer>
+      {credential.getDisplayValue() && <JsonViewer data={credential.getDisplayValue()} />}
       </Typography>
 
       <Grid container spacing={2} sx={{ mt: 1 }}>
