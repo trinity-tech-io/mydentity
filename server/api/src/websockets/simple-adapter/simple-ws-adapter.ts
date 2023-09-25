@@ -60,6 +60,7 @@ export class SimpleWebsocketAdapter implements WebsocketAdapter {
 
     ws.on('message', message => {
       const jsonMessage = JSON.parse(message.toString()) as ReceivedWSMessage;
+      // console.log('RAW MESSAGE:', jsonMessage);
       this.handleReceivedMessage(ws, jsonMessage);
     })
   }
@@ -82,15 +83,26 @@ export class SimpleWebsocketAdapter implements WebsocketAdapter {
      client.emit(WebSocketEventType.USER_OFFLINE, user); */
   }
 
-  public emitEvent(socketIds: string[], type: WebSocketEventType, data: any) {
+  public emitEvent(socketIds: string[], type: WebSocketEventType, data: any): string[] {
+    const invalidSocketIds = [];
     for (const socketId of socketIds) {
       const socket = this.connectedSockets.get(socketId);
       if (!socket) {
-        logger.warn(`Can't emit event to inexisting socket id: ${socketId}`)
-        return;
+        logger.warn(`Can't emit event to inexisting socket id: ${socketId}`);
+        invalidSocketIds.push(socketId);
+        continue;
+      }
+
+      // Try to remove closed socket here.
+      if (socket.readyState === WebSocket.CLOSED) {
+        this.connectedSockets.delete(socketId);
+        invalidSocketIds.push(socketId);
+        continue;
       }
 
       socket.send(JSON.stringify({ event: type, ...data }));
     }
+
+    return invalidSocketIds;
   }
 }

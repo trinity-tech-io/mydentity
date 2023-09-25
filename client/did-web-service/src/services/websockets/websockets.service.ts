@@ -18,20 +18,16 @@ class WebSocketsService {
   public onReconnect = new Subject(); // Web sockets get reconnected to the backend
 
   private initInternal(): void {
+    // console.log('WebSocketsService.initInternal');
+
     const url = `${configService.get('wsUrl')}`;
-    let token = localStorage.getItem('access_token');
 
-    // get token from url.
-    const urlParams = new URLSearchParams(window.location.search);
-    const urlToken = urlParams.get('token');
-    if (urlToken) {
-      token = urlToken;
+    const token = this.getAccessToken();
+    // console.log('WebSocketsService.initInternal', this.token, token);
+    if (token && this.token === token) {
+      return; // same token
     }
-
-    if (this.token === token)
-      return; // same token, skip.
-    else
-      this.token = token;
+    this.token = token;
 
     if (this.sockette && this.sockette.ready())
       this.sockette.close();
@@ -104,10 +100,19 @@ class WebSocketsService {
     this.firstConnection = false;
   }
 
+  private getAccessToken(): string {
+    if (typeof window === 'undefined') {
+      return undefined;
+    }
+
+    return localStorage.getItem('access_token');
+  }
+
   /**
    * Sends any websocket event to the backend.
    */
   public emit(event: WebSocketActionType, params?: any): void {
+    // console.log('emit', event, this.token, this.getAccessToken());
     this.sockette.send(JSON.stringify({
       event,
       ...{ authorization: this.token },

@@ -22,13 +22,32 @@ export class WebSocketCacheService {
   public async appendSocketId(userId: string, socketId: string): Promise<void> {
     const key = this.getUserCacheKey(userId);
     const value: UserCacheValue = await this.getUserCacheValue(userId);
-    value.socketIds.push(socketId);
+
+    if (!value.socketIds.includes(socketId))
+      value.socketIds.push(socketId);
+
+    await this.cacheManager.set(key, value, REDIS_WS_TTL);
+  }
+
+  public async removeSocketIds(userId: string, invalidSocketIds: string[]): Promise<void> {
+    if (!invalidSocketIds || invalidSocketIds.length === 0)
+      return;
+
+    const key = this.getUserCacheKey(userId);
+    const value: UserCacheValue = await this.getUserCacheValue(userId);
+
+    for (const id of invalidSocketIds) {
+      const index = value.socketIds.indexOf(id);
+      if (index >= 0) {
+        value.socketIds.splice(index, 1);
+      }
+    }
+
     await this.cacheManager.set(key, value, REDIS_WS_TTL);
   }
 
   public async getSocketIds(userId: string): Promise<string[]> {
-    const key = this.getUserCacheKey(userId);
-    return (await this.getUserCacheValue(key)).socketIds;
+    return (await this.getUserCacheValue(userId)).socketIds;
   }
 
   private async getUserCacheValue(userId: string): Promise<UserCacheValue> {

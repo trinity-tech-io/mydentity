@@ -28,8 +28,6 @@ export class ActivityResolver {
     @UseGuards(JwtAuthGuard)
     @Mutation(() => ActivityEntity)
     async createActivity(@CurrentUser() user: UserEntity, @Args('input') input: CreateActivityInput) {
-        const activity = await this.activityService.createActivity(user.id, input);
-        this.activityWsGateway.notifyActivityCreated(user, activity);
-        return activity;
+        return await this.activityService.createActivity(user, input);
     }
 }

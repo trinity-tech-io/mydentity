@@ -25,7 +25,7 @@ export class KeyRingResolver {
   @Mutation(() => ShadowKeyEntity)
   async bindKey(@Args('newKey') newKey: AuthKeyInput, @CurrentBrowser() browser: Browser, @CurrentUser() user: User) {
     const result = await this.keyRingService.bindKey(newKey, browser.id, user);
-    await this.activityService.createActivity(user.id, {type: ActivityType.BIND_BROWSER, browserId: browser.id, browserName: browser.name});
+    await this.activityService.createActivity(user, {type: ActivityType.BIND_BROWSER, browserId: browser.id, browserName: browser.name});
     return result;
   }
 
@@ -33,7 +33,7 @@ export class KeyRingResolver {
   @Mutation(() => [ShadowKeyEntity])
   async changePassword(@Args('newPassword') newPassword: string, @CurrentBrowser() browser: Browser, @CurrentUser() user: User) {
     const result = await this.keyRingService.changePassword(newPassword, browser.id, user);
-    await this.activityService.createActivity(user.id, {type: ActivityType.PASSWORD_CHANGED});
+    await this.activityService.createActivity(user, {type: ActivityType.PASSWORD_CHANGED});
     return result;
   }
 

@@ -24,7 +24,7 @@ export class IdentityResolver {
   @Mutation(() => IdentityEntity)
   async createIdentity(@Args('input') createIdentityInput: CreateIdentityInput, @CurrentUser() user: User, @CurrentBrowser() browser: Browser) {
     const identity = await this.identityService.create(createIdentityInput, user, browser);
-    await this.activityService.createActivity(user.id, {type: ActivityType.IDENTITY_CREATED, identityId: identity.did, identityDid: identity.did})
+    await this.activityService.createActivity(user, {type: ActivityType.IDENTITY_CREATED, identityId: identity.did, identityDid: identity.did})
     return identity;
   }
 
@@ -33,7 +33,7 @@ export class IdentityResolver {
   async deleteIdentity(@Args('identityDid') identityDid: string, @CurrentUser() user: User) {
     await this.identityService.ensureOwnedIdentity(identityDid, user);
     const result = await this.identityService.deleteIdentity(identityDid, user);
-    await this.activityService.createActivity(user.id, {type: ActivityType.IDENTITY_DELETED, identityDid: identityDid});
+    await this.activityService.createActivity(user, {type: ActivityType.IDENTITY_DELETED, identityDid: identityDid});
     return result;
   }
 

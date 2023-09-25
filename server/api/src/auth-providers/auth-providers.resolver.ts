@@ -50,7 +50,7 @@ export class AuthProviderResolver {
         const email = await this.getEmailByMsCode(input.code);
         const result = await this.userService.signInByOauthEmail(email, browserKey, userAgent, async (userEmail: UserEmail & {user: User}) => {
             const browser = await this.browsersService.findOne(browserKey);
-            await this.activityService.createActivity(userEmail.user.id, {
+            await this.activityService.createActivity(userEmail.user, {
                 type: ActivityType.USER_SIGN_IN,
                 userEmailId: userEmail.id,
                 userEmailProvider: UserEmailProvider.MICROSOFT,
@@ -73,7 +73,7 @@ export class AuthProviderResolver {
     async oauthMSBindEmail(@CurrentUser() user: UserEntity, @Args('input') input: MsBindEmailInput) {
         const email = await this.getEmailByMsCode(input.code);
         const resultUser = await this.userService.bindOauthEmail(user, email, async (userEmail) => {
-            await this.activityService.createActivity(user.id, {
+            await this.activityService.createActivity(user, {
                 type: ActivityType.BIND_EMAIL,
                 userEmailId: userEmail.id,
                 userEmailProvider: UserEmailProvider.MICROSOFT,

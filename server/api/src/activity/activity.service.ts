@@ -1,12 +1,15 @@
-import {Injectable} from '@nestjs/common';
-import {ActivityEntity} from "./entities/activity.entity";
-import {PrismaService} from "../prisma/prisma.service";
-import {CreateActivityInput} from "./dto/create-activity.input";
+import { Injectable } from '@nestjs/common';
+import { ActivityEntity } from "./entities/activity.entity";
+import { PrismaService } from "../prisma/prisma.service";
+import { CreateActivityInput } from "./dto/create-activity.input";
+import { ActivityWsGateway } from "./activity.ws.gateway";
+import { UserEntity } from "../user/entities/user.entity";
 
 @Injectable()
 export class ActivityService {
     constructor(
         private prisma: PrismaService,
+        private readonly activityWsGateway: ActivityWsGateway
     ) {}
 
     public async findAll(userId: string): Promise<ActivityEntity[]> {
@@ -35,10 +38,10 @@ export class ActivityService {
         });
     }
 
-    public async createActivity(userId: string, input: CreateActivityInput): Promise<ActivityEntity> {
+    public async createActivity(user: UserEntity, input: CreateActivityInput): Promise<ActivityEntity> {
         const data = {
             type: input.type,
-            user: {connect: {id: userId}},
+            user: {connect: {id: user.id}},
         }
 
         const appendField = (name: string) => {
@@ -61,6 +64,10 @@ export class ActivityService {
         appendObj('browser');
         appendField('browserName');
 
-        return this.prisma.activity.create({data});
+        const activity = await this.prisma.activity.create({data});
+
+        await this.activityWsGateway.notifyActivityCreated(user, activity);
+
+        return activity;
     }
 }

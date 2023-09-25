@@ -6,7 +6,9 @@ export interface WebsocketAdapter {
   onMessage$: Subject<ReceivedWSMessage>;
 
   /**
-   * Send an event to a list of sockets
+   * Send an event to a list of sockets.
+   *
+   * @return invalid socket ids.
    */
-  emitEvent(socketId: string[], type: WebSocketEventType, data: any);
+  emitEvent(socketId: string[], type: WebSocketEventType, data: any): string[];
 }
