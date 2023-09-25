@@ -7,12 +7,12 @@ const AppThemeContext = createContext<{
   currentTheme: Theme;
   changeCurrentTheme: (newTheme: Theme) => void;
 }>({
-  currentTheme: 'light',
+  currentTheme: 'dark',
   changeCurrentTheme: (newTheme: Theme) => { },
 });
 
 export default function AppThemeProvider(props: any) {
-  const [theme, setTheme] = useState<Theme>('light');
+  const [theme, setTheme] = useState<Theme>('dark');
 
   const changeCurrentTheme = (newTheme: Theme) => {
     setTheme(newTheme);
@@ -22,7 +22,7 @@ export default function AppThemeProvider(props: any) {
   useEffect(() => {
     // NextJS: wait for page to be mounted to make sure localStorage is accessed from the client only
     const persistedTheme = localStorage.getItem('theme') as Theme;
-    setTheme(persistedTheme || 'light');
+    setTheme(persistedTheme || 'dark');
   }, []);
 
   useEffect(() => {
