@@ -1,4 +1,4 @@
-import { User } from "@prisma/client";
+import { User } from "@prisma/client/main";
 import { WebSocketActionType } from "./websocket.types";
 
 export type ReceivedWSMessage = {
