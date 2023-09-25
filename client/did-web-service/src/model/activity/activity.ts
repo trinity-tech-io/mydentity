@@ -1,7 +1,7 @@
-import { ActivityDto } from "@model/activity/activity.dto";
-import { Browser } from "@model/browser/browser";
-import { Identity } from "@model/identity/identity";
-import { UserEmail } from "@model/user-email/user-email";
+import type { ActivityDto } from "@model/activity/activity.dto";
+import type { Browser } from "@model/browser/browser";
+import type { Identity } from "@model/identity/identity";
+import type { UserEmail } from "@model/user-email/user-email";
 import moment from "moment";
 
 export class Activity {
@@ -17,11 +17,15 @@ export class Activity {
     public appDid?: string;
     private browser?: Browser;
     private browserName?: string;
-    private createdAt: Date;
 
     public static async fromJson(json: ActivityDto): Promise<Activity> {
         const activity: Activity = new Activity();
         Object.assign(activity, json);
+
+        // Circular deps
+        const { Browser } = await import("@model/browser/browser");
+        const { Identity } = await import("@model/identity/identity");
+        const { UserEmail } = await import("@model/user-email/user-email");
 
         if (json.userEmail)
             activity.userEmail = UserEmail.fromJson(json.userEmail);

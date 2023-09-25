@@ -1,4 +1,3 @@
-import { callWithUnlock } from "@components/security/unlock-key-prompt/call-with-unlock";
 import { Credential } from "@model/credential/credential";
 import { ProfileCredential } from "@model/credential/profile-credential";
 import { Identity } from "@model/identity/identity";
@@ -91,9 +90,7 @@ export class ProfileFeature implements IdentityFeature {
    */
   public async createInitialNameCredential(name: string): Promise<boolean> {
     const nameCredentialInfo = findProfileInfoByKey("name");
-    return callWithUnlock(async () => {
-      return !!await this.createProfileCredential(null, nameCredentialInfo.typesForCreation(), nameCredentialInfo.key, name);
-    });
+    return !!await this.createProfileCredential(null, nameCredentialInfo.typesForCreation(), nameCredentialInfo.key, name);
   }
 
   public async createProfileCredential(credentialId: string = null, fullTypes: string[], key: string, editionValue: any): Promise<Credential> {

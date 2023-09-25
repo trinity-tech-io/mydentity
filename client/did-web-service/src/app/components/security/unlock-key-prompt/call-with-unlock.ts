@@ -1,5 +1,6 @@
 import { AppException } from "@model/exceptions/app-exception";
 import { ClientError } from "@model/exceptions/exception-codes";
+import { logger } from "@services/logger";
 import { CallWithUnlockCallback, isUnlockPromptCancelledException } from "@services/security/security.service";
 import Queue from "promise-queue";
 import { UnlockPromptState, callWithUnlockRequestEvent$, unlockPromptState$ } from "./unlock.events";
@@ -42,9 +43,15 @@ export async function callWithUnlockReal<T>(method: CallWithUnlockCallback<T>, s
       throw AppException.newClientError(ClientError.UnlockKeyCancelled, "CANCELLED (queued operation)"); // Throw a cancellation exception to let the caller know (possibly behavior subject) that he needs to retry later
   }
 
+  const previousEvent = callWithUnlockRequestEvent$.value;
+  const deadlockCheckInterval = setInterval(() => {
+    logger.warn("security", "callWithUnlock call still locked after a few seconds", "method:", method, "previous event: ", previousEvent)
+  }, 5000);
+
   const p = new Promise<T>((resolve, reject) => {
-    callWithUnlockRequestEvent$.next({ method, resolve, reject, handled: false, silentCancellation, defaultValue });
+    callWithUnlockRequestEvent$.next({ method, resolve, reject, handled: false, silentCancellation, defaultValue, deadlockCheckInterval });
   }).catch(e => {
+    clearInterval(deadlockCheckInterval);
     if (silentCancellation && isUnlockPromptCancelledException(e)) {
       // Silent, catch the cancellation exception and let the promise return successfully with no value.
     }
@@ -53,5 +60,9 @@ export async function callWithUnlockReal<T>(method: CallWithUnlockCallback<T>, s
       throw e;
     }
   });
-  return (await p) || defaultValue;
+
+  const result = (await p) || defaultValue;
+  clearInterval(deadlockCheckInterval);
+
+  return result;
 }

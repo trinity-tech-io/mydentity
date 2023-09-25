@@ -119,7 +119,7 @@ export class DidService {
       const didStore = await this.openStore(context);
       const didDocument = await didStore.loadDid(didString);
       if (!didDocument)
-        throw new AppException(DIDExceptionCode.DIDNotExists, "Can't load did:" + didString, HttpStatus.NOT_FOUND);
+        throw new AppException(DIDExceptionCode.DIDDoesNotExist, "Can't load did:" + didString, HttpStatus.NOT_FOUND);
 
       const issuer = await Issuer.create(didDocument);
       const vcBuilder = issuer.issueFor(subjectDid);
@@ -180,7 +180,7 @@ export class DidService {
     const didStore = await this.openStore(context);
     const didDocument = await didStore.loadDid(didString);
     if (!didDocument)
-      throw new AppException(DIDExceptionCode.DIDNotExists, "Can't load did:" + didString, HttpStatus.NOT_FOUND);
+      throw new AppException(DIDExceptionCode.DIDDoesNotExist, "Can't load did:" + didString, HttpStatus.NOT_FOUND);
 
     const isExpired = didDocument.isExpired();
 
@@ -202,7 +202,7 @@ export class DidService {
       } else if (e instanceof Exceptions.DIDTransactionException) {
         throw new AppException(DIDExceptionCode.DIDTransactionError, e.message, HttpStatus.BAD_REQUEST);
       } else if (e instanceof Exceptions.DIDNotFoundException) {
-        throw new AppException(DIDExceptionCode.DIDNotExists, e.message, HttpStatus.BAD_REQUEST);
+        throw new AppException(DIDExceptionCode.DIDDoesNotExist, e.message, HttpStatus.BAD_REQUEST);
       } else {
         throw new AppException(DIDExceptionCode.DIDPublishError, e.message, HttpStatus.BAD_REQUEST);
       }

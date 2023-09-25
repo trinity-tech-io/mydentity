@@ -1,10 +1,10 @@
 import { gql } from "@apollo/client";
 import { graphQLActivityFields } from "@graphql/activity.fields";
-import { Activity } from "@model/activity/activity";
-import { ActivityDto } from "@model/activity/activity.dto";
-import { CreateActivityInput } from "@model/activity/create-activity.input";
+import type { Activity } from "@model/activity/activity";
+import type { ActivityDto } from "@model/activity/activity.dto";
+import type { CreateActivityInput } from "@model/activity/create-activity.input";
 import { UserFeature } from "@model/user/features/user-feature";
-import { User } from "@model/user/user";
+import type { User } from "@model/user/user";
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { logger } from "@services/logger";
@@ -45,6 +45,7 @@ export class ActivityFeature implements UserFeature {
 
         if (data) {
             logger.log("activity", "Get activities", data.activities);
+            const { Activity } = await import("@model/activity/activity"); // Circular deps
             const activities = await Promise.all(data.activities.map(a => Activity.fromJson(a)));
             return this.sortRecentActivitiesFirst(activities);
         } else {
@@ -79,6 +80,7 @@ export class ActivityFeature implements UserFeature {
 
         if (result?.data?.createActivity) {
             logger.log("activity", `Create activities with input ${input}`, result.data.createActivity);
+            const { Activity } = await import("@model/activity/activity"); // Circular deps
             return Activity.fromJson(result.data.createActivity);
         } else {
             logger.error('activity', 'Failed to create activity.');

@@ -1,4 +1,4 @@
-import { Identity } from "@model/identity/identity";
+import type { Identity } from "@model/identity/identity";
 import { BehaviorSubject, filter } from "rxjs";
 
 export const activeIdentity$ = new BehaviorSubject<Identity>(null);

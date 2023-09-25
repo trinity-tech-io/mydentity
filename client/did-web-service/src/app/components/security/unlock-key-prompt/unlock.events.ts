@@ -19,6 +19,7 @@ export type UnlockRequest<T> = {
   handled: boolean; // This request has already been handled
   silentCancellation: boolean;
   defaultValue: T;
+  deadlockCheckInterval: any; // Timer that warns about method deadlock
 }
 
 /**

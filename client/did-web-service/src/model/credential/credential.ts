@@ -3,8 +3,8 @@ import AccountIcon from '@assets/images/account.svg';
 import type { VerifiableCredential } from "@elastosfoundation/did-js-sdk";
 import { gqlIdentityInteractingApplicationFields } from '@graphql/identity-interacting-application.fields';
 import { IdentityInteractingApplication } from '@model/identity-interacting-application/identity-interacting-application';
-import { IdentityInteractingApplicationDTO } from '@model/identity-interacting-application/identity-interacting-application.dto';
-import { JSONObject } from "@model/json";
+import type { IdentityInteractingApplicationDTO } from '@model/identity-interacting-application/identity-interacting-application.dto';
+import type { JSONObject } from "@model/json";
 import { credentialTypesService } from "@services/credential-types/credential.types.service";
 import { withCaughtAppException } from '@services/error.service';
 import { getApolloClient } from '@services/graphql.service';
@@ -18,7 +18,7 @@ import { AdvancedBehaviorSubject } from '@utils/advanced-behavior-subject';
 import { evalObjectFieldPath } from "@utils/objects";
 import { capitalizeFirstLetter, isDefaultLocalIcon } from "@utils/strings";
 import { BehaviorSubject } from "rxjs";
-import { IssuerInfo } from "./issuer-info";
+import type { IssuerInfo } from "./issuer-info";
 import { defaultProfileIcons } from "./profile-info-icons";
 
 type ValueItem = {

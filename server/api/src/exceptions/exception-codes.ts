@@ -27,7 +27,7 @@ export enum DIDExceptionCode {
   DIDStorageError = 10301,
   MnemonicError = 10302,
   DIDAlreadyExists = 10303,
-  DIDNotExists = 10304,
+  DIDDoesNotExist = 10304,
   CredentialAlreadyExists = 10305,
   CredentialNotExists = 10306,
   InvalidCredential = 10307,

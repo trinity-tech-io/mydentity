@@ -1,21 +1,20 @@
 "use client";
-import React, { FC, ReactNode, useEffect, useState } from "react";
-import { SnackbarProvider } from "notistack";
-import { filter } from "rxjs";
-import { usePathname } from "next/navigation";
-import { styled } from "@mui/material";
-
+import TrinityLogo from "@assets/images/TrinityLogo.svg";
+import { Header } from "@components/layout/Header";
+import Sidebar from "@components/layout/Sidebar";
 import { UnlockKeyPromptContextProvider } from "@components/security/unlock-key-prompt/UnlockKeyPrompt";
+import { styled } from "@mui/material";
 import { onNewError$ } from "@services/error.service";
 import { useToast } from "@services/feedback.service";
 import { initSync } from "@services/init.service";
 import { isUnlockException } from "@services/security/security.service";
-import { Header } from "@components/layout/Header";
-import Sidebar from "@components/layout/Sidebar";
-import TrinityLogo from "@assets/images/TrinityLogo.svg";
+import { checkIfStringStartsWith } from "@utils/strings";
+import { usePathname } from "next/navigation";
+import { SnackbarProvider } from "notistack";
+import React, { FC, ReactNode, useEffect, useState } from "react";
+import { filter } from "rxjs";
 import AppThemeProvider from "../theming/AppThemeContext";
 import ThemeRegistry from "../theming/ThemeRegistry";
-import { checkIfStringStartsWith } from "@utils/strings";
 
 initSync();
 
@@ -77,9 +76,8 @@ const EntryLayout: FC<{ children: ReactNode }> = ({ children }) => {
   const isSigninPage = pathname.startsWith("/signin");
   return (
     <main
-      className={`container relative ${
-        isSigninPage ? "bg-black" : "landing-bg"
-      } min-h-screen min-w-full px-4 pt-8 pb-[86px] md:px-12 md:pt-12`}
+      className={`container relative ${isSigninPage ? "bg-black" : "landing-bg"
+        } min-h-screen min-w-full px-4 pt-8 pb-[86px] md:px-12 md:pt-12`}
     >
       {isSigninPage && (
         <EllipseBg className="absolute opacity-20 w-full md:w-1/2" />
