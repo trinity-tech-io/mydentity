@@ -54,3 +54,6 @@ export function isDefaultLocalIcon(str: string): boolean {
   return true
 }
 
+export function checkIfStringStartsWith(str: string, substrs: string[]): boolean {
+  return substrs.some(substr => str.startsWith(substr));
+}
