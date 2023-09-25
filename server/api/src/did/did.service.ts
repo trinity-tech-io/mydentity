@@ -194,12 +194,17 @@ export class DidService {
         await newDoc.publish(storepass, null, false, this.globalDidAdapter);
       }
     } catch (e) {
-      if (e instanceof Exceptions.DIDNotUpToDateException) {
+      this.logger.warn('createDIDPublishTransaction error:', e);
+      if (e instanceof Exceptions.NetworkException) {
+        throw new AppException(DIDExceptionCode.NetworkError, e.message, HttpStatus.SERVICE_UNAVAILABLE);
+      } else if (e instanceof Exceptions.DIDNotUpToDateException) {
         throw new AppException(DIDExceptionCode.DIDNotUpToDateError, e.message, HttpStatus.BAD_REQUEST);
-      } if (e instanceof Exceptions.DIDTransactionException) {
+      } else if (e instanceof Exceptions.DIDTransactionException) {
         throw new AppException(DIDExceptionCode.DIDTransactionError, e.message, HttpStatus.BAD_REQUEST);
-      } else {
+      } else if (e instanceof Exceptions.DIDNotFoundException) {
         throw new AppException(DIDExceptionCode.DIDNotExists, e.message, HttpStatus.BAD_REQUEST);
+      } else {
+        throw new AppException(DIDExceptionCode.DIDPublishError, e.message, HttpStatus.BAD_REQUEST);
       }
     }
 

@@ -33,7 +33,8 @@ export enum DIDExceptionCode {
   InvalidCredential = 10307,
   DIDNotUpToDateError = 10308,
   DIDTransactionError = 10309,
-  NetworkError = 10310
+  NetworkError = 10310,
+  DIDPublishError = 10311
 }
 
 export type AppExceptionCode = AuthExceptionCode | KeyRingExceptionCode | DIDExceptionCode;
