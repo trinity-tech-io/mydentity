@@ -79,9 +79,26 @@ export class Credential {
   protected getDisplayableCredentialDescription(): any {
     const credProps = this.verifiableCredential.getSubject().getProperties();
     if ("displayable" in credProps) {
+      return this.parseDisplayable(credProps).description
+    }
+    // the type is not displayable
+    const otherDescription = this.getOtherDescription()
+    if (otherDescription != null && otherDescription != undefined) {
+      return otherDescription
+    }
+    else {
+      return null;
+    }
+  }
+
+  protected parseDisplayable(credProps: JSONObject): any {
+    const prepareRemoveKey = [];
+    if ("displayable" in credProps) {
+
       // rawDescription sample: hello ${firstName} ${lastName.test}
       const rawDescription = (credProps["displayable"] as JSONObject)["description"] as string;
-
+      const title = (credProps["displayable"] as JSONObject)['title'] as string;
+      const icon = (credProps["displayable"] as JSONObject)['icon'] as string;
       // From a raw description, find all special ${...} tags and replace them with values from the subject.
       if (rawDescription) {
         const tagsMatch = rawDescription.match(/\${([a-zA-Z0-9.]+)}/g);
@@ -94,20 +111,18 @@ export class Credential {
           const matchingGroup = tag.match(/\${([a-zA-Z0-9.]+)}/);
           if (matchingGroup && matchingGroup.length > 1) {
             const jsonFieldPath = matchingGroup[1];
+            prepareRemoveKey.push(jsonFieldPath)
             const evaluatedField = evalObjectFieldPath(credProps, jsonFieldPath);
             description = description.replace(tag, evaluatedField);
           }
         }
-        return description;
+        return {
+          title: title,
+          description: description,
+          prepareRemoveKey: prepareRemoveKey,
+          icon: icon
+        };
       }
-    }
-    // the type is not displayable
-    const otherDescription = this.getOtherDescription()
-    if (otherDescription != null && otherDescription != undefined) {
-      return otherDescription
-    }
-    else {
-      return null;
     }
   }
 
@@ -154,10 +169,24 @@ export class Credential {
   }
 
   public getContentTree = (): any => {
-    const subject = this.verifiableCredential.getSubject().getProperties();
-  // TODO:
+    let credProps = this.verifiableCredential.getSubject().getProperties();
+    const displayable = this.parseDisplayable(credProps)
+    if (!displayable) return null
+    const removeArray = displayable.prepareRemoveKey
+    credProps.displayable = displayable;
+    delete displayable['prepareRemoveKey']; // Remove specified key
+    credProps = this.removeKeysFromJSONObject(credProps, removeArray)
 
-    return subject
+    return credProps
+  }
+  public removeKeysFromJSONObject(obj: JSONObject, keysToRemove: string[]): JSONObject {
+    const clonedObject: JSONObject = { ...obj }; // Clone the original object to avoid modifying it directly
+    keysToRemove.forEach(key => {
+      if (key in clonedObject) {
+        delete clonedObject[key]; // Remove specified key
+      }
+    });
+    return clonedObject;
   }
 
   public getValueItems = (): ValueItem[] => {

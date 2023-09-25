@@ -6,9 +6,10 @@ import { VerticalStackLoadingCard } from '@components/loading-cards/vertical-sta
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { useMounted } from '@hooks/useMounted';
 import { Box, Grid, ListItemButton, ListItemIcon, Stack, Typography } from '@mui/material';
+import Button from '@mui/material/Button';
 import { activeIdentity$ } from '@services/identity/identity.events';
 import Image from 'next/image';
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { ApplicationRow } from './ApplicationRow';
 import IdentityMenu from './IdentityMenu';
 
@@ -20,6 +21,12 @@ export const CredentialDetailWidget: FC = () => {
   const [issuerInfo] = useBehaviorSubject(activeCredential?.issuerInfo$);
   const [isConform] = useBehaviorSubject(activeCredential?.isConform$);
   const [requestingApplications] = useBehaviorSubject(activeCredential?.requestingApplications$);
+  const [showMore, setShowMore] = useState(false);
+
+  const handleShowMore = (): void => {
+    setShowMore(!showMore);
+
+  }
 
   return (
     <div className="col-span-full xl:col-span-7 bg-white dark:bg-slate-800 shadow-lg rounded-sm border border-slate-200 dark:border-slate-700">
@@ -61,6 +68,21 @@ export const CredentialDetailWidget: FC = () => {
                   <Typography variant="body1" sx={{ color: 'text.secondary' }}>
                     {activeCredential.verifiableCredential.expirationDate.toLocaleDateString()}
                   </Typography>
+                </Grid>
+
+                <Grid item xs={6}>
+                  {activeCredential.getContentTree() !== null && (
+                    <Button variant="outlined" color="primary" onClick={handleShowMore}>
+                      {showMore ? 'Hide More' : 'Show More'}
+                    </Button>
+                  )}
+                </Grid>
+                <Grid item xs={12}>
+                  {showMore && activeCredential.getContentTree() !== null && (
+                    <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+                      <JsonViewer data={activeCredential.getContentTree()}></JsonViewer>
+                    </Typography>
+                  )}
                 </Grid>
 
                 {activeCredential.isSensitiveCredential() &&
