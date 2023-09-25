@@ -1,24 +1,12 @@
 "use client";
 import React, { FC, useRef, useState } from "react";
 import clsx from "clsx";
+import { useRouter } from "next/navigation";
 // import Xarrow from "react-xarrows";
-import {
-  Card,
-  useMediaQuery,
-  useTheme,
-  styled,
-  FormControl,
-  Input,
-  InputAdornment,
-  Fade,
-  Box,
-  IconButton,
-  InputBaseComponentProps,
-  InputLabel,
-  InputProps,
-  FormHelperText,
-} from "@mui/material";
+import { Card, useMediaQuery, useTheme, styled, FormControl, Input, InputAdornment, Fade, Box, IconButton, InputBaseComponentProps, InputLabel, InputProps, FormHelperText } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { useToast } from "@services/feedback.service";
+import { signOut, signUp } from "@services/user/user.service";
 import TextBarcode from "@components/text-barcode/TextBarcode";
 import { BlackButton } from "@components/button";
 import { LandingCard } from "@components/card";
@@ -222,14 +210,18 @@ const PasswordInput: FC<{
 };
 const RegisterPage: FC = () => {
   const theme = useTheme();
+  const router = useRouter();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [holderName, setHolderName] = useState("");
   const [password, setPassword] = useState({ pw: "", confirm: "" });
   const [visibleNextBtn, setVisibleNextBtn] = useState(false);
   const [visibleNextForm, setVisibleNextForm] = useState(false);
   const [validationState, setValidationState] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
   const pwInputRef = useRef(null);
   const confirmPwInputRef = useRef(null);
+  const { showErrorToast } = useToast();
+  const enabledButtonState = holderName.trim().length>0 && (!visibleNextForm || (visibleNextForm && password.pw.length>0 && password.pw === password.confirm))
 
   const handleInputName: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     setVisibleNextBtn(true);
@@ -250,9 +242,34 @@ const RegisterPage: FC = () => {
     pwInputRef.current.focus();
   };
 
-  const handleCreate: React.MouseEventHandler = () => {
+  const handleCreate: React.MouseEventHandler = async () => {
     setValidationState(true);
     if (pwInputRef.current.value !== confirmPwInputRef.current.value) return;
+
+    setIsCreating(true)
+    try {
+      const createdUser = await signUp(holderName);
+      if (createdUser) {
+        // After sign up, create the first shadow key based on the given password, so we can create a first identity just after.
+        const passwordBound = await createdUser.get("security").bindPassword(password.pw);
+        if (passwordBound) {
+          // All good, go to on boarding
+          router.push("/onboarding");
+        }
+        else {
+          // Something wrong happened, sign out from the failing attempt
+          // TODO: Show feedback to user
+          signOut();
+          setIsCreating(false);
+        }
+      }
+      else {
+        setIsCreating(false);
+        showErrorToast("Sign up failed.")
+      }
+    } catch(e) {
+      showErrorToast("Sign up failed.")
+    }
   };
 
   return (
@@ -399,8 +416,10 @@ const RegisterPage: FC = () => {
         <div className="p-8 w-full">
           <Fade in={visibleNextBtn}>
             <BlackButton
+              loading={isCreating}
+              loadingPosition="start"
               className="w-full"
-              disabled={!holderName.length}
+              disabled={!enabledButtonState}
               onClick={visibleNextForm ? handleCreate : handleNext}
             >
               {visibleNextForm ? "CREATE ACCOUNT" : "NEXT"}

@@ -1,11 +1,9 @@
 "use client";
+import { FC, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { DarkButton } from "@components/button";
 import { Icon as ReactIcon } from "@iconify/react";
-import { Container } from "@mui/material";
 import { FlowOperation, setOnGoingFlowOperation } from "@services/flow.service";
-import clsx from "clsx";
-import { useRouter, useSearchParams } from "next/navigation";
-import { FC, useEffect, useState } from "react";
 
 const MicrosoftSignIn: FC = () => {
   const router = useRouter();

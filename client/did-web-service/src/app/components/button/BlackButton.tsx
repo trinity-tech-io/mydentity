@@ -1,6 +1,7 @@
 import { Button, styled } from "@mui/material";
+import LoadingButton from '@mui/lab/LoadingButton';
 
-const BlackButton = styled(Button)(({ theme }) => ({
+const BlackButton = styled(LoadingButton)(({ theme }) => ({
   background: "#000 !important",
   borderRadius: 4,
   padding: "8px 18px",
@@ -17,6 +18,10 @@ const BlackButton = styled(Button)(({ theme }) => ({
     fontSize: 12,
     padding: "6px 14px",
   },
+  ".MuiLoadingButton-loadingIndicator": {
+    position: 'unset',
+    paddingRight: '1rem'
+  }
 }));
 
 export default BlackButton;

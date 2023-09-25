@@ -103,7 +103,9 @@ export default function RootLayout({
     pathname.startsWith("/register") ||
     pathname.startsWith("/signin");
   return isEntryPage ? (
-    <EntryLayout>{children}</EntryLayout>
+    <EntryLayout>
+      <SnackbarProvider>{children}</SnackbarProvider>
+    </EntryLayout>
   ) : (
     <ThemeRegistry>
       <AppThemeProvider>
