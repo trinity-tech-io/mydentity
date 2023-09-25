@@ -20,7 +20,8 @@ const BlackButton = styled(LoadingButton)(({ theme }) => ({
   },
   ".MuiLoadingButton-loadingIndicator": {
     position: 'unset',
-    paddingRight: '1rem'
+    color: 'white',
+    visibility: 'inherit'
   }
 }));
 

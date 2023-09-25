@@ -416,8 +416,8 @@ const RegisterPage: FC = () => {
         <div className="p-8 w-full">
           <Fade in={visibleNextBtn}>
             <BlackButton
+              id="action-btn"
               loading={isCreating}
-              loadingPosition="start"
               className="w-full"
               disabled={!enabledButtonState}
               onClick={visibleNextForm ? handleCreate : handleNext}
