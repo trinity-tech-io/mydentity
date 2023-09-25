@@ -1,10 +1,11 @@
 import { configService } from "@services/config/config.service";
 import { Subject } from 'rxjs';
-import { logger } from '../logger';
+import { logger } from '@services/logger';
 import { Sockette } from "./sockette-improved";
 import { onMessage } from "./websocket.events";
 import { WebSocketActionType, WebSocketEventType, WsMessageEvent } from './websocket.types';
 import { authUser$ } from "@services/user/user.events";
+import { isClientSide } from "@utils/client-server";
 
 class WebSocketsService {
   private sockette: Sockette;
@@ -19,6 +20,8 @@ class WebSocketsService {
 
   private initInternal(): void {
     // console.log('WebSocketsService.initInternal');
+    if (!isClientSide())
+      return;
 
     const url = `${configService.get('wsUrl')}`;
 

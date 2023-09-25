@@ -1,6 +1,6 @@
 import { DIDDocument, RootIdentity } from '@elastosfoundation/did-js-sdk';
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
-import { Browser, Identity, User } from '@prisma/client/main';
+import { ActivityType, Browser, Identity, User } from '@prisma/client/main';
 import { CredentialsService } from 'src/credentials/credentials.service';
 import { AssistTransactionStatus, DIDPublishingService } from 'src/did-publishing/did-publishing.service';
 import { DidService } from 'src/did/did.service';
@@ -12,6 +12,7 @@ import { uuid } from 'uuidv4';
 import { CreateIdentityInput } from './dto/create-identity.input';
 import { CreateManagedIdentityInput } from './dto/create-managed-identity.input';
 import { IdentityPublicationState } from './model/identity-publication-state';
+import { ActivityService } from "../activity/activity.service";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const moment = require('moment');
@@ -24,7 +25,8 @@ export class IdentityService {
     private credentialsService: CredentialsService,
     private didPublishingService: DIDPublishingService,
     private didService: DidService,
-    private keyRingService: KeyRingService) {
+    private keyRingService: KeyRingService,
+    private activityService: ActivityService) {
   }
 
   async create(createIdentityInput: CreateIdentityInput, user: User, browser: Browser): Promise<Identity> {
@@ -102,7 +104,11 @@ export class IdentityService {
     const payload = await this.didService.createDIDPublishTransaction(context, identityDid, storePassword);
     const { publicationId } = await this.publishIdentity(identityDid, payload);
     identity.publicationId = publicationId;
-    this.logger.log('create identity:' + JSON.stringify(identity))
+
+    await this.activityService.createActivity(user, {type: ActivityType.IDENTITY_CREATED, identityId: identity.did, identityDid: identity.did});
+
+    this.logger.log('create identity:' + JSON.stringify(identity));
+
     return identity;
   }
 
@@ -116,7 +122,9 @@ export class IdentityService {
         where: {
           did: didString
         }
-      })
+      });
+
+      await this.activityService.createActivity(user, {type: ActivityType.IDENTITY_DELETED, identityDid: didString});
     } else {
       this.logger.warn('deleteIdentity error');
     }

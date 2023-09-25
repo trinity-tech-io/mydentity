@@ -75,17 +75,7 @@ export class UserResolver {
    */
   @Mutation(() => LoggedUserOutput, { nullable: true })
   async checkEmailAuthentication(@Args('authKey') authKey: string, @HeaderBrowserKey() browserKey: string, @UserAgent() userAgent: string) {
-    return await this.userService.checkEmailAuthentication(null, authKey, browserKey, userAgent, async (user, userEmail) => {
-      const browser = await this.browsersService.findOne(browserKey);
-      await this.activityService.createActivity(user, {
-        type: ActivityType.USER_SIGN_IN,
-        userEmailId: userEmail.id,
-        userEmailProvider: UserEmailProvider.RAW,
-        userEmailAddress: userEmail.email,
-        browserId: browser.id,
-        browserName: browser.name,
-      });
-    });
+    return await this.userService.checkEmailAuthentication(null, authKey, browserKey, userAgent);
   }
 
   /**
@@ -94,14 +84,7 @@ export class UserResolver {
   @UseGuards(JwtAuthGuard)
   @Mutation(() => LoggedUserOutput, { nullable: true })
   async checkEmailBind(@CurrentUser() user: UserEntity, @Args('authKey') authKey: string, @CurrentBrowser() browser: Browser, @UserAgent() userAgent: string) {
-    return this.userService.checkEmailAuthentication(user, authKey, browser?.id, userAgent, async (user, userEmail) => {
-      await this.activityService.createActivity(user, {
-        type: ActivityType.BIND_EMAIL,
-        userEmailId: userEmail.id,
-        userEmailProvider: UserEmailProvider.RAW,
-        userEmailAddress: userEmail.email,
-      });
-    });
+    return this.userService.checkEmailAuthentication(user, authKey, browser?.key, userAgent);
   }
 
   @Mutation(() => RefreshTokenOutput)

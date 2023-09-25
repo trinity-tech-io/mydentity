@@ -4,7 +4,6 @@ import { ActivityType, Browser, User } from '@prisma/client/main';
 import { CurrentUser } from 'src/auth/currentuser.decorator';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CurrentBrowser } from 'src/browsers/browser-user.decorator';
-import { ActivityService } from "../activity/activity.service";
 import { CreateIdentityInput } from './dto/create-identity.input';
 import { CreateManagedIdentityInput } from './dto/create-managed-identity.input';
 import { PublicationStatusInput } from './dto/publication-status.input';
@@ -18,25 +17,20 @@ import { IdentityService } from './identity.service';
 
 @Resolver(() => IdentityEntity)
 export class IdentityResolver {
-  constructor(private readonly identityService: IdentityService,
-    private readonly activityService: ActivityService
+  constructor(private readonly identityService: IdentityService
   ) { }
 
   @UseGuards(JwtAuthGuard)
   @Mutation(() => IdentityEntity)
   async createIdentity(@Args('input') createIdentityInput: CreateIdentityInput, @CurrentUser() user: User, @CurrentBrowser() browser: Browser) {
-    const identity = await this.identityService.create(createIdentityInput, user, browser);
-    await this.activityService.createActivity(user, { type: ActivityType.IDENTITY_CREATED, identityId: identity.did, identityDid: identity.did })
-    return identity;
+    return await this.identityService.create(createIdentityInput, user, browser);
   }
 
   @UseGuards(JwtAuthGuard)
   @Mutation(() => Boolean)
   async deleteIdentity(@Args('identityDid') identityDid: string, @CurrentUser() user: User) {
     await this.identityService.ensureOwnedIdentity(identityDid, user);
-    const result = await this.identityService.deleteIdentity(identityDid, user);
-    await this.activityService.createActivity(user, { type: ActivityType.IDENTITY_DELETED, identityDid: identityDid });
-    return result;
+    return await this.identityService.deleteIdentity(identityDid, user);
   }
 
   @UseGuards(JwtAuthGuard)

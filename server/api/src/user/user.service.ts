@@ -1,5 +1,5 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { User, UserEmail, UserEmailProvider } from '@prisma/client/main';
+import { ActivityType, User, UserEmail, UserEmailProvider } from '@prisma/client/main';
 import { randomUUID } from "crypto";
 import * as moment from "moment";
 import { encode } from "slugid";
@@ -17,15 +17,19 @@ import { SignUpInput } from './dto/sign-up.input';
 import { UserPropertyInput } from "./dto/user-property.input";
 import { UserEmailEntity } from "./entities/user-email.entity";
 import { UserEntity } from "./entities/user.entity";
+import { BrowsersService } from "../browsers/browsers.service";
+import { ActivityService } from "../activity/activity.service";
 
 // https://makinhs.medium.com/authentication-made-easy-with-nestjs-part-4-of-how-to-build-a-graphql-mongodb-d6057eae3fdf
 @Injectable()
 export class UserService {
   constructor(
-    private prisma: PrismaService,
-    private authService: AuthService,
-    private keyRingService: KeyRingService,
-    @Inject(forwardRef(() => EmailingService)) private emailingService: EmailingService,
+    private readonly prisma: PrismaService,
+    private readonly authService: AuthService,
+    private readonly keyRingService: KeyRingService,
+    @Inject(forwardRef(() => EmailingService)) private readonly emailingService: EmailingService,
+    private readonly browsersService: BrowsersService,
+    private readonly activityService: ActivityService,
   ) { }
 
   /**
@@ -99,14 +103,22 @@ export class UserService {
   /**
    * Just execute with oauth email.
    */
-  async signInByOauthEmail(email: string, browserKey: string, userAgent: string, callback: (userEmail: UserEmail) => Promise<void>=null) {
+  async signInByOauthEmail(email: string, browserKey: string, userAgent: string) {
     const userEmail: UserEmail & { user: User } = await this.getUserEmailByEmail(email);
     if (!userEmail) {
       return null;
     }
 
-    if (callback) {
-      await callback(userEmail);
+    {
+      const browser = await this.browsersService.findOne(browserKey);
+      await this.activityService.createActivity(userEmail.user, {
+        type: ActivityType.USER_SIGN_IN,
+        userEmailId: userEmail.id,
+        userEmailProvider: UserEmailProvider.MICROSOFT,
+        userEmailAddress: userEmail.email,
+        browserId: browser.id,
+        browserName: browser.name,
+      });
     }
 
     return await this.authService.generateUserCredentials(userEmail.user, browserKey, userAgent);
@@ -198,7 +210,7 @@ export class UserService {
    * This auth key comes from a magic link received by users by email, after requesting
    * to receive a magic link by email.
    */
-  public async checkEmailAuthentication(curUser: UserEntity, temporaryEmailAuthKey: string, existingBrowserKey: string, userAgent: string, callback: (user: User, userEmail: UserEmail) => Promise<void> = null): Promise<AuthTokens> {
+  public async checkEmailAuthentication(curUser: UserEntity, temporaryEmailAuthKey: string, existingBrowserKey: string, userAgent: string): Promise<AuthTokens> {
     const user = await this.prisma.user.findFirst({
       where: {
         temporaryEmailAuthExpiresAt: { gt: new Date() },
@@ -211,9 +223,9 @@ export class UserService {
       //   throw new AppException(AuthExceptionCode.EmailNotExists, "This temporary authentication key is expired or invalid..", 401);
     }
 
-    if (!curUser) // login
+    if (!curUser) { // login
       await this.maybeSendWelcomeEmail(user, user.temporaryEmail);
-    else { // bind email
+    } else { // bind email
       await this.prisma.userEmail.upsert({
         where: {
           email: user.temporaryEmail
@@ -230,7 +242,7 @@ export class UserService {
       })
     }
 
-    if (callback) {
+    {
       const userEmail = await this.prisma.userEmail.findFirst({
         where: {
           email: user.temporaryEmail,
@@ -239,7 +251,16 @@ export class UserService {
       if (!userEmail) {
         throw new AppException(AuthExceptionCode.InexistingEmail, "No email address with auth key existing.", 401);
       }
-      await callback(user, userEmail);
+
+      const browser = await this.browsersService.findOne(existingBrowserKey);
+      await this.activityService.createActivity(user, {
+        type: !curUser ? ActivityType.USER_SIGN_IN : ActivityType.BIND_EMAIL,
+        userEmailId: userEmail.id,
+        userEmailProvider: UserEmailProvider.RAW,
+        userEmailAddress: userEmail.email,
+        browserId: !curUser ? browser.id : undefined,
+        browserName: !curUser ? browser.name : undefined,
+      });
     }
 
     return this.authService.generateUserCredentials(user, existingBrowserKey, userAgent);
@@ -280,7 +301,7 @@ export class UserService {
   /**
    * Bind oauth email to user.
    */
-  async bindOauthEmail(user: UserEntity, email: string, callback: (userEmail: UserEmailEntity)=>Promise<void>=null) {
+  async bindOauthEmail(user: UserEntity, email: string) {
     let userEmail: UserEmailEntity = await this.prisma.userEmail.findFirst({
       where: { email },
       include: { user: true }
@@ -307,9 +328,12 @@ export class UserService {
       })
     }
 
-    if (callback) {
-      await callback(userEmail);
-    }
+    await this.activityService.createActivity(user, {
+      type: ActivityType.BIND_EMAIL,
+      userEmailId: userEmail.id,
+      userEmailProvider: UserEmailProvider.MICROSOFT,
+      userEmailAddress: userEmail.email,
+    });
 
     logger.log('user', 'bind user with email successfully', user, email);
 
