@@ -63,7 +63,7 @@ export class WebSocketService {
    * Handle messages here which come from adapter.
    */
   private async onAdapterMessage(message: ReceivedWSMessage) {
-    console.log("WS SERVICE RECEIVED ADAPTER MESSAGE", message)
+    // console.log("WS SERVICE RECEIVED ADAPTER MESSAGE", message)
     const bearerToken = message.authorization;
 
     if (!bearerToken || bearerToken === 'null') {
@@ -85,7 +85,7 @@ export class WebSocketService {
       // this.userService.saveLastSeenNow(user);
 
       await this.webSocketCacheService.appendSocketId(user.id, message.socketID);
-      console.log(`this.webSocketCacheService.appendSocketId`, user.id, message.socketID);
+      // console.log(`this.webSocketCacheService.appendSocketId`, user.id, message.socketID);
 
       // Emit message to action type listeners in services
       this.getMessageHandler(message.event).next({
@@ -106,7 +106,7 @@ export class WebSocketService {
    * Emit event to the sockets of the user.
    */
   public async emit(user: UserEntity, type: WebSocketEventType, event: any) {
-    console.log('WS SERVICE EMIT', user, type, event);
+    // console.log('WS SERVICE EMIT', user, type, event);
     const socketIds: string[] = await this.webSocketCacheService.getSocketIds(user.id);
     // logger.log('emit socket ids:', socketIds, type, event);
     const invalidSocketIds = this.emitEvent(socketIds, type, event);
@@ -114,7 +114,7 @@ export class WebSocketService {
   }
 
   private emitEvent(socketIds: string | string[], type: WebSocketEventType, event: any) {
-    console.log("WS SERVICE EMIT EVENT", socketIds, type, event)
+    // console.log("WS SERVICE EMIT EVENT", socketIds, type, event)
 
     const targetSocketIds: string[] = typeof socketIds === "string" ? [socketIds] : socketIds;
 
