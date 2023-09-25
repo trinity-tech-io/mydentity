@@ -30,7 +30,7 @@ export const CredentialDetailWidget: FC = () => {
 
   return (
     <div className="col-span-full xl:col-span-7 bg-white dark:bg-slate-800 shadow-lg rounded-sm border border-slate-200 dark:border-slate-700">
-      {(!activeCredential || !mounted) && <VerticalStackLoadingCard />}
+      {(!mounted) && <VerticalStackLoadingCard />}
       {mounted && activeCredential &&
         (<Box sx={{ px: 2.5, pb: 3 }}>
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '24px' }}>
