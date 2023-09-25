@@ -55,12 +55,7 @@ async function importCredentials(withDisplayableCredential: boolean) {
   console.log("Generated credential:", credential);
 
   // Send the credential to the identity wallet
-  let importedCredentials = await didAccessV2.importCredentials([credential]);
-
-  // Result of this import, depending on user
-  console.log("Imported credentials:", importedCredentials);
-
-  return importedCredentials;
+  await didAccessV2.importCredentials([credential]);
 }
 
 export const ImportCredentials: FC = () => {

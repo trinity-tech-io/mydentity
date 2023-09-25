@@ -8,7 +8,9 @@ import { AppException } from 'src/exceptions/app-exception';
 import { AuthExceptionCode, DIDExceptionCode } from 'src/exceptions/exception-codes';
 import { KeyRingService } from 'src/key-ring/key-ring.service';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { uuid } from 'uuidv4';
 import { CreateIdentityInput } from './dto/create-identity.input';
+import { CreateManagedIdentityInput } from './dto/create-managed-identity.input';
 import { IdentityPublicationState } from './model/identity-publication-state';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -27,26 +29,46 @@ export class IdentityService {
 
   async create(createIdentityInput: CreateIdentityInput, user: User, browser: Browser): Promise<Identity> {
     const storePassword = this.getDIDStorePassword(user?.id, browser?.id);
+    return this.createIdentityInternal(user.id, storePassword, user, createIdentityInput.hiveVaultProvider);
+  }
 
+  /**
+   * Creates a new orphan identity (no user attached). This is used to easily create identities
+   * remotely by third party apps. This returns a token that can be used to manage the identity
+   * (ie: transfer to a user during claim).
+   *
+   * If the token is lost, the identity is orphan forever.
+   */
+  async createManaged(input: CreateManagedIdentityInput): Promise<Identity> {
+    const storePassword = "12345"; // TODO: check with jingyu for master key access from remote management token
+    const context = uuid(); // Unique 
+    return this.createIdentityInternal(context, storePassword);
+  }
+
+  /**
+  * @param context sandboxing context for DID storage
+  */
+  private async createIdentityInternal(context: string, storePassword: string, user?: User, hiveVaultProvider?: string): Promise<Identity> {
     let rootIdentity: RootIdentity = null;
     let didDocument: DIDDocument = null;
     let identityDid: string = null;
 
     try {
       // Get rootIdentity to new did.
-      rootIdentity = await this.didService.getRootIdentity(user.id, storePassword);
+      rootIdentity = await this.didService.getRootIdentity(context, storePassword);
 
       didDocument = await rootIdentity.newDid(storePassword);
 
       // In order to avoid publishing the DID at creation, then publish again to set the hive provider,
       // we add the hive vault provider as a service, if any given, during the identity creation.
-      if (createIdentityInput.hiveVaultProvider)
+      if (hiveVaultProvider) {
         didDocument = await DIDDocument.Builder.newFromDocument(didDocument)
-          .addService("#hivevault", "HiveVault", createIdentityInput.hiveVaultProvider)
+          .addService("#hivevault", "HiveVault", hiveVaultProvider)
           .seal(storePassword);
+      }
 
       // Save the DID document
-      await this.didService.storeDIDDocument(user.id, didDocument);
+      await this.didService.storeDIDDocument(context, didDocument);
 
       identityDid = didDocument.getSubject().toString();
     } catch (e) {
@@ -61,7 +83,7 @@ export class IdentityService {
 
     const identityRoot = await this.prisma.identityRoot.create({
       data: {
-        user: { connect: { id: user.id } },
+        ...(user && { user: { connect: { id: user.id } } }),
         didStoreRootIdentityId: rootIdentity.getId()
       }
     });
@@ -71,13 +93,13 @@ export class IdentityService {
         did: identityDid,
         identityRoot: { connect: { id: identityRoot.id } },
         derivationIndex: derivationIndex,
-        user: { connect: { id: user.id } },
+        ...(user && { user: { connect: { id: user.id } } }),
         publicationId: "",
       }
     })
 
     // publish DID
-    const payload = await this.didService.createDIDPublishTransaction(user.id, identityDid, storePassword);
+    const payload = await this.didService.createDIDPublishTransaction(context, identityDid, storePassword);
     const { publicationId } = await this.publishIdentity(identityDid, payload);
     identity.publicationId = publicationId;
     this.logger.log('create identity:' + JSON.stringify(identity))
@@ -218,7 +240,6 @@ export class IdentityService {
   }
 
   private getDIDStorePassword(userId: string, browserId: string) {
-    const password = this.keyRingService.getMasterKey(userId, browserId);
-    return password;
+    return this.keyRingService.getMasterKey(userId, browserId);
   }
 }

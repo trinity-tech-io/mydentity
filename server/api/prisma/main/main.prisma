@@ -56,10 +56,10 @@ model IdentityRoot {
   id String @id @unique @default(uuid())
 
   createdAt              DateTime @default(now())
-  user                   User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+  user                   User?    @relation(fields: [userId], references: [id], onDelete: Restrict) // Note: user is optionnal only when creating managed identities (from third party apps)
   didStoreRootIdentityId String // Unique id of the matching RootIdentity in the DID SDK, to retrieve the root mnemonic used to derive new DIDs
 
-  userId   String
+  userId   String?
   Identity Identity[]
 }
 
@@ -69,11 +69,11 @@ model Identity {
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @default(now())
   lastUsedAt      DateTime     @default(now())
-  user            User         @relation(fields: [userId], references: [id], onDelete: Restrict)
+  user            User?        @relation(fields: [userId], references: [id], onDelete: Restrict) // Note: user is optionnal only when creating managed identities (from third party apps)
   identityRoot    IdentityRoot @relation(fields: [identityRootId], references: [id], onDelete: Restrict)
   derivationIndex Int // Informative, for users: index of the DID derivation in the DID SDK
 
-  userId         String
+  userId         String?
   identityRootId String
 
   credentials Credential[]
@@ -187,23 +187,23 @@ model Activity {
   user User         @relation(fields: [userId], references: [id], onDelete: Restrict)
   type ActivityType
 
-  userEmail         UserEmail? @relation(fields: [userEmailId], references: [id]) // For BIND_EMAIL.
+  userEmail         UserEmail?         @relation(fields: [userEmailId], references: [id]) // For BIND_EMAIL.
   userEmailProvider UserEmailProvider? // For USER_SIGN_IN or BIND_EMAIL.
-                                       // May not the same as userEmail.provider. For example, MS email, but sign-in by auth key.
+  // May not the same as userEmail.provider. For example, MS email, but sign-in by auth key.
   userEmailAddress  String? // For BIND_EMAIL.
-  identity          Identity? @relation(fields: [identityId], references: [did]) // For IDENTITY_CREATED
+  identity          Identity?          @relation(fields: [identityId], references: [did]) // For IDENTITY_CREATED
   identityDid       String? // For IDENTITY_CREATED and IDENTITY_DELETED.
   credentialsCount  Int? // For CREDENTIALS_IMPORTED and CREDENTIALS_SHARED.
   appDid            String? // Caller of CREDENTIALS_IMPORTED and CREDENTIALS_SHARED.
-  browser           Browser? @relation(fields: [browserId], references: [id], onDelete: Restrict) // For BIND_BROWSER, if no browser, use browserName
+  browser           Browser?           @relation(fields: [browserId], references: [id], onDelete: Restrict) // For BIND_BROWSER, if no browser, use browserName
   browserName       String? // For BIND_BROWSER
 
   createdAt DateTime @default(now())
 
-  userId            String
-  browserId         String?
-  identityId        String?
-  userEmailId       String?
+  userId      String
+  browserId   String?
+  identityId  String?
+  userEmailId String?
 }
 
 // No need setup the relations with the user

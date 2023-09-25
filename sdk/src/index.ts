@@ -1,8 +1,12 @@
 export {
-    createIdentity,
+    createManagedIdentity,
     generateClaimUrl,
     getIdentityClaimStatus
 } from "@services/identity.service";
+
+export type {
+    CreatedManagedIdentity
+} from '@services/identity.service';
 
 export {
     configure

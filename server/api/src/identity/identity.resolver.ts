@@ -1,30 +1,32 @@
 import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { Browser, User, ActivityType } from '@prisma/client/main';
+import { ActivityType, Browser, User } from '@prisma/client/main';
 import { CurrentUser } from 'src/auth/currentuser.decorator';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CurrentBrowser } from 'src/browsers/browser-user.decorator';
+import { ActivityService } from "../activity/activity.service";
 import { CreateIdentityInput } from './dto/create-identity.input';
+import { CreateManagedIdentityInput } from './dto/create-managed-identity.input';
 import { PublicationStatusInput } from './dto/publication-status.input';
 import { PublishIdentityInput } from './dto/publish-identity.input';
 import { IdentityPublicationStatusEntity } from './entities/identity-publication-status.entity';
 import { IdentityEntity } from './entities/identity.entity';
+import { ManagedIdentityEntity } from './entities/managed-identity.entity';
 import { PublishResultEntity } from './entities/publish-result.entity';
 import { TransactionEntity } from './entities/transaction.entity';
 import { IdentityService } from './identity.service';
-import { ActivityService } from "../activity/activity.service";
 
 @Resolver(() => IdentityEntity)
 export class IdentityResolver {
   constructor(private readonly identityService: IdentityService,
-              private readonly activityService: ActivityService
+    private readonly activityService: ActivityService
   ) { }
 
   @UseGuards(JwtAuthGuard)
   @Mutation(() => IdentityEntity)
   async createIdentity(@Args('input') createIdentityInput: CreateIdentityInput, @CurrentUser() user: User, @CurrentBrowser() browser: Browser) {
     const identity = await this.identityService.create(createIdentityInput, user, browser);
-    await this.activityService.createActivity(user, {type: ActivityType.IDENTITY_CREATED, identityId: identity.did, identityDid: identity.did})
+    await this.activityService.createActivity(user, { type: ActivityType.IDENTITY_CREATED, identityId: identity.did, identityDid: identity.did })
     return identity;
   }
 
@@ -33,7 +35,7 @@ export class IdentityResolver {
   async deleteIdentity(@Args('identityDid') identityDid: string, @CurrentUser() user: User) {
     await this.identityService.ensureOwnedIdentity(identityDid, user);
     const result = await this.identityService.deleteIdentity(identityDid, user);
-    await this.activityService.createActivity(user, {type: ActivityType.IDENTITY_DELETED, identityDid: identityDid});
+    await this.activityService.createActivity(user, { type: ActivityType.IDENTITY_DELETED, identityDid: identityDid });
     return result;
   }
 
@@ -72,5 +74,17 @@ export class IdentityResolver {
   async markIdentityInUse(@Args('identityDid') identityDid: string, @CurrentUser() user: User) {
     await this.identityService.ensureOwnedIdentity(identityDid, user);
     return this.identityService.markIdentityInUse(identityDid);
+  }
+
+  @Mutation(() => ManagedIdentityEntity)
+  async createManagedIdentity(@Args('input') input: CreateManagedIdentityInput): Promise<ManagedIdentityEntity> {
+    const identity = await this.identityService.createManaged(input);
+    if (!identity)
+      return null;
+
+    return {
+      accessToken: "1234",
+      did: identity.did
+    };
   }
 }

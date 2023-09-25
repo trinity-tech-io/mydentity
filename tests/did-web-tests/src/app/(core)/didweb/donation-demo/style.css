@@ -1,0 +1,5 @@
+.demo-items-list li {
+    border-left: solid 4px gray;
+    padding-left: 5px;
+    margin-bottom: 8px;
+}

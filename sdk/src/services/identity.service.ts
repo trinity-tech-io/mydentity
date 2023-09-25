@@ -1,20 +1,28 @@
 import { gqlQuery } from "../api";
 
-type CreateIdentityAPIResponse = {
+export type CreatedManagedIdentity = {
   did: string;
   accessToken: string;
 }
 
-export async function createIdentity() {
-  const response = await gqlQuery<CreateIdentityAPIResponse>("createIdentity", `
-    mutation CreateOrphanIdentity($input: CreateIntentInput!) {
-      createIntent (input: $input) {
-        intentId
+export async function createManagedIdentity(): Promise<CreatedManagedIdentity> {
+  // TEMP dev
+  return {
+    did: "did:elastos:fakehardcoded",
+    accessToken: "abc"
+  }
+
+  const response = await gqlQuery<CreatedManagedIdentity>("createManagedIdentity", `
+    mutation CreateManagedIdentity($input: CreateManagedIdentityInput!) {
+      createManagedIdentity (input: $input) {
+        accessToken did
       }
     }
-  `);
+  `, {
+    input: {}
+  });
 
-  console.log("response", response)
+  return response;
 }
 
 export function getIdentityClaimStatus() {

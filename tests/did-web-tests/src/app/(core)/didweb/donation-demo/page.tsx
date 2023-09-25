@@ -1,26 +1,34 @@
 "use client"
-import { MainButton } from "@components/MainButton";
-import { configure, createIdentity } from "@trinitytech/did-web-service-sdk";
-import { FC } from "react";
+import { Typography } from "@mui/material";
+import { CreatedManagedIdentity, configure } from "@trinitytech/did-web-service-sdk";
+import { FC, useState } from "react";
+import { FormSubmissionStep } from "./FormSubmissionStep";
+import { IntroStep } from "./IntroStep";
+import "./style.css";
 
 configure({
   webServiceEndpoint: process.env.NEXT_PUBLIC_FRONTEND_URL,
   webServiceAPIEndpoint: process.env.NEXT_PUBLIC_BACKEND_URL,
 });
 
-const DonationDemo: FC = () => {
+enum Step {
+  Intro,
+  FillForm
+}
 
-  const onCreateIdentity = async () => {
-    console.log("Creating a remote identity");
-    await createIdentity()
-    console.log("Remote identity creation ended");
-  }
+const DonationDemo: FC = () => {
+  const [step, setStep] = useState<Step>(Step.Intro);
+  const [createdIdentity, setCreatedIdentity] = useState<CreatedManagedIdentity>(null);
 
   return (
     <div className="col-span-full">
       <div className="flex flex-col gap-4">
-        Hey donation
-        <MainButton onClick={onCreateIdentity}>Create identity</MainButton>
+        <Typography variant="h6">Donation demo</Typography>
+
+        {step === Step.Intro && <IntroStep goToNextStep={() => setStep(Step.FillForm)} />}
+        {step === Step.FillForm && <FormSubmissionStep
+          onCreatedIdentity={setCreatedIdentity}
+          onImportedCredentials={() => { }} />}
       </div>
     </div>
   )

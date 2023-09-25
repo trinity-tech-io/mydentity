@@ -2,10 +2,14 @@ import { runtimeSettings } from "@services/settings.service";
 import { ExceptionCode } from "./exceptions/exception-codes";
 import { SDKException } from "./exceptions/sdk-exception";
 
-export async function gqlQuery<ResponseType>(name: string, query: string, variables?: unknown): Promise<ResponseType> {
+type GraphqlResponse<ResponseType> = {
+  data: ResponseType;
+}
+
+export async function gqlQuery<ResponseType extends object>(methodName: string, query: string, variables?: unknown): Promise<ResponseType> {
   const endpoint = `${runtimeSettings.webServiceAPIEndpoint}/graphql`;
 
-  let jsonResponse: ResponseType;
+  let jsonResponse: GraphqlResponse<ResponseType>;
   try {
     const result = await fetch(endpoint, {
       method: 'POST',
@@ -15,7 +19,7 @@ export async function gqlQuery<ResponseType>(name: string, query: string, variab
       body: JSON.stringify({ query, variables })
     });
 
-    jsonResponse = <ResponseType>await result?.json();
+    jsonResponse = <GraphqlResponse<ResponseType>>await result?.json();
   }
   catch (e) {
     if (e?.message === "Failed to fetch")
@@ -25,13 +29,20 @@ export async function gqlQuery<ResponseType>(name: string, query: string, variab
   }
 
   if (!jsonResponse)
-    throw SDKException.create(ExceptionCode.EmptyResponse, `Empty response received from the backend during a call to ${name}`);
+    throw SDKException.create(ExceptionCode.EmptyResponse, `Empty response received from the backend during a call to ${methodName}`);
 
   if (typeof jsonResponse != "object")
-    throw SDKException.create(ExceptionCode.InvalidResponse, `Not a json response received during a call to ${name}`);
+    throw SDKException.create(ExceptionCode.InvalidResponse, `Not a json response received during a call to ${methodName}`);
 
   if ("errors" in jsonResponse)
-    throw SDKException.create(ExceptionCode.ServerError, `Server errors during a call to ${name}`, jsonResponse.errors);
+    throw SDKException.create(ExceptionCode.ServerError, `Server errors during a call to ${methodName}`, jsonResponse.errors);
 
-  return jsonResponse;
+  if (!("data" in jsonResponse))
+    throw SDKException.create(ExceptionCode.InvalidResponse, `No 'data' field in graphql response during a call to ${methodName}`);
+
+  const data = jsonResponse.data;
+  if (!(methodName in data))
+    throw SDKException.create(ExceptionCode.InvalidResponse, `Expected graphql field '${methodName}' not found in response during a call to ${methodName}`);
+
+  return jsonResponse.data[methodName];
 }
