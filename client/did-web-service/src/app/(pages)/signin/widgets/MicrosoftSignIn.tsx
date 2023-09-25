@@ -28,6 +28,7 @@ const MicrosoftSignIn: FC = () => {
   return (
     <>
       <DarkButton
+        id="signin-ms"
         startIcon={<ReactIcon icon="logos:microsoft-icon" />}
         onClick={signInWithMicrosoft}
         className="w-full"

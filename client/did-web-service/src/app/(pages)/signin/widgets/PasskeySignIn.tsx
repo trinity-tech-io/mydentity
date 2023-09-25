@@ -5,7 +5,6 @@ import { Icon as ReactIcon } from '@iconify/react';
 import { useToast } from "@services/feedback.service";
 import { usePostSignInFlow } from '@services/flow.service';
 import { authenticateWithPasskey } from "@services/user/user.service";
-import clsx from 'clsx';
 import { FC } from 'react';
 
 const PasskeySignIn: FC = () => {
@@ -23,6 +22,7 @@ const PasskeySignIn: FC = () => {
 
   return (
     <DarkButton
+      id="signin-pk"
       className="w-full"
       startIcon={<ReactIcon icon="" />}
       onClick={signInWithPasskey}

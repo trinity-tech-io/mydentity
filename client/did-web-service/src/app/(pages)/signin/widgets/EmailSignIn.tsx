@@ -24,6 +24,16 @@ const FormControlStyled = styled(FormControl)(({ theme }) => ({
         borderColor: "white",
       },
     },
+  ".MuiOutlinedInput-root.Mui-disabled": {
+    opacity: 0.5,
+    input: {
+      WebkitTextFillColor: "white",
+      textFillColor: "white",
+    },
+    fieldset: {
+      borderColor: "white",
+    },
+  },
   ".MuiInputLabel-root, .MuiInputLabel-root.Mui-focused:not(.Mui-error)": {
     color: "white",
     fontSize: "10px",
@@ -38,30 +48,38 @@ const FormControlStyled = styled(FormControl)(({ theme }) => ({
   },
 }));
 
+enum RequestActionState {
+  INIT = 0,
+  SENDING = 1,
+  RESULT = 2,
+}
 export const EmailSignIn: FC = () => {
   const emailInputRef = useRef(null);
-  const [authEmailSent, setAuthEmailSent] = useState(false);
+  const [reqState, setReqState] = useState<RequestActionState>(
+    RequestActionState.INIT
+  );
   const emailForm = useRef(null);
   const [errorMsg, setErrorMsg] = useState(null);
 
   const doEmailAuth = async (): Promise<void> => {
+    setErrorMsg("");
     const emailAddress = emailInputRef.current.value;
 
     if (emailAddress !== "") {
-      setAuthEmailSent(true);
+      setReqState(RequestActionState.SENDING);
 
       setOnGoingFlowOperation(FlowOperation.EmailSignIn);
 
       try {
         void (await authenticateWithEmailAddress(emailAddress));
+        setReqState(RequestActionState.RESULT);
       } catch (error) {
         if (error instanceof InexistingEmailException) {
           setErrorMsg("This email address is unknown.");
         } else {
           setErrorMsg("Unknown error, please try again.");
         }
-
-        setAuthEmailSent(false);
+        setReqState(RequestActionState.INIT);
       }
     }
   };
@@ -75,8 +93,8 @@ export const EmailSignIn: FC = () => {
 
   return (
     <>
-      {!authEmailSent && (
-        <form onSubmit={onEmailSubmit} ref={emailForm} className="w-full my-4">
+      {reqState !== RequestActionState.RESULT ? (
+        <form onSubmit={onEmailSubmit} ref={emailForm} className="w-full my-2">
           <FormControlStyled variant="standard" className="w-full">
             <InputLabel shrink>Input email address</InputLabel>
             <OutlinedInput
@@ -84,24 +102,28 @@ export const EmailSignIn: FC = () => {
               size="small"
               placeholder="Your email address"
               className="w-full"
+              disabled={reqState === RequestActionState.SENDING}
               inputProps={{ ref: emailInputRef }}
             />
           </FormControlStyled>
+          <div className="py-4 mt-4 w-full">
+            <DarkButton
+              id="send-button"
+              loading={reqState === RequestActionState.SENDING}
+              startIcon={
+                reqState !== RequestActionState.SENDING ? (
+                  <ReactIcon icon="material-symbols:key" />
+                ) : null
+              }
+              onClick={doEmailAuth}
+              className="w-full mt-4"
+            >
+              Send magic key to email
+            </DarkButton>
+          </div>
         </form>
-      )}
-      <div className="py-4 w-full">
-        {!authEmailSent && (
-          <DarkButton
-            startIcon={<ReactIcon icon="material-symbols:key" />}
-            onClick={doEmailAuth}
-            className="w-full mt-4"
-          >
-            Send magic key to email
-          </DarkButton>
-        )}
-      </div>
-      {authEmailSent && (
-        <div className="text-center mt-10">
+      ) : (
+        <div className="text-sm text-center text-white">
           Magic link sent, please check your mailbox.
         </div>
       )}
