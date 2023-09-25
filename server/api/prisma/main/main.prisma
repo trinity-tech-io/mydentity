@@ -172,6 +172,7 @@ model Browser {
 }
 
 enum ActivityType {
+  NEW_ACCOUNT
   USER_SIGN_IN
   IDENTITY_CREATED
   IDENTITY_DELETED

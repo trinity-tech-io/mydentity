@@ -302,6 +302,8 @@ export class KeyRingService {
 
     if (newKey.type === UserShadowKeyType.WEBAUTHN)
       await this.activityService.createActivity(user, {type: ActivityType.BIND_BROWSER, browserId: browser.id, browserName: browser.name});
+    else if (newKey.type === UserShadowKeyType.PASSWORD)
+      await this.activityService.createActivity(user, {type: ActivityType.NEW_ACCOUNT, browserId: browser.id, browserName: browser.name});
 
     return result;
   }

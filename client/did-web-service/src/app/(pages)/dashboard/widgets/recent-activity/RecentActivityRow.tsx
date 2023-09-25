@@ -9,9 +9,11 @@ import { IdentityCreatedRenderer } from "./renderers/IdentityCreatedRenderer";
 import { IdentityDeletedRenderer } from "./renderers/IdentityDeletedRenderer";
 import { PasswordChangedRenderer } from "./renderers/PasswordChangedRenderer";
 import { SignInRenderer } from "./renderers/SignInRenderer";
+import { NewAccountRenderer } from "@/app/(pages)/dashboard/widgets/recent-activity/renderers/NewAccountRenderer";
 
 function getActivityRenderer(activity: Activity): JSX.Element {
   switch (activity.type) {
+    case ActivityType.NEW_ACCOUNT: return <NewAccountRenderer activity={activity} />
     case ActivityType.USER_SIGN_IN: return <SignInRenderer activity={activity} />
     case ActivityType.IDENTITY_CREATED: return <IdentityCreatedRenderer activity={activity} />
     case ActivityType.IDENTITY_DELETED: return <IdentityDeletedRenderer activity={activity} />
@@ -27,6 +29,7 @@ function getActivityRenderer(activity: Activity): JSX.Element {
 }
 
 export enum ActivityType {
+  NEW_ACCOUNT = 'NEW_ACCOUNT',
   USER_SIGN_IN = 'USER_SIGN_IN',
   IDENTITY_CREATED = 'IDENTITY_CREATED',
   IDENTITY_DELETED = 'IDENTITY_DELETED',
