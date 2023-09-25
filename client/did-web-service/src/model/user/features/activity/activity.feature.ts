@@ -1,6 +1,6 @@
 import { gql } from "@apollo/client";
 import { graphQLActivityFields } from "@graphql/activity.fields";
-import type { Activity } from "@model/activity/activity";
+import { Activity } from "@model/activity/activity";
 import type { ActivityDto } from "@model/activity/activity.dto";
 import type { CreateActivityInput } from "@model/activity/create-activity.input";
 import { UserFeature } from "@model/user/features/user-feature";
@@ -24,7 +24,7 @@ export class ActivityFeature implements UserFeature {
             if (e.event === WebSocketEventType.ACTIVITY_CREATED) {
                 logger.log('activity feature: ACTIVITY_CREATED, ', e.data);
                 const activity = await Activity.fromJson(e.data);
-                this.activities$.next(this.activities$.value.concat([activity]));
+                this.activities$.next([activity].concat(this.activities$.value));
             }
         });
     }
