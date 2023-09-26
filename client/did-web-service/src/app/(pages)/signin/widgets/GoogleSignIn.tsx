@@ -20,7 +20,7 @@ const GoogleSignIn: FC = () => {
     }
   }, [error]);
 
-  const signInWithMicrosoft = (): void => {
+  const signInWithGoogle = (): void => {
     setOnGoingFlowOperation(FlowOperation.EmailSignIn);
     router.push(`${process.env.NEXT_PUBLIC_BACKEND_URL}/google`);
   };
@@ -30,7 +30,7 @@ const GoogleSignIn: FC = () => {
       <DarkButton
         id="signin-ms"
         startIcon={<ReactIcon icon="logos:google-icon" />}
-        onClick={signInWithMicrosoft}
+        onClick={signInWithGoogle}
         className="w-full"
       >
         Sign in with Google
