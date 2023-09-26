@@ -55,17 +55,20 @@ const CardStyled = styled(Card)(({ theme }) => ({
 interface PortraitCardType {
   content: ReactNode;
   footer: ReactNode;
+  logo?: ReactNode;
 }
 
 const PortraitCard: FC<PortraitCardType> = (props) => {
-  const { content, footer } = props;
+  const { content, footer, logo } = props;
   return (
     <CardStyled className="inline-block w-[45%] xl:w-[40%] md:w-[25%] h-full border-white border-opacity-30 border-2 rounded-3xl relative drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]">
       <div className="body noise-bg">
         <div className="absolute opacity-20 ellipse" />
         <div className="px-4 py-6 md:px-6 md:py-8 h-full flex flex-col">
           <div className="flex pb-4 md:pb-7">
-            <div className="flex-1" />
+            <div className="flex-1 relative">
+              {logo}
+            </div>
             <div className="h-6 md:h-9">
               <ChipIcon width="100%" height="100%" viewBox="0 0 50 38" />
             </div>

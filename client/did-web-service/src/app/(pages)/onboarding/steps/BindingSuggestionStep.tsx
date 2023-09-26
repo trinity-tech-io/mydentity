@@ -1,8 +1,12 @@
-import { MainButton } from "@components/generic/MainButton";
-import { Typography } from "@mui/material";
-import { FlowOperation, setOnGoingFlowOperation } from "@services/flow.service";
-import { useRouter } from "next/navigation";
 import { FC } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@mui/material";
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import { FlowOperation, setOnGoingFlowOperation } from "@services/flow.service";
+import { MainButton } from "@components/generic/MainButton";
+import { PortraitCard } from "@components/card";
+import { DarkButton } from "@components/button";
+import AtMarkIcon from "@assets/images/at-mark.svg"
 
 export const BindingSuggestionStep: FC<{
   onSkip: () => void;
@@ -21,18 +25,41 @@ export const BindingSuggestionStep: FC<{
 
   return (
     <>
-      <Typography variant="h5" className='w-full text-center font-semibold mt-32 mb-24 leading-9'>
-        You're now on board, welcome to your Web3 identity.
-      </Typography>
+      <h3 className='w-full text-4xl font-bold	text-center'>
+        You've made it! Welcome to Web3 identity.
+      </h3>
       <p className="mt-4">
-        Your identity is a Web3 identity, <b>protected by cryptographic keys</b>. Many Web3 applications require you to
-        save those keys by yourself, and you will sometimes do that in unsafe ways. On the contrary, this service
-        partially stores the complex cryptographic keys
-        for you so you don&apos;t have to do it. Your keys are protected by your own devices or passwords
-        and <b>this app cannot do anything without your consent</b>. For this reason, you need to bind multiple devices and browsers,
-        as this is your only way to recover your account later in case one of the devices is lost. <b>We cannot do that for you</b>.
+        Your Web3 identity is <b>secured by cryptographic keys</b>. While many Web3 apps ask you to manage these keys yourself, our service offers
+        partial key storage, enhancing security. Your keys remain protected by your devices or passwords, and <b>we require your consent for any
+          action</b>. To ensure account recovery, bind multiple devices and browsers as <b>we cannot do this on your behalf</b>.
       </p>
-
+      <div className="py-4">
+        <Button sx={{ color: '#9D3E3E', textDecoration: 'underline' }} endIcon={<KeyboardArrowRightIcon />}>Not now. I'm just checking things out</Button>
+      </div>
+      <div>
+        <PortraitCard
+          logo={
+            <div className="w-3/5 mt-[-8%] ml-[-5%]">
+              <AtMarkIcon />
+            </div>
+          }
+          content={
+            <div className="h-full flex items-center">
+              <span>Verify one of your existing email addresses and bind it to your account with a password. You can later use your email and password to sign in and unlock access to your identity.</span>
+            </div>
+          }
+          footer={
+            <DarkButton
+              color="primary"
+              className="w-4/5 md:w-3/5"
+              value="dashboard"
+              // onClick={handleButton}
+            >
+              BIND EMAIL
+            </DarkButton>
+          }
+        />
+      </div>
       <div className="flex flex-row mt-4 gap-4 w-full">
         <div className="flex flex-col gap-6 bg-slate-200 rounded-lg p-10 flex-1">
           <p>Verify one of your existing email addresses and bind it to your account with a password. You can later use your <b>email and password</b> to sign in and unlock access to your identity.</p>

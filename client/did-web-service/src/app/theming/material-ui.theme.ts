@@ -24,6 +24,15 @@ export const generateTheme = (mode: string): Theme => createTheme({
       fontWeight: 600,
     },
   },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          textTransform: 'inherit'
+        }
+      }
+    }
+  },
   palette: {
     mode: 'dark',
     primary: {
