@@ -1,5 +1,7 @@
 import { gql } from "@apollo/client";
+import { callWithUnlock } from "@components/security/unlock-key-prompt/call-with-unlock";
 import type { VerifiableCredential, VerifiablePresentation } from "@elastosfoundation/did-js-sdk";
+import { gqlMnemonicFields } from "@graphql/mnemonic.fields";
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { IdentityProvider } from "@services/identity/did.provider";
@@ -14,7 +16,7 @@ import { ProfileFeature } from "./features/profile/profile.feature";
 import { PublicationFeature } from "./features/publication/publication.feature";
 import { StorageFeature } from "./features/storage/storage.feature";
 import { IdentityDTO } from "./identity.dto";
-import { callWithUnlock } from "@components/security/unlock-key-prompt/call-with-unlock";
+import { MnemonicDTO } from "./mnemonic.dto";
 
 export class Identity {
   did: string;
@@ -101,5 +103,24 @@ export class Identity {
     this.lastUsedAt$.next(moment().toDate());
 
     return result?.data?.markIdentityInUse;
+  }
+
+  async exportMnemonic(identityDid: string): Promise<string> {
+    const result = await withCaughtAppException(async () => {
+      return (await getApolloClient()).mutate<{ exportMnemonic: MnemonicDTO }>({
+        mutation: gql`
+        mutation exportMnemonic($identityDid: String!) {
+          exportMnemonic(identityDid: $identityDid) {
+            ${gqlMnemonicFields}
+          }
+        }
+      `,
+        variables: {
+          identityDid
+        }
+      });
+    });
+
+    return result?.data?.exportMnemonic.mnemonic;
   }
 }

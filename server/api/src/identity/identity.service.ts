@@ -9,10 +9,11 @@ import { AuthExceptionCode, DIDExceptionCode } from 'src/exceptions/exception-co
 import { KeyRingService } from 'src/key-ring/key-ring.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { uuid } from 'uuidv4';
+import { ActivityService } from "../activity/activity.service";
 import { CreateIdentityInput } from './dto/create-identity.input';
 import { CreateManagedIdentityInput } from './dto/create-managed-identity.input';
+import { MnemonicEntity } from './entities/mnemonic.entity';
 import { IdentityPublicationState } from './model/identity-publication-state';
-import { ActivityService } from "../activity/activity.service";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const moment = require('moment');
@@ -43,7 +44,7 @@ export class IdentityService {
    */
   async createManaged(input: CreateManagedIdentityInput): Promise<Identity> {
     const storePassword = "12345"; // TODO: check with jingyu for master key access from remote management token
-    const context = uuid(); // Unique 
+    const context = uuid(); // Unique
     return this.createIdentityInternal(context, storePassword);
   }
 
@@ -75,7 +76,6 @@ export class IdentityService {
       identityDid = didDocument.getSubject().toString();
     } catch (e) {
       this.logger.log(`DID creation exception: ${e}`)
-      console.log(e)
       throw new AppException(DIDExceptionCode.DIDStorageError, e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -226,6 +226,23 @@ export class IdentityService {
     })
 
     return true;
+  }
+
+  async exportMnemonic(user: User, browser: Browser): Promise<MnemonicEntity> {
+    const storePassword = this.getDIDStorePassword(user?.id, browser?.id);
+    let rootIdentity: RootIdentity = null;
+
+    try {
+      // Get rootIdentity.
+      rootIdentity = await this.didService.getRootIdentity(user.id, storePassword);
+      const menmonic = await rootIdentity.exportMnemonic(storePassword);
+      return {
+        mnemonic: menmonic
+      }
+    } catch (e) {
+      this.logger.log(`DID exportMnemonic exception: ${e}`)
+      throw new AppException(DIDExceptionCode.DIDStorageError, e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   /**
