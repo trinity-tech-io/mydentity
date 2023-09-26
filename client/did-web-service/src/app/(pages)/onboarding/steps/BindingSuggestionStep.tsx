@@ -1,12 +1,12 @@
 import { FC } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@mui/material";
+import { Button, Stack } from "@mui/material";
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import { FlowOperation, setOnGoingFlowOperation } from "@services/flow.service";
-import { MainButton } from "@components/generic/MainButton";
 import { PortraitCard } from "@components/card";
 import { DarkButton } from "@components/button";
 import AtMarkIcon from "@assets/images/at-mark.svg"
+import W3CircleIcon from "@assets/images/www-circle.svg"
 
 export const BindingSuggestionStep: FC<{
   onSkip: () => void;
@@ -34,9 +34,9 @@ export const BindingSuggestionStep: FC<{
           action</b>. To ensure account recovery, bind multiple devices and browsers as <b>we cannot do this on your behalf</b>.
       </p>
       <div className="py-4">
-        <Button sx={{ color: '#9D3E3E', textDecoration: 'underline' }} endIcon={<KeyboardArrowRightIcon />}>Not now. I'm just checking things out</Button>
+        <Button sx={{ color: '#9D3E3E', textDecoration: 'underline' }} endIcon={<KeyboardArrowRightIcon />} onClick={onSkip}>Not now. I'm just checking things out</Button>
       </div>
-      <div>
+      <Stack direction="row" spacing={{ xs: 1, sm: 2, md: 4 }}>
         <PortraitCard
           logo={
             <div className="w-3/5 mt-[-8%] ml-[-5%]">
@@ -51,29 +51,37 @@ export const BindingSuggestionStep: FC<{
           footer={
             <DarkButton
               color="primary"
-              className="w-4/5 md:w-3/5"
+              className="w-4/5 md:w-[70%]"
               value="dashboard"
-              // onClick={handleButton}
+              onClick={bindEmail}
             >
               BIND EMAIL
             </DarkButton>
           }
         />
-      </div>
-      <div className="flex flex-row mt-4 gap-4 w-full">
-        <div className="flex flex-col gap-6 bg-slate-200 rounded-lg p-10 flex-1">
-          <p>Verify one of your existing email addresses and bind it to your account with a password. You can later use your <b>email and password</b> to sign in and unlock access to your identity.</p>
-          <MainButton onClick={bindEmail}>Bind an email address</MainButton>
-        </div>
-        <div className="flex flex-col gap-6 bg-slate-200 rounded-lg p-10 flex-1">
-          <p>Bind your current browser. This <b>doesn't require to provide any email or password</b>, but access to your identity will be lost if you don't bind multiple devices as recovery.</p>
-          <MainButton onClick={bindBrowser}>Bind my browser</MainButton>
-        </div>
-      </div>
-
-      <div className="flex flex-row justify-center mt-10">
-        <a className="cursor-pointer" onClick={onSkip}>I'll do this later, just taking a first look for now.</a>
-      </div>
+        <PortraitCard
+          logo={
+            <div className="w-3/5 mt-[-8%] ml-[-5%]">
+              <W3CircleIcon />
+            </div>
+          }
+          content={
+            <div className="h-full flex items-center">
+              <span>Bind your current browser. This doesn't require to provide any email or password, but access to your identity will be lost if you don't bind multiple devices as recovery.</span>
+            </div>
+          }
+          footer={
+            <DarkButton
+              color="primary"
+              className="w-4/5 md:w-[70%]"
+              value="dashboard"
+              onClick={bindBrowser}
+            >
+              BIND BROWSER
+            </DarkButton>
+          }
+        />
+      </Stack>
     </>
   )
 }

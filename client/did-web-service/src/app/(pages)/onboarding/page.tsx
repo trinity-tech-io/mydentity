@@ -22,10 +22,8 @@ const OnBoarding: FC = () => {
     <div className="col-span-full">
       {!initialDataFetched && <VerticalStackLoadingCard />}
       {initialDataFetched && <>
-        {/* {(!isThisBrowserBound && !step1Skipped) && <BindingSuggestionStep onSkip={skipStep1} />}
-        {(isThisBrowserBound || step1Skipped) && <CreateIdentityStep />} */}
         {
-          (!isThisBrowserBound && !step1Skipped) && <BindingSuggestionStep onSkip={skipStep1} />
+          (!isThisBrowserBound && !step1Skipped) ? <BindingSuggestionStep onSkip={skipStep1} /> : <CreateIdentityStep />
         }
       </>}
     </div>
