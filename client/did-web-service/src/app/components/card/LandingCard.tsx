@@ -6,7 +6,7 @@ import CircleVector from "@assets/images/card/Circle.svg";
 import clsx from "clsx";
 
 const CardStyled = styled(Box)(({ theme }) => ({
-  borderRadius: "1.5rem",
+  borderRadius: "6.329% / 10%",
   overflow: "hidden",
   "&:after": {
     paddingTop: "63.29%",
@@ -33,9 +33,11 @@ const CardStyled = styled(Box)(({ theme }) => ({
   },
 }));
 
-const LandingCard: FC<{ className?: string; children?: ReactNode }> = ({
+const LandingCard: FC<{ className?: string; children?: ReactNode; footer?: ReactNode; waveIconVisible?: boolean }> = ({
   className = "",
+  waveIconVisible = true,
   children,
+  footer
 }) => {
   return (
     <CardStyled
@@ -51,18 +53,24 @@ const LandingCard: FC<{ className?: string; children?: ReactNode }> = ({
         <div className="absolute w-full circle-bottom-box">
           <CircleVector width="100%" height="100%" viewBox="0 0 349 354" />
         </div>
-        <div className="px-6 pt-5 pb-14 flex flex-col h-full">
-          <div className="flex pb-7">
-            <div className="h-6 md:h-7">
+        <div className="px-[5%] py-[5%] flex flex-col h-full">
+          <div className="flex h-[14%] mb-7">
+            <div className="h-full">
               <ChipIcon width="100%" height="100%" viewBox="0 0 50 38" />
             </div>
             <div className="flex-1" />
-            <div className="h-6 md:h-7">
-              <WaveLogoIcon width="100%" height="100%" viewBox="0 0 32 40" />
-            </div>
+            {
+              waveIconVisible &&
+              <div className="h-full">
+                <WaveLogoIcon width="100%" height="100%" viewBox="0 0 32 40" />
+              </div>
+            }
           </div>
           <div className="flex flex-1 items-end">{children}</div>
           <Divider />
+          <div className="min-h-[12%]">
+            {footer}
+          </div>
         </div>
       </div>
     </CardStyled>
