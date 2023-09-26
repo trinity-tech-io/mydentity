@@ -72,29 +72,6 @@ export class UserEmailFeature implements UserFeature {
         return result?.data?.removeUserEmail;
     }
 
-    public async bindOauthEmail(email: string): Promise<boolean> {
-        logger.log("user", "Bind oauth email address");
-
-        const result = await withCaughtAppException(async () => {
-            return (await getApolloClient()).mutate<{
-                bindOauthEmail: boolean
-            }>({
-                mutation: gql`
-                mutation BindOauthEmail($email: String!) {
-                  bindOauthEmail(email: $email)
-                }
-                `,
-                variables: { email }
-            });
-        });
-
-        if (!result?.data?.bindOauthEmail) {
-            logger.error('user', 'Failed from bindOauthEmail api.');
-        }
-
-        return result?.data.bindOauthEmail;
-    }
-
     /**
      * Checks the given temporary authentication key and signs the user in if successful
      * static function is for login/bind.

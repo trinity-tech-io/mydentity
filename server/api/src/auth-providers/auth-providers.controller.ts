@@ -26,4 +26,9 @@ export class AuthProvidersController {
   @UseGuards(AuthGuard('microsoft'))
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   microsoftAuth(@Req() req) { }
+
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  googleAuth(@Req() req) { }
 }

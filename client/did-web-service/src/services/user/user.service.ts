@@ -10,13 +10,16 @@ import { getApolloClient } from "@services/graphql.service";
 import { identityService } from "@services/identity/identity.service";
 import { getPasskeyChallenge } from "@services/keyring/keyring.service";
 import { logger } from "@services/logger";
-import { MsSignUpInput } from "@services/user/ms-sign-up.input";
+import { MsSignInInput } from "@services/user/ms-sign-in.input";
 import { startAuthentication } from "@simplewebauthn/browser";
 import { PublicKeyCredentialRequestOptionsJSON } from "@simplewebauthn/typescript-types";
 import Queue from "promise-queue";
 import { LoggedUserOutput } from "./logged-user.output";
 import { SignUpInput } from "./sign-up.input";
 import { authUser$, getActiveUser } from "./user.events";
+import { GoogleSignInInput } from "@services/user/google-sign-in.input";
+import { MsBindEmailInput } from "@services/user/ms-bind-email.input";
+import { GoogleBindEmailInput } from "@services/user/google-bind-email.input";
 
 const fetchUserQueue = new Queue(1); // Execute user retrieval from the backend one by one to avoid duplicates
 
@@ -300,10 +303,12 @@ export async function authenticateWithPasskey(): Promise<boolean> {
   }
 }
 
+// Microsoft Oauth
+
 export async function oauthMSSignIn(code: string): Promise<User> {
   logger.log("user", "oauth MS sign in.");
 
-  const input: MsSignUpInput = { code };
+  const input: MsSignInInput = { code };
 
   const response = await withCaughtAppException(async () => {
     return (await getApolloClient()).mutate<{ oauthMSSignIn: LoggedUserOutput }>({
@@ -330,7 +335,7 @@ export async function oauthMSSignIn(code: string): Promise<User> {
 export async function oauthMSBindEmail(code: string): Promise<boolean> {
   logger.log("user", "oauth MS bind email.");
 
-  const input: MsSignUpInput = { code };
+  const input: MsBindEmailInput = { code };
 
   const response = await withCaughtAppException(async () => {
     return (await getApolloClient()).mutate<{ oauthMSBindEmail: boolean }>({
@@ -344,12 +349,68 @@ export async function oauthMSBindEmail(code: string): Promise<boolean> {
   });
 
   if (response?.data && response.data.oauthMSBindEmail) {
-    logger.log("user", "oauth email bound");
+    logger.log("user", "oauth MS email bound");
     return true;
   }
   else {
     // TODO: print error
     logger.error('user', 'failed to oauth MS bind email.');
+    return false;
+  }
+}
+
+// Google Oauth
+
+export async function oauthGoogleSignIn(code: string): Promise<User> {
+  logger.log("user", "oauth Google sign in.");
+
+  const input: GoogleSignInInput = { code };
+
+  const response = await withCaughtAppException(async () => {
+    return (await getApolloClient()).mutate<{ oauthGoogleSignIn: LoggedUserOutput }>({
+      mutation: gql`
+        mutation OauthGoogleSignIn($input: GoogleSignInInput!) {
+          oauthGoogleSignIn(input: $input) { accessToken refreshToken }
+        }
+      `,
+      variables: { input }
+    });
+  });
+
+  if (response?.data && response.data.oauthGoogleSignIn) {
+    const { accessToken, refreshToken } = response.data.oauthGoogleSignIn;
+    return updateUserByToken(accessToken, refreshToken);
+  }
+  else {
+    // TODO: print error
+    logger.error('user', 'failed to oauth Google sign in.');
+    return null;
+  }
+}
+
+export async function oauthGoogleBindEmail(code: string): Promise<boolean> {
+  logger.log("user", "oauth MS bind email.");
+
+  const input: GoogleBindEmailInput = { code };
+
+  const response = await withCaughtAppException(async () => {
+    return (await getApolloClient()).mutate<{ oauthGoogleBindEmail: boolean }>({
+      mutation: gql`
+        mutation OauthGoogleBindEmail($input: GoogleBindEmailInput!) {
+          oauthGoogleBindEmail(input: $input)
+        }
+      `,
+      variables: { input }
+    });
+  });
+
+  if (response?.data && response.data.oauthGoogleBindEmail) {
+    logger.log("user", "oauth Google email bound");
+    return true;
+  }
+  else {
+    // TODO: print error
+    logger.error('user', 'failed to oauth Google bind email.');
     return false;
   }
 }

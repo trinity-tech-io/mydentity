@@ -10,6 +10,8 @@ import { MicrosoftProfileService } from './microsoft-profile.service';
 import { MicrosoftStrategy } from './microsoft.strategy';
 import { ActivityModule } from "../activity/activity.module";
 import { BrowsersModule } from "../browsers/browsers.module";
+import { GoogleStrategy } from "./google.strategy";
+import { GoogleProfileService } from "./google-profile.service";
 
 @Module({
   imports: [
@@ -31,7 +33,9 @@ import { BrowsersModule } from "../browsers/browsers.module";
   controllers: [AuthProvidersController],
   providers: [
     MicrosoftStrategy,
+    GoogleStrategy,
     MicrosoftProfileService,
+    GoogleProfileService,
     AuthProviderResolver
   ],
 })

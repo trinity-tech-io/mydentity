@@ -35,6 +35,8 @@ model User {
 enum UserEmailProvider {
   RAW
   MICROSOFT
+  GOOGLE
+  LINKEDIN
 }
 
 model UserEmail {

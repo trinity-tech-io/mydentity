@@ -1,11 +1,9 @@
 import { UseGuards } from "@nestjs/common";
 import { Args, Mutation, Resolver } from "@nestjs/graphql";
 import { User } from "@prisma/client/main";
-import { ActivityService } from "../activity/activity.service";
 import { CurrentUser } from "../auth/currentuser.decorator";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { HeaderBrowserKey } from "../browsers/browser-key-header.decorator";
-import { BrowsersService } from "../browsers/browsers.service";
 import { UserAgent } from "../browsers/user-agent-decorator";
 import { AppException } from "../exceptions/app-exception";
 import { AuthExceptionCode } from "../exceptions/exception-codes";
@@ -16,44 +14,30 @@ import { UserService } from "../user/user.service";
 import { MsBindEmailInput } from "./dto/ms-bind-email.input";
 import { MsSignInInput } from "./dto/ms-sign-in.input";
 import { MicrosoftProfileService } from "./microsoft-profile.service";
+import { GoogleProfileService } from "./google-profile.service";
+import { GoogleSignInInput } from "./dto/google-sign-in.input";
+import { GoogleBindEmailInput } from "./dto/google-bind-email.input";
+import { UserEmailProvider } from "@prisma/client/main";
 
 @Resolver(() => UserEntity)
 export class AuthProviderResolver {
     constructor(
         private readonly userService: UserService,
         private readonly microsoftProfileService: MicrosoftProfileService,
-        private readonly browsersService: BrowsersService,
-        private readonly activityService: ActivityService,
+        private readonly googleProfileService: GoogleProfileService
     ) { }
 
-    private async getEmailByMsCode(code: string) {
-        if (!code || code === '') {
-            throw new AppException(AuthExceptionCode.AuthError, `MUST provide MS code.`, 401);
-        }
-
-        let email = null;
-        try {
-            email = await this.microsoftProfileService.fetchEmailByMsCode(code);
-        } catch (e) {
-            throw new AppException(AuthExceptionCode.AuthError, `can not get email by MS code.`, 401);
-        }
-
-        if (!email) {
-            throw new AppException(AuthExceptionCode.AuthError, `can not get email by MS code..`, 401);
-        }
-
-        return email;
-    }
+    // Microsoft Oauth
 
     @Mutation(() => LoggedUserOutput, { nullable: true })
     async oauthMSSignIn(@HeaderBrowserKey() browserKey: string, @UserAgent() userAgent: string, @Args('input') input: MsSignInInput) {
-        const email = await this.getEmailByMsCode(input.code);
-        const result = await this.userService.signInByOauthEmail(email, browserKey, userAgent);
+        const email = await this.microsoftProfileService.getEmailAddressByCode(input.code);
+        const result = await this.userService.signInByOauthEmail(email, UserEmailProvider.MICROSOFT, browserKey, userAgent);
         if (!result) {
-            throw new AppException(AuthExceptionCode.InexistingEmail, `Email ${email} already belongs to other user.`, 401);
+            throw new AppException(AuthExceptionCode.InexistingEmail, `Microsoft email ${email} does not exists.`, 401);
         }
 
-        logger.log(`sign in with oauth email successfully.`);
+        logger.log('authProvider', `Sign in with Microsoft oauth email successfully.`);
 
         return result;
     }
@@ -61,11 +45,43 @@ export class AuthProviderResolver {
     @UseGuards(JwtAuthGuard)
     @Mutation(() => Boolean)
     async oauthMSBindEmail(@CurrentUser() user: User, @Args('input') input: MsBindEmailInput) {
-        const email = await this.getEmailByMsCode(input.code);
-        const resultUser = await this.userService.bindOauthEmail(user, email);
+        const email = await this.microsoftProfileService.getEmailAddressByCode(input.code);
+        const resultUser = await this.userService.bindOauthEmail(user, email, UserEmailProvider.MICROSOFT);
         if (!resultUser) {
-            throw new AppException(AuthExceptionCode.EmailAlreadyExists, `Email ${email} already belongs to other user.`, 401);
+            throw new AppException(AuthExceptionCode.EmailAlreadyExists, `Microsoft email ${email} already belongs to other user.`, 401);
         }
+
+        logger.log('authProvider', `Bind Microsoft oauth email successfully.`);
+
+        return true;
+    }
+
+    // Google Oauth
+
+    @Mutation(() => LoggedUserOutput, { nullable: true })
+    async oauthGoogleSignIn(@HeaderBrowserKey() browserKey: string, @UserAgent() userAgent: string, @Args('input') input: GoogleSignInInput) {
+        const email = await this.googleProfileService.getEmailAddressByCode(input.code);
+        const result = await this.userService.signInByOauthEmail(email, UserEmailProvider.GOOGLE, browserKey, userAgent);
+        if (!result) {
+            throw new AppException(AuthExceptionCode.InexistingEmail, `Google email ${email} does not exists.`, 401);
+        }
+
+        logger.log('authProvider', `Sign in with Google oauth email successfully.`);
+
+        return result;
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Mutation(() => Boolean)
+    async oauthGoogleBindEmail(@CurrentUser() user: User, @Args('input') input: GoogleBindEmailInput) {
+        const email = await this.googleProfileService.getEmailAddressByCode(input.code);
+        const resultUser = await this.userService.bindOauthEmail(user, email, UserEmailProvider.GOOGLE);
+        if (!resultUser) {
+            throw new AppException(AuthExceptionCode.EmailAlreadyExists, `Google email ${email} already belongs to other user.`, 401);
+        }
+
+        logger.log('authProvider', `Bind Google oauth email successfully.`);
+
         return true;
     }
 }

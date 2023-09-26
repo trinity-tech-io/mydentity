@@ -8,9 +8,9 @@ import { ThirdPartyUser } from "../user/dto/third-party-user";
 export class MicrosoftStrategy extends PassportStrategy(Strategy, 'microsoft') {
   constructor(private readonly configService: ConfigService) {
     super({
-      clientID: configService.get<string>('MICROSOFT_CLIENT_ID'),
-      clientSecret: configService.get<string>('MICROSOFT_CLIENT_SECRET'),
-      callbackURL: configService.get<string>('MICROSOFT_CALLBACK_URL'),
+      clientID: configService.getOrThrow<string>('MICROSOFT_CLIENT_ID'),
+      clientSecret: configService.getOrThrow<string>('MICROSOFT_CLIENT_SECRET'),
+      callbackURL: configService.getOrThrow<string>('MICROSOFT_CALLBACK_URL'),
       scope: ['user.read'],
       tenant: 'common',
       authorizationURL:

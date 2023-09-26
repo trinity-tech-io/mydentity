@@ -100,7 +100,7 @@ export class UserService {
   /**
    * Just execute with oauth email.
    */
-  async signInByOauthEmail(email: string, browserKey: string, userAgent: string) {
+  async signInByOauthEmail(email: string, emailProvider: UserEmailProvider, browserKey: string, userAgent: string) {
     const userEmail: UserEmail & { user: User } = await this.getUserEmailByEmail(email);
     if (!userEmail) {
       return null;
@@ -111,7 +111,7 @@ export class UserService {
       await this.activityService.createActivity(userEmail.user, {
         type: ActivityType.USER_SIGN_IN,
         userEmailId: userEmail.id,
-        userEmailProvider: UserEmailProvider.MICROSOFT,
+        userEmailProvider: emailProvider,
         userEmailAddress: userEmail.email,
         browserId: browser.id,
         browserName: browser.name,
@@ -298,7 +298,7 @@ export class UserService {
   /**
    * Bind oauth email to user.
    */
-  async bindOauthEmail(user: User, email: string) {
+  async bindOauthEmail(user: User, email: string, emailProvider: UserEmailProvider) {
     let userEmail = await this.prisma.userEmail.findFirst({
       where: { email },
       include: { user: true }
@@ -312,7 +312,7 @@ export class UserService {
         where: { email },
         create: {
           email,
-          provider: UserEmailProvider.MICROSOFT,
+          provider: emailProvider,
           user: { connect: { id: user.id } },
           createdAt: new Date()
         },
@@ -328,7 +328,7 @@ export class UserService {
     await this.activityService.createActivity(user, {
       type: ActivityType.BIND_EMAIL,
       userEmailId: userEmail.id,
-      userEmailProvider: UserEmailProvider.MICROSOFT,
+      userEmailProvider: emailProvider,
       userEmailAddress: userEmail.email,
     });
 

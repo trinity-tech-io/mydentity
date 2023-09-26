@@ -103,16 +103,6 @@ export class UserResolver {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Mutation(() => Boolean, { nullable: true })
-  async bindOauthEmail(@CurrentUser() user: User, @Args('email') email: string) {
-    const resultUser = await this.userService.bindOauthEmail(user, email);
-    if (!resultUser) {
-      throw new AppException(AuthExceptionCode.EmailAlreadyExists, `Email ${email} already belongs to other user.`, 401);
-    }
-    return true;
-  }
-
   /**
    * Receives the result of a passkey challenge as input, and retrieves the related user (if any).
    * Access tokens are returned as a result of the sign in operation.

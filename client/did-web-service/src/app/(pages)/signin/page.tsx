@@ -7,6 +7,7 @@ import { SignInHeader } from "./widgets/HeaderSignIn";
 import MicrosoftSignIn from './widgets/MicrosoftSignIn';
 import PasskeySignIn from './widgets/PasskeySignIn';
 import SeparateLineText from "@components/separate-line";
+import GoogleSignIn from "@/app/(pages)/signin/widgets/GoogleSignIn";
 
 const CardStyled = styled(Box)(({theme})=>({
   borderRadius: "1rem",
@@ -49,6 +50,9 @@ const SignIn: FC = () => {
             <div className="w-full md:w-3/4 z-10">
               <ContainerBox>
                 <MicrosoftSignIn />
+              </ContainerBox>
+              <ContainerBox>
+                <GoogleSignIn />
               </ContainerBox>
               <div className="py-4">
                 <SeparateLineText text="or sign in with your email" />

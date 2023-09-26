@@ -4,7 +4,7 @@ import { ExistingEmailException } from "@model/exceptions/existing-email-excepti
 import { InexistingEmailException } from "@model/exceptions/inexisting-email-exception";
 import { LinearProgress } from "@mui/material";
 import { clearOnGoingFlowOperation, FlowOperation, getOnGoingFlowOperation, usePostSignInFlow } from "@services/flow.service";
-import { oauthMSBindEmail, oauthMSSignIn } from "@services/user/user.service";
+import { oauthGoogleBindEmail, oauthGoogleSignIn } from "@services/user/user.service";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FC, useEffect } from "react";
 
@@ -16,7 +16,7 @@ const MicrosoftRedirect: FC = () => {
 
   useEffect(() => {
     if (!code) {
-      alert('MicrosoftRedirect: No code from Microsoft authentication callback.');
+      alert('GoogleRedirect: No code from Google authentication callback.');
       return;
     }
 
@@ -24,7 +24,7 @@ const MicrosoftRedirect: FC = () => {
     switch (op) {
       case FlowOperation.OnBoardingEmailBinding:
         {
-          oauthMSBindEmail(code).then(result => {
+          oauthGoogleBindEmail(code).then(result => {
             if (result) {
               router.push('/account/security');
             } else {
@@ -44,18 +44,18 @@ const MicrosoftRedirect: FC = () => {
         break;
       case FlowOperation.EmailSignIn:
         {
-          oauthMSSignIn(code).then(user => {
+          oauthGoogleSignIn(code).then(user => {
             if (user) {
               clearOnGoingFlowOperation();
               navigateToPostSignInLandingPage();
             } else {
               clearOnGoingFlowOperation();
-              router.push(`/signin?error=unknown`);
+              router.push(`/signin?error=unknownGoogle`);
             }
           }).catch((e) => {
             if (e instanceof InexistingEmailException) {
               clearOnGoingFlowOperation();
-              router.push(`/signin?error=oauthEmailNotExists`);
+              router.push(`/signin?error=oauthGoogleEmailNotExists`);
             }
           });
         }
