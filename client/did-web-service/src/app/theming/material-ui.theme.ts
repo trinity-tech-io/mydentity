@@ -1,7 +1,6 @@
-import { createTheme } from "@mui/material";
+import { Theme, createTheme } from "@mui/material";
 
-
-export const theme = createTheme({
+export const generateTheme = (mode: string): Theme => createTheme({
   breakpoints: {
     values: {
       xs: 0,
@@ -26,6 +25,7 @@ export const theme = createTheme({
     },
   },
   palette: {
+    mode: 'dark',
     primary: {
       500: 'rgb(99,102,241)'
     }

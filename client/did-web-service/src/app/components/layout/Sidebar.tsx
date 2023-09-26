@@ -6,10 +6,11 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 import AccountIcon from '@assets/images/account.svg';
+import CardIcon from '@assets/images/card.svg';
 import WidgetIcon from '@assets/images/widgets.svg';
 import DashboardIcon from '@assets/images/dashboard.svg';
-import DiscoverIcon from '@assets/images/discover.svg';
-import SupportIcon from '@assets/images/support.svg';
+import ExploreIcon from '@assets/images/explore.svg';
+import SupportIcon from '@assets/images/contact-support.svg';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { useMounted } from '@hooks/useMounted';
 import { activeIdentity$ } from '@services/identity/identity.events';
@@ -38,8 +39,8 @@ const groups: GroupConfig[] = [
     url: "/dashboard"
   },
   {
-    icon: <AccountIcon />,
-    title: "All identities",
+    icon: <CardIcon />,
+    title: "Identity",
     url: "/identities",
     requiresAuth: true
   },
@@ -86,7 +87,7 @@ const groups: GroupConfig[] = [
     ]
   }, */
   {
-    icon: <DiscoverIcon />,
+    icon: <ExploreIcon />,
     title: "Discover",
     links: [
       { title: "Essentials identity wallet", url: "/discover/essentials" },

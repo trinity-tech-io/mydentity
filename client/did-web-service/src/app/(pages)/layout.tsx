@@ -102,14 +102,14 @@ export default function RootLayout({
     ? EntryLayout
     : LayoutCore;
   return (
-    <ThemeRegistry>
-      <AppThemeProvider>
+    <AppThemeProvider>
+      <ThemeRegistry>
         <SnackbarProvider>
           <UnlockKeyPromptContextProvider>
             <LayoutMain>{children}</LayoutMain>
           </UnlockKeyPromptContextProvider>
         </SnackbarProvider>
-      </AppThemeProvider>
-    </ThemeRegistry>
+      </ThemeRegistry>
+    </AppThemeProvider>
   );
 }

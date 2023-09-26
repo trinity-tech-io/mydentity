@@ -1,16 +1,19 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 'use client';
+import { FC, useEffect, useRef, useState } from "react";
+import Link from 'next/link';
+import { useRouter, useSearchParams } from "next/navigation";
 import AccountIcon from '@assets/images/account.svg';
 import { LettersAvatar } from '@components/generic/LettersAvatar';
 import Transition from "@components/generic/Transition";
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { User } from "@model/user/user";
+import { ExpandLess, ExpandMore } from '@mui/icons-material';
+import { ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
 import Avatar from '@mui/material/Avatar';
 import { authUser$, getActiveUser } from "@services/user/user.events";
 import { signOut } from "@services/user/user.service";
-import Link from 'next/link';
-import { useRouter, useSearchParams } from "next/navigation";
-import { FC, useEffect, useRef, useState } from "react";
+import IdentityCaseIcon from '@assets/images/identity-case.svg'
 
 export const DropdownUserProfile: FC<{
   align: "left" | "right"
@@ -82,7 +85,16 @@ export const DropdownUserProfile: FC<{
 
   return (
     <div className="relative inline-flex">
-      <button
+      <ListItemButton onClick={() => onIconClick()}>
+        <ListItemIcon>
+          <Avatar sx={{ bgcolor: '#9D3E3E' }}><IdentityCaseIcon /></Avatar>
+        </ListItemIcon>
+        <ListItemText primary={
+          <span className="text-base font-medium">Hi {userName}!</span>
+        } />
+        {dropdownOpen ? <ExpandLess /> : <ExpandMore />}
+      </ListItemButton>
+      {/* <button
         ref={trigger}
         className="inline-flex justify-center items-center group"
         aria-haspopup="true"
@@ -97,13 +109,13 @@ export const DropdownUserProfile: FC<{
         )}
         {isSignedIn && (
           <div className="flex items-center truncate">
-            <span className="truncate ml-2 text-sm font-medium dark:text-slate-300 group-hover:text-slate-800 dark:group-hover:text-slate-200">Hey <b>{userName}</b></span>
+            <span className="ml-3 text-base font-medium dark:text-white group-hover:text-slate-800 dark:group-hover:text-slate-200">Hi {userName}!</span>
             <svg className="w-3 h-3 shrink-0 ml-2 fill-current text-slate-400" viewBox="0 0 12 12">
               <path d="M5.9 11.4L.5 6l1.4-1.4 4 4 4-4L11.3 6z" />
             </svg>
           </div>
         )}
-      </button>
+      </button> */}
 
       {isSignedIn && (
 

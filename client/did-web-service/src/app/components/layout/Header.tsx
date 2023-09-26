@@ -64,8 +64,9 @@ export const Header: FC<{
 
             {/* User is signed in */}
             {mounted && authUser && <>
-              <DropdownIdentity align="right" />
-              <hr className="w-px h-6 bg-slate-200 dark:bg-slate-700 border-none" />
+              {/* comment temparay according to design */}
+              {/* <DropdownIdentity align="right" />
+              <hr className="w-px h-6 bg-slate-200 dark:bg-slate-700 border-none" /> */}
               <DropdownUserProfile align="right" />
             </>}
           </div>
