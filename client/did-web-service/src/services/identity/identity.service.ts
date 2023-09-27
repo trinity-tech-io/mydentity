@@ -20,13 +20,6 @@ class IdentityService {
   }
 
   /**
-   * exportMnemonic identity (DID)
-   */
-  public exportMnemonic(didString: string, identity: Identity): Promise<string> {
-    return identity.exportMnemonic(didString);
-  }
-
-  /**
    * Delete identity (DID)
    */
   public deleteIdentity(didString: string): Promise<boolean> {

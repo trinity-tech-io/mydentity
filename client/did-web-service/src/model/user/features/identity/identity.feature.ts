@@ -1,5 +1,6 @@
 import { ApplicationIdentity } from "@model/application-identity/application-identity";
 import { Identity } from "@model/identity/identity";
+import { IdentityRoot } from "@model/identity-root/identity-root";
 import { IdentityType } from "@model/identity/identity-type";
 import { RegularIdentity } from "@model/regular-identity/regular-identity";
 import { getRandomQuickStartHiveNodeAddress } from "@services/hive/hive.service";
@@ -12,6 +13,7 @@ import { UserFeature } from "../user-feature";
 
 export class IdentityFeature implements UserFeature {
   public identities$ = new AdvancedBehaviorSubject<Identity[]>(null, () => this.fetchIdentities());
+  public rootIdentities$ = new AdvancedBehaviorSubject<IdentityRoot[]>([], () => this.fetchRootIdentities());
 
   /**
    * Basic user identities showed to all users. Not including application identities.
@@ -60,6 +62,14 @@ export class IdentityFeature implements UserFeature {
     return successfulDeletion;
   }
 
+  public async listRootIdentities(): Promise<IdentityRoot[]> {
+    logger.log("identities", "list Root Identities identity");
+
+    const rootIdentities = await identityService.listRootIdentities();
+    this.rootIdentities$.next(this.rootIdentities$.value.filter(i => i.id));
+    return rootIdentities
+  }
+
   /* public async createDIDPublishTransaction(didString: string): Promise<string> {
     logger.log("identities", "Creating identity publication transaction");
 
@@ -77,4 +87,10 @@ export class IdentityFeature implements UserFeature {
     logger.log("identities", "Fetching identities", this.user);
     return identityService.listIdentities();
   }
+
+  private async fetchRootIdentities(): Promise<IdentityRoot[]> {
+    logger.log("identities", "Fetching root identities", this.user);
+    return identityService.listRootIdentities();
+  }
+
 }
