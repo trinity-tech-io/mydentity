@@ -1,11 +1,11 @@
 "use client";
-import { Card } from "@mui/material";
+import { Card, Container, Link } from "@mui/material";
 import { isSignedIn } from "@services/user/user.service";
 import clsx from 'clsx';
 import { FC, useEffect } from "react";
 import { BindEmailOnly } from './widgets/BindEmailOnly';
 import BindEmailWithMicrosoft from './widgets/BindEmailWithMicrosoft';
-import SeparateLine from './widgets/SeparateLine';
+import SeparateLineText from "@components/separate-line";
 
 const EmailAuthComponent: FC = () => {
   useEffect(() => {
@@ -14,13 +14,21 @@ const EmailAuthComponent: FC = () => {
   }, []);
 
   return (
-    <div className="col-span-full flex flex-col justify-center items-center">
-      <Card className={clsx('py-10 w-full text-center min-h-full')} elevation={0}>
+    <Card className="w-full md:w-1/2 max-w-xl flex flex-col justify-center items-center" elevation={0}>
+      <Container className="py-4">
         <BindEmailWithMicrosoft />
-        <SeparateLine />
+      </Container>
+      <div className="py-4 w-full">
+        <SeparateLineText text="or sign in with your email" />
+      </div>
+      <Container className="py-4">
         <BindEmailOnly />
-      </Card>
-    </div>
+      </Container>
+      <span className="text-[11px] font-extralight text-center opacity-50">
+        Binding an account means you agree to the<br />
+        <Link href="#" color="inherit"><span className="font-medium">Privacy Policy</span></Link> and <Link href="#" color="inherit"><span className="font-medium">Terms of Service</span></Link>.
+      </span>
+    </Card>
   )
 }
 

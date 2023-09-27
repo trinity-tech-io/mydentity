@@ -6,6 +6,7 @@ import { Container, InputBase } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { FlowOperation, setOnGoingFlowOperation } from "@services/flow.service";
 import { authUser$ } from "@services/user/user.events";
+import { EmailFormBox, RequestActionState } from '@/app/(pages)/signin/widgets/EmailSignIn';
 import clsx from 'clsx';
 import { useRouter } from "next/navigation";
 import { FC, FormEvent, useRef, useState } from "react";
@@ -22,61 +23,39 @@ const useStyles = makeStyles((theme) => ({
 
 export const BindEmailOnly: FC = () => {
   const emailInputRef = useRef(null);
-  const [authEmailSent, setAuthEmailSent] = useState(false);
-  const emailForm = useRef(null);
-  const classes = useStyles();
+  const [reqState, setReqState] = useState<RequestActionState>(
+    RequestActionState.INIT
+  );
   const [activeUser] = useBehaviorSubject(authUser$);
+  const [errorMsg, setErrorMsg] = useState(null);
   const router = useRouter();
 
   const doEmailAuth = async (): Promise<void> => {
+    setErrorMsg("");
     const emailAddress = emailInputRef.current.value;
 
     if (emailAddress !== "") {
-      setAuthEmailSent(true);
+      setReqState(RequestActionState.SENDING);
 
       setOnGoingFlowOperation(FlowOperation.OnBoardingEmailBinding);
 
       try {
         void await activeUser?.get('email').bindWithEmailAddress(emailAddress);
+        setReqState(RequestActionState.RESULT);
       } catch (error) {
         if (error instanceof ExistingEmailException) {
           router.push('/account/security?error=emailExists')
         } else {
           router.push('/account/security?error=unknown')
         }
+        setReqState(RequestActionState.INIT);
       }
     }
-  }
+  };
 
-  async function onEmailSubmit(ev?: FormEvent): Promise<void> {
-    ev?.preventDefault();
-    emailInputRef.current.blur();
-
-    await doEmailAuth();
-  }
-
+  const formBoxProps = { emailInputRef, reqState, doEmailAuth, errorMsg }
   return (
-    <Container component="div" className={clsx(classes.centeredContainer)}>
-      {!authEmailSent && <form onSubmit={onEmailSubmit} ref={emailForm}>
-        <InputBase
-          inputRef={emailInputRef}
-          placeholder="Input email address"
-          className="flex flex-1 px-11 py-4 my-8 bg-gray-200 rounded-8"
-          type='email'
-          name="email"
-        />
-      </form>
-      }
-      {!authEmailSent &&
-        <MainButton
-          leftIcon={<ReactIcon icon="material-symbols:key" />}
-          onClick={doEmailAuth}
-        >
-          Send magic key to email
-        </MainButton>
-      }
-      {authEmailSent && <div className='text-center mt-10'>Magic link sent, please check your mailbox.</div>}
-    </Container>
+    <EmailFormBox {...formBoxProps} actionName="Send temporary link" />
   );
 };
 

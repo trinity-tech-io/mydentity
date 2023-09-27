@@ -25,7 +25,7 @@ export const BindingSuggestionStep: FC<{
 
   return (
     <>
-      <h3 className='w-full text-4xl font-bold	text-center'>
+      <h3 className='w-full text-4xl font-bold text-center'>
         You've made it! Welcome to Web3 identity.
       </h3>
       <p className="mt-4">

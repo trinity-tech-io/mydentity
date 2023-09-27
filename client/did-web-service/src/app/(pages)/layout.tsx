@@ -54,7 +54,7 @@ const LayoutCore: FC<{ children: ReactNode }> = ({ children }) => {
         <main>
           <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto ">
             {/* Main content */}
-            <div className="grid grid-cols-12 gap-6">{children}</div>
+            {children}
           </div>
         </main>
       </div>

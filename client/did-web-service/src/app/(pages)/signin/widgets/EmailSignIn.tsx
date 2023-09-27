@@ -1,10 +1,10 @@
+import { FC, FormEvent, MutableRefObject, useRef, useState } from "react";
+import { FormControl, InputLabel, OutlinedInput, styled } from "@mui/material";
 import { DarkButton } from "@components/button";
 import { Icon as ReactIcon } from "@iconify/react";
 import { InexistingEmailException } from "@model/exceptions/inexisting-email-exception";
-import { FormControl, InputLabel, OutlinedInput, styled } from "@mui/material";
 import { FlowOperation, setOnGoingFlowOperation } from "@services/flow.service";
 import { authenticateWithEmailAddress } from "@services/user/user.service";
-import { FC, FormEvent, useRef, useState } from "react";
 
 const FormControlStyled = styled(FormControl)(({ theme }) => ({
   paddingTop: "1.2rem",
@@ -18,12 +18,12 @@ const FormControlStyled = styled(FormControl)(({ theme }) => ({
     },
   },
   ".MuiOutlinedInput-root.Mui-focused, .MuiOutlinedInput-root:hover:not(.Mui-disabled, .Mui-error)":
-    {
-      fieldset: {
-        opacity: 0.8,
-        borderColor: "white",
-      },
+  {
+    fieldset: {
+      opacity: 0.8,
+      borderColor: "white",
     },
+  },
   ".MuiOutlinedInput-root.Mui-disabled": {
     opacity: 0.5,
     input: {
@@ -48,41 +48,22 @@ const FormControlStyled = styled(FormControl)(({ theme }) => ({
   },
 }));
 
-enum RequestActionState {
+export enum RequestActionState {
   INIT = 0,
   SENDING = 1,
   RESULT = 2,
 }
-export const EmailSignIn: FC = () => {
-  const emailInputRef = useRef(null);
-  const [reqState, setReqState] = useState<RequestActionState>(
-    RequestActionState.INIT
-  );
+
+interface EmailFormType {
+  actionName?: string;
+  emailInputRef: MutableRefObject<any>;
+  reqState: RequestActionState;
+  doEmailAuth: () => Promise<void>;
+  errorMsg?: any;
+}
+export const EmailFormBox: FC<EmailFormType> = (props) => {
+  const { emailInputRef, reqState, doEmailAuth, actionName="Send magic key to email", errorMsg = null } = props
   const emailForm = useRef(null);
-  const [errorMsg, setErrorMsg] = useState(null);
-
-  const doEmailAuth = async (): Promise<void> => {
-    setErrorMsg("");
-    const emailAddress = emailInputRef.current.value;
-
-    if (emailAddress !== "") {
-      setReqState(RequestActionState.SENDING);
-
-      setOnGoingFlowOperation(FlowOperation.EmailSignIn);
-
-      try {
-        void (await authenticateWithEmailAddress(emailAddress));
-        setReqState(RequestActionState.RESULT);
-      } catch (error) {
-        if (error instanceof InexistingEmailException) {
-          setErrorMsg("This email address is unknown.");
-        } else {
-          setErrorMsg("Unknown error, please try again.");
-        }
-        setReqState(RequestActionState.INIT);
-      }
-    }
-  };
 
   async function onEmailSubmit(ev?: FormEvent): Promise<void> {
     ev?.preventDefault();
@@ -118,7 +99,7 @@ export const EmailSignIn: FC = () => {
               onClick={doEmailAuth}
               className="w-full mt-4"
             >
-              Send magic key to email
+              {actionName}
             </DarkButton>
           </div>
         </form>
@@ -133,6 +114,41 @@ export const EmailSignIn: FC = () => {
         </>
       )}
     </>
+  );
+}
+export const EmailSignIn: FC = () => {
+  const emailInputRef = useRef(null);
+  const [reqState, setReqState] = useState<RequestActionState>(
+    RequestActionState.INIT
+  );
+  const [errorMsg, setErrorMsg] = useState(null);
+
+  const doEmailAuth = async (): Promise<void> => {
+    setErrorMsg("");
+    const emailAddress = emailInputRef.current.value;
+
+    if (emailAddress !== "") {
+      setReqState(RequestActionState.SENDING);
+
+      setOnGoingFlowOperation(FlowOperation.EmailSignIn);
+
+      try {
+        void (await authenticateWithEmailAddress(emailAddress));
+        setReqState(RequestActionState.RESULT);
+      } catch (error) {
+        if (error instanceof InexistingEmailException) {
+          setErrorMsg("This email address is unknown.");
+        } else {
+          setErrorMsg("Unknown error, please try again.");
+        }
+        setReqState(RequestActionState.INIT);
+      }
+    }
+  };
+
+  const formBoxProps = { emailInputRef, reqState, doEmailAuth, errorMsg }
+  return (
+    <EmailFormBox {...formBoxProps} />
   );
 };
 

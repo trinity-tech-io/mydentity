@@ -1,24 +1,12 @@
 'use client';
-import { MainButton } from '@components/generic/MainButton';
+import { DarkButton } from '@components/button';
 import { Icon as ReactIcon } from '@iconify/react';
-import { makeStyles } from '@mui/styles';
 import { FlowOperation, setOnGoingFlowOperation } from "@services/flow.service";
 import clsx from 'clsx';
 import { useRouter } from "next/navigation";
 import { FC } from 'react';
 
-const useStyles = makeStyles((theme) => ({
-  centeredContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    minHeight: '10vh',
-  },
-}));
-
 const BindEmailWithMicrosoft: FC = () => {
-  const classes = useStyles();
   const router = useRouter();
 
   const signInWithMicrosoft = (): void => {
@@ -27,14 +15,14 @@ const BindEmailWithMicrosoft: FC = () => {
   };
 
   return (
-    <div className={clsx(classes.centeredContainer, 'relative')}>
-      <MainButton
-        leftIcon={<ReactIcon icon="logos:microsoft-icon" />}
-        onClick={signInWithMicrosoft}
-      >
-        Bind email with Microsoft
-      </MainButton>
-    </div>
+    <DarkButton
+      id="bind-ms"
+      startIcon={<ReactIcon icon="logos:microsoft-icon" />}
+      onClick={signInWithMicrosoft}
+      className="w-full"
+    >
+      Bind email with Microsoft
+    </DarkButton>
   );
 };
 
