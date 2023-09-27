@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { AppInteractionModule } from 'src/app-interaction/app-interaction.module';
 import { DIDModule } from 'src/did/did.module';
 import { IdentityModule } from 'src/identity/identity.module';
@@ -17,7 +17,7 @@ import { CredentialsService } from './credentials.service';
     DIDModule,
     IdentityModule,
     KeyRingModule,
-    AppInteractionModule
+    forwardRef(() => AppInteractionModule),
   ],
   exports: [
     CredentialsService
