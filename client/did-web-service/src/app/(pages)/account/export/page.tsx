@@ -1,7 +1,7 @@
 "use client";
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { useMounted } from '@hooks/useMounted';
-import { IdentityRoot } from "@model/identity-root/identity-root";
+import { RootIdentity } from "@model/root-identity/root-identity";
 import { authUser$ } from '@services/user/user.events';
 import { useToast } from "@services/feedback.service";
 import React, { FC, useState } from 'react';
@@ -19,7 +19,7 @@ const ExportMnemonicPage: FC = () => {
   const [clickedMnemonics, setClickedMnemonics] = useState<ClickedMnemonics>({});
   const { showSuccessToast, showErrorToast } = useToast();
 
-  const handleExportMnemonic: (rootIdentity: IdentityRoot) => Promise<string> = async (rootIdentity) => {
+  const handleExportMnemonic: (rootIdentity: RootIdentity) => Promise<string> = async (rootIdentity) => {
     const identityRootId= rootIdentity.id;
     const mnemonic = await rootIdentity?.exportMnemonic(identityRootId);
     setClickedMnemonics((prevMnemonics) => ({
