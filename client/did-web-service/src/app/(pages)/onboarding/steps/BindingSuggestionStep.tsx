@@ -7,6 +7,7 @@ import { PortraitCard } from "@components/card";
 import { DarkButton } from "@components/button";
 import AtMarkIcon from "@assets/images/at-mark.svg"
 import W3CircleIcon from "@assets/images/www-circle.svg"
+import Headline from "@components/layout/Headline";
 
 export const BindingSuggestionStep: FC<{
   onSkip: () => void;
@@ -25,14 +26,14 @@ export const BindingSuggestionStep: FC<{
 
   return (
     <>
-      <h3 className='w-full text-4xl font-bold text-center'>
-        You've made it! Welcome to Web3 identity.
-      </h3>
-      <p className="mt-4">
-        Your Web3 identity is <b>secured by cryptographic keys</b>. While many Web3 apps ask you to manage these keys yourself, our service offers
-        partial key storage, enhancing security. Your keys remain protected by your devices or passwords, and <b>we require your consent for any
-          action</b>. To ensure account recovery, bind multiple devices and browsers as <b>we cannot do this on your behalf</b>.
-      </p>
+      <Headline
+        title="You've made it! Welcome to Web3 identity."
+        description={
+          <>Your Web3 identity is <b>secured by cryptographic keys</b>. While many Web3 apps ask you to manage these keys yourself, our service offers
+          partial key storage, enhancing security. Your keys remain protected by your devices or passwords, and <b>we require your consent for any
+            action</b>. To ensure account recovery, bind multiple devices and browsers as <b>we cannot do this on your behalf</b>.</>
+        }
+      />
       <div className="py-4">
         <Button sx={{ color: '#9D3E3E', textDecoration: 'underline' }} endIcon={<KeyboardArrowRightIcon />} onClick={onSkip}>Not now. I'm just checking things out</Button>
       </div>
