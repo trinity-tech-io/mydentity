@@ -1,10 +1,12 @@
-import { MainButton } from '@components/generic/MainButton';
+import { FC } from 'react';
+import { useRouter } from "next/navigation";
+import { Icon as ReactIcon } from '@iconify/react';
+import { DarkButton } from '@components/button';
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
+import { Box, Link } from '@mui/material';
 import { useToast } from "@services/feedback.service";
 import { FlowOperation, getOnGoingFlowOperation } from '@services/flow.service';
 import { authUser$ } from "@services/user/user.events";
-import { useRouter } from "next/navigation";
-import { FC } from 'react';
 
 export const PasskeyBind: FC = () => {
   //   onConfirm: (password: string) => void;
@@ -43,9 +45,22 @@ export const PasskeyBind: FC = () => {
   }
 
   return (
-    <div className='flex flex-row gap-4 mt-4 p-4 items-center' style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <MainButton onClick={bindPasskeyConfirmation} >bind passkey</MainButton>
-    </div>
+    <Box className="inline-flex flex-col justify-center items-center">
+      <div className="w-full py-4">
+        <DarkButton
+          id="bind-ms"
+          className="w-full"
+          startIcon={<ReactIcon icon="material-symbols:passkey" />}
+          onClick={bindPasskeyConfirmation}
+        >
+          bind passkey
+        </DarkButton>
+      </div>
+      <span className="text-[11px] font-extralight text-center opacity-50">
+        Binding an account means you agree to the<br />
+        <Link href="#" color="inherit"><span className="font-medium">Privacy Policy</span></Link> and <Link href="#" color="inherit"><span className="font-medium">Terms of Service</span></Link>.
+      </span>
+    </Box>
   );
 }
 export default PasskeyBind;

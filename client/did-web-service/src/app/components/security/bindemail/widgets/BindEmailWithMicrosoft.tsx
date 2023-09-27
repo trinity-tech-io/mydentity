@@ -2,7 +2,6 @@
 import { DarkButton } from '@components/button';
 import { Icon as ReactIcon } from '@iconify/react';
 import { FlowOperation, setOnGoingFlowOperation } from "@services/flow.service";
-import clsx from 'clsx';
 import { useRouter } from "next/navigation";
 import { FC } from 'react';
 
