@@ -1,5 +1,8 @@
 import { gql } from "@apollo/client";
+import { DIDDocument } from "@elastosfoundation/did-js-sdk";
+import { gqlLocalDocumentFields } from "@graphql/document.fields";
 import { Document } from "@model/document/document";
+import { DocumentDTO } from "@model/document/document.dto";
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { IdentityProviderDocument } from "@services/identity/did.provider";
@@ -64,8 +67,31 @@ export class DocumentModule implements IdentityProviderDocument {
     }
   }
 
-  getLocalDIDDocument(identityDid: string): Promise<Document> {
-    throw new Error("Method not implemented.");
+  async getLocalDIDDocument(identityDid: string): Promise<Document> {
+    const result = await withCaughtAppException(async () => {
+      return (await getApolloClient()).query<{ getLocalDIDDocument: DocumentDTO }>({
+        query: gql`
+          query getLocalDIDDocument($identityDid: String!) {
+            getLocalDIDDocument(identityDid: $identityDid) {
+              ${gqlLocalDocumentFields}
+            }
+          }
+        `,
+        variables: {
+          identityDid
+        }
+      });
+    });
+
+    if (result?.data?.getLocalDIDDocument) {
+      const didDocument = await DIDDocument.parseAsync(result.data.getLocalDIDDocument.didDocument);
+      if (didDocument)
+        return new Document(didDocument);
+      else
+        return null;
+    }
+
+    return null;
   }
 
   synchronize(identityDid: string): Promise<void> {

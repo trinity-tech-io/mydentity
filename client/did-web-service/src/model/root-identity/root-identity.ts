@@ -12,7 +12,6 @@ import { RootIdentityDTO } from "./root-identity.dto";
 export class RootIdentity {
   id: string;
   didStoreRootIdentityId: string;
-  userId: string;
   createdAt: Date;
   Identity: Identity[];
 

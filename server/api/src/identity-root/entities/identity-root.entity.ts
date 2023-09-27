@@ -9,9 +9,6 @@ export class IdentityRootEntity {
   @Field(() => String)
   didStoreRootIdentityId: string;
 
-  @Field(() => String)
-  userId: string;
-
   @Field(() => GraphQLISODateTime)
   createdAt: string;
 

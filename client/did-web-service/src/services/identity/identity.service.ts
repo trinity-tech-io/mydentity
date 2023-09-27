@@ -140,6 +140,10 @@ class IdentityService {
   public removeDIDDocumentService(identityDid: string, id: string): Promise<boolean> {
     return this.provider.document.removeDIDDocumentService(identityDid, id);
   }
+
+  public getLocalDIDDocument(identityDid: string): Promise<any> {
+    return this.provider.document.getLocalDIDDocument(identityDid);
+  }
 }
 
 export const identityService = new IdentityService();

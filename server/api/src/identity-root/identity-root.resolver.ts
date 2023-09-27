@@ -14,9 +14,10 @@ export class IdentityRootResolver {
     private identityRootService: IdentityRootService,
   ) { }
 
+  @UseGuards(JwtAuthGuard)
   @Query(() => [IdentityRootEntity])
-  async listRootIdentities() {
-    return this.identityRootService.findAll();
+  async listRootIdentities(@CurrentUser() user: User) {
+    return this.identityRootService.findAll(user.id);
   }
 
   @UseGuards(JwtAuthGuard)

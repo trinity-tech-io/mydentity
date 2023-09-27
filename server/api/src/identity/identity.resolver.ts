@@ -10,6 +10,7 @@ import { CreateManagedIdentityInput } from './dto/create-managed-identity.input'
 import { PublicationStatusInput } from './dto/publication-status.input';
 import { PublishIdentityInput } from './dto/publish-identity.input';
 import { RemoveServiceInput } from './dto/remove-service.input';
+import { DocumentEntity } from './entities/document.entity';
 import { IdentityPublicationStatusEntity } from './entities/identity-publication-status.entity';
 import { IdentityEntity } from './entities/identity.entity';
 import { ManagedIdentityEntity } from './entities/managed-identity.entity';
@@ -96,5 +97,12 @@ export class IdentityResolver {
   async removeService(@Args('input') removeServiceInput: RemoveServiceInput, @CurrentUser() user: User, @CurrentBrowser() browser: Browser) {
     await this.identityService.ensureOwnedIdentity(removeServiceInput.identityDid, user);
     return this.identityService.removeService(removeServiceInput, user, browser);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Query(() => DocumentEntity)
+  async getLocalDIDDocument(@Args('identityDid') identityDid: string, @CurrentUser() user: User) {
+    await this.identityService.ensureOwnedIdentity(identityDid, user);
+    return this.identityService.getLocalDIDDocument(identityDid, user);
   }
 }

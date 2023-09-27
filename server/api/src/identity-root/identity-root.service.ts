@@ -1,5 +1,5 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
-import { IdentityRoot, User, Browser } from '@prisma/client/main';
+import { Browser, IdentityRoot, User } from '@prisma/client/main';
 import { DidService } from 'src/did/did.service';
 import { AppException } from 'src/exceptions/app-exception';
 import { AuthExceptionCode, DIDExceptionCode } from 'src/exceptions/exception-codes';
@@ -17,8 +17,11 @@ export class IdentityRootService {
   ) {
   }
 
-  async findAll(): Promise<IdentityRoot[]> {
+  async findAll(userId: string): Promise<IdentityRoot[]> {
     const identityRoots = await this.prisma.identityRoot.findMany({
+      where: {
+          userId
+      },
       include: {
         Identity: true
       }

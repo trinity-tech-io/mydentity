@@ -272,4 +272,13 @@ export class DidService {
       }
     }
   }
+
+  async getDidDocument(context: string, didString: string) {
+    const didStore = await this.openStore(context);
+    const didDocument = await didStore.loadDid(didString);
+    if (!didDocument)
+      throw new AppException(DIDExceptionCode.DIDDoesNotExist, "Can't load did:" + didString, HttpStatus.NOT_FOUND);
+
+    return didDocument;
+  }
 }

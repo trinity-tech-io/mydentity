@@ -249,6 +249,13 @@ export class IdentityService {
     return true;
   }
 
+  async getLocalDIDDocument(didString: string, user: User) {
+    const didDocument = await this.didService.getDidDocument(user?.id, didString);
+    return {
+      didDocument: didDocument.toString()
+    }
+  }
+
 
   /**
    * Ensures that the identityDid identity is owned by user and returns the identity.
