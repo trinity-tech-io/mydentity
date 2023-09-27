@@ -30,7 +30,10 @@ class DIDDocumentsService {
         // Try to get from the disk cache
         const documentString = await this.documentsPermanentCache.get(didString);
         const didDocument = await DIDDocument.parseAsync(documentString);
-        return new Document(didDocument);
+        if (didDocument)
+          return new Document(didDocument);
+        else
+          return null;
       },
       // TODO: forceRemote not passed to permanent storage!
     }, !forceRemote);

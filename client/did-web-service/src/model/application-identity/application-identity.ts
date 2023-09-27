@@ -6,7 +6,7 @@ import { awaitSubjectNonNull } from "@utils/promises";
 import moment from "moment";
 import { Identity } from "../identity/identity";
 
-const ApplicationCredentialFullType = "did://elastos/iXyYFboFAd2d9VmfqSvppqg1XQxBtX9ea2/ApplicationCredential";
+const ApplicationCredentialFullType = "did://elastos/iXyYFboFAd2d9VmfqSvppqg1XQxBtX9ea2/ApplicationCredential#ApplicationCredential";
 
 export class ApplicationIdentity extends Identity {
   public static async fromJson(json: IdentityDTO, provider: IdentityProvider): Promise<ApplicationIdentity> {

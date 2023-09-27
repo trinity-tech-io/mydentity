@@ -93,7 +93,7 @@ export const CredentialDetailWidget: FC = () => {
                   </Grid></>
                 }
 
-                {(!activeCredential.selfIssued() && issuerInfo?.isPublished) && (
+                {(!activeCredential.isSelfIssued() && issuerInfo?.isPublished) && (
                   <ListItemButton sx={{ marginTop: 2 }}>
                     <ListItemIcon>
                       <Image unoptimized src={issuerInfo?.avatarIcon} width={30} height={30} style={{ borderRadius: '50%' }} alt="avatar" />

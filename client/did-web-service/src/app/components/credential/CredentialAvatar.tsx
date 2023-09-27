@@ -16,6 +16,7 @@ export const CredentialAvatar: FC<{
   className?: string;
 }> = ({ credential, width = 60, height = 60, className }) => {
   const [representativeIconPath] = useBehaviorSubject(credential?.representativeIcon$);
+
   return (
     <Avatar sx={{ width, height }} className={clsx(className)}>
       {typeof representativeIconPath === 'string' ? (

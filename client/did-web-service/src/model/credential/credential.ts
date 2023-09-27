@@ -8,31 +8,28 @@ import type { JSONObject } from "@model/json";
 import { credentialTypesService } from "@services/credential-types/credential.types.service";
 import { withCaughtAppException } from '@services/error.service';
 import { getApolloClient } from '@services/graphql.service';
-import { getHiveScriptPictureDataUrl } from "@services/hive/hive-pictures.service";
-import { findProfileInfoByTypes } from '@services/identity-profile-info/identity-profile-info.service';
-import { activeIdentity$ } from "@services/identity/identity.events";
 import { identityService } from "@services/identity/identity.service";
 import { issuerService } from "@services/identity/issuer.service";
 import { logger } from "@services/logger";
 import { AdvancedBehaviorSubject } from '@utils/advanced-behavior-subject';
 import { evalObjectFieldPath } from "@utils/objects";
 import { capitalizeFirstLetter } from "@utils/strings";
-import { BehaviorSubject } from "rxjs";
 import type { IssuerInfo } from "./issuer-info";
-import { defaultProfileIcons } from "./profile-info-icons";
 
 type ValueItem = {
   name: string,
   value: string
 };
 
-export class Credential {
+export abstract class Credential {
   public issuerInfo$ = new AdvancedBehaviorSubject<IssuerInfo>(null, () => this.fetchIssuerInfo());
   public isConform$ = new AdvancedBehaviorSubject<boolean>(null, () => this.verifyCredential());
   public requestingApplications$ = new AdvancedBehaviorSubject<IdentityInteractingApplication[]>(null, () => this.fetchRequestingApplications());
 
   // Path to display the icon that best represents this credential.
-  public representativeIcon$ = new BehaviorSubject<string | JSX.Element>(null);
+  public representativeIcon$ = new AdvancedBehaviorSubject<string | JSX.Element>(null, async () => {
+    this.prepareRepresentativeIcon();
+  });
 
   // Backend data
   public id: string = null;
@@ -42,7 +39,7 @@ export class Credential {
   // Computed client data
   protected displayTitle: string;
   protected displayValue: any = null;
-  private onIconReadyCallback: (iconSrc: string | JSX.Element) => void = null;
+  //private onIconReadyCallback: (iconSrc: string | JSX.Element) => void = null;
 
   /**
    * Prepare all display data.
@@ -50,7 +47,6 @@ export class Credential {
   public prepareForDisplay(): void {
     this.prepareDisplayTitle();
     this.prepareDisplayValue();
-    void this.prepareIcon();
   }
 
   protected getDisplayableCredentialTitle(): string {
@@ -231,95 +227,34 @@ export class Credential {
       });
   }
 
+  protected abstract prepareRepresentativeIcon(): Promise<void>;
 
-  private async prepareIcon(): Promise<void> {
-    const activeIdentity = activeIdentity$.value;
-    const subject = <any>this.verifiableCredential.getSubject().getProperties();
-
-    if (this.hasRemotePictureToFetch()) { // Remote picture to fetch
-      if (subject.avatar && subject.avatar?.data) {
-        const hiveAssetUrl: string = subject.avatar.data;
-        const avatarCacheKey = hiveAssetUrl;
-
-        if (hiveAssetUrl.startsWith("hive://")) {
-          // logger.log("credential", "Getting picture from hive url", hiveAssetUrl);
-          // NOTE: assume we use the currently active identity to authenticate to target hive vault for calling the picture script
-          const dataUrl = await getHiveScriptPictureDataUrl(hiveAssetUrl);
-          if (dataUrl) {
-            logger.log("credential", "Got picture data from hive");
-            this.representativeIcon$.next(dataUrl);
-          }
-          else {
-            logger.log("idencredentialtity", "Got empty picture data from the hive cache service (real picture may come later)");
-            this.representativeIcon$.next(null);
-          }
-          this.loadIconWithFallback();
-        }
-        else {
-          // Assume base64.
-          /* const avatar = await Avatar.fromAvatarCredential(subject.avatar as CredentialAvatar);
-          this.iconSrc = avatar.toBase64DataUrl();
-          this.loadIconWithFallback(); */
-
-          // TODO:
-          console.warn("Unhandled avatar credentials format");
-        }
-      }
-    }
-    else { // No remote picture to fetch
-      // If the credential implements the DisplayableCredential interface, we get the icon from this.
-      if ("displayable" in subject) {
-        const icon = (subject["displayable"] as JSONObject)["icon"] as string
-        if (icon !== "nowhere")
-          this.representativeIcon$.next(icon);
-        else {
-          // Fallback for old style credentials - try to guess an icon, or use a defaut one.
-          this.setDefaultIcon()
-        }
-      }
-      else {
-        // Fallback for old style credentials - try to guess an icon, or use a defaut one.
-        this.setDefaultIcon()
-      }
-
-      this.loadIconWithFallback();
-    }
-  }
-
-  private setDefaultIcon(): void {
-    const fragmentInfo = this.verifiableCredential.getType();
-    // TODO: NOT GOOD HERE - SHOULD BE IN THE PROFILE CREDENTIAL CLASS
-    const profileInfo = findProfileInfoByTypes(fragmentInfo);
-    const fragment = profileInfo?.key;
-    const key = defaultProfileIcons[fragment]
-    if (key === undefined || key === null) {
-      const defaultIcon = defaultProfileIcons['default'];
-      this.representativeIcon$.next(defaultIcon);
-    }
-    else
-      this.representativeIcon$.next(key);
-  }
 
   /**
    * Tries to load the target picture, and in case of error, replaces the icon src with
    * a placeholder.
    */
-  private loadIconWithFallback(): void {
+  protected loadIconWithFallback(): void {
     if (this.representativeIcon$.value == null) {
       this.representativeIcon$.next(this.getFallbackIcon());
     }
 
-    if (this.isDefaultLocalIcon(this.representativeIcon$.value)) return
+    // Only try to load icons that are string paths such as urls.
+    // Icons that are already JSX elements are local and are directly used (can't be loaded with an
+    // Image object).
+    if (this.isDefaultLocalIcon(this.representativeIcon$.value))
+      return;
+
     const image = new Image();
     image.crossOrigin = 'anonymous';
 
     image.onload = (): void => {
       this.representativeIcon$.next(image.src);
-      this.onIconReadyCallback?.(this.representativeIcon$.value as string);
+      // this.onIconReadyCallback?.(this.representativeIcon$.value as string);
     };
     image.onerror = (): void => {
       this.representativeIcon$.next(this.getFallbackIcon());
-      this.onIconReadyCallback?.(this.representativeIcon$.value);
+      // this.onIconReadyCallback?.(this.representativeIcon$.value);
     };
 
     // Try to load the picture
@@ -327,8 +262,8 @@ export class Credential {
   }
 
   /**
-   * Check whether it is the default icon, 
-   * If it is the default icon: the type is JSX.Element, return true; 
+   * Check whether it is the default icon,
+   * If it is the default icon: the type is JSX.Element, return true;
    * otherwise: the icon is url, string type, return false
    */
   private isDefaultLocalIcon(str: string | JSX.Element): boolean {
@@ -337,33 +272,12 @@ export class Credential {
     }
     return true
   }
-  /**
-   * Fallback icon used either when the real icon is not loaded yet, or failed to load
-   */ // TODO: icon
-  public getFallbackIcon(): string | JSX.Element {
-    if (!this.isUserAvatar())
-      return AccountIcon;
-    else
-      return AccountIcon;
-  }
-
-  // TODO - rework - basic way of checking if the credential is an avatar.
-  // Rework using a specific avatar credential type.
-  private hasRemotePictureToFetch(): boolean {
-    const fragment = this.verifiableCredential.getId().getFragment();
-    if (fragment === "avatar") {
-      return true;
-    } else {
-      return false;
-    }
-  }
 
   /**
-  * Similar to hasRemotePictureToFetch() but more narrow (only for pictures representing faces)
-  */
-  private isUserAvatar(): boolean {
-    const fragment = this.verifiableCredential.getId().getFragment();
-    return (fragment === "avatar");
+ * Fallback icon used either when the real icon is not loaded yet, or failed to load
+ */ // TODO: better icon than a "head"
+  protected getFallbackIcon(): string | JSX.Element {
+    return AccountIcon;
   }
 
   /**
@@ -371,10 +285,6 @@ export class Credential {
    */
   public getDisplayableTitle(): string {
     return this.displayTitle;
-  }
-
-  public onIconReady(callback: (iconSrc: string | JSX.Element) => void): void {
-    this.onIconReadyCallback = callback;
   }
 
   /**
@@ -416,7 +326,7 @@ export class Credential {
   /**
   * Tells if the issuer of credential is the active user (self) or not
   */
-  public selfIssued(): boolean {
+  public isSelfIssued(): boolean {
     return this.verifiableCredential.getIssuer().toString() === identityService.getActiveIdentityId();
   }
 
@@ -436,8 +346,15 @@ export class Credential {
       issuerName = await issuerService.getIssuerName(issuerDidString);
       issuerIcon = await issuerService.getIssuerAvatar(issuerDidString);
     }
-    const issuerInfo = { avatarIcon: issuerIcon, didString: issuerDidString, name: issuerName, isPublished: isPublished };
-    logger.log('credential', 'got issuer info:', issuerInfo)
+
+    const issuerInfo = {
+      avatarIcon: issuerIcon,
+      didString: issuerDidString,
+      name: issuerName,
+      isPublished
+    };
+    logger.log('credential', 'got issuer info:', issuerInfo);
+
     return issuerInfo;
   }
 

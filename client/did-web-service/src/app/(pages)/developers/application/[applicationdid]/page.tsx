@@ -13,9 +13,7 @@ import { ChangeEvent, FC, useEffect, useState } from "react";
 /*
 
 TODO:
-- create the app credential when the app is first created
-- ability to edit app name
-    - when changing, should show the publish button
+- upload avatar to hive, display preview, save to app credential
 - when clicking publish:
     - should upsert the local app credential, make it visible, and publish the did document
 - button to get the mnemonic displayed (not shown by default)
@@ -33,14 +31,14 @@ const ApplicationDetailsPage: FC<{
   const appIdentity = appIdentities?.find(a => a.did === applicationDid); // Real app identity object from the user, if found
   const [localAppIdentityCredentials] = useBehaviorSubject(appIdentity?.credentials().credentials$); // Credentials of the app identity, local (maybe not published) - KEEP it unused to local the credentials
   const localAppCredential = appIdentity?.credentials().getCredentialByType("ApplicationCredential");
-  const [appName, setAppName] = useState<string>(localAppCredential?.getSubject().getProperty("name")); // UI model, possibly not yet saved to local VC/published VC
-  const [appIconUrl, setAppIconUrl] = useState<string>(localAppCredential?.getSubject().getProperty("iconUrl")); // UI model, possibly not yet saved to local VC/published VC
+  const [appName, setAppName] = useState<string>(null); // UI model, possibly not yet saved to local VC/published VC
+  const [appIconUrl, setAppIconUrl] = useState<string>(null); // UI model, possibly not yet saved to local VC/published VC
 
   const [appDIDDocumentStatusWasChecked, setAppDIDDocumentStatusWasChecked] = useState(false); // Whether the App DID document has been checked on chain or not yet
   const [publishedDIDDocument, setPublishedDIDDocument] = useState<Document>(null);
   const [appIdentityNeedsToBePublished, setAppIdentityNeedsToBePublished] = useState(false);
   //const developerDIDDocument: DIDPlugin.DIDDocument = null;
-  const [publishingDid, setPublishingDid] = useState(false);
+  const [publishingIdentity, setPublishingIdentity] = useState(false);
   const fetchingIcon = false;
   const uploadingIcon = false;
   const base64iconPath: string = null;
@@ -57,10 +55,6 @@ const ApplicationDetailsPage: FC<{
 
       if (doc) {
         logger.log("developers", "App DID is on chain");
-
-        // TODO: set app name and icon url from the local app credential
-
-        updateAppIdentityNeedsToBePublished()
       }
       else {
         logger.log("developers", "App DID is NOT on chain");
@@ -75,10 +69,20 @@ const ApplicationDetailsPage: FC<{
     if (appIdentity) {
       appIdentity.synchronizeDIDDocument();
     }
-  }, [appIdentity]);
+  }, [applicationDid, appIdentity]);
+
+  useEffect(() => {
+    if (localAppCredential) {
+      setAppName(localAppCredential?.getSubject().getProperty("name"));
+    }
+  }, [localAppCredential]);
+
+  useEffect(() => {
+    updateAppIdentityNeedsToBePublished();
+  }, [appName, appIconUrl, publishedDIDDocument])
 
   const publishAppIdentity = async (): Promise<void> => {
-    if (publishingDid)
+    if (publishingIdentity)
       return;
 
     // Must set the app icon
@@ -87,12 +91,12 @@ const ApplicationDetailsPage: FC<{
       return;
     }
 
-    setPublishingDid(true);
+    setPublishingIdentity(true);
     // Update local app identity data (local VC + local DID document)
     await appIdentity.update(appName, appIconUrl);
     // Publish the local DID document on chain
     const publishedSuccessfully = await appIdentity.publication().publish();
-    setPublishingDid(false);
+    setPublishingIdentity(false);
 
     // TODO: check pub status?
   }
@@ -253,10 +257,10 @@ const ApplicationDetailsPage: FC<{
         </div>
         <div className="mt-4">
           {
-            appDIDDocumentStatusWasChecked && appIdentityNeedsToBePublished && !publishingDid &&
+            appDIDDocumentStatusWasChecked && appIdentityNeedsToBePublished && !publishingIdentity &&
             <div>
               <div>The local application info has been modified, please publish it for others to view your new app info.</div>
-              <MainButton onClick={publishAppIdentity}>Publish DID</MainButton>
+              <MainButton onClick={publishAppIdentity} busy={publishingIdentity}>Publish DID</MainButton>
             </div>
           }
 
