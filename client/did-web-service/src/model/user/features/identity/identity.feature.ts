@@ -1,9 +1,5 @@
 import { ApplicationIdentity } from "@model/application-identity/application-identity";
 import { Identity } from "@model/identity/identity";
-<<<<<<< HEAD
-import { RootIdentity } from "@model/root-identity/root-identity";
-=======
->>>>>>> e2133ad (WIP Developers page + fixed server build error)
 import { IdentityType } from "@model/identity/identity-type";
 import { RegularIdentity } from "@model/regular-identity/regular-identity";
 import { RootIdentity } from "@model/root-identity/root-identity";
@@ -67,11 +63,7 @@ export class IdentityFeature implements UserFeature {
   }
 
   public async listRootIdentities(): Promise<RootIdentity[]> {
-<<<<<<< HEAD
-    logger.log("identities", "list Root Identities identity");
-=======
     logger.log("identity", "list Root Identities identity");
->>>>>>> e2133ad (WIP Developers page + fixed server build error)
 
     const rootIdentities = await identityService.listRootIdentities();
     this.rootIdentities$.next(this.rootIdentities$.value.filter(i => i.id));
@@ -97,11 +89,7 @@ export class IdentityFeature implements UserFeature {
   }
 
   private async fetchRootIdentities(): Promise<RootIdentity[]> {
-<<<<<<< HEAD
-    logger.log("identities", "Fetching root identities", this.user);
-=======
     logger.log("identity", "Fetching root identities", this.user);
->>>>>>> e2133ad (WIP Developers page + fixed server build error)
     return identityService.listRootIdentities();
   }
 
