@@ -63,7 +63,6 @@ export const AllIdentityList: FC = _ => {
         </div>
       </div>
       <div>
-
         {/* Table body */}
         {!sortedIdentities && <VerticalStackLoadingCard />}
         {
