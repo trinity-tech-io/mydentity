@@ -7,6 +7,7 @@ export enum AuthExceptionCode {
   InexistingUser = 10107,
   IdentityNotOwned = 10108, // User doesn't own an identity we are trying to use
   CredenialNotOwned = 10109, // User doesn't own a credential we are trying to use
+  IdentityRootNotOwned = 10110, // User doesn't own a root identity we are trying to use
   Unspecific = 10199,
 }
 

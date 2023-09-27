@@ -4,11 +4,14 @@ import { gqlCredentialFields, gqlIssueCredentialFields } from "@graphql/credenti
 import { gqlIdentityFields } from "@graphql/identity.fields";
 import { gqlPresentationFields } from "@graphql/presentation.fields";
 import { gqlPublishFields } from "@graphql/publish.fields";
+import { gqlRootIdentityFields } from "@graphql/root-identity.fields";
 import { gqlTransactionFields } from "@graphql/transaction.fields";
 import { Credential } from "@model/credential/credential";
 import { credentialFromJson } from "@model/credential/credential-builder";
 import { CredentialDTO, IssueCredentialDTO } from "@model/credential/credential.dto";
 import { IdentityPublicationStatusResult } from "@model/identity-publication/identity-publication-status.dto";
+import { IdentityRoot } from "@model/identity-root/identity-root";
+import { IdentityRootDTO } from "@model/identity-root/identity-root.dto";
 import { Identity } from "@model/identity/identity";
 import { IdentityDTO } from "@model/identity/identity.dto";
 import { PresentationDTO } from "@model/presentation/presenttation.dto";
@@ -91,6 +94,28 @@ export class CustodialDIDProvider implements IdentityProvider {
       const identities = await Promise.all(result.data.identities.map(identity => Identity.fromJson(identity, this)));
       logger.log("custodial-provider", "Fetched identities:", identities);
       return identities;
+    }
+
+    return null;
+  }
+
+  async listRootIdentities(): Promise<IdentityRoot[]> {
+    const result = await withCaughtAppException(async () => {
+      return (await getApolloClient()).query<{ listRootIdentities: IdentityRootDTO[] }>({
+        query: gql`
+        query listRootIdentities {
+          listRootIdentities {
+            ${gqlRootIdentityFields}
+          }
+        }
+      `
+      });
+    });
+
+    if (result?.data?.listRootIdentities) {
+      const identityRoots = await Promise.all(result.data.listRootIdentities.map(identityRoot => IdentityRoot.fromJson(identityRoot)));
+      logger.log("custodial-provider", "Fetched root identities:", identityRoots);
+      return identityRoots;
     }
 
     return null;
