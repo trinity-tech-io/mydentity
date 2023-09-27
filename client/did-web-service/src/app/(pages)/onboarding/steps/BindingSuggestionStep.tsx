@@ -44,14 +44,14 @@ export const BindingSuggestionStep: FC<{
             </div>
           }
           content={
-            <div className="h-full flex items-center">
+            <div className="h-full flex items-center max-sm:text-[10px]">
               <span>Verify one of your existing email addresses and bind it to your account with a password. You can later use your email and password to sign in and unlock access to your identity.</span>
             </div>
           }
           footer={
             <DarkButton
               color="primary"
-              className="w-4/5 md:w-[70%]"
+              className="w-full sm:w-4/5 md:w-[70%]"
               value="dashboard"
               onClick={bindEmail}
             >
@@ -66,14 +66,14 @@ export const BindingSuggestionStep: FC<{
             </div>
           }
           content={
-            <div className="h-full flex items-center">
+            <div className="h-full flex items-center max-sm:text-[10px]">
               <span>Bind your current browser. This doesn't require to provide any email or password, but access to your identity will be lost if you don't bind multiple devices as recovery.</span>
             </div>
           }
           footer={
             <DarkButton
               color="primary"
-              className="w-4/5 md:w-[70%]"
+              className="w-full sm:w-4/5 md:w-[70%]"
               value="dashboard"
               onClick={bindBrowser}
             >

@@ -73,7 +73,7 @@ const PortraitCard: FC<PortraitCardType> = (props) => {
               <ChipIcon width="100%" height="100%" viewBox="0 0 50 38" />
             </div>
           </div>
-          <div className="flex flex-1 pt-[10%]">
+          <div className="flex flex-1">
             <div className="text-left">{content}</div>
           </div>
           <div className="flex justify-center">{footer}</div>

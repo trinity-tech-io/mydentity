@@ -44,7 +44,7 @@ const EntryPage: FC = () => {
       <div className="flex justify-center gap-2 md:gap-4">
         <PortraitCard
           content={
-            <>
+            <div className="pt-[10%]">
               <TextBarcode
                 value={isMobile ? "keep" : "keeping"}
                 text="Gate keeping"
@@ -66,7 +66,7 @@ const EntryPage: FC = () => {
                 }
                 height={barcodeHeight}
               />
-            </>
+            </div>
           }
           footer={
             <DarkButton
@@ -81,7 +81,7 @@ const EntryPage: FC = () => {
         />
         <PortraitCard
           content={
-            <>
+            <div className="pt-[10%]">
               <TextBarcode
                 value={isMobile ? "Forg" : "Forging"}
                 text="Forging your"
@@ -103,7 +103,7 @@ const EntryPage: FC = () => {
                 }
                 height={barcodeHeight}
               />
-            </>
+            </div>
           }
           footer={
             <DarkButton
