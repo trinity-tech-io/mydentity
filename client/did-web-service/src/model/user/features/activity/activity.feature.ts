@@ -8,9 +8,9 @@ import type { User } from "@model/user/user";
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { logger } from "@services/logger";
-import { AdvancedBehaviorSubject } from "@utils/advanced-behavior-subject";
 import { onMessage } from "@services/websockets/websocket.events";
 import { WebSocketEventType } from "@services/websockets/websocket.types";
+import { AdvancedBehaviorSubject } from "@utils/advanced-behavior-subject";
 
 export class ActivityFeature implements UserFeature {
     public activities$ = new AdvancedBehaviorSubject<Activity[]>([], () => this.fetchActivities());
@@ -22,7 +22,7 @@ export class ActivityFeature implements UserFeature {
     private connectSocketEvents(): void {
         onMessage.subscribe(async e => {
             if (e.event === WebSocketEventType.ACTIVITY_CREATED) {
-                logger.log('activity feature: ACTIVITY_CREATED, ', e.data);
+                logger.log("activity", 'ACTIVITY_CREATED:', e.data);
                 const activity = await Activity.fromJson(e.data);
                 this.activities$.next([activity].concat(this.activities$.value));
             }

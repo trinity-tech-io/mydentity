@@ -1,7 +1,12 @@
+import { Credential } from "@model/credential/credential";
 import { IdentityDTO } from "@model/identity/identity.dto";
-import { logger } from "@services/logger";
-import { Identity } from "../identity/identity";
 import { IdentityProvider } from "@services/identity/did.provider";
+import { logger } from "@services/logger";
+import { awaitSubjectNonNull } from "@utils/promises";
+import moment from "moment";
+import { Identity } from "../identity/identity";
+
+const ApplicationCredentialFullType = "did://elastos/iXyYFboFAd2d9VmfqSvppqg1XQxBtX9ea2/ApplicationCredential";
 
 export class ApplicationIdentity extends Identity {
   public static async fromJson(json: IdentityDTO, provider: IdentityProvider): Promise<ApplicationIdentity> {
@@ -11,76 +16,49 @@ export class ApplicationIdentity extends Identity {
   }
 
   /**
-   * Updates the app's did document with all the required info that we have locally
+   * Updates this application identity in the following way:
+   * - Delete and re-create the local ApplicationCredential
+   * - Delete and re-create the ApplicationCredential in the DID document
    *
-   * TODO: rename, put in a feature?
+   * ApplicationCredential type info:
+   * - Published from the credential toolbox
+   * - Using Trinity Tech DID
+   * - did://elastos/iXyYFboFAd2d9VmfqSvppqg1XQxBtX9ea2/ApplicationCredential
    */
-  public async updateDIDDocument(developerDID: string, appName: string, appIconUrl: string, nativeRedirectUrl: string, nativeCallbackUrl: string, nativeCustomScheme: string): Promise<void> {
+  public async update(appName: string, appIconUrl: string): Promise<Credential> {
     logger.log("identity", "DID Session debug (did):", this.did);
 
     const properties = {
       name: appName,
       iconUrl: appIconUrl,
       developer: {
-        did: developerDID
+        did: ""
       },
       endpoints: {
-        redirectUrl: nativeRedirectUrl,
-        callbackUrl: nativeCallbackUrl,
-        customScheme: nativeCustomScheme
+        redirectUrl: "",
+        callbackUrl: "",
+        customScheme: ""
       }
     };
-    await this.updateDIDDocumentsWithApplicationCredential("#appinfo", properties, "ApplicationCredential");
+    return this.upsertApplicationCredential("#appinfo", properties, ApplicationCredentialFullType);
   }
 
-  private updateDIDDocumentsWithApplicationCredential(credentialName: string, properties: any, credentialType: string): Promise<void> {
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
-    return new Promise((resolve, reject) => {
-      // TODO
+  private async upsertApplicationCredential(credentialName: string, properties: any, credentialType: string): Promise<Credential> {
+    // Make sure credentials are loaded
+    await awaitSubjectNonNull(this.credentials().credentials$);
 
-      /* let validityDays: any = 5 * 365; // 5 years
+    // Find any existing application credential
+    const existingAppCredential = this.credentials().getCredentialByType(credentialType);
+    if (existingAppCredential)
+      await this.credentials().deleteCredential(existingAppCredential);
 
-      // Create a new credential that contains all the app info, in our local DID
-      // eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
-      this.did.issueCredential(this.didString, credentialName, [credentialType], validityDays, properties, this.storePassword, async credential => {
-        logger.log("developertools", "Credential issued:", credential);
-        // Also add this credential into the local DID document, ready for publishing.
+    logger.log("identity", "Creating application credential");
 
-        logger.log("developertools", "Removing existing credential " + credentialName + " if any");
-        await this.deleteExistingCredentialIfAny(credentialName);
+    const expirationDate = moment().add(5, "years");
+    const credential = await this.credentials().createCredential(credentialName, [credentialType], expirationDate.toDate(), properties);
 
-        logger.log("developertools", "Adding the new " + credentialName + " credential to the DID document");
-        this.didDocument.addCredential(credential, this.storePassword, () => {
-          logger.log("developertools", "DIDDocument after update: ", this.didDocument)
-          resolve();
-        }, err => {
-          reject(err);
-        });
-      }, err => {
-        reject(err);
-      }); */
-    });
+    // TODO: make the credential visible = in local did document
+
+    return credential;
   }
-
-  // TODO: move to credentials feature
-  private deleteExistingCredentialIfAny(credentialName: string): Promise<void> {
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
-    return new Promise((resolve, reject) => {
-      // TODO
-
-      /* let credential = this.didDocument.getCredential(credentialName);
-      if (credential) {
-        this.didDocument.deleteCredential(credential, this.storePassword, () => {
-          resolve();
-        }, (err) => {
-          reject(err);
-        });
-      }
-      else {
-        // Do nothing, no such credential yet.
-        resolve();
-      } */
-    });
-  }
-
 }

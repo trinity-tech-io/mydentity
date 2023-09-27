@@ -5,7 +5,10 @@ const modulesColors: { [module: string]: string } = {
     "default": "#008730",
     "hive": "#5226af",
     "did": "#06c4ce",
-    "connectivity": "#d17506"
+    "identity": "#40C770",
+    "custodial-provider": "#40C770",
+    "connectivity": "#444444",
+    "security": "#bc3bef"
 }
 
 function getBackgroundColor(module: string): string {

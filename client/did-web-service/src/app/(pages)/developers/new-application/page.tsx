@@ -30,6 +30,8 @@ const NewApplicationPage: FC = () => {
     // Create identity for real in the backend
     setCallingCreationApi(true);
     const applicationIdentity = await callWithUnlock(async () => await authUser.get("identity").createApplicationIdentity(name));
+    // Create the application credential in this new identity
+    applicationIdentity.update(name, "");
     setCallingCreationApi(false);
 
     if (applicationIdentity) {
@@ -77,7 +79,7 @@ const NewApplicationPage: FC = () => {
     <MainButton onClick={createIdentity} busy={creatingIdentity}>Create this application identity</MainButton>
 
     <div className='flex flex-col'>
-      {callingCreationApi && "Creating the secure identity"}
+      {callingCreationApi && "Creating the application identity"}
     </div>
   </div>
   )

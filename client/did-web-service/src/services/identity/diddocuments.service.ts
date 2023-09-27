@@ -10,7 +10,7 @@ class DIDDocumentsService {
   private documentsPermanentCache = new PermanentCache<string, unknown>("did-documents", async (didString) => {
     const forceRemote = false; // TODO
     const resolvedDocument = await this.fetchDIDDocumentWithoutDIDStore(didString, forceRemote);
-    return resolvedDocument.toString();
+    return resolvedDocument?.toString();
   }, 30 * 60); // 30 minutes cache expiration
   private documentsMemoryCache = new ObjectCache<Document>();
 

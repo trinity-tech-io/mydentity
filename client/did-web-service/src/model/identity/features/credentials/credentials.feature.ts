@@ -11,6 +11,14 @@ export class CredentialsFeature implements IdentityFeature {
 
   constructor(protected identity: Identity) { }
 
+  /**
+   * Returns the first Credential that matches a given type
+   */
+  public getCredentialByType(shortType: string): Credential {
+    const credentials = this.credentials$.value;
+    return credentials?.find(c => !!c.getTypes().find(t => t === shortType));
+  }
+
   public async createCredential(credentialId: string, types: string[], expirationDate: Date, prop: any): Promise<Credential> {
     this.ensureCredentialsFetched();
     logger.log("credentials", "Creating credential", credentialId, types, expirationDate, prop);

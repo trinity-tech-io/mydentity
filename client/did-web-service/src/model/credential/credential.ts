@@ -383,7 +383,7 @@ export class Credential {
   /**
    * Convenient shortcut to the real credential
    */
-  public getTypes(): any {
+  public getTypes(): string[] {
     return this.verifiableCredential.getType();
   }
 

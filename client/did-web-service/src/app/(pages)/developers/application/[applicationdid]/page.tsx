@@ -1,13 +1,25 @@
 "use client";
+import { Breadcrumbs } from "@components/breadcrumbs/Breadcrumbs";
 import { MainButton } from "@components/generic/MainButton";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { Document } from "@model/document/document";
-import { Typography } from "@mui/material";
+import { TextField, Typography } from "@mui/material";
 import { useToast } from "@services/feedback.service";
 import { didDocumentService } from "@services/identity/diddocuments.service";
 import { logger } from "@services/logger";
 import { authUser$ } from "@services/user/user.events";
-import { FC, useEffect, useState } from "react";
+import { ChangeEvent, FC, useEffect, useState } from "react";
+
+/*
+
+TODO:
+- create the app credential when the app is first created
+- ability to edit app name
+    - when changing, should show the publish button
+- when clicking publish:
+    - should upsert the local app credential, make it visible, and publish the did document
+- button to get the mnemonic displayed (not shown by default)
+*/
 
 const ApplicationDetailsPage: FC<{
   params: {
@@ -17,22 +29,21 @@ const ApplicationDetailsPage: FC<{
   const [activeUser] = useBehaviorSubject(authUser$);
   const identityFeature = activeUser?.get("identity");
   const [appIdentities] = useBehaviorSubject(identityFeature?.applicationIdentities$);
-  const applicationDid = params?.applicationdid; // From the url, app we are trying to manage
-  const app = appIdentities?.find(a => a.did === applicationDid); // Real app identity object from the user, if found
+  const applicationDid = decodeURIComponent(params?.applicationdid); // From the url, app we are trying to manage
+  const appIdentity = appIdentities?.find(a => a.did === applicationDid); // Real app identity object from the user, if found
+  const [localAppIdentityCredentials] = useBehaviorSubject(appIdentity?.credentials().credentials$); // Credentials of the app identity, local (maybe not published) - KEEP it unused to local the credentials
+  const localAppCredential = appIdentity?.credentials().getCredentialByType("ApplicationCredential");
+  const [appName, setAppName] = useState<string>(localAppCredential?.getSubject().getProperty("name")); // UI model, possibly not yet saved to local VC/published VC
+  const [appIconUrl, setAppIconUrl] = useState<string>(localAppCredential?.getSubject().getProperty("iconUrl")); // UI model, possibly not yet saved to local VC/published VC
 
   const [appDIDDocumentStatusWasChecked, setAppDIDDocumentStatusWasChecked] = useState(false); // Whether the App DID document has been checked on chain or not yet
   const [publishedDIDDocument, setPublishedDIDDocument] = useState<Document>(null);
+  const [appIdentityNeedsToBePublished, setAppIdentityNeedsToBePublished] = useState(false);
   //const developerDIDDocument: DIDPlugin.DIDDocument = null;
   const [publishingDid, setPublishingDid] = useState(false);
   const fetchingIcon = false;
   const uploadingIcon = false;
   const base64iconPath: string = null;
-
-  const [appName, setAppName] = useState<string>(null);
-  const [appIconUrl, setAppIconUrl] = useState<string>(null);
-  const nativeRedirectUrl = "";
-  const nativeCustomScheme = "";
-  const nativeCallbackUrl = "";
 
   const { showSuccessToast, showErrorToast } = useToast();
 
@@ -46,31 +57,27 @@ const ApplicationDetailsPage: FC<{
 
       if (doc) {
         logger.log("developers", "App DID is on chain");
-        //developerDIDDocument = await identityService.getDeveloperIdentityOnChain(getOnChainAppDeveloperDID());
 
-        setAppName(await doc.getRepresentativeOwnerName());
-        setAppIconUrl(await doc.getRepresentativeIcon());
+        // TODO: set app name and icon url from the local app credential
 
-        /* nativeRedirectUrl = getOnChainRedirectUrlEndpoint();
-        nativeCallbackUrl = getOnChainCallbackUrlEndpoint();
-        nativeCustomScheme = getOnChainCustomSchemeEndpoint(); */
+        updateAppIdentityNeedsToBePublished()
       }
       else {
         logger.log("developers", "App DID is NOT on chain");
 
-        //appName = app.name;
+        //appName = app.name; // TODO
       }
     })
-  });
+  }, []);
 
   // App identity initialization
   useEffect(() => {
-    if (app) {
-      app.synchronizeDIDDocument();
+    if (appIdentity) {
+      appIdentity.synchronizeDIDDocument();
     }
-  }, [app]);
+  }, [appIdentity]);
 
-  const publishAppIdentity = async () => {
+  const publishAppIdentity = async (): Promise<void> => {
     if (publishingDid)
       return;
 
@@ -81,34 +88,17 @@ const ApplicationDetailsPage: FC<{
     }
 
     setPublishingDid(true);
-    const developerDID = ""; // TODO
-    await app.updateDIDDocument(developerDID, appName, appIconUrl, nativeRedirectUrl, nativeCallbackUrl, nativeCustomScheme);
-    const publishedSuccessfully = await app.publication().publish();
-    // TODO: check pub status?
+    // Update local app identity data (local VC + local DID document)
+    await appIdentity.update(appName, appIconUrl);
+    // Publish the local DID document on chain
+    const publishedSuccessfully = await appIdentity.publication().publish();
     setPublishingDid(false);
 
-    if (publishedSuccessfully) {
-      /* await dAppService.updateDapp(app);
-
-      // Refresh all data
-      await refreshAppIdentityStatus(); */
-    }
+    // TODO: check pub status?
   }
 
   const isAppIdentityPublished = (): boolean => {
     return appDIDDocumentStatusWasChecked && publishedDIDDocument != null
-  }
-
-  const getOnChainRedirectUrlEndpoint = (): string => {
-    return getOnChainEndpoint("redirectUrl");
-  }
-
-  const getOnChainCustomSchemeEndpoint = (): string => {
-    return getOnChainEndpoint("customScheme");
-  }
-
-  const getOnChainCallbackUrlEndpoint = (): string => {
-    return getOnChainEndpoint("callbackUrl");
   }
 
   const getOnChainEndpoint = (endPointName: string): string => {
@@ -141,42 +131,40 @@ const ApplicationDetailsPage: FC<{
       return subject.getProperty("developer")["did"] || "";
   }
 
-  /* const chainDeveloperDIDMatchesLocalDID = (): boolean => {
-    return signedInUserDID == getOnChainAppDeveloperDID();
+  const chainAppNameMatchesLocalAppName = (): boolean => {
+    const appCredential = publishedDIDDocument.getCredentialByType("ApplicationCredential");
+    if (!appCredential)
+      return false;
+
+    return appName === appCredential.getSubject().getProperty("name");
   }
 
-    public chainRedirectURLMatchesLocalRedirectURL(): boolean {
-    return nativeRedirectUrl == getOnChainRedirectUrlEndpoint();
+  const chainAppIconMatchesLocalAppIcon = (): boolean => {
+    const appCredential = publishedDIDDocument.getCredentialByType("ApplicationCredential");
+    if (!appCredential)
+      return false;
+
+    return appIconUrl === appCredential.getSubject().getProperty("iconUrl");
   }
 
-    public chainCustomSchemeMatchesLocalCustomScheme(): boolean {
-    return nativeCustomScheme == getOnChainCustomSchemeEndpoint();
-  }
-
-    public chainCallbackURLMatchesLocalCallbackURL(): boolean {
-    return nativeCallbackUrl == getOnChainCallbackUrlEndpoint();
-  }
-
-    public chainAppNameMatchesLocalAppName(): boolean {
-    return appName == publishedAppInfo.name;
-  }
-
-    public chainAppIconMatchesLocalAppIcon(): boolean {
-    return appIconUrl === publishedAppInfo.iconUrl; // TODO CHECK THIS
-  }*/
-
-  const appIdentityNeedsToBePublished = (): boolean => {
-    return true; // TODO
-    /* return !isAppIdentityPublished() ||
+  /**
+   * Based on on going changes, updates the state that tells us if we should publish the
+   * app did on chain again to reflect the recent changes or not.
+   */
+  const updateAppIdentityNeedsToBePublished = (): void => {
+    setAppIdentityNeedsToBePublished(
+      !isAppIdentityPublished() ||
       !chainAppNameMatchesLocalAppName() ||
-      !chainAppIconMatchesLocalAppIcon() ||
-      !chainDeveloperDIDMatchesLocalDID() ||
-      !chainCallbackURLMatchesLocalCallbackURL() ||
-      !chainRedirectURLMatchesLocalRedirectURL() ||
-      !chainCustomSchemeMatchesLocalCustomScheme(); */
+      !chainAppIconMatchesLocalAppIcon()
+    );
   }
 
-  const copyAppDIDToClipboard = async () => {
+  const onAppTitleChange = (event: ChangeEvent<HTMLInputElement>): void => {
+    setAppName(event.currentTarget?.value);
+    updateAppIdentityNeedsToBePublished();
+  };
+
+  const copyAppDIDToClipboard = async (): Promise<void> => {
     /* await native.copyClipboard(app.didString);
     native.genericToast('developers.app-did-copied', 2000); */
   }
@@ -196,9 +184,15 @@ const ApplicationDetailsPage: FC<{
 } */
 
   return (
-    <div>
+    <div className="col-span-full">
+      <Breadcrumbs entries={["developers", "application-details"]} />
+
       <div>
+        <Typography variant="h6">Application details</Typography>
+
+        {/*  Header */}
         <div className="flex flex-col">
+          {/* App icon */}
           <div>
             {/* <ion-img *ngIf="!fetchingIcon && !uploadingIcon" [src]="getAppIcon()"
               onClick="selectAndUploadAppIconFromLibrary()"></ion-img> */}
@@ -208,34 +202,40 @@ const ApplicationDetailsPage: FC<{
               }}</p> */}
             {/* <ion-spinner * ngIf="fetchingIcon || uploadingIcon" ></ion - spinner > */}
           </div>
-          <div>
-            <p>Title</p>
-          </div>
-          <div>
-            {/* <ion-input [(ngModel)]="appName" placeholder="{{ 'developers.appName-placeholder' | translate }}">
+
+          {/* App title */}
+          <div className="flex flex-row mt-4 items-center gap-4">
+            <div>Name</div>
+            <div>
+              <TextField
+                className='w-full'
+                label="Application name"
+                onChange={onAppTitleChange}
+                defaultValue={appName}
+                autoFocus
+                variant="outlined"
+                autoComplete="off"
+              />
+
+              {/* <ion-input [(ngModel)]="appName" placeholder="{{ 'developers.appName-placeholder' | translate }}">
             </ion-input> */}
+            </div>
           </div>
         </div>
       </div >
 
-      <div>
-        <div className="flex flex-row">
-          <div >
-            <h1>Identity status</h1>
-            {/* <ion-icon name="help-circle" onClick={dAppService.showHelp($event, appIdentityHelpMessage)}></ion-icon> */}
+      {/* Other properties */}
+      <div className="flex flex-col gap-4 mt-8">
+        <div className="flex flex-row gap-4">
+          <div>
+            <p>DID</p>
+            {/* <ion-icon name="copy" onClick={copyAppDIDToClipboard}></ion-icon> */}
+          </div>
+          <div>
+            <Typography>{applicationDid}</Typography>
           </div>
         </div>
-        <div>
-          <div>
-            <div >
-              <p>DID</p>
-              {/* <ion-icon name="copy" onClick={copyAppDIDToClipboard}></ion-icon> */}
-            </div>
-            <div >
-              <Typography>{applicationDid}</Typography>
-            </div>
-          </div>
-          {/* <div>
+        {/* <div>
             <div >
               <p>Mnemonic</p>
             </div>
@@ -243,86 +243,25 @@ const ApplicationDetailsPage: FC<{
               <Typography>{didSession.mnemonic}</Typography>
             </div>
           </div> */}
+        <div className="flex flex-row gap-4">
+          <div>App DID published?</div>
           <div>
-            <div >
-              <p>App DID published?</p>
-            </div>
-            <div >
-              {!appDIDDocumentStatusWasChecked && <Typography>Checking</Typography>}
-              {appDIDDocumentStatusWasChecked && publishedDIDDocument && <Typography>App DID published</Typography>}
-
-              {/*  <ion-icon *ngIf="appDIDDocumentStatusWasChecked && !publishedAppInfo.didDocument"
-name = "alert-circle-outline" ></ion-icon > */}
-              {appDIDDocumentStatusWasChecked && !publishedDIDDocument && <Typography>Not published</Typography>}
-            </div>
-          </div >
-          {/* <div  >
-            <div >
-              <p>Developer DID  published?</p>
-            </div>
-            <div className="status-icon">
-              {developerDIDDocument && <Typography >Yes published</Typography>}
-
-              {!developerDIDDocument && <ion-icon name="alert-circle-outline" ></ion-icon>}
-              {!developerDIDDocument && <Typography >No published</Typography>}
-            </div>
-          </div> */}
-          {appDIDDocumentStatusWasChecked && <div >
-            {/* <div >
-              <p>App attached to dev</p>
-            </div>
-            <div className="status-icon">
-              {getOnChainAppDeveloperDID() && <Typography>Yes published</Typography>}
-
-              {!getOnChainAppDeveloperDID() && <ion-icon name="alert-circle-outline" ></ion-icon>}
-              {!getOnChainAppDeveloperDID() && <Typography  >No published</Typography>}
-            </div> */}
-          </div>}
-          <div >
-            <div >
-              <p>Native redirect url</p>
-              {/* <ion-icon name="help-circle" onClick={() => dAppService.showHelp($event, nativeRedirectUrlHelpMessage)}>
-        </ion-icon> */}
-            </div>
-            {/* <div >
-      <ion-input [(ngModel)]="nativeRedirectUrl"
-      placeholder="Redirect url"></ion-input>
-            </div>
+            {!appDIDDocumentStatusWasChecked && <Typography>Checking</Typography>}
+            {appDIDDocumentStatusWasChecked && publishedDIDDocument && <Typography>Yes</Typography>}
+            {appDIDDocumentStatusWasChecked && !publishedDIDDocument && <Typography>No</Typography>}
           </div>
-    <div * ngIf="appDIDDocumentStatusWasChecked" class="input-row" >
-      <div >
-        <p>Native scheme</p>
-        <ion-icon name="help-circle" onClick='dAppService.showHelp($event, nativeCustomSchemeHelpMessage)'>
-      </ion-icon>
+        </div>
+        <div className="mt-4">
+          {
+            appDIDDocumentStatusWasChecked && appIdentityNeedsToBePublished && !publishingDid &&
+            <div>
+              <div>The local application info has been modified, please publish it for others to view your new app info.</div>
+              <MainButton onClick={publishAppIdentity}>Publish DID</MainButton>
             </div>
-    <div >
-      <ion-input [(ngModel)]="nativeCustomScheme"
-      placeholder="Native custom scheme"></ion-input>
-            </div>
-          </div>
-    <div * ngIf="appDIDDocumentStatusWasChecked" class="input-row" >
-      <div >
-        <p>{{ 'developers.native-callback-url' | translate }}</p>
-        <ion-icon name="help-circle" onClick='dAppService.showHelp($event, nativeCallbackUrlHelpMessage)'>
-      </ion-icon>
-            </div>
-    <div >
-      <ion-input [(ngModel)]="nativeCallbackUrl"
-      placeholder="Native callback url"></ion-input>
-            </div>
-          </div>
-        </div >
-    </div > */}
+          }
 
-            {appDIDDocumentStatusWasChecked && appIdentityNeedsToBePublished() && !publishingDid &&
-              <MainButton
-                onClick={() => publishAppIdentity()}>Publish DID</MainButton>
-/* {/* <ion-spinner * ngIf="appDIDDocumentStatusWasChecked && appIdentityNeedsToBePublished() && publishingDid" >
-    </ion - spinner > */} */
+          {!appIdentityNeedsToBePublished && <p>Up to date</p>}
 
-            {!appIdentityNeedsToBePublished() && <p>Up to date</p>}
-
-          </div>
         </div>
       </div>
     </div>

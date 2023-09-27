@@ -13,6 +13,14 @@ export class Document {
   }
 
   /**
+   * Returns the first VerifiableCredential that matches a given type
+   */
+  public getCredentialByType(shortType: string): VerifiableCredential {
+    const credentials = this.didDocument.getCredentials();
+    return credentials.find(c => !!c.getType().find(t => t === shortType));
+  }
+
+  /**
    * Returns a subject that provides a resolved remote icon content.
    * This icon represents the did document and can be either:
    * - An "avatar", if the did document represents a regular user

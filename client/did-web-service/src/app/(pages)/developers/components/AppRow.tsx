@@ -12,6 +12,6 @@ export const AppRow: FC<{
   }
 
   return (
-    <div className="flex flex-row" onClick={openApp}>App stuff {application.did}</div>
+    <div className="flex flex-row cursor-pointer" onClick={openApp}>App stuff {application.did}</div>
   )
 }

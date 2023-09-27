@@ -13,7 +13,9 @@ export type BreadcrumbsEntry =
   "credentials-list" |
   "delete-identity" |
   "storage" |
-  "applications";
+  "applications" |
+  "developers" |
+  "application-details";
 
 export const allBreadcrumbsItems: BreadcrumbsItem[] = [
   { key: "dashboard", icon: <HomeIcon />, title: "Dashboard", path: "/dashboard" },
@@ -27,6 +29,8 @@ export const allBreadcrumbsItems: BreadcrumbsItem[] = [
   { key: "delete-identity", title: "Identity deletion", path: '/delete-identity' },
   { key: "storage", title: "Storage", path: '/storage' },
   { key: "applications", title: "Applications", path: '/applications' },
+  { key: "developers", title: "Developers", path: '/developers' },
+  { key: "application-details", title: "Application details" },
 ];
 
 export function bcEntryToItem(entry: BreadcrumbsEntry): BreadcrumbsItem {

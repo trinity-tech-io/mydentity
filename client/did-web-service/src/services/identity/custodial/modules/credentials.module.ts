@@ -1,6 +1,5 @@
 import { gql } from "@apollo/client";
 import { VerifiableCredential } from "@elastosfoundation/did-js-sdk";
-import { logger } from "@elastosfoundation/elastos-connectivity-sdk-js";
 import { gqlCredentialFields, gqlIssueCredentialFields } from "@graphql/credential.fields";
 import { Credential } from "@model/credential/credential";
 import { credentialFromJson } from "@model/credential/credential-builder";
@@ -8,12 +7,16 @@ import { CredentialDTO, IssueCredentialDTO } from "@model/credential/credential.
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { IdentityProviderCredentials } from "@services/identity/did.provider";
+import { logger } from "@services/logger";
 import { lazyElastosDIDSDKImport } from "@utils/import-helper";
 import { ImportCredentialInput } from "../import-credential.input";
 
 export class CredentialsModule implements IdentityProviderCredentials {
   async createCredential(identityDid: string, credentialId: string, types: string[],
     expirationDate: Date, properties: any): Promise<Credential> {
+
+    logger.log("custodial-provider", "Creating credential", credentialId, types, properties);
+
     const result = await withCaughtAppException(async () => {
       return (await getApolloClient()).mutate<{ createCredential: CredentialDTO }>({
         mutation: gql`

@@ -1,5 +1,4 @@
 import { gql } from "@apollo/client";
-import { logger } from "@elastosfoundation/elastos-connectivity-sdk-js";
 import { gqlIdentityFields } from "@graphql/identity.fields";
 import { gqlRootIdentityFields } from "@graphql/root-identity.fields";
 import type { Identity } from "@model/identity/identity";
@@ -11,6 +10,7 @@ import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { IdentityProvider, IdentityProviderIdentity } from "@services/identity/did.provider";
 import { CreateIdentityInput } from "@services/identity/dto/create-identity.input.dto";
+import { logger } from "@services/logger";
 
 export class IdentityModule implements IdentityProviderIdentity {
   constructor(public provider: IdentityProvider) { }
