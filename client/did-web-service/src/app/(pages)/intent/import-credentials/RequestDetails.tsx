@@ -127,7 +127,7 @@ export const RequestDetails: FC<{
       return;
     }
 
-    await ActivityFeature.createActivity({
+    await activeUser?.get('activity').createActivity({
       type: ActivityType.CREDENTIALS_IMPORTED,
       credentialsCount: importedCredentials.length,
       appDid: requestingAppDID,

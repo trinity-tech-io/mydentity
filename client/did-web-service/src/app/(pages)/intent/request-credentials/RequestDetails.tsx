@@ -288,7 +288,7 @@ export const RequestDetails: FC<{
     if (fulfilled) {
       // TODO: check fulfilled success - if error report error to user
 
-      await ActivityFeature.createActivity({
+      await activeUser?.get('activity').createActivity({
         type: ActivityType.CREDENTIALS_SHARED,
         credentialsCount: selectedCredentials.length,
         appDid: requestingAppDID,

@@ -58,12 +58,7 @@ export class ActivityFeature implements UserFeature {
         return activities.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
     }
 
-    /**
-     * static function is for login.
-     * when user login, there is no user object there.
-     * @param input
-     */
-    public static async createActivity(input: CreateActivityInput): Promise<Activity> {
+    public async createActivity(input: CreateActivityInput): Promise<Activity> {
         logger.log("activity", "Create activity");
 
         const result = await withCaughtAppException(async () => {

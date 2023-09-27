@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Activity, User } from '@prisma/client/main';
 import { PrismaService } from "../prisma/prisma.service";
 import { ActivityWsGateway } from "./activity.ws.gateway";
+import { UserEntity } from "../user/entities/user.entity";
 import { CreateActivityInput } from "./dto/create-activity.input";
 
 @Injectable()
