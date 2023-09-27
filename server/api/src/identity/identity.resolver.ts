@@ -4,10 +4,12 @@ import { Browser, User } from '@prisma/client/main';
 import { CurrentUser } from 'src/auth/currentuser.decorator';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CurrentBrowser } from 'src/browsers/browser-user.decorator';
+import { AddServiceInput } from './dto/add-service.input';
 import { CreateIdentityInput } from './dto/create-identity.input';
 import { CreateManagedIdentityInput } from './dto/create-managed-identity.input';
 import { PublicationStatusInput } from './dto/publication-status.input';
 import { PublishIdentityInput } from './dto/publish-identity.input';
+import { RemoveServiceInput } from './dto/remove-service.input';
 import { IdentityPublicationStatusEntity } from './entities/identity-publication-status.entity';
 import { IdentityEntity } from './entities/identity.entity';
 import { ManagedIdentityEntity } from './entities/managed-identity.entity';
@@ -80,5 +82,19 @@ export class IdentityResolver {
       accessToken: "1234",
       did: identity.did
     };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => Boolean)
+  async addService(@Args('input') addServiceInput: AddServiceInput, @CurrentUser() user: User, @CurrentBrowser() browser: Browser) {
+    await this.identityService.ensureOwnedIdentity(addServiceInput.identityDid, user);
+    return this.identityService.addService(addServiceInput, user, browser);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => Boolean)
+  async removeService(@Args('input') removeServiceInput: RemoveServiceInput, @CurrentUser() user: User, @CurrentBrowser() browser: Browser) {
+    await this.identityService.ensureOwnedIdentity(removeServiceInput.identityDid, user);
+    return this.identityService.removeService(removeServiceInput, user, browser);
   }
 }

@@ -1,13 +1,67 @@
+import { gql } from "@apollo/client";
 import { Document } from "@model/document/document";
+import { withCaughtAppException } from "@services/error.service";
+import { getApolloClient } from "@services/graphql.service";
 import { IdentityProviderDocument } from "@services/identity/did.provider";
+import { AddServiceInput } from "@services/identity/dto/add-service.input.dto";
+import { RemoveServiceInput } from "@services/identity/dto/remove-service.input.dto";
 
 export class DocumentModule implements IdentityProviderDocument {
-  addDIDDocumentService(identityDid: string, id: string, type: string, endpoint: string, properties?: any): boolean {
-    throw new Error("Method not implemented.");
+  async addDIDDocumentService(identityDid: string, serviceId: string, type: string, endpoint: string, properties?: any): Promise<boolean> {
+    const input: AddServiceInput = {
+      identityDid,
+      serviceId,
+      type,
+      endpoint,
+      properties
+    };
+
+    const result = await withCaughtAppException(async () => {
+      return (await getApolloClient()).mutate<{ addService: boolean }>({
+        mutation: gql`
+          mutation addService($input: AddServiceInput!) {
+            addService(input: $input)
+          }
+        `,
+        variables: {
+          input
+        }
+      });
+    });
+
+    if (result?.data?.addService) {
+      return true;
+    }
+    else {
+      throw new Error("Failed to add DIDDocument Service");
+    }
   }
 
-  removeDIDDocumentService(identityDid: string, id: string): boolean {
-    throw new Error("Method not implemented.");
+  async removeDIDDocumentService(identityDid: string, serviceId: string): Promise<boolean> {
+    const input: RemoveServiceInput = {
+      identityDid,
+      serviceId,
+    };
+
+    const result = await withCaughtAppException(async () => {
+      return (await getApolloClient()).mutate<{ removeService: boolean }>({
+        mutation: gql`
+          mutation removeService($input: RemoveServiceInput!) {
+            removeService(input: $input)
+          }
+        `,
+        variables: {
+          input
+        }
+      });
+    });
+
+    if (result?.data?.removeService) {
+      return true;
+    }
+    else {
+      throw new Error("Failed to remove DIDDocument Service");
+    }
   }
 
   getLocalDIDDocument(identityDid: string): Promise<Document> {

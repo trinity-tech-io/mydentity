@@ -35,7 +35,9 @@ export enum DIDExceptionCode {
   DIDNotUpToDateError = 10308,
   DIDTransactionError = 10309,
   NetworkError = 10310,
-  DIDPublishError = 10311
+  DIDPublishError = 10311,
+  DIDObjectAlreadyExist = 10312,
+  DIDObjectNotExist = 10313,
 }
 
 export type AppExceptionCode = AuthExceptionCode | KeyRingExceptionCode | DIDExceptionCode;

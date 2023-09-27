@@ -10,8 +10,10 @@ import { KeyRingService } from 'src/key-ring/key-ring.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { uuid } from 'uuidv4';
 import { ActivityService } from "../activity/activity.service";
+import { AddServiceInput } from './dto/add-service.input';
 import { CreateIdentityInput } from './dto/create-identity.input';
 import { CreateManagedIdentityInput } from './dto/create-managed-identity.input';
+import { RemoveServiceInput } from './dto/remove-service.input';
 import { IdentityPublicationState } from './model/identity-publication-state';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -227,6 +229,26 @@ export class IdentityService {
 
     return true;
   }
+
+  // Add service to didDocument.
+  async addService(addServiceInput: AddServiceInput, user: User, browser: Browser) {
+    const storePassword = this.getDIDStorePassword(user?.id, browser?.id);
+
+    await this.didService.addService(user.id, addServiceInput.identityDid,
+        addServiceInput.serviceId, addServiceInput.type, addServiceInput.endpoint,
+        addServiceInput.properties, storePassword);
+    return true;
+  }
+
+  // Remove service from didDocument.
+  async removeService(removeServiceInput: RemoveServiceInput, user: User, browser: Browser) {
+    const storePassword = this.getDIDStorePassword(user?.id, browser?.id);
+
+    await this.didService.removeService(user.id, removeServiceInput.identityDid,
+        removeServiceInput.serviceId, storePassword);
+    return true;
+  }
+
 
   /**
    * Ensures that the identityDid identity is owned by user and returns the identity.

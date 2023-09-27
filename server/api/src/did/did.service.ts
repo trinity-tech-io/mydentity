@@ -1,4 +1,4 @@
-import { DIDBackend, DIDDocument, DIDStore, DefaultDIDAdapter, Exceptions, Features, Issuer, Mnemonic, RootIdentity, VerifiableCredential, VerifiablePresentation } from '@elastosfoundation/did-js-sdk';
+import { DIDBackend, DIDDocument, DIDStore, DefaultDIDAdapter, Exceptions, Features, Issuer, JSONObject, Mnemonic, RootIdentity, VerifiableCredential, VerifiablePresentation } from '@elastosfoundation/did-js-sdk';
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { AppException } from 'src/exceptions/app-exception';
 import { DIDExceptionCode } from 'src/exceptions/exception-codes';
@@ -225,5 +225,51 @@ export class DidService {
     }
 
     return this.globalDidAdapter.getPayload();
+  }
+
+  async addService(context: string, didString: string, id: string, type: string, endpoint: string, properties: JSONObject, storepass: string) {
+    const didStore = await this.openStore(context);
+    const didDocument = await didStore.loadDid(didString);
+    if (!didDocument)
+      throw new AppException(DIDExceptionCode.DIDDoesNotExist, "Can't load did:" + didString, HttpStatus.NOT_FOUND);
+
+    try {
+      const newDidDocument = await DIDDocument.Builder.newFromDocument(didDocument)
+        .addService(id, type, endpoint, properties)
+        .seal(storepass);
+
+      // Save the DID document
+      await this.storeDIDDocument(context, newDidDocument);
+    } catch (e) {
+      this.logger.log(`DID addService exception: ${e}`)
+      if (e instanceof Exceptions.DIDObjectAlreadyExistException) {
+        throw new AppException(DIDExceptionCode.DIDObjectAlreadyExist, e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+      } else {
+        throw new AppException(DIDExceptionCode.DIDStorageError, e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+    }
+  }
+
+  async removeService(context: string, didString: string, id: string, storepass: string) {
+    const didStore = await this.openStore(context);
+    const didDocument = await didStore.loadDid(didString);
+    if (!didDocument)
+      throw new AppException(DIDExceptionCode.DIDDoesNotExist, "Can't load did:" + didString, HttpStatus.NOT_FOUND);
+
+    try {
+      const newDidDocument = await DIDDocument.Builder.newFromDocument(didDocument)
+        .removeService(id)
+        .seal(storepass);
+
+      // Save the DID document
+      await this.storeDIDDocument(context, newDidDocument);
+    } catch (e) {
+      this.logger.log(`DID removeService exception: ${e}`)
+      if (e instanceof Exceptions.DIDObjectNotExistException) {
+        throw new AppException(DIDExceptionCode.DIDObjectNotExist, e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+      } else {
+        throw new AppException(DIDExceptionCode.DIDStorageError, e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+    }
   }
 }

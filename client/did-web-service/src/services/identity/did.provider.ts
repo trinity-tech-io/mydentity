@@ -74,13 +74,13 @@ export interface IdentityProviderDocument {
    * Adds a new service to the local DID document.
    * ie: hive url endpoint.
    */
-  addDIDDocumentService(identityDid: string, id: string, type: string, endpoint: string, properties?: any): boolean;
+  addDIDDocumentService(identityDid: string, id: string, type: string, endpoint: string, properties?: any): Promise<boolean>;
 
   /**
    * Remove a service from the local DID document.
    * ie: hive url endpoint.
    */
-  removeDIDDocumentService(identityDid: string, id: string): boolean;
+  removeDIDDocumentService(identityDid: string, id: string): Promise<boolean>;
 }
 
 /**

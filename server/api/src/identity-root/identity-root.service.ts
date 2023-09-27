@@ -23,8 +23,6 @@ export class IdentityRootService {
         Identity: true
       }
     });
-
-    this.logger.log('Find All:', identityRoots)
     return identityRoots;
   }
 

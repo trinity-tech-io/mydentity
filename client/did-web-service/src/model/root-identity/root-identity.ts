@@ -1,7 +1,6 @@
 import { gql } from "@apollo/client";
 import { gqlMnemonicFields } from "@graphql/mnemonic.fields";
 import { Identity } from "@model/identity/identity";
-import { identityFromJson } from "@model/identity/identity-builder";
 import { MnemonicDTO } from "@model/identity/mnemonic.dto";
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
@@ -25,6 +24,7 @@ export class RootIdentity {
 
     rootIdentity.createdAt = new Date(json.createdAt);
 
+    const { identityFromJson } = await import("@model/identity/identity-builder");
     rootIdentity.Identity = await Promise.all(json.Identity.map(identity => identityFromJson(identity, provider)));
 
     rootIdentity.provider = provider;

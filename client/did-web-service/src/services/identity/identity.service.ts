@@ -127,11 +127,17 @@ class IdentityService {
     return this.provider.identity.listRootIdentities();
   }
 
-  public addDIDDocumentService(identityDid: string, id: string, type: string, endpoint: string, properties?: any): boolean {
+  /**
+   * Add service to did document.
+   */
+  public addDIDDocumentService(identityDid: string, id: string, type: string, endpoint: string, properties?: any): Promise<boolean> {
     return this.provider.document.addDIDDocumentService(identityDid, id, type, endpoint, properties);
   }
 
-  public removeDIDDocumentService(identityDid: string, id: string): boolean {
+  /**
+   * Remove service from did document.
+   */
+  public removeDIDDocumentService(identityDid: string, id: string): Promise<boolean> {
     return this.provider.document.removeDIDDocumentService(identityDid, id);
   }
 }
