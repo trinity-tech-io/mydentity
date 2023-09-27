@@ -1,20 +1,19 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
+import { PaletteMode } from '@mui/material';
 import { createContext, useContext, useEffect, useState } from 'react';
 
-type Theme = "light" | "dark";
-
 const AppThemeContext = createContext<{
-  currentTheme: Theme;
-  changeCurrentTheme: (newTheme: Theme) => void;
+  currentTheme: PaletteMode;
+  changeCurrentTheme: (newTheme: PaletteMode) => void;
 }>({
   currentTheme: 'dark',
-  changeCurrentTheme: (newTheme: Theme) => { },
+  changeCurrentTheme: (newTheme: PaletteMode) => { },
 });
 
 export default function AppThemeProvider(props: any) {
-  const [theme, setTheme] = useState<Theme>('dark');
+  const [theme, setTheme] = useState<PaletteMode>('dark');
 
-  const changeCurrentTheme = (newTheme: Theme) => {
+  const changeCurrentTheme = (newTheme: PaletteMode) => {
     setTheme(newTheme);
     localStorage.setItem('theme', newTheme);
   };

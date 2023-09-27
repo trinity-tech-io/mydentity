@@ -2,6 +2,7 @@
 import { FC } from 'react';
 // import Help from '../components/DropdownHelp';
 // import Notifications from '../components/DropdownNotifications';
+import { styled } from '@mui/material';
 import { MainButton } from '@components/generic/MainButton';
 import { DropdownIdentity } from '@components/layout/DropdownIdentity';
 import { DropdownUserProfile } from '@components/layout/DropdownProfile';
@@ -11,6 +12,9 @@ import { authUser$ } from '@services/user/user.events';
 import { useRouter } from 'next/navigation';
 // import SearchModal from '../components/ModalSearch';
 
+const HeaderStyled = styled('header')(({ theme }) => ({
+  background: theme.palette.mode === 'dark' ? '#242424' : 'white'
+}))
 export const Header: FC<{
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
@@ -30,7 +34,7 @@ export const Header: FC<{
   }
 
   return (
-    <header className="sticky top-0 bg-white dark:bg-[#242424] border- z-30">
+    <HeaderStyled className="sticky top-0 z-30">
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-[60px] -mb-px">
           {/* Header: Left side */}
@@ -71,7 +75,7 @@ export const Header: FC<{
           </div>
         </div>
       </div>
-    </header>
+    </HeaderStyled>
   );
 }
 
