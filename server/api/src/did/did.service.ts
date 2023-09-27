@@ -65,6 +65,22 @@ export class DidService {
     return rootIdentity;
   }
 
+  /**
+   * Load rootIdentity.
+   * @param context
+   * @param rid: root identity id
+   * @returns
+   */
+  async loadRootIdentity(context: string, rid: string) {
+    const didStore = await this.openStore(context);
+
+    const rootIdentity: RootIdentity = await didStore.loadRootIdentity(rid);
+    if (!rootIdentity)
+      throw new AppException(DIDExceptionCode.DIDStorageError, "Can't load rootIdentity", HttpStatus.INTERNAL_SERVER_ERROR);
+
+    return rootIdentity;
+  }
+
   initPrivateIdentity(didStore: DIDStore, storepass: string, language: string = Mnemonic.ENGLISH) {
     const mnemonic = this.generateMnemonic(language);
     const passphrase = ''; // Do not use passphrase

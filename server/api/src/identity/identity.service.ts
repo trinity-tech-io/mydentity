@@ -12,7 +12,6 @@ import { uuid } from 'uuidv4';
 import { ActivityService } from "../activity/activity.service";
 import { CreateIdentityInput } from './dto/create-identity.input';
 import { CreateManagedIdentityInput } from './dto/create-managed-identity.input';
-import { MnemonicEntity } from './entities/mnemonic.entity';
 import { IdentityPublicationState } from './model/identity-publication-state';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -226,23 +225,6 @@ export class IdentityService {
     })
 
     return true;
-  }
-
-  async exportMnemonic(user: User, browser: Browser): Promise<MnemonicEntity> {
-    const storePassword = this.getDIDStorePassword(user?.id, browser?.id);
-    let rootIdentity: RootIdentity = null;
-
-    try {
-      // Get rootIdentity.
-      rootIdentity = await this.didService.getRootIdentity(user.id, storePassword);
-      const menmonic = await rootIdentity.exportMnemonic(storePassword);
-      return {
-        mnemonic: menmonic
-      }
-    } catch (e) {
-      this.logger.log(`DID exportMnemonic exception: ${e}`)
-      throw new AppException(DIDExceptionCode.DIDStorageError, e.message, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
   }
 
   /**

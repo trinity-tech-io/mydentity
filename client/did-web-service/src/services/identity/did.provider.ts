@@ -12,6 +12,7 @@ export interface IdentityProvider {
   createIdentity(name: string, hiveVaultProvider?: string): Promise<Identity>;
   deleteIdentity(identityDid: string): Promise<boolean>;
   listIdentities(): Promise<Identity[]>;
+  listRootIdentities(): Promise<any[]>;
   createCredential(identityDid: string, credentialId: string, types: string[], expirationDate: Date, prop: any): Promise<Credential>;
   issueCredential(identityDid: string, subjectDid: string, credentialId: string, types: string[], expirationDate: Date, prop: any): Promise<VerifiableCredential>;
   importCredential(identityDid: string, credential: VerifiableCredential, importingApplicationDid?: string): Promise<Credential>;

@@ -1,4 +1,5 @@
 import { IdentityPublicationStatusResult } from "@model/identity-publication/identity-publication-status.dto";
+import { IdentityRoot } from "@model/identity-root/identity-root";
 import { Identity } from "@model/identity/identity";
 import { CustodialDIDProvider } from "./custodial/custodial-did.provider";
 import { IdentityProvider } from "./did.provider";
@@ -110,6 +111,15 @@ class IdentityService {
     this.restoreActiveIdentity(identities);
 
     return identities
+  }
+
+  /**
+   * Returns the list of root identities
+   */
+  public async listRootIdentities(): Promise<IdentityRoot[]> {
+    const rootIdentities = await this.provider.listRootIdentities()
+
+    return rootIdentities
   }
 
   public addDIDDocumentService(identityDid: string, id: string, type: string, endpoint: string, properties?: any): boolean {

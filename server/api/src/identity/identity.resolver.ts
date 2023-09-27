@@ -11,7 +11,6 @@ import { PublishIdentityInput } from './dto/publish-identity.input';
 import { IdentityPublicationStatusEntity } from './entities/identity-publication-status.entity';
 import { IdentityEntity } from './entities/identity.entity';
 import { ManagedIdentityEntity } from './entities/managed-identity.entity';
-import { MnemonicEntity } from './entities/mnemonic.entity';
 import { PublishResultEntity } from './entities/publish-result.entity';
 import { TransactionEntity } from './entities/transaction.entity';
 import { IdentityService } from './identity.service';
@@ -81,12 +80,5 @@ export class IdentityResolver {
       accessToken: "1234",
       did: identity.did
     };
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Mutation(() => MnemonicEntity)
-  async exportMnemonic(@Args('identityDid') identityDid: string, @CurrentUser() user: User, @CurrentBrowser() browser: Browser): Promise<MnemonicEntity> {
-    await this.identityService.ensureOwnedIdentity(identityDid, user);
-    return await this.identityService.exportMnemonic(user, browser);
   }
 }

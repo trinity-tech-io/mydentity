@@ -4,6 +4,7 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ActivityModule } from './activity/activity.module';
+import { AppInteractionModule } from './app-interaction/app-interaction.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthProvidersModule } from './auth-providers/auth-providers.module';
@@ -14,12 +15,12 @@ import { DIDPublishingModule } from './did-publishing/did-publishing.module';
 import { DIDModule } from './did/did.module';
 import { CommonEmailingModule } from "./emailing/emailing.module";
 import { AppExceptionGraphQLInterceptor } from './exceptions/app-exception-gql-interceptor';
+import { IdentityRootModule } from './identity-root/identity-root.module';
 import { IdentityModule } from './identity/identity.module';
 import { IntentsModule } from './intents/intents.module';
 import { KeyRingModule } from './key-ring/key-ring.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { UserModule } from './user/user.module';
-import { AppInteractionModule } from './app-interaction/app-interaction.module';
 import { CommonWsModule } from "./websockets/ws.module";
 
 
@@ -46,6 +47,7 @@ import { CommonWsModule } from "./websockets/ws.module";
     KeyRingModule,
     DIDPublishingModule,
     AppInteractionModule,
+    IdentityRootModule,
     CommonWsModule
   ],
   controllers: [
