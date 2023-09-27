@@ -18,7 +18,7 @@ export const AllIdentityList: FC = _ => {
   const router = useRouter()
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const [showToast, setShowToast] = useState<boolean>(false);
-  const sortedIdentities = [...identities].sort((a, b) => {
+  const sortedIdentities = identities && [...identities].sort((a, b) => {
     const dateA = a.lastUsedAt$.getValue().getTime();
     const dateB = b.lastUsedAt$.getValue().getTime();
     return dateB - dateA

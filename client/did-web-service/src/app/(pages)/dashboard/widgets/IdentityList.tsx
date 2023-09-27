@@ -8,7 +8,7 @@ import { activeIdentity$ } from '@services/identity/identity.events';
 import { identityService } from '@services/identity/identity.service';
 import { authUser$ } from '@services/user/user.events';
 import { useRouter } from "next/navigation";
-import { FC, useEffect, useState } from 'react';
+import { FC, useState } from 'react';
 
 const TAG = 'IdentityListWidget'
 
@@ -18,20 +18,11 @@ export const IdentityListWidget: FC = _ => {
   const router = useRouter()
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const [showToast, setShowToast] = useState<boolean>(false);
-  const [sortedIdentities, setSortedIdentities] = useState<RegularIdentity[]>(null);
-
-  useEffect(() => {
-    if (identities) {
-      const _sortedIdentities = [...identities].sort((a, b) => {
-        const dateA = new Date(a.lastUsedAt$.getValue()).getTime();
-        const dateB = new Date(b.lastUsedAt$.getValue()).getTime();
-        return dateB - dateA
-      });
-      setSortedIdentities(_sortedIdentities?.slice(0, 5));
-    }
-    else
-      setSortedIdentities(null);
-  }, [identities]);
+  const sortedIdentities = identities && [...identities].sort((a, b) => {
+    const dateA = a.lastUsedAt$.getValue().getTime();
+    const dateB = b.lastUsedAt$.getValue().getTime();
+    return dateB - dateA
+  });
 
   const handleCellClick = (identity: RegularIdentity): void => {
     if (identity !== activeIdentity) {

@@ -21,7 +21,8 @@ export default function AppThemeProvider(props: any) {
 
   useEffect(() => {
     // NextJS: wait for page to be mounted to make sure localStorage is accessed from the client only
-    const persistedTheme = localStorage.getItem('theme') as Theme;
+    // const persistedTheme = localStorage.getItem('theme') as Theme;
+    const persistedTheme = "dark"; // TMP WHILE LIGHT MODE IS NOT AVAILABLE
     setTheme(persistedTheme || 'dark');
   }, []);
 
