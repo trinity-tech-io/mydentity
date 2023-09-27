@@ -116,25 +116,6 @@ export abstract class Identity {
     return result?.data?.markIdentityInUse;
   }
 
-  async exportMnemonic(identityDid: string): Promise<string> {
-    const result = await withCaughtAppException(async () => {
-      return (await getApolloClient()).mutate<{ exportMnemonic: MnemonicDTO }>({
-        mutation: gql`
-        mutation exportMnemonic($identityDid: String!) {
-          exportMnemonic(identityDid: $identityDid) {
-            ${gqlMnemonicFields}
-          }
-        }
-      `,
-        variables: {
-          identityDid
-        }
-      });
-    });
-
-    return result?.data?.exportMnemonic.mnemonic;
-  }
-
   /**
    * Gets the latest DID document from chain
    *
