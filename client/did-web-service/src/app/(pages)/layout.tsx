@@ -1,20 +1,20 @@
 "use client";
+import React, { FC, ReactNode, useEffect, useState } from "react";
+import { filter } from "rxjs";
+import { usePathname } from "next/navigation";
+import { SnackbarProvider } from "notistack";
 import TrinityLogo from "@assets/images/TrinityLogo.svg";
 import { Header } from "@components/layout/Header";
 import Sidebar from "@components/layout/Sidebar";
 import { UnlockKeyPromptContextProvider } from "@components/security/unlock-key-prompt/UnlockKeyPrompt";
-import { styled } from "@mui/material";
 import { onNewError$ } from "@services/error.service";
 import { useToast } from "@services/feedback.service";
 import { initSync } from "@services/init.service";
 import { isUnlockException } from "@services/security/security.service";
 import { checkIfStringStartsWith } from "@utils/strings";
-import { usePathname } from "next/navigation";
-import { SnackbarProvider } from "notistack";
-import React, { FC, ReactNode, useEffect, useState } from "react";
-import { filter } from "rxjs";
 import AppThemeProvider from "../theming/AppThemeContext";
 import ThemeRegistry from "../theming/ThemeRegistry";
+import EllipseBg from "@components/layout/EllipseBg";
 
 initSync();
 
@@ -52,7 +52,7 @@ const LayoutCore: FC<{ children: ReactNode }> = ({ children }) => {
         <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
         <main>
-          <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto ">
+          <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
             {/* Main content */}
             {children}
           </div>
@@ -61,15 +61,6 @@ const LayoutCore: FC<{ children: ReactNode }> = ({ children }) => {
     </div>
   );
 };
-
-const EllipseBg = styled("div")(({ theme }) => ({
-  bottom: 0,
-  right: 0,
-  height: "60%",
-  background:
-    "linear-gradient(to bottom, rgba(255, 211, 187, 100%), rgba(255, 211, 187, 40%), transparent)",
-  borderTopLeftRadius: "100%",
-}));
 
 const EntryLayout: FC<{ children: ReactNode }> = ({ children }) => {
   const pathname = usePathname();
@@ -80,7 +71,9 @@ const EntryLayout: FC<{ children: ReactNode }> = ({ children }) => {
         } min-h-screen min-w-full px-4 pt-8 pb-[86px] md:px-12 md:pt-12`}
     >
       {isSigninPage && (
-        <EllipseBg className="absolute opacity-20 w-full md:w-1/2" />
+        <div className="absolute w-full md:w-1/2 h-[70%] bottom-0 right-0">
+          <EllipseBg className="opacity-[0.15]" />
+        </div>
       )}
       <div className="relative">{children}</div>
       <div className="absolute left-0 bottom-0 w-full">

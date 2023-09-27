@@ -10,6 +10,7 @@ const FormControlStyled = styled(FormControl)(({ theme }) => ({
   paddingTop: "1.2rem",
   input: {
     color: "white",
+    background: 'black'
   },
   ".MuiOutlinedInput-root": {
     fieldset: {
@@ -41,7 +42,7 @@ const FormControlStyled = styled(FormControl)(({ theme }) => ({
     WebkitTransform: "unset",
   },
   "#email-address": {
-    fontWeight: 600,
+    // fontWeight: 600,
     fontSize: "13pt",
     caretColor: "white",
     color: "rgb(255 255 255 / 65%)",

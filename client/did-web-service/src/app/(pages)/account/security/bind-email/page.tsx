@@ -1,20 +1,11 @@
 "use client";
-import { Breadcrumbs } from "@components/breadcrumbs/Breadcrumbs";
-import EmailAuthComponent from "@components/security/bindemail/EmailAuthComponent";
-import { Card } from "@mui/material";
-import clsx from 'clsx';
 import { FC } from "react";
+import EllipseBg from "@components/layout/EllipseBg";
+import EmailAuthComponent from "@components/security/bindemail/EmailAuthComponent";
+import AtMarkIcon from "@assets/images/at-mark.svg"
 
 const BindEmail: FC = () => {
     return (
-        // <div className="col-span-full" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
-        //     <Breadcrumbs entries={["security-center", "bind-email"]} />
-
-        //     <Card className={clsx('py-40 w-full text-center min-h-full')} elevation={0}>
-        //         {/* SignInHeader */}
-        //         <EmailAuthComponent />
-        //     </Card>
-        // </div>
         <>
             <h3 className='w-full text-4xl font-bold text-center'>
                 Bind your account to an email address
@@ -24,6 +15,12 @@ const BindEmail: FC = () => {
             </p>
             <div className="w-full flex justify-center py-[10%]">
                 <EmailAuthComponent />
+            </div>
+            <div className="absolute w-full md:w-2/3 h-[65%] bottom-0 right-0 overflow-hidden">
+                <EllipseBg className="opacity-[0.15] h-full" />
+                <div className="absolute w-1/3 right-[-2rem] bottom-[-2rem] opacity-30">
+                    <AtMarkIcon />
+                </div>
             </div>
         </>
     )

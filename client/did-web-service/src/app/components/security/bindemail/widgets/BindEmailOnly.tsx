@@ -1,25 +1,10 @@
-import { MainButton } from '@components/generic/MainButton';
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
-import { Icon as ReactIcon } from '@iconify/react';
 import { ExistingEmailException } from "@model/exceptions/existing-email-exception";
-import { Container, InputBase } from '@mui/material';
-import { makeStyles } from '@mui/styles';
 import { FlowOperation, setOnGoingFlowOperation } from "@services/flow.service";
 import { authUser$ } from "@services/user/user.events";
 import { EmailFormBox, RequestActionState } from '@/app/(pages)/signin/widgets/EmailSignIn';
-import clsx from 'clsx';
 import { useRouter } from "next/navigation";
-import { FC, FormEvent, useRef, useState } from "react";
-
-const useStyles = makeStyles((theme) => ({
-  centeredContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    minHeight: '20vh',
-  },
-}));
+import { FC, useRef, useState } from "react";
 
 export const BindEmailOnly: FC = () => {
   const emailInputRef = useRef(null);
