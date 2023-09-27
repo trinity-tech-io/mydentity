@@ -1,8 +1,11 @@
 "use client";
 import { Breadcrumbs } from "@components/breadcrumbs/Breadcrumbs";
+import { EditableCredentialAvatar } from "@components/credential/EditableCredentialAvatar";
 import { MainButton } from "@components/generic/MainButton";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
+import { Credential } from "@model/credential/credential";
 import { Document } from "@model/document/document";
+import { editAvatarOnHive } from "@model/regular-identity/features/profile/upload-avatar";
 import { TextField, Typography } from "@mui/material";
 import { useToast } from "@services/feedback.service";
 import { didDocumentService } from "@services/identity/diddocuments.service";
@@ -30,7 +33,7 @@ const ApplicationDetailsPage: FC<{
   const applicationDid = decodeURIComponent(params?.applicationdid); // From the url, app we are trying to manage
   const appIdentity = appIdentities?.find(a => a.did === applicationDid); // Real app identity object from the user, if found
   const [localAppIdentityCredentials] = useBehaviorSubject(appIdentity?.credentials().credentials$); // Credentials of the app identity, local (maybe not published) - KEEP it unused to local the credentials
-  const localAppCredential = appIdentity?.credentials().getCredentialByType("ApplicationCredential");
+  const [localAppCredential, setLocalAppCredential] = useState<Credential>(null);
   const [appName, setAppName] = useState<string>(null); // UI model, possibly not yet saved to local VC/published VC
   const [appIconUrl, setAppIconUrl] = useState<string>(null); // UI model, possibly not yet saved to local VC/published VC
 
@@ -74,26 +77,35 @@ const ApplicationDetailsPage: FC<{
   useEffect(() => {
     if (localAppCredential) {
       setAppName(localAppCredential?.getSubject().getProperty("name"));
+      setAppIconUrl(localAppCredential?.getSubject().getProperty("iconUrl"));
     }
   }, [localAppCredential]);
 
   useEffect(() => {
     updateAppIdentityNeedsToBePublished();
-  }, [appName, appIconUrl, publishedDIDDocument])
+  }, [appName, appIconUrl, publishedDIDDocument]);
+
+  useEffect(() => {
+    setLocalAppCredential(appIdentity?.credentials().getCredentialByType("ApplicationCredential"));
+  }, [localAppIdentityCredentials]);
+
+  const updateLocalAppCredential = async () => {
+    await appIdentity.update(appName, appIconUrl);
+  }
 
   const publishAppIdentity = async (): Promise<void> => {
     if (publishingIdentity)
       return;
 
     // Must set the app icon
-    if (!base64iconPath) {
+    if (!appIconUrl) {
       showErrorToast("Set app icon");
       return;
     }
 
     setPublishingIdentity(true);
     // Update local app identity data (local VC + local DID document)
-    await appIdentity.update(appName, appIconUrl);
+    updateLocalAppCredential();
     // Publish the local DID document on chain
     const publishedSuccessfully = await appIdentity.publication().publish();
     setPublishingIdentity(false);
@@ -187,6 +199,16 @@ const ApplicationDetailsPage: FC<{
   return base64iconPath || "assets/developers/images/logo.png";
 } */
 
+  const handleAppIconFileChanged = async (file: File): Promise<void> => {
+    //setUploadingAvatar(true);
+    //await identityProfileFeature.upsertIdentityAvatar(file);
+    //setUploadingAvatar(false);
+    const uploadedAvatar = await editAvatarOnHive(appIdentity, file);
+    console.log("uploadedAvatar", uploadedAvatar)
+
+    await appIdentity.update(appName, uploadedAvatar.avatarHiveURL);
+  }
+
   return (
     <div className="col-span-full">
       <Breadcrumbs entries={["developers", "application-details"]} />
@@ -198,6 +220,7 @@ const ApplicationDetailsPage: FC<{
         <div className="flex flex-col">
           {/* App icon */}
           <div>
+            <EditableCredentialAvatar credential={localAppCredential} onFileUpload={handleAppIconFileChanged} />
             {/* <ion-img *ngIf="!fetchingIcon && !uploadingIcon" [src]="getAppIcon()"
               onClick="selectAndUploadAppIconFromLibrary()"></ion-img> */}
             {/* <p *ngIf="!fetchingIcon && !uploadingIcon && !base64iconPath">{{ 'developers.set-app-icon' | translate

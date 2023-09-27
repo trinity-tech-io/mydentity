@@ -6,7 +6,6 @@ import { ProfileCredential } from "./profile-credential";
  */
 export class ProfileAvatarCredential extends ProfileCredential {
   protected async prepareRepresentativeIcon(): Promise<void> {
-    console.log("AVATAR prepareRepresentativeIcon")
     const subject = <any>this.verifiableCredential.getSubject().getProperties();
 
     const iconUrl: string = subject.avatar.data;
