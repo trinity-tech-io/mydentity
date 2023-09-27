@@ -3,8 +3,6 @@
 import { FC, useEffect, useRef, useState } from "react";
 import Link from 'next/link';
 import { useRouter, useSearchParams } from "next/navigation";
-import AccountIcon from '@assets/images/account.svg';
-import { LettersAvatar } from '@components/generic/LettersAvatar';
 import Transition from "@components/generic/Transition";
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { User } from "@model/user/user";
@@ -23,7 +21,6 @@ export const DropdownUserProfile: FC<{
   const [activeUser] = useBehaviorSubject(authUser$);
   const isSignedIn = !!activeUser;
   const [userName] = useBehaviorSubject(activeUser?.name$);
-  const [userNameInitials] = useBehaviorSubject(activeUser?.nameInitials$);
   const [userTypeDesc, setUserTypeDesc] = useState('UNKNOWN');
 
   // get access token from url params.
@@ -31,7 +28,6 @@ export const DropdownUserProfile: FC<{
   const accessToken = searchParams.get('accessToken');
   const refreshToken = searchParams.get('refreshToken');
 
-  const trigger = useRef(null);
   const dropdown = useRef(null);
 
   // close on click outside
@@ -51,8 +47,7 @@ export const DropdownUserProfile: FC<{
     }
 
     const clickHandler: ((ev: MouseEvent) => void) = ({ target }) => {
-      if (!dropdown.current) return;
-      if (!dropdownOpen || dropdown.current.contains(target) || trigger.current.contains(target)) return;
+      if (!dropdown.current || !dropdownOpen || dropdown.current.contains(target)) return;
       setDropdownOpen(false);
     };
     document.addEventListener('click', clickHandler);
@@ -94,31 +89,7 @@ export const DropdownUserProfile: FC<{
         } />
         {dropdownOpen ? <ExpandLess /> : <ExpandMore />}
       </ListItemButton>
-      {/* <button
-        ref={trigger}
-        className="inline-flex justify-center items-center group"
-        aria-haspopup="true"
-        onClick={() => onIconClick()}
-        aria-expanded={dropdownOpen}
-      >
-        {isSignedIn ? (
-          <LettersAvatar text={userNameInitials} />) : (
-          <Avatar sx={{ ml: 0, width: 40, height: 40 }}>
-            <AccountIcon width={20} />
-          </Avatar>
-        )}
-        {isSignedIn && (
-          <div className="flex items-center truncate">
-            <span className="ml-3 text-base font-medium dark:text-white group-hover:text-slate-800 dark:group-hover:text-slate-200">Hi {userName}!</span>
-            <svg className="w-3 h-3 shrink-0 ml-2 fill-current text-slate-400" viewBox="0 0 12 12">
-              <path d="M5.9 11.4L.5 6l1.4-1.4 4 4 4-4L11.3 6z" />
-            </svg>
-          </div>
-        )}
-      </button> */}
-
       {isSignedIn && (
-
         <Transition
           className={`origin-top-right z-10 absolute top-full min-w-44 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 py-1.5 rounded shadow-lg overflow-hidden mt-1 ${align === 'right' ? 'right-0' : 'left-0'}`}
           show={dropdownOpen}
@@ -192,9 +163,7 @@ export const DropdownUserProfile: FC<{
             </ul>
           </div>
         </Transition>
-
       )}
-
     </div>
   )
 }
