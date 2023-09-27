@@ -16,7 +16,7 @@ const BindEmail: FC = () => {
             <div className="w-full flex justify-center py-[10%]">
                 <EmailAuthComponent />
             </div>
-            <div className="absolute w-full md:w-2/3 h-[65%] bottom-0 right-0 overflow-hidden">
+            <div className="absolute w-full md:w-2/3 h-[65%] bottom-0 right-0 overflow-hidden z-[-1]">
                 <EllipseBg className="opacity-[0.15] h-full" />
                 <div className="absolute w-1/3 right-[-2rem] bottom-[-2rem] opacity-30">
                     <AtMarkIcon />

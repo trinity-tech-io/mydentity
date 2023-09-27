@@ -1,7 +1,6 @@
 "use client";
-import { Card, Container, Link } from "@mui/material";
+import { Box, Container, Link } from "@mui/material";
 import { isSignedIn } from "@services/user/user.service";
-import clsx from 'clsx';
 import { FC, useEffect } from "react";
 import { BindEmailOnly } from './widgets/BindEmailOnly';
 import BindEmailWithMicrosoft from './widgets/BindEmailWithMicrosoft';
@@ -14,7 +13,7 @@ const EmailAuthComponent: FC = () => {
   }, []);
 
   return (
-    <Card className="w-full md:w-1/2 max-w-xl flex flex-col justify-center items-center" elevation={0}>
+    <Box className="w-full md:w-1/2 max-w-xl flex flex-col justify-center items-center">
       <Container className="py-4">
         <BindEmailWithMicrosoft />
       </Container>
@@ -28,7 +27,7 @@ const EmailAuthComponent: FC = () => {
         Binding an account means you agree to the<br />
         <Link href="#" color="inherit"><span className="font-medium">Privacy Policy</span></Link> and <Link href="#" color="inherit"><span className="font-medium">Terms of Service</span></Link>.
       </span>
-    </Card>
+    </Box>
   )
 }
 
