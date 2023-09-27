@@ -47,13 +47,6 @@ export function converGenderFullName(str?: string): string {
   }
 }
 
-export function isDefaultLocalIcon(str: string): boolean {
-  if (typeof str === 'string') {
-    return false
-  }
-  return true
-}
-
 export function checkIfStringStartsWith(str: string, substrs: string[]): boolean {
   return substrs.some(substr => str.startsWith(substr));
 }

@@ -16,7 +16,7 @@ import { issuerService } from "@services/identity/issuer.service";
 import { logger } from "@services/logger";
 import { AdvancedBehaviorSubject } from '@utils/advanced-behavior-subject';
 import { evalObjectFieldPath } from "@utils/objects";
-import { capitalizeFirstLetter, isDefaultLocalIcon } from "@utils/strings";
+import { capitalizeFirstLetter } from "@utils/strings";
 import { BehaviorSubject } from "rxjs";
 import type { IssuerInfo } from "./issuer-info";
 import { defaultProfileIcons } from "./profile-info-icons";
@@ -309,7 +309,7 @@ export class Credential {
       this.representativeIcon$.next(this.getFallbackIcon());
     }
 
-    if (isDefaultLocalIcon(this.representativeIcon$.value as string)) return
+    if (this.isDefaultLocalIcon(this.representativeIcon$.value)) return
     const image = new Image();
     image.crossOrigin = 'anonymous';
 
@@ -326,6 +326,17 @@ export class Credential {
     image.src = this.representativeIcon$.value as string;
   }
 
+  /**
+   * Check whether it is the default icon, 
+   * If it is the default icon: the type is JSX.Element, return true; 
+   * otherwise: the icon is url, string type, return false
+   */
+  private isDefaultLocalIcon(str: string | JSX.Element): boolean {
+    if (typeof str === 'string') {
+      return false
+    }
+    return true
+  }
   /**
    * Fallback icon used either when the real icon is not loaded yet, or failed to load
    */ // TODO: icon
