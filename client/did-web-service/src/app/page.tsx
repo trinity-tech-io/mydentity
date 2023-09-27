@@ -1,11 +1,13 @@
 "use client";
-import { FC, MouseEventHandler } from "react";
+import { FC, MouseEventHandler, useCallback } from "react";
 import { useMediaQuery, useTheme } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { LandingCard } from "@components/card";
 import TextBarcode from "@components/text-barcode/TextBarcode";
 import { BlackButton } from "@components/button";
 import TrinityLogo from "@assets/images/TrinityLogo.svg";
+import { authUser$, getActiveUser } from "@services/user/user.events";
+import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 
 const WelcomeCard: FC = () => (
   <LandingCard className="max-xl:w-11/12 lg:w-[450px] sm:w-8/12 bg-black">
@@ -31,9 +33,11 @@ const Home: FC = () => {
   const router = useRouter();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const launchApp: MouseEventHandler<HTMLButtonElement> = () => {
-    router.push("entry");
-  };
+  const [authUser] = useBehaviorSubject(authUser$);
+  const user = getActiveUser();
+  const launchApp: MouseEventHandler<HTMLButtonElement> = useCallback(() => {
+    router.push(user ? "dashboard" : "entry");
+  }, [authUser]);
 
   return isMobile ? (
     <main className="flex min-h-screen flex-col">
@@ -123,6 +127,7 @@ const Home: FC = () => {
       <div className="flex flex-1 flex-col landing-bg">
         <div className="text-right p-7">
           <BlackButton
+            id="launch-app"
             className="flex-1"
             variant="contained"
             onClick={launchApp}
