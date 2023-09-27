@@ -21,8 +21,8 @@ export class IdentityRootResolver {
 
   @UseGuards(JwtAuthGuard)
   @Mutation(() => MnemonicEntity)
-  async exportMnemonic(@Args('identityRootId') identityRootId: string, @CurrentUser() user: User, @CurrentBrowser() browser: Browser): Promise<MnemonicEntity> {
-    const identityRoot = await this.identityRootService.ensureOwnedIdentityRoot(identityRootId, user);
+  async exportMnemonic(@Args('rootIdentityId') rootIdentityId: string, @CurrentUser() user: User, @CurrentBrowser() browser: Browser): Promise<MnemonicEntity> {
+    const identityRoot = await this.identityRootService.ensureOwnedIdentityRoot(rootIdentityId, user);
     return await this.identityRootService.exportMnemonic(identityRoot.userId, identityRoot.didStoreRootIdentityId, user, browser);
   }
 }
