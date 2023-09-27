@@ -7,6 +7,8 @@ import { useToast } from "@services/feedback.service";
 import React, { FC, useState } from 'react';
 import { Typography } from "@mui/material";
 import FileCopyIcon from '@mui/icons-material/FileCopy';
+import { useUnlockPromptState } from '@components/security/unlock-key-prompt/UnlockKeyPrompt';
+import { UnlockRetrier } from '@components/security/UnlockRetrier';
 
 const TAG = "export-mnemonic";
 interface ClickedMnemonics {
@@ -18,6 +20,7 @@ const ExportMnemonicPage: FC = () => {
   const [rootIdentities] = useBehaviorSubject(activeUser?.get("identity").rootIdentities$);
   const [clickedMnemonics, setClickedMnemonics] = useState<ClickedMnemonics>({});
   const { showSuccessToast, showErrorToast } = useToast();
+  const { unlockerIsCancelled } = useUnlockPromptState();
 
   const handleExportMnemonic: (rootIdentity: RootIdentity) => Promise<string> = async (rootIdentity) => {
     const identityRootId= rootIdentity.id;
@@ -37,6 +40,9 @@ const ExportMnemonicPage: FC = () => {
       <header className="px-5 py-4 border-b border-slate-100 dark:border-slate-700">
         <h2 className="font-semibold text-slate-800 dark:text-slate-100">Identity groups</h2>
       </header>
+      {/* Unlocking export mnemonic failed, cannot display them. Show a retry button to  */}
+      {unlockerIsCancelled && <UnlockRetrier className="mt-4" />}
+
       <div className="p-3">
         {rootIdentities?.map((rootIdentityGroup, groupIndex) => (
           <div key={groupIndex}>

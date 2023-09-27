@@ -1,12 +1,13 @@
 import { gql } from "@apollo/client";
+import { callWithUnlock } from "@components/security/unlock-key-prompt/call-with-unlock";
 import { gqlMnemonicFields } from "@graphql/mnemonic.fields";
 import { Identity } from "@model/identity/identity";
 import { MnemonicDTO } from "@model/identity/mnemonic.dto";
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { IdentityProvider } from "@services/identity/did.provider";
+import { logger } from "@services/logger";
 import { RootIdentityDTO } from "./root-identity.dto";
-
 
 export class RootIdentity {
   id: string;
@@ -32,6 +33,11 @@ export class RootIdentity {
   }
 
   async exportMnemonic(rootIdentityId: string): Promise<string> {
+    logger.log("Root identity", "Export mnemonic ");
+    return callWithUnlock(() => this.exportingMnemonic(rootIdentityId));
+  }
+
+  private async exportingMnemonic(rootIdentityId: string): Promise<string> {
     const result = await withCaughtAppException(async () => {
       return (await getApolloClient()).mutate<{ exportMnemonic: MnemonicDTO }>({
         mutation: gql`
