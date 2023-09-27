@@ -9,6 +9,7 @@ import { initialsString } from "@utils/strings";
 import { BehaviorSubject } from "rxjs";
 import { ApplicationsFeature } from "./features/applications/applications.feature";
 import { BrowserFeature } from "./features/browser/browser.feature";
+import { DevelopmentFeature } from "./features/development/development.feature";
 import { IdentityFeature } from "./features/identity/identity.feature";
 import { SecurityFeature } from "./features/security/security.feature";
 import { UserFeature } from "./features/user-feature";
@@ -34,6 +35,7 @@ export class User {
     this.addFeature("security", new SecurityFeature(this));
     this.addFeature("activity", new ActivityFeature(this));
     this.addFeature("applications", new ApplicationsFeature(this));
+    this.addFeature("development", new DevelopmentFeature(this));
   }
 
   public static async fromJson(json: UserDTO, useCache = true): Promise<User> {
@@ -66,7 +68,8 @@ export class User {
   public get(feature: "security"): SecurityFeature;
   public get(feature: "activity"): ActivityFeature;
   public get(feature: "applications"): ApplicationsFeature;
-  public get(feature: "email" | "identity" | "browser" | "security" | "activity" | "applications"): UserFeature {
+  public get(feature: "development"): DevelopmentFeature;
+  public get(feature: "email" | "identity" | "browser" | "security" | "activity" | "applications" | "development"): UserFeature {
     if (!this.features.has(feature)) {
       throw new Error(`Unhandled user feature '${feature}'`);
     }

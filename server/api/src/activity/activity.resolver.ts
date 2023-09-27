@@ -1,24 +1,24 @@
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { UseGuards } from "@nestjs/common";
-import { JwtAuthGuard } from "../auth/jwt-auth.guard";
-import { UserEntity } from "../user/entities/user.entity";
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { User } from '@prisma/client/main';
 import { CurrentUser } from "../auth/currentuser.decorator";
-import { ActivityEntity } from "./entities/activity.entity";
+import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { ActivityService } from "./activity.service";
-import { CreateActivityInput } from "./dto/create-activity.input";
 import { ActivityWsGateway } from "./activity.ws.gateway";
+import { CreateActivityInput } from "./dto/create-activity.input";
+import { ActivityEntity } from "./entities/activity.entity";
 
 @Resolver()
 export class ActivityResolver {
     constructor(private readonly activityService: ActivityService,
-                private readonly activityWsGateway: ActivityWsGateway) { }
+        private readonly activityWsGateway: ActivityWsGateway) { }
 
     /**
      * Query all activities.
      */
     @UseGuards(JwtAuthGuard)
-    @Query(() => [ActivityEntity], {name: 'activities'})
-    findAll(@CurrentUser() user: UserEntity) {
+    @Query(() => [ActivityEntity], { name: 'activities' })
+    findAll(@CurrentUser() user: User) {
         return this.activityService.findAll(user.id);
     }
 
@@ -27,7 +27,7 @@ export class ActivityResolver {
      */
     @UseGuards(JwtAuthGuard)
     @Mutation(() => ActivityEntity)
-    async createActivity(@CurrentUser() user: UserEntity, @Args('input') input: CreateActivityInput) {
+    async createActivity(@CurrentUser() user: User, @Args('input') input: CreateActivityInput) {
         return await this.activityService.createActivity(user, input);
     }
 }

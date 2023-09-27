@@ -2,6 +2,7 @@ import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HttpAdapterHost } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
+import { User } from '@prisma/client/main';
 import { Subject } from 'rxjs';
 import { logger } from '../logger';
 import { PrismaService } from '../prisma/prisma.service';
@@ -9,7 +10,6 @@ import { ReceivedWSMessage, ReceivedWSUserMessage } from './model/received-ws-me
 import { WebSocketActionType, WebSocketEventType } from './model/websocket.types';
 import { SimpleWebsocketAdapter } from './simple-adapter/simple-ws-adapter';
 import { WebsocketAdapter } from './ws-adapter';
-import { UserEntity } from "../user/entities/user.entity";
 import { WebSocketCacheService } from './ws-cache.service';
 
 @Injectable()
@@ -105,7 +105,7 @@ export class WebSocketService {
   /**
    * Emit event to the sockets of the user.
    */
-  public async emit(user: UserEntity, type: WebSocketEventType, event: any) {
+  public async emit(user: User, type: WebSocketEventType, event: any) {
     // console.log('WS SERVICE EMIT', user, type, event);
     const socketIds: string[] = await this.webSocketCacheService.getSocketIds(user.id);
     // logger.log('emit socket ids:', socketIds, type, event);

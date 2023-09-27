@@ -114,7 +114,7 @@ export class DIDFeature implements IdentityFeature {
   public async getExistingAppInstanceDIDInfo(appDID: string = null): Promise<{ storeId: string, didString: string, storePassword: string }> {
     const sandboxingSuffix = appDID ? `_${appDID}` : "";
 
-    const storage = this.identity.get("storage");
+    const storage = this.identity.storage();
 
     const storeId = await storage.get("appinstancedidstoreid" + sandboxingSuffix, null);
     const didString = await storage.get("appinstancedidstring" + sandboxingSuffix, null);
@@ -240,7 +240,7 @@ export class DIDFeature implements IdentityFeature {
 
     const sandboxingSuffix = appDID ? `_${appDID}` : "";
 
-    const storage = this.identity.get("storage");
+    const storage = this.identity.storage();
 
     await storage.set("appinstancedidstoreid" + sandboxingSuffix, storeId);
     await storage.set("appinstancedidstring" + sandboxingSuffix, didString);

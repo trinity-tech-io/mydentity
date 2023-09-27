@@ -1,4 +1,4 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, GraphQLISODateTime, ObjectType } from '@nestjs/graphql';
 import { UserEmailProvider } from "@prisma/client/main";
 import { UserEntity } from "./user.entity";
 
@@ -16,6 +16,6 @@ export class UserEmailEntity {
     @Field()
     email: string;
 
-    @Field(() => Date)
-    createdAt: Date;
+    @Field(() => GraphQLISODateTime)
+    createdAt: string;
 }

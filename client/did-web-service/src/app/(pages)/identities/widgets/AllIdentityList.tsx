@@ -3,7 +3,7 @@ import { MainButton } from '@components/generic/MainButton';
 import { IdentityCellLeft } from '@components/identity/IdentityCellLeft';
 import { VerticalStackLoadingCard } from '@components/loading-cards/vertical-stack-loading-card/VerticalStackLoadingCard';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
-import { Identity } from '@model/identity/identity';
+import { RegularIdentity } from '@model/regular-identity/regular-identity';
 import { activeIdentity$ } from '@services/identity/identity.events';
 import { identityService } from '@services/identity/identity.service';
 import { authUser$ } from '@services/user/user.events';
@@ -14,17 +14,17 @@ const TAG = 'IdentityListWidget'
 
 export const AllIdentityList: FC = _ => {
   const [authUser] = useBehaviorSubject(authUser$);
-  const [identities] = useBehaviorSubject(authUser?.get("identity").identities$);
+  const [identities] = useBehaviorSubject(authUser?.get("identity").regularIdentities$);
   const router = useRouter()
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const [showToast, setShowToast] = useState<boolean>(false);
   const sortedIdentities = [...identities].sort((a, b) => {
-    const dateA = new Date(a.lastUsedAt$.getValue()).getTime();
-    const dateB = new Date(b.lastUsedAt$.getValue()).getTime();
+    const dateA = a.lastUsedAt$.getValue().getTime();
+    const dateB = b.lastUsedAt$.getValue().getTime();
     return dateB - dateA
   });
 
-  const handleCellClick = (identity: Identity): void => {
+  const handleCellClick = (identity: RegularIdentity): void => {
     if (identity !== activeIdentity) {
       setShowToast(true)
     }

@@ -19,7 +19,7 @@ const StoragePage: FC = () => {
   const router = useRouter();
   const [authUser] = useBehaviorSubject(authUser$);
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
-  const hiveFeature = activeIdentity?.get("hive");
+  const hiveFeature = activeIdentity?.hive();
   const [vaultStatus] = useBehaviorSubject(hiveFeature?.vaultStatus$);
   const [vaultAddress] = useBehaviorSubject(hiveFeature?.vaultAddress$);
   const [vaultInfo] = useBehaviorSubject(hiveFeature?.vaultInfo$);

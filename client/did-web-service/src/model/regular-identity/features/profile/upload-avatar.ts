@@ -26,13 +26,13 @@ export async function editAvatarOnHive(identity: Identity, newPictureFile: File)
   const avatarData = compressedImageBuffer; //Buffer.from(compressedImageBuffer, "base64"); // Raw picture data, not base64 encoded
 
   // Upload the picture
-  const vault = await identity.get("hive").getVaultService();
+  const vault = await identity.hive().getVaultService();
   const uploadResponse = await vault.getFilesService().upload(avatarFileName, Buffer.from(avatarData), { onProgress: () => { } }, false);
   logger.log('profile', "Completed avatar upload to hive", uploadResponse);
 
   // Create a script to make this picture available to everyone
   const scriptName = "getMainIdentityAvatar" + randomPictureID;
-  const scriptingService = await identity.get("hive").getScriptingService();
+  const scriptingService = await identity.hive().getScriptingService();
   await scriptingService.registerScript(scriptName, new FileDownloadExecutable(scriptName, avatarFileName).setOutput(true), undefined, true, true);
 
   // Prepare the hive url that will be used to fetch the picture

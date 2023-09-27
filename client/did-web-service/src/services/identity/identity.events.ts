@@ -1,7 +1,8 @@
 import type { Identity } from "@model/identity/identity";
+import { RegularIdentity } from "@model/regular-identity/regular-identity";
 import { BehaviorSubject, filter } from "rxjs";
 
-export const activeIdentity$ = new BehaviorSubject<Identity>(null);
+export const activeIdentity$ = new BehaviorSubject<RegularIdentity>(null);
 
 export function getActiveIdentity(): Identity {
   return activeIdentity$.value;

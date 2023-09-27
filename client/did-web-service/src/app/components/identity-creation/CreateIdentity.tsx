@@ -37,24 +37,24 @@ export const CreateIdentity: FC<{
 
     // Create identity for real in the backend
     setCallingCreationApi(true);
-    const identity = await callWithUnlock(async () => await authUser.get("identity").createIdentity(name));
+    const identity = await callWithUnlock(async () => await authUser.get("identity").createRegularIdentity(name));
     setCallingCreationApi(false);
 
     if (identity) {
       identityService.setActiveIdentity(identity);
 
       // First fetch the (empty list of) credentials, this is required to be able to create new credentials.
-      identity.get("profile").profileCredentials$.pipe(first(v => !!v)).subscribe(async () => {
+      identity.profile().profileCredentials$.pipe(first(v => !!v)).subscribe(async () => {
         // Attach the name as credential, to this new identity
-        await identity.get("profile").createInitialNameCredential(name);
+        await identity.profile().createInitialNameCredential(name);
 
         setPublishing(true);
-        await identity.get("publication").awaitIdentityPublished();
+        await identity.publication().awaitIdentityPublished();
         setPublishing(false);
 
         // Prepare the hive vault. This also starts the vault registration is not done yet, through the lazy access of vault status.
         setCreatingStorage(true);
-        await identity.get("hive").awaitHiveVaultReady();
+        await identity.hive().awaitHiveVaultReady();
         setCreatingStorage(false);
 
         showSuccessToast("Your new identity was created!");

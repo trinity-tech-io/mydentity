@@ -2,11 +2,11 @@
 'use client';
 import { IdentityAvatar } from '@components/identity/IdentityAvatar';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
-import { Identity } from '@model/identity/identity';
+import { RegularIdentity } from '@model/regular-identity/regular-identity';
 import { makeStyles } from '@mui/styles';
 import { Theme } from '@mui/system';
-import { shortenDID } from '@services/identity/identity.utils';
 import { activeIdentity$ } from '@services/identity/identity.events';
+import { shortenDID } from '@services/identity/identity.utils';
 import { FC } from 'react';
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -26,8 +26,8 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 const DropdownIdentityList: FC<{
-  identities: Identity[],
-  setCurrentIdentity: (identity: Identity) => void;
+  identities: RegularIdentity[],
+  setCurrentIdentity: (identity: RegularIdentity) => void;
   setDropdownOpen: (open: boolean) => void;
 }> = ({ identities, setCurrentIdentity, setDropdownOpen }) => {
   const classes = useStyles();
@@ -38,9 +38,8 @@ const DropdownIdentityList: FC<{
       {identities.map((identity) => (
         <div key={identity.did}>
           <div
-            className={`font-medium text-sm hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center py-1 px-0 cursor-pointer ${
-              identity === activeIdentity ? 'text-indigo-600 dark:text-indigo-400' : ''
-            }`}
+            className={`font-medium text-sm hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center py-1 px-0 cursor-pointer ${identity === activeIdentity ? 'text-indigo-600 dark:text-indigo-400' : ''
+              }`}
             onClick={() => {
               setCurrentIdentity(identity);
               setDropdownOpen(false);
@@ -51,7 +50,7 @@ const DropdownIdentityList: FC<{
               <div className={classes.textContainer}>
                 <span
                   className={`truncate text-sm font-bold dark:text-slate-300 group-hover:text-slate-800 dark:group-hover:text-slate-200`}>
-                  {identity.get('profile').name$.value}
+                  {identity.profile().name$.value}
                 </span>
                 <span className={`text-left cursor-pointer`}>
                   {shortenDID(identity.did)}

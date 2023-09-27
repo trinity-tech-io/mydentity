@@ -3,7 +3,7 @@
 import { IdentityAvatar } from '@components/identity/IdentityAvatar';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { useMounted } from '@hooks/useMounted';
-import { Identity } from '@model/identity/identity';
+import { RegularIdentity } from '@model/regular-identity/regular-identity';
 import { makeStyles } from '@mui/styles';
 import { Theme } from '@mui/system';
 import { activeIdentity$ } from '@services/identity/identity.events';
@@ -52,17 +52,17 @@ export const DropdownIdentity: FC<{
   const dropdown = useRef(null);
 
   const [authUser] = useBehaviorSubject(authUser$);
-  const [identities] = useBehaviorSubject(authUser?.get("identity").identities$);
+  const [identities] = useBehaviorSubject(authUser?.get("identity").regularIdentities$);
   const [currentIdentity] = useBehaviorSubject(activeIdentity$);
   //const [createDidModalOpen, setCreateDidModalOpen] = useState(false);
-  const [name] = useBehaviorSubject(currentIdentity?.get("profile").name$)
+  const [name] = useBehaviorSubject(currentIdentity?.profile().name$)
   const [DID, setDID] = useState('No active identity');
 
   const closeDropdown = () => {
     setDropdownOpen(false);
   }
 
-  const setCurrentIdentity = (identity: Identity) => {
+  const setCurrentIdentity = (identity: RegularIdentity) => {
     identityService.setActiveIdentity(identity);
   }
 

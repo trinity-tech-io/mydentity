@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev -p 4000",
     "build": "rm -rf ./out ./next && next build --debug",
+    "check-build-errors": "tsc --noEmit",
     "start": "next start -p 4000",
     "lint": "next lint"
   },
@@ -65,6 +66,7 @@
   "devDependencies": {
     "@next/bundle-analyzer": "^13.4.19",
     "@svgr/webpack": "^8.1.0",
+    "@types/fast-fifo": "^1.0.0",
     "@types/react-flatpickr": "^3.8.8",
     "@types/uuid": "^9.0.3",
     "@typescript-eslint/eslint-plugin": "^6.5.0",

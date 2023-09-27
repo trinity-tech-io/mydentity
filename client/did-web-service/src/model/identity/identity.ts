@@ -2,26 +2,27 @@ import { gql } from "@apollo/client";
 import { callWithUnlock } from "@components/security/unlock-key-prompt/call-with-unlock";
 import type { VerifiableCredential, VerifiablePresentation } from "@elastosfoundation/did-js-sdk";
 import { gqlMnemonicFields } from "@graphql/mnemonic.fields";
+import { Document } from "@model/document/document";
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { IdentityProvider } from "@services/identity/did.provider";
 import moment from "moment";
 import { BehaviorSubject } from "rxjs";
-import { ApplicationsFeature } from "./features/applications/applications.feature";
 import { CredentialsFeature } from "./features/credentials/credentials.feature";
 import { DIDFeature } from "./features/did/did.feature";
 import { HiveFeature } from "./features/hive/hive.feature";
 import { IdentityFeature } from "./features/identity-feature";
-import { ProfileFeature } from "./features/profile/profile.feature";
 import { PublicationFeature } from "./features/publication/publication.feature";
 import { StorageFeature } from "./features/storage/storage.feature";
+import { IdentityType } from "./identity-type";
 import { IdentityDTO } from "./identity.dto";
 import { MnemonicDTO } from "./mnemonic.dto";
 
-export class Identity {
+export abstract class Identity {
   did: string;
   createdAt: Date;
   lastUsedAt$ = new BehaviorSubject<Date>(null);
+  type: IdentityType;
 
   // Local bindings
   public provider: IdentityProvider;
@@ -31,40 +32,50 @@ export class Identity {
 
   constructor() {
     this.addFeature("credentials", new CredentialsFeature(this));
-    this.addFeature("profile", new ProfileFeature(this));
-    this.addFeature("did", new DIDFeature(this));
+    this.addFeature("DID", new DIDFeature(this));
     this.addFeature("hive", new HiveFeature(this));
     this.addFeature("storage", new StorageFeature(this));
     this.addFeature("publication", new PublicationFeature(this));
-    this.addFeature("applications", new ApplicationsFeature(this));
   }
 
-  public static async fromJson(json: IdentityDTO, provider: IdentityProvider=null): Promise<Identity> {
-    const identity = new Identity();
-    Object.assign(identity, json);
+  public async fillFromJson(json: IdentityDTO, provider: IdentityProvider): Promise<Identity> {
+    Object.assign(this, json);
 
-    identity.createdAt = new Date(json.createdAt);
-    identity.lastUsedAt$.next(new Date(json.lastUsedAt));
+    this.createdAt = new Date(json.createdAt);
+    this.lastUsedAt$.next(new Date(json.lastUsedAt));
 
-    identity.provider = provider;
-    return identity;
+    this.provider = provider;
+    return this;
   }
 
-  public get(feature: "credentials"): CredentialsFeature;
-  public get(feature: "profile"): ProfileFeature;
-  public get(feature: "did"): DIDFeature;
-  public get(feature: "hive"): HiveFeature;
-  public get(feature: "storage"): StorageFeature;
-  public get(feature: "publication"): PublicationFeature;
-  public get(feature: "applications"): ApplicationsFeature;
-  public get(feature: "credentials" | "profile" | "did" | "hive" | "storage" | "publication" | "applications"): IdentityFeature {
+  public credentials(): CredentialsFeature {
+    return <CredentialsFeature>this.features.get("credentials");
+  }
+
+  public DID(): DIDFeature {
+    return <DIDFeature>this.features.get("DID");
+  }
+
+  public hive(): HiveFeature {
+    return <HiveFeature>this.features.get("hive");
+  }
+
+  public storage(): StorageFeature {
+    return <StorageFeature>this.features.get("storage");
+  }
+
+  public publication(): PublicationFeature {
+    return <PublicationFeature>this.features.get("publication");
+  }
+
+  public get(feature: string): IdentityFeature {
     if (!this.features.has(feature)) {
       throw new Error(`Unhandled user feature '${feature}'`);
     }
     return this.features.get(feature);
   }
 
-  private addFeature(name: string, feature: IdentityFeature): IdentityFeature {
+  protected addFeature(name: string, feature: IdentityFeature): IdentityFeature {
     if (this.features.has(name))
       return;
 
@@ -78,7 +89,7 @@ export class Identity {
    */
   public createVerifiablePresentation(credentials: VerifiableCredential[], realm: string, nonce: string): Promise<VerifiablePresentation> {
     return callWithUnlock(() => {
-      return this.provider.createVerifiablePresentation(this.did, credentials, realm, nonce);
+      return this.provider.presentation.createVerifiablePresentation(this.did, credentials, realm, nonce);
     }, true);
   }
 
@@ -123,4 +134,30 @@ export class Identity {
 
     return result?.data?.exportMnemonic.mnemonic;
   }
+
+  /**
+   * Gets the latest DID document from chain
+   *
+   * TODO: probably move to a "document" feature and implement
+   */
+  public synchronizeDIDDocument(): Promise<Document> {
+    return null;
+    /* return new Promise((resolve, reject) => {
+        // Get the latest DID document from chain, if any.
+        Logger.log("developertools", "Synchronizing the DID store");
+        this.didStore.synchronize(this.storePassword, () => {
+            // Now that we are synced, load the existing DID document (could be empty)
+            Logger.log("developertools", "Loading local DID document");
+            this.didStore.loadDidDocument(this.didString, didDocument => {
+                this.didDocument = didDocument;
+                resolve(didDocument);
+            }, err => {
+                reject(err);
+            });
+        }, err => {
+            reject(err);
+        });
+    }); */
+  }
+
 }

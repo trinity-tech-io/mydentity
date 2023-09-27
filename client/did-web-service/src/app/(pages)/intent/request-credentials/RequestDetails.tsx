@@ -35,7 +35,7 @@ export const RequestDetails: FC<{
 }> = ({ intent }) => {
   const TAG = "RequestCredentialsIntent";
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
-  const [credentials] = useBehaviorSubject(activeIdentity?.get("credentials").credentials$);
+  const [credentials] = useBehaviorSubject(activeIdentity?.credentials().credentials$);
   const [preparingResponse, setPreparingResponse] = useState(false);
   const [wrongTargetDID, setWrongTargetDID] = useState<boolean>(false);
   const [requestingAppIcon, setRequestingAppIcon] = useState<string>('');
@@ -296,7 +296,7 @@ export const RequestDetails: FC<{
 
       // Record that we share those credentials to this app
       if (payload.caller) {
-        await activeIdentity.get("applications").recordRequestedCredentials(payload.caller, selectedCredentials);
+        await activeIdentity.applications().recordRequestedCredentials(payload.caller, selectedCredentials);
       }
 
       // Send the response to the original app, including the intent id as parameter.

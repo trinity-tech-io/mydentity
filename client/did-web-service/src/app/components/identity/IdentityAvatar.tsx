@@ -1,7 +1,7 @@
 import AccountIcon from '@assets/images/account.svg';
 import { LettersAvatar } from '@components/generic/LettersAvatar';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
-import { Identity } from '@model/identity/identity';
+import { RegularIdentity } from '@model/regular-identity/regular-identity';
 import { Avatar } from "@mui/material";
 import { initialsString } from '@utils/strings';
 import Image from 'next/image';
@@ -12,12 +12,12 @@ import { FC } from "react";
  * or a default avatar.
  */
 export const IdentityAvatar: FC<{
-  identity?: Identity;
+  identity?: RegularIdentity;
   width?: number;
   height?: number;
 }> = ({ identity, width = 60, height = 60 }) => {
-  const [name] = useBehaviorSubject(identity?.get("profile").name$)
-  const [representativeIconPath] = useBehaviorSubject(identity?.get("profile").icon$);
+  const [name] = useBehaviorSubject(identity?.profile().name$)
+  const [representativeIconPath] = useBehaviorSubject(identity?.profile().icon$);
 
   return (<>
     {representativeIconPath ? (

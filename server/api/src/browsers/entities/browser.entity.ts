@@ -1,4 +1,4 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, GraphQLISODateTime, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
 export class BrowserEntity {
@@ -8,11 +8,11 @@ export class BrowserEntity {
   @Field(() => String)
   key: string;
 
-  @Field(() => Date)
-  createdAt: Date;
+  @Field(() => GraphQLISODateTime)
+  createdAt: string;
 
-  @Field(() => Date)
-  lastUsedAt: Date;
+  @Field(() => GraphQLISODateTime)
+  lastUsedAt: string;
 
   @Field()
   userAgent: string;

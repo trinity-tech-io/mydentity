@@ -69,7 +69,7 @@ async function fetchHiveScriptPicture(hiveScriptUrl: string, identity: Identity)
   try {
     logger.log('hive', 'Calling script url to download file', hiveScriptUrl);
 
-    const vault = await identity.get("hive").getVaultService();
+    const vault = await identity.hive().getVaultService();
 
     const pictureBuffer = await vault.getScriptingService().downloadFileByHiveUrl(hiveScriptUrl);
     if (!pictureBuffer || pictureBuffer.length === 0) {

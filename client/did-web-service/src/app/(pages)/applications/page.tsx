@@ -8,7 +8,7 @@ import { ApplicationRow } from "./ApplicationRow";
 
 const Applications: FC = () => {
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
-  const [interactingApplications] = useBehaviorSubject(activeIdentity?.get("applications").applications$);
+  const [interactingApplications] = useBehaviorSubject(activeIdentity?.applications().applications$);
 
   return (<div className="col-span-full">
     <Breadcrumbs entries={["applications"]} />

@@ -1,6 +1,6 @@
 import { Credential } from "@model/credential/credential";
 import { ProfileCredential } from "@model/credential/profile-credential";
-import { Identity } from "@model/identity/identity";
+import { RegularIdentity } from "@model/regular-identity/regular-identity";
 import { withCaughtAppException } from "@services/error.service";
 import { AvatarInfoToSubject } from "@services/identity-profile-info/converters/avatar-converter";
 import { findProfileInfoByKey, findProfileInfoByTypes } from "@services/identity-profile-info/identity-profile-info.service";
@@ -11,7 +11,7 @@ import { isClientSide } from "@utils/client-server";
 import { randomIntString } from "@utils/random";
 import moment from "moment";
 import { BehaviorSubject, map } from "rxjs";
-import { IdentityFeature } from "../identity-feature";
+import { IdentityFeature } from "../../../identity/features/identity-feature";
 import { editAvatarOnHive } from "./upload-avatar";
 
 /**
@@ -27,7 +27,7 @@ export class ProfileFeature implements IdentityFeature {
   public activeCredential$ = new BehaviorSubject<Credential>(null);
 
   public profileCredentials$ = new AdvancedBehaviorSubject<ProfileCredential[]>(null, async () => {
-    this.identity.get("credentials").credentials$.pipe(map((creds) => creds?.filter(c => c instanceof ProfileCredential))).subscribe(creds => {
+    this.identity.credentials().credentials$.pipe(map((creds) => creds?.filter(c => c instanceof ProfileCredential))).subscribe(creds => {
       this.profileCredentials$.next(<ProfileCredential[]>creds);
 
       // When credentials change, update name subject and its cache so we can later show the
@@ -59,7 +59,7 @@ export class ProfileFeature implements IdentityFeature {
    */
   public get icon$(): BehaviorSubject<string> { return identityInfoIcons.listen(this.identity.did); }
 
-  constructor(protected identity: Identity) { }
+  constructor(protected identity: RegularIdentity) { }
 
   public setActiveCredential(credential: Credential): void {
     this.activeCredential$.next(credential)
@@ -112,7 +112,7 @@ export class ProfileFeature implements IdentityFeature {
 
       const credentialSubject = entry.options.converter.toSubject(editionValue);
 
-      return this.identity.get("credentials").createCredential(finalCredentialId, credentialType, expirationDate, credentialSubject);
+      return this.identity.credentials().createCredential(finalCredentialId, credentialType, expirationDate, credentialSubject);
     }, null);
   }
 
@@ -121,7 +121,7 @@ export class ProfileFeature implements IdentityFeature {
     const credentialId = credential.verifiableCredential.getId().toString();
     const profileInfoEntry = findProfileInfoByTypes(credential.verifiableCredential.getType());
 
-    const deleted = await this.identity.get("credentials").deleteCredential(credential);
+    const deleted = await this.identity.credentials().deleteCredential(credential);
     if (!deleted)
       return null;
 
@@ -178,6 +178,6 @@ export class ProfileFeature implements IdentityFeature {
   public async deleteAvatarCredential(): Promise<void> {
     const avatarCredential = this.avatarCredential$.value;
     if (avatarCredential)
-      await this.identity.get("credentials").deleteCredential(avatarCredential);
+      await this.identity.credentials().deleteCredential(avatarCredential);
   }
 }

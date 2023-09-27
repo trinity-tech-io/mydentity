@@ -1,13 +1,17 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, GraphQLISODateTime, ObjectType } from '@nestjs/graphql';
+import { IdentityType } from '@prisma/client/main';
 
 @ObjectType()
 export class IdentityEntity {
   @Field(() => String, { description: 'did:elastos:xxx' })
   did: string;
 
-  @Field(() => Date)
-  createdAt: Date;
+  @Field(() => String)
+  type: IdentityType;
 
-  @Field(() => Date)
-  lastUsedAt: Date;
+  @Field(() => GraphQLISODateTime)
+  createdAt: string;
+
+  @Field(() => GraphQLISODateTime)
+  lastUsedAt: string;
 }

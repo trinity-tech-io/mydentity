@@ -19,7 +19,7 @@ const IdentityMenu: FC<{
 }> = ({ credential }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
-  const identityProfileFeature = activeIdentity?.get("profile");
+  const identityProfileFeature = activeIdentity?.profile();
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [openEditCredentialDialog, setOpenEditCredentialDialog] = useState(false);
   const [preEditCredentialInfo, setPreEditCredentialInfo] = useState<ProfileCredentialInfo>(null);
@@ -63,7 +63,7 @@ const IdentityMenu: FC<{
 
     let isSuccess = false;
     try {
-      isSuccess = await activeIdentity.get("credentials").deleteCredential(credential);
+      isSuccess = await activeIdentity.credentials().deleteCredential(credential);
     } catch (error) {
       logger.error(TAG, 'Delete credential error: ', error);
     }

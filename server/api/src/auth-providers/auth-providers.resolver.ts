@@ -1,8 +1,11 @@
 import { UseGuards } from "@nestjs/common";
 import { Args, Mutation, Resolver } from "@nestjs/graphql";
+import { User } from "@prisma/client/main";
+import { ActivityService } from "../activity/activity.service";
 import { CurrentUser } from "../auth/currentuser.decorator";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { HeaderBrowserKey } from "../browsers/browser-key-header.decorator";
+import { BrowsersService } from "../browsers/browsers.service";
 import { UserAgent } from "../browsers/user-agent-decorator";
 import { AppException } from "../exceptions/app-exception";
 import { AuthExceptionCode } from "../exceptions/exception-codes";
@@ -13,9 +16,6 @@ import { UserService } from "../user/user.service";
 import { MsBindEmailInput } from "./dto/ms-bind-email.input";
 import { MsSignInInput } from "./dto/ms-sign-in.input";
 import { MicrosoftProfileService } from "./microsoft-profile.service";
-import { ActivityType, User, UserEmail, UserEmailProvider } from "@prisma/client/main";
-import { BrowsersService } from "../browsers/browsers.service";
-import { ActivityService } from "../activity/activity.service";
 
 @Resolver(() => UserEntity)
 export class AuthProviderResolver {
@@ -60,7 +60,7 @@ export class AuthProviderResolver {
 
     @UseGuards(JwtAuthGuard)
     @Mutation(() => Boolean)
-    async oauthMSBindEmail(@CurrentUser() user: UserEntity, @Args('input') input: MsBindEmailInput) {
+    async oauthMSBindEmail(@CurrentUser() user: User, @Args('input') input: MsBindEmailInput) {
         const email = await this.getEmailByMsCode(input.code);
         const resultUser = await this.userService.bindOauthEmail(user, email);
         if (!resultUser) {

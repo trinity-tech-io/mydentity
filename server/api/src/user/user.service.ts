@@ -1,6 +1,6 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { ActivityType, User, UserEmail, UserEmailProvider } from '@prisma/client/main';
-import { randomUUID } from "crypto";
+import { createHash, randomBytes, randomUUID } from "crypto";
 import * as moment from "moment";
 import { encode } from "slugid";
 import { AuthService } from 'src/auth/auth.service';
@@ -8,6 +8,8 @@ import { AuthTokens } from 'src/auth/model/auth-tokens';
 import { AuthKeyInput } from 'src/key-ring/dto/auth-key-input';
 import { KeyRingService } from 'src/key-ring/key-ring.service';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { ActivityService } from "../activity/activity.service";
+import { BrowsersService } from "../browsers/browsers.service";
 import { EmailTemplateType } from "../emailing/email-template-type";
 import { EmailingService } from "../emailing/emailing.service";
 import { AppException } from "../exceptions/app-exception";
@@ -15,12 +17,7 @@ import { AuthExceptionCode } from "../exceptions/exception-codes";
 import { logger } from "../logger";
 import { SignUpInput } from './dto/sign-up.input';
 import { UserPropertyInput } from "./dto/user-property.input";
-import { UserEmailEntity } from "./entities/user-email.entity";
-import { UserEntity } from "./entities/user.entity";
-import { BrowsersService } from "../browsers/browsers.service";
-import { ActivityService } from "../activity/activity.service";
 
-// https://makinhs.medium.com/authentication-made-easy-with-nestjs-part-4-of-how-to-build-a-graphql-mongodb-d6057eae3fdf
 @Injectable()
 export class UserService {
   constructor(
@@ -127,8 +124,8 @@ export class UserService {
   /**
    * Initiates a new authentication by email, using a magic link.
    */
-  public async requestEmailAuthentication(curUser: UserEntity, emailAddress: string) {
-    const userEmail: UserEmailEntity = await this.prisma.userEmail.findFirst({
+  public async requestEmailAuthentication(curUser: User, emailAddress: string) {
+    const userEmail = await this.prisma.userEmail.findFirst({
       where: {
         email: emailAddress,
       },
@@ -210,7 +207,7 @@ export class UserService {
    * This auth key comes from a magic link received by users by email, after requesting
    * to receive a magic link by email.
    */
-  public async checkEmailAuthentication(curUser: UserEntity, temporaryEmailAuthKey: string, existingBrowserKey: string, userAgent: string): Promise<AuthTokens> {
+  public async checkEmailAuthentication(curUser: User, temporaryEmailAuthKey: string, existingBrowserKey: string, userAgent: string): Promise<AuthTokens> {
     const user = await this.prisma.user.findFirst({
       where: {
         temporaryEmailAuthExpiresAt: { gt: new Date() },
@@ -293,16 +290,16 @@ export class UserService {
     return user;
   }
 
-  async getUserByEmail(email: string): Promise<UserEntity> {
-    const userEmail: UserEmail & { user: UserEntity } = await this.getUserEmailByEmail(email);
+  async getUserByEmail(email: string): Promise<User> {
+    const userEmail: UserEmail & { user: User } = await this.getUserEmailByEmail(email);
     return userEmail ? userEmail.user : null;
   }
 
   /**
    * Bind oauth email to user.
    */
-  async bindOauthEmail(user: UserEntity, email: string) {
-    let userEmail: UserEmailEntity = await this.prisma.userEmail.findFirst({
+  async bindOauthEmail(user: User, email: string) {
+    let userEmail = await this.prisma.userEmail.findFirst({
       where: { email },
       include: { user: true }
     })
@@ -340,7 +337,7 @@ export class UserService {
     return user;
   }
 
-  async listUserEmails(user: UserEntity) {
+  async listUserEmails(user: User) {
     return await this.prisma.userEmail.findMany({
       where: {
         userId: user.id
@@ -348,8 +345,8 @@ export class UserService {
     })
   }
 
-  async deleteUserEmail(user: UserEntity, email: string) {
-    const userEmail: UserEmailEntity = await this.prisma.userEmail.findFirst({
+  async deleteUserEmail(user: User, email: string) {
+    const userEmail = await this.prisma.userEmail.findFirst({
       where: {
         email
       },
@@ -372,7 +369,7 @@ export class UserService {
     });
   }
 
-  async updateUserProperty(user: UserEntity, input: UserPropertyInput) {
+  async updateUserProperty(user: User, input: UserPropertyInput) {
     const data = {};
     if (input.name) {
       data['name'] = input.name;
@@ -386,5 +383,38 @@ export class UserService {
     })
 
     return existingUser;
+  }
+
+  /**
+   * Creates a developer access token to be able to remotely access apis
+   */
+  async createAccessToken(user: User) {
+    // Generate an access token (not stored, one time display to user)
+    const clearToken = randomBytes(32).toString('hex');
+    const hashedToken = createHash('sha256').update(clearToken).digest('hex');
+
+    const storedToken = await this.prisma.developerAccessToken.create({
+      data: {
+        userId: user.id,
+        title: "My access key",
+        hash: hashedToken
+      }
+    });
+
+    return {
+      storedToken,
+      clearToken
+    }
+  }
+
+  /**
+   * List of access tokens owned by this user for third party app development purpose.
+   */
+  async getAccessTokens(user: User) {
+    return this.prisma.developerAccessToken.findMany({
+      where: {
+        userId: user.id
+      }
+    });
   }
 }

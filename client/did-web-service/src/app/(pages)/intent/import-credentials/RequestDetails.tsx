@@ -26,8 +26,8 @@ export const RequestDetails: FC<{
   intent: Intent<VerifiableCredential[]>;
 }> = ({ intent }) => {
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
-  const identityProfileFeature = activeIdentity?.get("profile");
-  const credentialFeature = activeIdentity?.get("credentials");
+  const identityProfileFeature = activeIdentity?.profile();
+  const credentialFeature = activeIdentity?.credentials();
   const [preparingResponse, setPreparingResponse] = useState(false);
   const [credentials] = useBehaviorSubject(credentialFeature?.credentials$); // NOTE: keep it to fetch the credentials, required before importing
   const [importedCredentials, setImportedCredentials] = useState<ImportedCredential[]>(null);

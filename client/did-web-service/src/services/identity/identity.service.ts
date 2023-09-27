@@ -1,19 +1,22 @@
 import { IdentityPublicationStatusResult } from "@model/identity-publication/identity-publication-status.dto";
 import { IdentityRoot } from "@model/identity-root/identity-root";
 import { Identity } from "@model/identity/identity";
+import { IdentityType } from "@model/identity/identity-type";
+import { RegularIdentity } from "@model/regular-identity/regular-identity";
 import { CustodialDIDProvider } from "./custodial/custodial-did.provider";
-import { IdentityProvider } from "./did.provider";
 import { activeIdentity$ } from "./identity.events";
 
+export const custodialIdentityProvider = new CustodialDIDProvider(); // For now, only a custodial provider in use
+
 class IdentityService {
-  private provider: IdentityProvider = new CustodialDIDProvider(); // For now, only a custodial provider in use
+  private provider = custodialIdentityProvider;
   private activeIdentityId = "";
 
   /**
    * Creates a new identity (DID) for the signed in user
    */
-  public createIdentity(name: string, hiveVaultProvider?: string): Promise<Identity> {
-    return this.provider.createIdentity(name, hiveVaultProvider);
+  public createIdentity(name: string, identityType: IdentityType, hiveVaultProvider?: string): Promise<Identity> {
+    return this.provider.identity.createIdentity(name, identityType, hiveVaultProvider);
   }
 
   /**
@@ -27,14 +30,14 @@ class IdentityService {
    * Delete identity (DID)
    */
   public deleteIdentity(didString: string): Promise<boolean> {
-    return this.provider.deleteIdentity(didString);
+    return this.provider.identity.deleteIdentity(didString);
   }
 
   /**
    * Publish identity (DID), return the did transaction payload.
    */
   public createDIDPublishTransaction(didString: string): Promise<string> {
-    return this.provider.createDIDPublishTransaction(didString);
+    return this.provider.publication.createDIDPublishTransaction(didString);
   }
 
   /**
@@ -42,21 +45,21 @@ class IdentityService {
    *  return the tx id.
    */
   public publishIdentity(didString: string, payload: string): Promise<string> {
-    return this.provider.publishIdentity(didString, payload);
+    return this.provider.publication.publishIdentity(didString, payload);
   }
 
   /**
    * Get publication status
    */
   public getPublicationStatus(didString: string): Promise<IdentityPublicationStatusResult> {
-    return this.provider.getPublicationStatus(didString);
+    return this.provider.publication.getPublicationStatus(didString);
   }
 
   /**
    * Sets the newly active identity for the whole app. This identity is the one used
    * to list credentials, and do all DID related operations.
    */
-  public async setActiveIdentity(identity: Identity): Promise<void> {
+  public async setActiveIdentity(identity: RegularIdentity): Promise<void> {
     if (!identity) {
       activeIdentity$.next(null);
       this.activeIdentityId = "";
@@ -85,7 +88,7 @@ class IdentityService {
     return localStorage.getItem("activeIdentityId");
   }
 
-  private restoreActiveIdentity(identities: Identity[]): void {
+  private restoreActiveIdentity(identities: RegularIdentity[]): void {
     // 1.load local cached active identity,
     // 2.if no cached data found, set a default identity for convenience
     if (activeIdentity$.value)
@@ -101,21 +104,25 @@ class IdentityService {
       identityService.setActiveIdentity(identities[0]);
   }
 
-  private findIdentityByDID(did: string, identities: Identity[]): Identity {
+  private onlyRegularIdentities(identities: Identity[]): RegularIdentity[] {
+    return identities.filter(i => i instanceof RegularIdentity) as RegularIdentity[];
+  }
+
+  private findIdentityByDID(did: string, identities: Identity[]): RegularIdentity {
     const result = identities?.find((identity) => {
       return identity.did === did;
     });
-    return result
+    return result as RegularIdentity;
   }
 
   /**
    * Returns the list of identities for the signed in user
    */
   public async listIdentities(): Promise<Identity[]> {
-    const identities = await this.provider.listIdentities();
+    const identities = await this.provider.identity.listIdentities();
 
     // Check if we have a local identity saved into local storage and restore it if we can
-    this.restoreActiveIdentity(identities);
+    this.restoreActiveIdentity(this.onlyRegularIdentities(identities));
 
     return identities
   }
@@ -124,17 +131,15 @@ class IdentityService {
    * Returns the list of root identities
    */
   public async listRootIdentities(): Promise<IdentityRoot[]> {
-    const rootIdentities = await this.provider.listRootIdentities()
-
-    return rootIdentities
+    return this.provider.identity.listRootIdentities();
   }
 
   public addDIDDocumentService(identityDid: string, id: string, type: string, endpoint: string, properties?: any): boolean {
-    return this.provider.addDIDDocumentService(identityDid, id, type, endpoint, properties);
+    return this.provider.document.addDIDDocumentService(identityDid, id, type, endpoint, properties);
   }
 
   public removeDIDDocumentService(identityDid: string, id: string): boolean {
-    return this.provider.removeDIDDocumentService(identityDid, id);
+    return this.provider.document.removeDIDDocumentService(identityDid, id);
   }
 }
 

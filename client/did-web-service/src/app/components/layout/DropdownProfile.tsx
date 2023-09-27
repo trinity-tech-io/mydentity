@@ -160,6 +160,15 @@ export const DropdownUserProfile: FC<{
               <li>
                 <Link
                   className="font-medium text-sm text-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center py-1 px-3"
+                  href="/developers"
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                >
+                  Developers zone
+                </Link>
+              </li>
+              <li>
+                <Link
+                  className="font-medium text-sm text-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center py-1 px-3"
                   href="/account/export"
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                 >

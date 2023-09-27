@@ -1,57 +1,56 @@
 import { Injectable } from '@nestjs/common';
-import { ActivityEntity } from "./entities/activity.entity";
+import { Activity, User } from '@prisma/client/main';
 import { PrismaService } from "../prisma/prisma.service";
-import { CreateActivityInput } from "./dto/create-activity.input";
 import { ActivityWsGateway } from "./activity.ws.gateway";
-import { UserEntity } from "../user/entities/user.entity";
+import { CreateActivityInput } from "./dto/create-activity.input";
 
 @Injectable()
 export class ActivityService {
     constructor(
         private prisma: PrismaService,
         private readonly activityWsGateway: ActivityWsGateway
-    ) {}
+    ) { }
 
-    public async findAll(userId: string): Promise<ActivityEntity[]> {
+    public async findAll(userId: string): Promise<Activity[]> {
         return this.prisma.activity.findMany({
             where: {
                 userId
             },
             include: {
                 browser: true,
-                userEmail: {include: {user: true}},
+                userEmail: { include: { user: true } },
                 identity: true,
             }
         });
     }
 
-    public async findOne(userId: string, id: string): Promise<ActivityEntity> {
+    public async findOne(userId: string, id: string): Promise<Activity> {
         return this.prisma.activity.findFirst({
             where: {
                 id, userId
             },
             include: {
                 browser: true,
-                userEmail: {include: {user: true}},
+                userEmail: { include: { user: true } },
                 identity: true,
             }
         });
     }
 
-    public async createActivity(user: UserEntity, input: CreateActivityInput): Promise<ActivityEntity> {
+    public async createActivity(user: User, input: CreateActivityInput): Promise<Activity> {
         const data = {
             type: input.type,
-            user: {connect: {id: user.id}},
+            user: { connect: { id: user.id } },
         }
 
         const appendField = (name: string) => {
             if (input[name] !== undefined && input[name] != null)
                 data[name] = input[name];
         }
-        const appendObj = (objName: string, isConnectDid=false) => {
+        const appendObj = (objName: string, isConnectDid = false) => {
             const name = `${objName}Id`;
             if (input[name] !== undefined && input[name] != null)
-                data[objName] = isConnectDid ? {connect: {did: input[name]}} : {connect: {id: input[name]}};
+                data[objName] = isConnectDid ? { connect: { did: input[name] } } : { connect: { id: input[name] } };
         }
 
         appendObj('userEmail');
@@ -64,7 +63,7 @@ export class ActivityService {
         appendObj('browser');
         appendField('browserName');
 
-        const activity = await this.prisma.activity.create({data});
+        const activity = await this.prisma.activity.create({ data });
 
         await this.activityWsGateway.notifyActivityCreated(user, activity);
 

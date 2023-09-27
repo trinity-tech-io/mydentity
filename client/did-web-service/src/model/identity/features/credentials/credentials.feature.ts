@@ -15,7 +15,7 @@ export class CredentialsFeature implements IdentityFeature {
     this.ensureCredentialsFetched();
     logger.log("credentials", "Creating credential", credentialId, types, expirationDate, prop);
 
-    const credential = await callWithUnlock(() => this.identity.provider.createCredential(this.identity.did, credentialId, types, expirationDate, prop));
+    const credential = await callWithUnlock(() => this.identity.provider.credentials.createCredential(this.identity.did, credentialId, types, expirationDate, prop));
     this.credentials$.next([credential, ...this.credentials$.value]);
     return credential;
   }
@@ -24,14 +24,14 @@ export class CredentialsFeature implements IdentityFeature {
     this.ensureCredentialsFetched();
     logger.log("credentials", "Issuing credential", subjectDid, credentialId, types, expirationDate, prop);
 
-    return callWithUnlock(() => this.identity.provider.issueCredential(this.identity.did, subjectDid, credentialId, types, expirationDate, prop));
+    return callWithUnlock(() => this.identity.provider.credentials.issueCredential(this.identity.did, subjectDid, credentialId, types, expirationDate, prop));
   }
 
   public async importCredential(vc: VerifiableCredential, importingApplicationDid?: string): Promise<Credential> {
     this.ensureCredentialsFetched();
     logger.log("credentials", "Importing credential", vc);
 
-    const credential = await callWithUnlock(() => this.identity.provider.importCredential(this.identity.did, vc, importingApplicationDid), true, null);
+    const credential = await callWithUnlock(() => this.identity.provider.credentials.importCredential(this.identity.did, vc, importingApplicationDid), true, null);
     this.credentials$.next([credential, ...this.credentials$.value]);
     return credential;
   }
@@ -41,14 +41,14 @@ export class CredentialsFeature implements IdentityFeature {
    */
   private async fetchCredentials(): Promise<Credential[]> {
     logger.log("credentials", "Fetching credentials", this.identity.did);
-    return callWithUnlock(() => this.identity.provider.listCredentials(this.identity.did));
+    return callWithUnlock(() => this.identity.provider.credentials.listCredentials(this.identity.did));
   }
 
   public async deleteCredential(credential: Credential): Promise<boolean> {
     this.ensureCredentialsFetched();
     logger.log("credentials", "Deleting credential");
 
-    const successfulDeletion = await callWithUnlock(() => this.identity.provider.deleteCredential(credential.id));
+    const successfulDeletion = await callWithUnlock(() => this.identity.provider.credentials.deleteCredential(credential.id));
     this.credentials$.next(this.credentials$.value?.filter(c => c.id != credential.id));
     return successfulDeletion;
   }

@@ -1,6 +1,6 @@
 import { DIDDocument, RootIdentity } from '@elastosfoundation/did-js-sdk';
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
-import { ActivityType, Browser, Identity, User } from '@prisma/client/main';
+import { ActivityType, Browser, Identity, IdentityType, User } from '@prisma/client/main';
 import { CredentialsService } from 'src/credentials/credentials.service';
 import { AssistTransactionStatus, DIDPublishingService } from 'src/did-publishing/did-publishing.service';
 import { DidService } from 'src/did/did.service';
@@ -31,7 +31,7 @@ export class IdentityService {
 
   async create(createIdentityInput: CreateIdentityInput, user: User, browser: Browser): Promise<Identity> {
     const storePassword = this.getDIDStorePassword(user?.id, browser?.id);
-    return this.createIdentityInternal(user.id, storePassword, user, createIdentityInput.hiveVaultProvider);
+    return this.createIdentityInternal(user.id, storePassword, createIdentityInput.identityType, user, createIdentityInput.hiveVaultProvider);
   }
 
   /**
@@ -50,7 +50,7 @@ export class IdentityService {
   /**
   * @param context sandboxing context for DID storage
   */
-  private async createIdentityInternal(context: string, storePassword: string, user?: User, hiveVaultProvider?: string): Promise<Identity> {
+  private async createIdentityInternal(context: string, storePassword: string, type: IdentityType = IdentityType.REGULAR, user?: User, hiveVaultProvider?: string): Promise<Identity> {
     let rootIdentity: RootIdentity = null;
     let didDocument: DIDDocument = null;
     let identityDid: string = null;
@@ -92,6 +92,7 @@ export class IdentityService {
     const identity = await this.prisma.identity.create({
       data: {
         did: identityDid,
+        type, // regular user, or application identity
         identityRoot: { connect: { id: identityRoot.id } },
         derivationIndex: derivationIndex,
         ...(user && { user: { connect: { id: user.id } } }),
@@ -104,7 +105,7 @@ export class IdentityService {
     const { publicationId } = await this.publishIdentity(identityDid, payload);
     identity.publicationId = publicationId;
 
-    await this.activityService.createActivity(user, {type: ActivityType.IDENTITY_CREATED, identityId: identity.did, identityDid: identity.did});
+    await this.activityService.createActivity(user, { type: ActivityType.IDENTITY_CREATED, identityId: identity.did, identityDid: identity.did });
 
     this.logger.log('create identity:' + JSON.stringify(identity));
 
@@ -123,7 +124,7 @@ export class IdentityService {
         }
       });
 
-      await this.activityService.createActivity(user, {type: ActivityType.IDENTITY_DELETED, identityDid: didString});
+      await this.activityService.createActivity(user, { type: ActivityType.IDENTITY_DELETED, identityDid: didString });
     } else {
       this.logger.warn('deleteIdentity error');
     }

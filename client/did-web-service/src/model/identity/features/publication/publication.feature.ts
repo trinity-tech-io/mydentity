@@ -14,6 +14,11 @@ export class PublicationFeature implements IdentityFeature {
 
   constructor(protected identity: Identity) { }
 
+  public async publish(): Promise<boolean> {
+    console.log("Identity publish NOT IMPLEMENTED");
+    return false;
+  }
+
   private async startCheckingPublicationStatus(): Promise<void> {
     try {
       while (this.shouldContinueCheckingStatus()) {

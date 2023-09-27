@@ -24,6 +24,10 @@
 - npx npm-check-updates
 - npx npm-check-updates -u
 
+# To build and display all build errors at once instead of only the first one:
+
+- npm run check-build-errors
+
 # React server side generation howtos
 
 ## Use webpack bundle analyzer with nextjs

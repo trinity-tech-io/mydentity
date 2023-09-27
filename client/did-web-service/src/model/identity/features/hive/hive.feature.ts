@@ -1,3 +1,4 @@
+import { callWithUnlock } from "@components/security/unlock-key-prompt/call-with-unlock";
 import type { DIDDocument, VerifiableCredential } from "@elastosfoundation/did-js-sdk";
 import type { AppContext, AppContextProvider, ScriptingService, Vault, VaultInfo, VaultSubscription } from "@elastosfoundation/hive-js-sdk";
 import { Identity } from "@model/identity/identity";
@@ -13,7 +14,6 @@ import dayjs from 'dayjs';
 import moment from 'moment';
 import { BehaviorSubject } from "rxjs";
 import { IdentityFeature } from "../identity-feature";
-import { callWithUnlock } from "@components/security/unlock-key-prompt/call-with-unlock";
 
 export class HiveFeature implements IdentityFeature {
   public vaultStatus$ = new AdvancedBehaviorSubject<VaultStatus>(null, async () => { this.retrieveVaultStatus(); }); // Latest known vault status for active user
@@ -167,7 +167,7 @@ export class HiveFeature implements IdentityFeature {
     const { VaultNotFoundException } = await lazyElastosHiveSDKImport();
 
     // Make sure identity is published
-    await this.identity.get("publication").awaitIdentityPublished();
+    await this.identity.publication().awaitIdentityPublished();
 
     logger.log("hive", "Looking for vault status");
 
@@ -242,7 +242,7 @@ export class HiveFeature implements IdentityFeature {
   private async getHiveAppContextProvider(): Promise<AppContextProvider> {
     return hiveOperationQueue.add(async () => {
       const appDID = this.getThisAppDID();
-      const appInstanceDIDInfo = await this.identity.get("did").getOrCreateAppInstanceDID(appDID);
+      const appInstanceDIDInfo = await this.identity.DID().getOrCreateAppInstanceDID(appDID);
 
       const didDocument = await appInstanceDIDInfo.didStore.loadDid(appInstanceDIDInfo.did.toString());
       //logger.log('hive', 'Got app instance DID document. Now creating the Hive client', didDocument.toJSON());
@@ -308,15 +308,15 @@ export class HiveFeature implements IdentityFeature {
       const realm = claims.getIssuer();
 
       logger.log('hive', 'Getting app instance DID');
-      const appInstanceDIDResult = await this.identity.get("did").getOrCreateAppInstanceDID(appDID);
+      const appInstanceDIDResult = await this.identity.DID().getOrCreateAppInstanceDID(appDID);
       const appInstanceDID = appInstanceDIDResult.did;
 
       logger.log("hive", "App instance DID:", appInstanceDID);
 
-      const appInstanceDIDInfo = await this.identity.get("did").getExistingAppInstanceDIDInfo(appDID);
+      const appInstanceDIDInfo = await this.identity.DID().getExistingAppInstanceDIDInfo(appDID);
 
       logger.log('hive', 'Getting app identity credential');
-      let appIdCredential = await this.identity.get("did").getExistingAppIdentityCredential(appDID);
+      let appIdCredential = await this.identity.DID().getExistingAppIdentityCredential(appDID);
 
       if (!appIdCredential) {
         logger.log('hive', 'Empty app id credential. Trying to generate a new one');
@@ -386,7 +386,7 @@ export class HiveFeature implements IdentityFeature {
   private async generateAppIdCredential(): Promise<VerifiableCredential> {
     const appDID = this.getThisAppDID();
 
-    const storedAppInstanceDID = await this.identity.get("did").getOrCreateAppInstanceDID(appDID);
+    const storedAppInstanceDID = await this.identity.DID().getOrCreateAppInstanceDID(appDID);
     if (!storedAppInstanceDID)
       return null;
 
@@ -424,7 +424,7 @@ export class HiveFeature implements IdentityFeature {
 
       try {
         return callWithUnlock(async () => {
-          const credential = await this.identity.provider.issueCredential(
+          const credential = await this.identity.provider.credentials.issueCredential(
             this.identity.did,
             appInstanceDid,
             "#app-id-credential",

@@ -1,8 +1,8 @@
-import { Field, Int, ObjectType, registerEnumType } from '@nestjs/graphql';
+import { Field, GraphQLISODateTime, Int, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { ActivityType, UserEmailProvider } from '@prisma/client/main';
 import { BrowserEntity } from "../../browsers/entities/browser.entity";
-import { UserEmailEntity } from "../../user/entities/user-email.entity";
 import { IdentityEntity } from "../../identity/entities/identity.entity";
+import { UserEmailEntity } from "../../user/entities/user-email.entity";
 
 @ObjectType()
 export class ActivityEntity {
@@ -39,8 +39,8 @@ export class ActivityEntity {
     @Field(() => String, { nullable: true })
     browserName?: string;
 
-    @Field(() => Date)
-    createdAt: Date;
+    @Field(() => GraphQLISODateTime)
+    createdAt: string;
 }
 
 registerEnumType(ActivityType, {

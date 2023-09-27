@@ -12,15 +12,15 @@ import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import { activeIdentity$ } from '@services/identity/identity.events';
 import { FC, useEffect, useState } from 'react';
+import { arraysAreEqual, filterCredentials } from './FilterConditions';
 import { FiltersDropdown } from "./FiltersDropdown";
-import { filterCredentials, arraysAreEqual } from './FilterConditions'; 
 
 export const CredentialListWidget: FC = () => {
   const TAG = "CredentialList";
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
-  const [credentials] = useBehaviorSubject(activeIdentity?.get("credentials").credentials$);
+  const [credentials] = useBehaviorSubject(activeIdentity?.credentials().credentials$);
   const mounted = useMounted();
-  const identityProfileFeature = activeIdentity?.get("profile");
+  const identityProfileFeature = activeIdentity?.profile();
   const [activeCredential] = useBehaviorSubject(identityProfileFeature?.activeCredential$);
   const [selectedFilter, setSelectedFilter] = useState<string>(''); // State to hold the selected filter
   const [filteredCredentials, setFilteredCredentials] = useState<Credential[]>(credentials);
@@ -42,10 +42,10 @@ export const CredentialListWidget: FC = () => {
       if (filtered && !arraysAreEqual(filtered, filteredCredentials)) {
         setFilteredCredentials(filtered);
         identityProfileFeature.setActiveCredential(filtered[0] || null);
-      } 
+      }
       // Refresh: When filtered is empty, activeCredential is null
       else if (filtered.length === 0 || !filtered) {
-       identityProfileFeature.setActiveCredential(null);
+        identityProfileFeature.setActiveCredential(null);
       }
     } else {
       // When the page refreshes, setFilteredCredentials
@@ -53,7 +53,7 @@ export const CredentialListWidget: FC = () => {
         setFilteredCredentials(credentials);
       }
     }
-  }, [activeCredential, credentials, identityProfileFeature,selectedFilter,filteredCredentials, activeIdentity]);
+  }, [activeCredential, credentials, identityProfileFeature, selectedFilter, filteredCredentials, activeIdentity]);
 
   const handleFilterChange = (filter: string): void => {
     setSelectedFilter(filter); // Update the selected filter when it changes
@@ -65,7 +65,7 @@ export const CredentialListWidget: FC = () => {
         <Typography ml={2} my={3} variant="subtitle1">
           Credentials
         </Typography>
-        <FiltersDropdown onFilterChange={handleFilterChange}/>
+        <FiltersDropdown onFilterChange={handleFilterChange} />
       </div>
       <Divider />
       <Box sx={{ width: '100%', bgcolor: 'background.paper' }}>
@@ -78,8 +78,8 @@ export const CredentialListWidget: FC = () => {
                   <ListItemButton
                     selected={activeCredential && activeCredential.id === c.id}
                     onClick={(): void => handleListItemClick(c)}
-                    style={{ display: 'flex', alignItems: 'center' }} 
-                    >
+                    style={{ display: 'flex', alignItems: 'center' }}
+                  >
                     <div style={{ marginRight: 10 }}>
                       <CredentialAvatar credential={c} width={60} height={60} />
                     </div>

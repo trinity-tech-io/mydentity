@@ -23,6 +23,8 @@ class DIDDocumentsService {
    * without fetching again.
    */
   public resolveDIDDocument(didString: string, forceRemote = false): Promise<Document> {
+    if (forceRemote)
+      logger.warn("identity", "forceRemote not fully implemented for resolveDIDDocument()!")
     return this.documentsMemoryCache.get(didString, {
       create: async () => {
         // Try to get from the disk cache

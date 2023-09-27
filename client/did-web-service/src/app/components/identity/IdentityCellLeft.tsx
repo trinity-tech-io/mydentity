@@ -1,19 +1,19 @@
 'use client';
 import { IdentityAvatar } from '@components/identity/IdentityAvatar';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
-import { Identity } from '@model/identity/identity';
+import { RegularIdentity } from '@model/regular-identity/regular-identity';
 import { useToast } from "@services/feedback.service";
 import { activeIdentity$ } from '@services/identity/identity.events';
 import { shortenDID } from '@services/identity/identity.utils';
 import { FC, useEffect } from 'react';
 
 export const IdentityCellLeft: FC<{
-  identity: Identity;
+  identity: RegularIdentity;
   show: boolean;
 }> = ({ identity, show }) => {
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const { showSuccessToast } = useToast()
-  const [name] = useBehaviorSubject(identity.get("profile").name$)
+  const [name] = useBehaviorSubject(identity.profile().name$)
 
   useEffect(() => {
     if (show && activeIdentity == identity) {

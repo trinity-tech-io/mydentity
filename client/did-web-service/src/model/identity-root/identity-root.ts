@@ -1,6 +1,7 @@
 import { gql } from "@apollo/client";
 import { gqlMnemonicFields } from "@graphql/mnemonic.fields";
 import { Identity } from "@model/identity/identity";
+import { identityFromJson } from "@model/identity/identity-builder";
 import { MnemonicDTO } from "@model/identity/mnemonic.dto";
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
@@ -18,15 +19,15 @@ export class IdentityRoot {
   // Local bindings
   public provider: IdentityProvider;
 
-  public static async fromJson(json: IdentityRootDTO, provider: IdentityProvider=null): Promise<IdentityRoot> {
+  public static async fromJson(json: IdentityRootDTO, provider: IdentityProvider = null): Promise<IdentityRoot> {
     const identityRoot = new IdentityRoot();
     Object.assign(identityRoot, json);
 
+    identityRoot.provider = provider;
     identityRoot.createdAt = new Date(json.createdAt);
 
-    identityRoot.Identity = await Promise.all(json.Identity.map(identity => Identity.fromJson(identity)));
+    identityRoot.Identity = await Promise.all(json.Identity.map(identityJson => identityFromJson(identityJson, identityRoot.provider)));
 
-    identityRoot.provider = provider;
     return identityRoot;
   }
 

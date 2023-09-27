@@ -8,7 +8,7 @@ import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { logger } from "@services/logger";
 import { AdvancedBehaviorSubject } from "@utils/advanced-behavior-subject";
-import { IdentityFeature } from "../identity-feature";
+import { IdentityFeature } from "../../../identity/features/identity-feature";
 import { RecordRequestedCredentialsInput } from "./record-requested-credentials.input";
 
 export class ApplicationsFeature implements IdentityFeature {

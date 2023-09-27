@@ -50,8 +50,8 @@ type ComparatorMethod = (a: ProfileCredential, b: ProfileCredential) => number;
 const Profile: FC = () => {
   const TAG = "ProfilePage";
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
-  const credentialsFeature = activeIdentity?.get("credentials");
-  const identityProfileFeature = activeIdentity?.get("profile");
+  const credentialsFeature = activeIdentity?.credentials();
+  const identityProfileFeature = activeIdentity?.profile();
   const [credentials] = useBehaviorSubject(identityProfileFeature?.profileCredentials$); // All profile credentials of this identity
   const { mounted } = useMounted();
   const router = useRouter()
