@@ -6,10 +6,10 @@ import { MnemonicDTO } from "@model/identity/mnemonic.dto";
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { IdentityProvider } from "@services/identity/did.provider";
-import { IdentityRootDTO } from "./identity-root.dto";
+import { RootIdentityDTO } from "./root-identity.dto";
 
 
-export class IdentityRoot {
+export class RootIdentity {
   id: string;
   didStoreRootIdentityId: string;
   userId: string;
@@ -19,30 +19,30 @@ export class IdentityRoot {
   // Local bindings
   public provider: IdentityProvider;
 
-  public static async fromJson(json: IdentityRootDTO, provider: IdentityProvider = null): Promise<IdentityRoot> {
-    const identityRoot = new IdentityRoot();
-    Object.assign(identityRoot, json);
+  public static async fromJson(json: RootIdentityDTO, provider: IdentityProvider=null): Promise<RootIdentity> {
+    const rootIdentity = new RootIdentity();
+    Object.assign(rootIdentity, json);
 
-    identityRoot.provider = provider;
-    identityRoot.createdAt = new Date(json.createdAt);
+    rootIdentity.createdAt = new Date(json.createdAt);
 
-    identityRoot.Identity = await Promise.all(json.Identity.map(identityJson => identityFromJson(identityJson, identityRoot.provider)));
+    rootIdentity.Identity = await Promise.all(json.Identity.map(identity => identityFromJson(identity, provider)));
 
-    return identityRoot;
+    rootIdentity.provider = provider;
+    return rootIdentity;
   }
 
-  async exportMnemonic(identityRootId: string): Promise<string> {
+  async exportMnemonic(rootIdentityId: string): Promise<string> {
     const result = await withCaughtAppException(async () => {
       return (await getApolloClient()).mutate<{ exportMnemonic: MnemonicDTO }>({
         mutation: gql`
-        mutation exportMnemonic($identityRootId: String!) {
-          exportMnemonic(identityRootId: $identityRootId) {
+        mutation exportMnemonic($rootIdentityId: String!) {
+          exportMnemonic(rootIdentityId: $rootIdentityId) {
             ${gqlMnemonicFields}
           }
         }
       `,
         variables: {
-          identityRootId
+          rootIdentityId
         }
       });
     });

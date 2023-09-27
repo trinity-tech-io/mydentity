@@ -2,11 +2,11 @@ import { gql } from "@apollo/client";
 import { logger } from "@elastosfoundation/elastos-connectivity-sdk-js";
 import { gqlIdentityFields } from "@graphql/identity.fields";
 import { gqlRootIdentityFields } from "@graphql/root-identity.fields";
-import { IdentityRoot } from "@model/identity-root/identity-root";
-import { IdentityRootDTO } from "@model/identity-root/identity-root.dto";
 import type { Identity } from "@model/identity/identity";
 import { IdentityType } from "@model/identity/identity-type";
 import type { IdentityDTO } from "@model/identity/identity.dto";
+import { RootIdentity } from "@model/root-identity/root-identity";
+import { RootIdentityDTO } from "@model/root-identity/root-identity.dto";
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { IdentityProvider, IdentityProviderIdentity } from "@services/identity/did.provider";
@@ -91,9 +91,9 @@ export class IdentityModule implements IdentityProviderIdentity {
     return null;
   }
 
-  async listRootIdentities(): Promise<IdentityRoot[]> {
+  async listRootIdentities(): Promise<RootIdentity[]> {
     const result = await withCaughtAppException(async () => {
-      return (await getApolloClient()).query<{ listRootIdentities: IdentityRootDTO[] }>({
+      return (await getApolloClient()).query<{ listRootIdentities: RootIdentityDTO[] }>({
         query: gql`
         query listRootIdentities {
           listRootIdentities {
@@ -105,9 +105,9 @@ export class IdentityModule implements IdentityProviderIdentity {
     });
 
     if (result?.data?.listRootIdentities) {
-      const identityRoots = await Promise.all(result.data.listRootIdentities.map(identityRoot => IdentityRoot.fromJson(identityRoot)));
-      logger.log("custodial-provider", "Fetched root identities:", identityRoots);
-      return identityRoots;
+      const rootIdentities = await Promise.all(result.data.listRootIdentities.map(rootIdentity => RootIdentity.fromJson(rootIdentity, this.provider)));
+      logger.log("custodial-provider", "Fetched root identities:", rootIdentities);
+      return rootIdentities;
     }
 
     return null;

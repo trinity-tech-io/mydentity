@@ -1,8 +1,8 @@
 import { IdentityPublicationStatusResult } from "@model/identity-publication/identity-publication-status.dto";
-import { IdentityRoot } from "@model/identity-root/identity-root";
 import { Identity } from "@model/identity/identity";
 import { IdentityType } from "@model/identity/identity-type";
 import { RegularIdentity } from "@model/regular-identity/regular-identity";
+import { RootIdentity } from "@model/root-identity/root-identity";
 import { CustodialDIDProvider } from "./custodial/custodial-did.provider";
 import { activeIdentity$ } from "./identity.events";
 
@@ -130,7 +130,7 @@ class IdentityService {
   /**
    * Returns the list of root identities
    */
-  public async listRootIdentities(): Promise<IdentityRoot[]> {
+  public async listRootIdentities(): Promise<RootIdentity[]> {
     return this.provider.identity.listRootIdentities();
   }
 

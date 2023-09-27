@@ -3,12 +3,13 @@ import { Credential } from "@model/credential/credential";
 import { IdentityPublicationStatusResult } from "@model/identity-publication/identity-publication-status.dto";
 import { Identity } from "@model/identity/identity";
 import { IdentityType } from "@model/identity/identity-type";
+import { RootIdentity } from "@model/root-identity/root-identity";
 
 export interface IdentityProviderIdentity {
   createIdentity(name: string, identityType: IdentityType, hiveVaultProvider?: string): Promise<Identity>;
   deleteIdentity(identityDid: string): Promise<boolean>;
   listIdentities(): Promise<Identity[]>;
-  listRootIdentities(): Promise<any[]>;
+  listRootIdentities(): Promise<RootIdentity[]>;
 }
 
 export interface IdentityProviderCredentials {
