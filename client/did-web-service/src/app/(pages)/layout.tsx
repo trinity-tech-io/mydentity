@@ -67,8 +67,9 @@ const EntryLayout: FC<{ children: ReactNode }> = ({ children }) => {
   const isSigninPage = pathname.startsWith("/signin");
   return (
     <main
-      className={`container relative ${isSigninPage ? "bg-black" : "landing-bg"
-        } min-h-screen min-w-full px-4 pt-8 pb-[86px] md:px-12 md:pt-12`}
+      className={`container relative ${
+        isSigninPage ? "bg-black" : "landing-bg"
+      } min-h-screen min-w-full px-4 pt-8 pb-[86px] md:px-12 md:pt-12`}
     >
       {isSigninPage && (
         <div className="absolute w-full md:w-1/2 h-[70%] bottom-0 right-0">
@@ -90,7 +91,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }): React.JSX.Element {
-  const pathname = usePathname();
+  const pathname = usePathname(); // Get current route
   const LayoutMain = checkIfStringStartsWith(pathname, EntryRoutes)
     ? EntryLayout
     : LayoutCore;

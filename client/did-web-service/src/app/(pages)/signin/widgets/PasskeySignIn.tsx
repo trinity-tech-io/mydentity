@@ -24,10 +24,10 @@ const PasskeySignIn: FC = () => {
     <DarkButton
       id="signin-pk"
       className="w-full"
-      startIcon={<ReactIcon icon="" />}
+      startIcon={<ReactIcon icon="material-symbols:passkey" />}
       onClick={signInWithPasskey}
     >
-      🔐 Sign in with Passkey
+      Sign in with Passkey
     </DarkButton>
   )
 }

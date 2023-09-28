@@ -50,3 +50,7 @@ export function converGenderFullName(str?: string): string {
 export function checkIfStringStartsWith(str: string, substrs: string[]): boolean {
   return substrs.some(substr => str.startsWith(substr));
 }
+
+export function checkIfStringEqualsWith(str: string, substrs: string[]): boolean {
+  return substrs.some(substr => str == substr);
+}

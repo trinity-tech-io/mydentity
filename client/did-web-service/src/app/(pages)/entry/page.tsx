@@ -4,7 +4,7 @@ import { useMediaQuery, useTheme } from "@mui/material";
 import { PortraitCard } from "@components/card";
 import TextBarcode from "@components/text-barcode/TextBarcode";
 import { DarkButton } from "@components/button";
-import { useRouter } from "next/navigation";
+import { useRouter } from 'next13-progressbar';
 
 const EntryPage: FC = () => {
   const router = useRouter();
@@ -70,6 +70,7 @@ const EntryPage: FC = () => {
           }
           footer={
             <DarkButton
+              id="signin-btn"
               color="primary"
               className="w-4/5 md:w-3/5"
               value="dashboard"
@@ -107,6 +108,7 @@ const EntryPage: FC = () => {
           }
           footer={
             <DarkButton
+              id="signup-btn"
               color="primary"
               className="w-4/5 md:w-3/5"
               value="register"
