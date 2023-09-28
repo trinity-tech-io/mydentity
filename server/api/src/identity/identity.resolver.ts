@@ -7,6 +7,7 @@ import { CurrentBrowser } from 'src/browsers/browser-user.decorator';
 import { AddServiceInput } from './dto/add-service.input';
 import { CreateIdentityInput } from './dto/create-identity.input';
 import { CreateManagedIdentityInput } from './dto/create-managed-identity.input';
+import { SetCredentialVisibilityInput } from './dto/credential-visibility.input';
 import { PublicationStatusInput } from './dto/publication-status.input';
 import { PublishIdentityInput } from './dto/publish-identity.input';
 import { RemoveServiceInput } from './dto/remove-service.input';
@@ -104,5 +105,12 @@ export class IdentityResolver {
   async getLocalDIDDocument(@Args('identityDid') identityDid: string, @CurrentUser() user: User) {
     await this.identityService.ensureOwnedIdentity(identityDid, user);
     return this.identityService.getLocalDIDDocument(identityDid, user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => Boolean)
+  async setCredentialVisibility(@Args('input') input: SetCredentialVisibilityInput, @CurrentUser() user: User, @CurrentBrowser() browser: Browser) {
+    await this.identityService.ensureOwnedIdentity(input.identityDid, user);
+    return this.identityService.setCredentialVisibility(input, user, browser);
   }
 }

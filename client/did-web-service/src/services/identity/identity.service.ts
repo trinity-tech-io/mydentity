@@ -1,3 +1,4 @@
+import { Document } from "@model/document/document";
 import { IdentityPublicationStatusResult } from "@model/identity-publication/identity-publication-status.dto";
 import { Identity } from "@model/identity/identity";
 import { IdentityType } from "@model/identity/identity-type";
@@ -141,7 +142,7 @@ class IdentityService {
     return this.provider.document.removeDIDDocumentService(identityDid, id);
   }
 
-  public getLocalDIDDocument(identityDid: string): Promise<any> {
+  public getLocalDIDDocument(identityDid: string): Promise<Document> {
     return this.provider.document.getLocalDIDDocument(identityDid);
   }
 }

@@ -174,6 +174,52 @@ export class DidService {
     return didStore.deleteCredential(credentialId);
   }
 
+  /**
+   * We can publish the credential if the credential is added to the did document.
+   */
+  async addCredentialToDIDDocument(context: string, didString: string, credentialId: string, storePassword: string) {
+    try {
+      const didStore = await this.openStore(context);
+      const didDocument = await didStore.loadDid(didString);
+      if (!didDocument)
+        throw new AppException(DIDExceptionCode.DIDDoesNotExist, "Can't load did:" + didString, HttpStatus.NOT_FOUND);
+
+      const credential = await didStore.loadCredential(credentialId, storePassword);
+      const docBuilder = DIDDocument.Builder.newFromDocument(didDocument).edit();
+      const newDoc = await (await docBuilder.addCredential(credential)).seal(storePassword);
+      await didStore.storeDid(newDoc);
+    } catch (e) {
+      if (e instanceof Exceptions.CredentialAlreadyExistException) {
+        // Do nothing
+      } else {
+        throw new AppException(DIDExceptionCode.DIDStorageError, e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+    }
+  }
+
+  /**
+   * We don't publish the credential if the credential is removed from the did document.
+   * The credential is still stored in didstore, so we can load it.
+   */
+  async removeCredentialFromDIDDocument(context: string, didString: string, credentialId: string, storePassword: string) {
+    try {
+      const didStore = await this.openStore(context);
+      const didDocument = await didStore.loadDid(didString);
+      if (!didDocument)
+        throw new AppException(DIDExceptionCode.DIDDoesNotExist, "Can't load did:" + didString, HttpStatus.NOT_FOUND);
+
+      const docBuilder = DIDDocument.Builder.newFromDocument(didDocument).edit();
+      const newDoc = await (await docBuilder.removeCredential(credentialId)).seal(storePassword);
+      await didStore.storeDid(newDoc);
+    } catch (e) {
+      if (e instanceof Exceptions.DIDObjectNotExistException) {
+        // Do nothing
+      } else {
+        throw new AppException(DIDExceptionCode.DIDStorageError, e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+    }
+  }
+
   async createVerifiablePresentationFromCredentials(context: string, didString: string,
     vc: VerifiableCredential[], nonce: string, realm: string, storepass: string) {
     const didStore = await this.openStore(context);

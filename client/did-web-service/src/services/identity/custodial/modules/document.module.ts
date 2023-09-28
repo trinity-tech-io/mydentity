@@ -7,6 +7,7 @@ import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { IdentityProviderDocument } from "@services/identity/did.provider";
 import { AddServiceInput } from "@services/identity/dto/add-service.input.dto";
+import { SetCredentialVisibilityInput } from "@services/identity/dto/credential-visibility.input.dto";
 import { RemoveServiceInput } from "@services/identity/dto/remove-service.input.dto";
 
 export class DocumentModule implements IdentityProviderDocument {
@@ -98,7 +99,31 @@ export class DocumentModule implements IdentityProviderDocument {
     throw new Error("Method not implemented.");
   }
 
-  setCredentialVisibility(credentialId: string, visible: boolean): Promise<void> {
-    throw new Error("Method not implemented.");
+  async setCredentialVisibility(identityDid: string, credentialId: string, visible: boolean): Promise<boolean> {
+      const input: SetCredentialVisibilityInput = {
+        identityDid,
+        credentialId,
+        visible,
+      };
+
+      const result = await withCaughtAppException(async () => {
+        return (await getApolloClient()).mutate<{ setCredentialVisibility: boolean }>({
+          mutation: gql`
+            mutation setCredentialVisibility($input: SetCredentialVisibilityInput!) {
+              setCredentialVisibility(input: $input)
+            }
+          `,
+          variables: {
+            input
+          }
+        });
+      });
+
+      if (result?.data?.setCredentialVisibility) {
+        return true;
+      }
+      else {
+        throw new Error("Failed to set credential visibility");
+      }
   }
 }

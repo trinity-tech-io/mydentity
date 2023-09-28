@@ -68,7 +68,7 @@ export interface IdentityProviderDocument {
    * If the credential is made visible, the DID document will contain it and after publishing,
    * the credential will be publicly discoverable.
    */
-  setCredentialVisibility(credentialId: string, visible: boolean): Promise<void>;
+  setCredentialVisibility(identityDid: string, credentialId: string, visible: boolean): Promise<boolean>;
 
   /**
    * Adds a new service to the local DID document.

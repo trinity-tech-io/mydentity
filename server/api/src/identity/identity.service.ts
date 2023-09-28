@@ -13,6 +13,7 @@ import { ActivityService } from "../activity/activity.service";
 import { AddServiceInput } from './dto/add-service.input';
 import { CreateIdentityInput } from './dto/create-identity.input';
 import { CreateManagedIdentityInput } from './dto/create-managed-identity.input';
+import { SetCredentialVisibilityInput } from './dto/credential-visibility.input';
 import { RemoveServiceInput } from './dto/remove-service.input';
 import { IdentityPublicationState } from './model/identity-publication-state';
 
@@ -259,6 +260,21 @@ export class IdentityService {
     return {
       didDocument: didDocument.toString()
     }
+  }
+
+  async setCredentialVisibility(input: SetCredentialVisibilityInput, user: User, browser: Browser) {
+    const storePassword = this.getDIDStorePassword(user?.id, browser?.id);
+
+    const credential = await this.credentialsService.findOne(input.credentialId);
+    if (!credential)
+      throw new AppException(DIDExceptionCode.DIDStorageError, "the credential is not exist", HttpStatus.INTERNAL_SERVER_ERROR);
+
+    if (input.visible) {
+      await this.didService.addCredentialToDIDDocument(user?.id, input.identityDid, credential.credentialId, storePassword);
+    } else {
+      await this.didService.removeCredentialFromDIDDocument(user?.id, input.identityDid, credential.credentialId, storePassword);
+    }
+    return true;
   }
 
 
