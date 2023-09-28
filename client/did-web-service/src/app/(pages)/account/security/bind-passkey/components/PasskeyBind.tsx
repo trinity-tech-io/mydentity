@@ -46,7 +46,7 @@ export const PasskeyBind: FC = () => {
 
   return (
     <Box className="inline-flex flex-col justify-center items-center">
-      <div className="w-full py-4">
+      <div className="w-full pb-6">
         <DarkButton
           id="bind-ms"
           className="w-full"

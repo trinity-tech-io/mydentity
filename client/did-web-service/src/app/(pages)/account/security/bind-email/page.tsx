@@ -12,7 +12,7 @@ const BindEmail: FC = () => {
                 title="Bind your account to an email address"
                 description="Verify one of your existing email addresses and bind it to your account with a password. You can later use your email and password to sign in and unlock access to your identity."
             />
-            <div className="w-full flex justify-center py-[10%]">
+            <div className="w-full flex justify-center py-[6%]">
                 <EmailAuthComponent />
             </div>
             <div className="absolute w-full md:w-2/3 h-[65%] bottom-0 right-0 overflow-hidden z-[-1]">

@@ -81,6 +81,40 @@ const MacBookStyled = styled(Card)(({ theme }) => ({
     },
   },
 }));
+
+const MobileStyled = styled(Card)(({ theme }) => ({
+  maxWidth: 100,
+  minWidth: 60,
+  backgroundColor: "#1E1E1F",
+  borderRadius: "0.6rem",
+  "&:after": {
+    paddingTop: "217%",
+    display: "block",
+    content: "''",
+  },
+  ".body": {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    right: 0,
+    left: 0,
+    padding: "3%",
+    ".camera": {
+      div: {
+        background: "#1E1E1F",
+        "&:after": {
+          paddingTop: "100%",
+          display: "block",
+          content: "''",
+        },
+      },
+    },
+    ".screen": {
+      borderRadius: "0.5rem",
+      background: "url('../../device-bg.png') repeat center center / cover",
+    },
+  },
+}));
 const BindPassKey: FC = () => {
   return (
     <>
@@ -97,7 +131,7 @@ const BindPassKey: FC = () => {
           </>
         }
       />
-      <div className="w-full flex flex-col items-center justify-center py-[10%]">
+      <div className="w-full flex flex-col items-center justify-center py-[6%]">
         <div className="flex items-center">
           <div className="px-[8%]">
             <IPadStyled className="inline-block rounded-3xl relative">
@@ -110,7 +144,7 @@ const BindPassKey: FC = () => {
             </IPadStyled>
           </div>
           <div className="text-[#DDD]">
-            <div className="inline-flex">
+            <div className="inline-flex pb-1">
               <IconAvatar>
                 <SecurityIcon fontSize="small" />
               </IconAvatar>
@@ -139,6 +173,18 @@ const BindPassKey: FC = () => {
               </div>
             </MacBookStyled>
           </div>
+        </div>
+        <div className="flex items-center my-[5%]">
+          <MobileStyled className="inline-block rounded-3xl relative">
+            <div className="body">
+              <div className="relative">
+                <div className="camera w-full absolute right-0 top-1 flex items-center justify-center">
+                  <div className="w-[5%] rounded-full"></div>
+                </div>
+              </div>
+              <div className="screen h-full" />
+            </div>
+          </MobileStyled>
         </div>
         <PasskeyBind />
       </div>
