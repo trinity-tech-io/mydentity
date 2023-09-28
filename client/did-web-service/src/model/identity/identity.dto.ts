@@ -5,4 +5,5 @@ export type IdentityDTO = {
   createdAt: string; // ISO date
   lastUsedAt: string; // ISO date
   type: IdentityType;
+  identityRootId: string;
 }

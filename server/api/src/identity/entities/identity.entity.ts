@@ -14,4 +14,7 @@ export class IdentityEntity {
 
   @Field(() => GraphQLISODateTime)
   lastUsedAt: string;
+
+  @Field(() => String)
+  identityRootId: string;
 }

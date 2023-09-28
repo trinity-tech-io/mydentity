@@ -3,4 +3,5 @@ export const gqlIdentityFields = `
   type
   createdAt
   lastUsedAt
+  identityRootId
 `;
