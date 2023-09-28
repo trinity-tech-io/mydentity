@@ -33,7 +33,7 @@ export class IdentityService {
 
   async create(createIdentityInput: CreateIdentityInput, user: User, browser: Browser): Promise<Identity> {
     const storePassword = this.getDIDStorePassword(user?.id, browser?.id);
-    return this.createIdentityInternal(user.id, storePassword, createIdentityInput.identityType, user, createIdentityInput.hiveVaultProvider);
+    return this.createIdentityInternal(user.id, storePassword, createIdentityInput.identityType, createIdentityInput.rootIdentityId, user, createIdentityInput.hiveVaultProvider);
   }
 
   /**
@@ -52,7 +52,7 @@ export class IdentityService {
   /**
   * @param context sandboxing context for DID storage
   */
-  private async createIdentityInternal(context: string, storePassword: string, type: IdentityType = IdentityType.REGULAR, user?: User, hiveVaultProvider?: string): Promise<Identity> {
+  private async createIdentityInternal(context: string, storePassword: string, type: IdentityType = IdentityType.REGULAR, rootIdentityId?: string, user?: User, hiveVaultProvider?: string): Promise<Identity> {
     let rootIdentity: RootIdentity = null;
     let didDocument: DIDDocument = null;
     let identityDid: string = null;
@@ -84,18 +84,23 @@ export class IdentityService {
     const derivationIndex = rootIdentity.getIndex() - 1;
     this.logger.log('Creating DID at index ' + derivationIndex);
 
-    const identityRoot = await this.prisma.identityRoot.create({
-      data: {
-        ...(user && { user: { connect: { id: user.id } } }),
-        didStoreRootIdentityId: rootIdentity.getId()
-      }
-    });
+    // check the rootIdentityId?
+    if (!rootIdentityId) {
+      const identityRoot = await this.prisma.identityRoot.create({
+        data: {
+          ...(user && { user: { connect: { id: user.id } } }),
+          didStoreRootIdentityId: rootIdentity.getId()
+        }
+      });
+
+      rootIdentityId = identityRoot.id;
+    }
 
     const identity = await this.prisma.identity.create({
       data: {
         did: identityDid,
         type, // regular user, or application identity
-        identityRoot: { connect: { id: identityRoot.id } },
+        identityRoot: { connect: { id: rootIdentityId } },
         derivationIndex: derivationIndex,
         ...(user && { user: { connect: { id: user.id } } }),
         publicationId: "",

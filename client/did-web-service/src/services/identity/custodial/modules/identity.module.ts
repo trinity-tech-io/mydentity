@@ -15,11 +15,12 @@ import { logger } from "@services/logger";
 export class IdentityModule implements IdentityProviderIdentity {
   constructor(public provider: IdentityProvider) { }
 
-  async createIdentity(name: string, identityType: IdentityType, hiveVaultProvider: string): Promise<Identity> {
+  async createIdentity(name: string, identityType: IdentityType, hiveVaultProvider: string, rootIdentityId: string = null): Promise<Identity> {
     const input: CreateIdentityInput = {
       name,
       hiveVaultProvider,
-      identityType
+      identityType,
+      rootIdentityId
     };
 
     const result = await withCaughtAppException(async () => {
