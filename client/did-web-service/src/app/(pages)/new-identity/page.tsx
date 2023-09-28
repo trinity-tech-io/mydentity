@@ -1,8 +1,9 @@
 "use client";
+import { FC, useState } from "react";
 import { CreateIdentity } from "@components/identity-creation/CreateIdentity";
 import { useMounted } from "@hooks/useMounted";
 import { useRouter } from "next/navigation";
-import { FC, useState } from "react";
+import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { authUser$ } from "@services/user/user.events";
 import { Identity } from "@model/identity/identity";
@@ -13,6 +14,8 @@ import DetailLine from "@components/feature/DetailLine";
 import ChipIcon from "@assets/images/chip.svg";
 import CardIcon from "@assets/images/card/card.svg";
 import IdentityCaseIcon from "@assets/images/identity-case.svg";
+import { DarkButton } from "@components/button";
+import { Button } from "@mui/material";
 
 const NewIdentityPage: FC = () => {
   const { mounted } = useMounted();
@@ -116,6 +119,24 @@ const NewIdentityPage: FC = () => {
              multiple identities to meet
              your needs and purposes."
           />
+        </div>
+      </div>
+      <div className="flex justify-center">
+        <div className="inline-flex flex-col gap-2">
+          <DarkButton
+            id="bind-ms"
+            className="w-full"
+            // onClick={startAction}
+          >
+            COOL! LET'S GET STARTED!
+          </DarkButton>
+          <Button
+            sx={{ color: "#9D3E3E", textDecoration: "underline" }}
+            endIcon={<KeyboardArrowRightIcon />}
+            //  onClick={onSkip}
+          >
+            Not now. I'm just checking things out
+          </Button>
         </div>
       </div>
     </>
