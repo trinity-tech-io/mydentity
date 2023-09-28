@@ -8,8 +8,11 @@ import { authUser$ } from "@services/user/user.events";
 import { Identity } from "@model/identity/identity";
 import { usePostSignInFlow } from "@services/flow.service";
 import Headline from "@components/layout/Headline";
-import { CardCase, CaseWrapper, LandingCard } from "@components/card";
-import clsx from "clsx";
+import { CardCase, LandingCard } from "@components/card";
+import DetailLine from "@components/feature/DetailLine";
+import ChipIcon from "@assets/images/chip.svg";
+import CardIcon from "@assets/images/card/card.svg";
+import IdentityCaseIcon from "@assets/images/identity-case.svg";
 
 const NewIdentityPage: FC = () => {
   const { mounted } = useMounted();
@@ -36,44 +39,83 @@ const NewIdentityPage: FC = () => {
       />
       <CreateIdentity onIdentityCreated={onIdentityCreated} />
       <div className="w-full flex justify-center py-4">
-        <div className="w-1/2 max-w-md">
-          <CardCase className="relative w-full md:pb-2">
-            <div className="absolute inset-0 p-2">
-              <div className="dashed-body w-full h-full rounded-2xl p-1.5">
-                <div className="flex flex-col h-full">
-                  <div className="basis-[11%] overflow-hidden">
-                    <LandingCard className="w-full bg-[#523E21]" />
-                  </div>
-                  <div className="basis-[50%] overflow-hidden pt-2 relative">
-                    <LandingCard className="w-full bg-neutral-950" />
-                    <div className="compartment absolute bottom-0" />
-                  </div>
-                  <div className="basis-[39%] flex items-center">
-                    <div className="px-[10%] pb-4 w-full">
-                      {/* <FormControlStyled fullWidth>
-                        <label
-                          htmlFor="holder-name"
-                          className="text-white text-[10px]"
-                        >
-                          ACCOUNT NAME
-                        </label>
-                        <Input
-                          id="holder-name"
-                          inputProps={{
-                            maxLength: 30,
-                          }}
-                          startAdornment={
-                            <InputAdornment position="start"></InputAdornment>
-                          }
-                          onChange={handleInputName}
-                        />
-                      </FormControlStyled> */}
+        <div className="flex flex-col max-w-sm flex-1">
+          <DetailLine
+            icon={
+              <div className="w-4 h-4 flex justify-center">
+                <ChipIcon />
+              </div>
+            }
+            title="THE CHIP"
+            description="Your credentials, such as your date of birth and country, are accessible within your identity."
+          />
+          <div className="flex-1" />
+          <DetailLine
+            icon={
+              <div className="w-4 h-4 flex justify-center">
+                <IdentityCaseIcon width="100%" />
+              </div>
+            }
+            title="THE CARD HOLDER"
+            description="This serves as your primary account
+            for managing all your identities."
+          />
+        </div>
+        <div className="flex-1 flex justify-center">
+          <div className="w-full max-w-md">
+            <CardCase className="relative w-full md:pb-2">
+              <div className="absolute inset-0 p-2">
+                <div className="dashed-body w-full h-full rounded-2xl p-1.5">
+                  <div className="flex flex-col h-full">
+                    <div className="basis-[11%] overflow-hidden">
+                      <LandingCard className="w-full bg-[#523E21]" />
+                    </div>
+                    <div className="basis-[50%] overflow-hidden pt-2 relative">
+                      <LandingCard className="w-full bg-neutral-950" />
+                      <div className="compartment absolute bottom-0" />
+                    </div>
+                    <div className="basis-[39%] flex items-center">
+                      <div className="px-[10%] pb-4 w-full">
+                        {/* <FormControlStyled fullWidth>
+                            <label
+                              htmlFor="holder-name"
+                              className="text-white text-[10px]"
+                            >
+                              ACCOUNT NAME
+                            </label>
+                            <Input
+                              id="holder-name"
+                              inputProps={{
+                                maxLength: 30,
+                              }}
+                              startAdornment={
+                                <InputAdornment position="start"></InputAdornment>
+                              }
+                              onChange={handleInputName}
+                            />
+                          </FormControlStyled> */}
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </CardCase>
+            </CardCase>
+          </div>
+        </div>
+        <div className="flex-1 max-w-sm">
+          <DetailLine
+            className="text-right"
+            icon={
+              <div className="w-4 h-4 flex justify-center">
+                <CardIcon />
+              </div>
+            }
+            title="THE IDENTITY CARD"
+            description="The virtual card represents your
+            unique identity. You can generate
+             multiple identities to meet
+             your needs and purposes."
+          />
         </div>
       </div>
     </>

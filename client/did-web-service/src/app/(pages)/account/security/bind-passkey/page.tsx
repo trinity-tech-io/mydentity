@@ -1,19 +1,13 @@
 "use client";
 import { FC } from "react";
 import SecurityIcon from "@mui/icons-material/Security";
-import { Avatar, Card, Stack, Typography, styled } from "@mui/material";
+import { Card, styled } from "@mui/material";
 import PasskeyBind from "./components/PasskeyBind";
 import Headline from "@components/layout/Headline";
 import EllipseBg from "@components/layout/EllipseBg";
 import W3Icon from "@assets/images/www-circle.svg";
+import DetailLine from "@components/feature/DetailLine";
 
-const IconAvatar = styled(Avatar)(({ theme }) => ({
-  backgroundColor: "#9D3E3E",
-  color: "white",
-  width: "100%",
-  height: "100%",
-  padding: 8,
-}));
 const IPadStyled = styled(Card)(({ theme }) => ({
   maxWidth: 300,
   minWidth: 180,
@@ -143,24 +137,13 @@ const BindPassKey: FC = () => {
               </div>
             </IPadStyled>
           </div>
-          <div className="text-[#DDD]">
-            <div className="inline-flex pb-1">
-              <IconAvatar>
-                <SecurityIcon fontSize="small" />
-              </IconAvatar>
-            </div>
-            <Typography
-              variant="body1"
-              className="underline underline-offset-2"
-            >
-              ENHANCE YOUR SECURITY
-            </Typography>
-            <Typography variant="body2">
-              Increase your chances of recovery in case one of your devices is
+          <DetailLine
+            icon={<SecurityIcon fontSize="small" />}
+            title="ENHANCE YOUR SECURITY"
+            description="Increase your chances of recovery in case one of your devices is
               compromised by binding additional devices like your mobile phone,
-              tablet, and laptop.
-            </Typography>
-          </div>
+              tablet, and laptop."
+          />
           <div className="px-[8%]">
             <MacBookStyled className="inline-block rounded-3xl relative">
               <div className="body">

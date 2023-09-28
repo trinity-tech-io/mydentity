@@ -1,0 +1,34 @@
+import { FC, ReactNode } from "react";
+import { Avatar, Typography, styled } from "@mui/material";
+
+const IconAvatar = styled(Avatar)(({ theme }) => ({
+  backgroundColor: "#9D3E3E",
+  color: "white",
+  width: "100%",
+  height: "100%",
+  padding: 8,
+}));
+
+interface DetailLineType {
+  icon: ReactNode;
+  title: string;
+  description: string;
+  className?: string;
+}
+const DetailLine: FC<DetailLineType> = ({
+  icon,
+  title,
+  description,
+  className = "",
+}) => (
+  <div className={`text-[#DDD] ${className}`}>
+    <div className="inline-flex pb-1">
+      <IconAvatar>{icon}</IconAvatar>
+    </div>
+    <Typography variant="body1" className="underline underline-offset-2">
+      {title}
+    </Typography>
+    <Typography variant="body2">{description}</Typography>
+  </div>
+);
+export default DetailLine;

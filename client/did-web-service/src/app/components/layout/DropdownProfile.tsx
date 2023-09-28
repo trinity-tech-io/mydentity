@@ -82,7 +82,7 @@ export const DropdownUserProfile: FC<{
     <div className="relative inline-flex">
       <ListItemButton onClick={() => onIconClick()}>
         <ListItemIcon>
-          <Avatar sx={{ bgcolor: '#9D3E3E' }}><IdentityCaseIcon /></Avatar>
+          <Avatar sx={{ padding: '0.5rem', bgcolor: '#9D3E3E', color: '#DDD' }}><IdentityCaseIcon /></Avatar>
         </ListItemIcon>
         <ListItemText primary={
           <span className="text-base font-medium">Hi {userName}!</span>

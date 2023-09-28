@@ -1,11 +1,11 @@
-import { FC } from 'react';
+import { FC } from "react";
 import { useRouter } from "next/navigation";
-import { Icon as ReactIcon } from '@iconify/react';
-import { DarkButton } from '@components/button';
+import { Icon as ReactIcon } from "@iconify/react";
+import { DarkButton } from "@components/button";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
-import { Box, Link } from '@mui/material';
+import { Box, Link } from "@mui/material";
 import { useToast } from "@services/feedback.service";
-import { FlowOperation, getOnGoingFlowOperation } from '@services/flow.service';
+import { FlowOperation, getOnGoingFlowOperation } from "@services/flow.service";
 import { authUser$ } from "@services/user/user.events";
 
 export const PasskeyBind: FC = () => {
@@ -42,7 +42,7 @@ export const PasskeyBind: FC = () => {
         }, 200);
       }
     }
-  }
+  };
 
   return (
     <Box className="inline-flex flex-col justify-center items-center">
@@ -57,10 +57,18 @@ export const PasskeyBind: FC = () => {
         </DarkButton>
       </div>
       <span className="text-[11px] font-extralight text-center opacity-50">
-        Binding an account means you agree to the<br />
-        <Link href="#" color="inherit"><span className="font-medium">Privacy Policy</span></Link> and <Link href="#" color="inherit"><span className="font-medium">Terms of Service</span></Link>.
+        Binding an account means you agree to the
+        <br />
+        <Link href="#" color="inherit">
+          <span className="font-medium">Privacy Policy</span>
+        </Link>{" "}
+        and{" "}
+        <Link href="#" color="inherit">
+          <span className="font-medium">Terms of Service</span>
+        </Link>
+        .
       </span>
     </Box>
   );
-}
+};
 export default PasskeyBind;
