@@ -1,5 +1,5 @@
 "use client";
-import { FC, useRef, useState } from "react";
+import { FC, useRef, useState, ReactNode } from "react";
 import { CreateIdentity } from "@components/identity-creation/CreateIdentity";
 import { useMounted } from "@hooks/useMounted";
 import { useRouter } from "next/navigation";
@@ -15,13 +15,8 @@ import ChipIcon from "@assets/images/chip.svg";
 import CardIcon from "@assets/images/card/card.svg";
 import IdentityCaseIcon from "@assets/images/identity-case.svg";
 import { DarkButton } from "@components/button";
-import {
-  Button,
-  FormControl,
-  Input,
-  InputAdornment,
-  styled,
-} from "@mui/material";
+import { Button, FormControl, Input, Zoom, styled } from "@mui/material";
+import { motion } from "framer-motion";
 import clsx from "clsx";
 
 const IdentityForm = styled("div")(({ theme }) => ({
@@ -114,13 +109,68 @@ const FormControlStyled = styled(FormControl)(({ theme }) => ({
   },
 }));
 
+const AnimatedTextWord: FC<{ text: string }> = ({ text }) => {
+  const words = text.split(" ");
+
+  // Variants for Container of words.
+  const container = {
+    hidden: { opacity: 0 },
+    visible: (i = 1) => ({
+      opacity: 1,
+      transition: { staggerChildren: 0.03 },
+    }),
+  };
+
+  const child = {
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        type: "spring",
+        damping: 12,
+        // stiffness: 100,
+      },
+    },
+    hidden: {
+      opacity: 0,
+      x: 20,
+      transition: {
+        type: "spring",
+        damping: 12,
+        // stiffness: 100,
+      },
+    },
+  };
+
+  return (
+    <motion.div
+      style={{ wordBreak: "break-all" }}
+      variants={container}
+      initial="hidden"
+      animate="visible"
+    >
+      {words.map((word, index) => (
+        <motion.span
+          variants={child}
+          style={{ marginRight: "5px", display: "inline-block" }}
+          key={index}
+        >
+          {word}
+        </motion.span>
+      ))}
+    </motion.div>
+  );
+};
+
 const NewIdentityPage: FC = () => {
   const { mounted } = useMounted();
   const router = useRouter();
   const [activeUser] = useBehaviorSubject(authUser$);
+  const [holderName, setHolderName] = useState("");
   const { navigateToPostSignInLandingPage } = usePostSignInFlow();
   const [visibleInputForm, setVisibleInputForm] = useState(false);
   const nameInputRef = useRef(null);
+  const enabledButtonState = holderName.trim().length > 0;
 
   const showProfile = (): void => {
     navigateToPostSignInLandingPage("/profile");
@@ -136,38 +186,54 @@ const NewIdentityPage: FC = () => {
       nameInputRef.current.focus();
     }, 1000);
   };
+
+  const createAction = (): void => {
+  };
+
+  const handleInputName: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    setHolderName(e.target.value);
+  };
+
   if (!mounted) return null;
 
   return (
     <>
       <Headline
         title="Create a new identity"
-        description="Creating an identity opens up the door to constructing a credible online persona, complete with authentic credentials, for diverse digital endeavors. To illustrate, envision the virtual card holder as your primary account and the virtual card as your digital identity, where each credential securely resides within the embedded chip."
+        description={
+          visibleInputForm ? (
+            <AnimatedTextWord text="Welcome to the identity creation process, a sophisticated journey where you'll meticulously craft a distinct digital persona. Through credentials, you will shape an online presence uniquely tailored to your objectives. Please enter your identity name below to embark on this exciting journey." />
+          ) : (
+            "Creating an identity opens up the door to constructing a credible online persona, complete with authentic credentials, for diverse digital endeavors. To illustrate, envision the virtual card holder as your primary account and the virtual card as your digital identity, where each credential securely resides within the embedded chip."
+          )
+        }
       />
       <CreateIdentity onIdentityCreated={onIdentityCreated} />
       <div className="w-full flex justify-center py-4">
-        <div className="w-[30%] flex flex-col max-w-sm">
-          <DetailLine
-            icon={
-              <div className="w-4 h-4 flex justify-center">
-                <ChipIcon />
-              </div>
-            }
-            title="THE CHIP"
-            description="Your credentials, such as your date of birth and country, are accessible within your identity."
-          />
-          <div className="flex-1" />
-          <DetailLine
-            icon={
-              <div className="w-4 h-4 flex justify-center">
-                <IdentityCaseIcon width="100%" />
-              </div>
-            }
-            title="THE CARD HOLDER"
-            description="This serves as your primary account
-            for managing all your identities."
-          />
-        </div>
+        <Zoom in={!visibleInputForm}>
+          <div className="w-[30%] flex flex-col max-w-sm">
+            <DetailLine
+              icon={
+                <div className="w-4 h-4 flex justify-center">
+                  <ChipIcon />
+                </div>
+              }
+              title="THE CHIP"
+              description="Your credentials, such as your date of birth and country, are accessible within your identity."
+            />
+            <div className="flex-1" />
+            <DetailLine
+              icon={
+                <div className="w-4 h-4 flex justify-center">
+                  <IdentityCaseIcon width="100%" />
+                </div>
+              }
+              title="THE CARD HOLDER"
+              description="This serves as your primary account
+                for managing all your identities."
+            />
+          </div>
+        </Zoom>
         <div className="w-2/5 flex-1 flex justify-center">
           <div className="w-full max-w-md">
             <CardCase className="relative w-full md:pb-2">
@@ -219,7 +285,7 @@ const NewIdentityPage: FC = () => {
                           ref: nameInputRef,
                         }}
                         startAdornment={<div />}
-                        // onChange={handleInputName}
+                        onChange={handleInputName}
                       />
                     </FormControlStyled>
                   </LandingCard>
@@ -228,34 +294,49 @@ const NewIdentityPage: FC = () => {
             </CardCase>
           </div>
         </div>
-        <div className="w-[30%] max-w-sm">
-          <DetailLine
-            className="text-right"
-            icon={
-              <div className="w-4 h-4 flex justify-center">
-                <CardIcon />
-              </div>
-            }
-            title="THE IDENTITY CARD"
-            description="The virtual card represents your
-            unique identity. You can generate
-             multiple identities to meet
-             your needs and purposes."
-          />
-        </div>
+        <Zoom in={!visibleInputForm}>
+          <div className="w-[30%] max-w-sm">
+            <DetailLine
+              className="text-right"
+              icon={
+                <div className="w-4 h-4 flex justify-center">
+                  <CardIcon />
+                </div>
+              }
+              title="THE IDENTITY CARD"
+              description="The virtual card represents your
+              unique identity. You can generate
+              multiple identities to meet
+              your needs and purposes."
+            />
+          </div>
+        </Zoom>
       </div>
       <div className="flex justify-center">
         <div className="inline-flex flex-col gap-2">
-          <DarkButton id="bind-ms" className="w-full" onClick={startAction}>
-            COOL! LET'S GET STARTED!
-          </DarkButton>
-          <Button
-            sx={{ color: "#9D3E3E", textDecoration: "underline" }}
-            endIcon={<KeyboardArrowRightIcon />}
-            //  onClick={onSkip}
-          >
-            Not now. I'm just checking things out
-          </Button>
+          {visibleInputForm ? (
+            <DarkButton
+              id="bind-ms"
+              className="w-full"
+              onClick={createAction}
+              disabled={!enabledButtonState}
+            >
+              CREATE IDENTITY
+            </DarkButton>
+          ) : (
+            <DarkButton id="bind-ms" className="w-full" onClick={startAction}>
+              COOL! LET'S GET STARTED!
+            </DarkButton>
+          )}
+          <Zoom in={!visibleInputForm}>
+            <Button
+              sx={{ color: "#9D3E3E", textDecoration: "underline" }}
+              endIcon={<KeyboardArrowRightIcon />}
+              //  onClick={onSkip}
+            >
+              Not now. I'm just checking things out
+            </Button>
+          </Zoom>
         </div>
       </div>
     </>
