@@ -33,17 +33,19 @@ const CardStyled = styled(Box)(({ theme }) => ({
   },
 }));
 
-const LandingCard: FC<{ className?: string; children?: ReactNode; footer?: ReactNode; waveIconVisible?: boolean }> = ({
+const LandingCard: FC<{ className?: string; children?: ReactNode; footer?: ReactNode; waveIconVisible?: boolean; position?: string }> = ({
   className = "",
   waveIconVisible = true,
+  position = "relative",
   children,
   footer
 }) => {
   return (
     <CardStyled
       className={clsx(
-        "inline-block border-white border-opacity-30 border-2 relative drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]",
-        className
+        "inline-block border-white border-opacity-30 border-2 drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]",
+        className,
+        position
       )}
     >
       <div className="body noise-bg">

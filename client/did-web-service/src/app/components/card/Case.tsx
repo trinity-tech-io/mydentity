@@ -46,14 +46,16 @@ export const CardCase = styled(Card)(({ theme }) => ({
   ".dashed-body": {
     border: "2px dashed rgb(50 38 38)",
   },
-  ".compartment": {
+  ".compartment, .compartment-top": {
     backgroundImage: "url('./dark-leather.png')",
     backgroundColor: "black",
     width: "100%",
-    height: "33%",
+  },
+  ".compartment-top": {
+    height: "18%",
     "--mask1":
       "radial-gradient(circle at 50% -20%, transparent 25%, black 25.5%)",
     WebkitMaskImage: "var(--mask1)",
     maskImage: "var(--mask1)",
-  },
+  }
 }));

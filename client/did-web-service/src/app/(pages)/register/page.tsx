@@ -283,30 +283,30 @@ const RegisterPage: FC = () => {
                       <div className="basis-[11%] overflow-hidden">
                         <LandingCard className="w-full bg-[#523E21]" />
                       </div>
-                      <div className="basis-[50%] overflow-hidden pt-2 relative">
+                      <div className="basis-[89%] overflow-hidden pt-2 relative">
                         <LandingCard className="w-full bg-neutral-950" />
-                        <div className="compartment absolute bottom-0" />
-                      </div>
-                      <div className="basis-[39%] flex items-center">
-                        <div className="px-[10%] pb-4 w-full">
-                          <FormControlStyled fullWidth>
-                            <label
-                              htmlFor="holder-name"
-                              className="text-white text-[10px]"
-                            >
-                              ACCOUNT NAME
-                            </label>
-                            <Input
-                              id="holder-name"
-                              inputProps={{
-                                maxLength: 30,
-                              }}
-                              startAdornment={
-                                <InputAdornment position="start"></InputAdornment>
-                              }
-                              onChange={handleInputName}
-                            />
-                          </FormControlStyled>
+                        <div className="compartment-top absolute bottom-[45%]" />
+                        <div className="compartment absolute bottom-0 h-[45%]">
+                          <div className="px-[10%] py-4 w-full">
+                            <FormControlStyled fullWidth>
+                              <label
+                                htmlFor="holder-name"
+                                className="text-white text-[10px]"
+                              >
+                                ACCOUNT NAME
+                              </label>
+                              <Input
+                                id="holder-name"
+                                inputProps={{
+                                  maxLength: 30,
+                                }}
+                                startAdornment={
+                                  <InputAdornment position="start"></InputAdornment>
+                                }
+                                onChange={handleInputName}
+                              />
+                            </FormControlStyled>
+                          </div>
                         </div>
                       </div>
                     </div>

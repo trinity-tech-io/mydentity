@@ -42,7 +42,7 @@ const NewIdentityPage: FC = () => {
       />
       <CreateIdentity onIdentityCreated={onIdentityCreated} />
       <div className="w-full flex justify-center py-4">
-        <div className="flex flex-col max-w-sm flex-1">
+        <div className="w-[30%] flex flex-col max-w-sm">
           <DetailLine
             icon={
               <div className="w-4 h-4 flex justify-center">
@@ -64,7 +64,7 @@ const NewIdentityPage: FC = () => {
             for managing all your identities."
           />
         </div>
-        <div className="flex-1 flex justify-center">
+        <div className="w-2/5 flex-1 flex justify-center">
           <div className="w-full max-w-md">
             <CardCase className="relative w-full md:pb-2">
               <div className="absolute inset-0 p-2">
@@ -73,30 +73,30 @@ const NewIdentityPage: FC = () => {
                     <div className="basis-[11%] overflow-hidden">
                       <LandingCard className="w-full bg-[#523E21]" />
                     </div>
-                    <div className="basis-[50%] overflow-hidden pt-2 relative">
-                      <LandingCard className="w-full bg-neutral-950" />
-                      <div className="compartment absolute bottom-0" />
-                    </div>
-                    <div className="basis-[39%] flex items-center">
-                      <div className="px-[10%] pb-4 w-full">
-                        {/* <FormControlStyled fullWidth>
-                            <label
-                              htmlFor="holder-name"
-                              className="text-white text-[10px]"
-                            >
-                              ACCOUNT NAME
-                            </label>
-                            <Input
-                              id="holder-name"
-                              inputProps={{
-                                maxLength: 30,
-                              }}
-                              startAdornment={
-                                <InputAdornment position="start"></InputAdornment>
-                              }
-                              onChange={handleInputName}
-                            />
-                          </FormControlStyled> */}
+                    <div className="basis-[89%] mt-2 relative">
+                      <LandingCard className="w-full h-full bg-neutral-950 absolute" position="absolute"/>
+                      <div className="compartment-top absolute bottom-[45%]" />
+                      <div className="compartment absolute bottom-0 h-[45%]">
+                        <div className="px-[10%] pb-4 w-full">
+                          {/* <FormControlStyled fullWidth>
+                              <label
+                                htmlFor="holder-name"
+                                className="text-white text-[10px]"
+                              >
+                                ACCOUNT NAME
+                              </label>
+                              <Input
+                                id="holder-name"
+                                inputProps={{
+                                  maxLength: 30,
+                                }}
+                                startAdornment={
+                                  <InputAdornment position="start"></InputAdornment>
+                                }
+                                onChange={handleInputName}
+                              />
+                            </FormControlStyled> */}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -105,7 +105,7 @@ const NewIdentityPage: FC = () => {
             </CardCase>
           </div>
         </div>
-        <div className="flex-1 max-w-sm">
+        <div className="w-[30%] max-w-sm">
           <DetailLine
             className="text-right"
             icon={
