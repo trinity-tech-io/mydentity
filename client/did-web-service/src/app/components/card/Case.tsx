@@ -57,5 +57,22 @@ export const CardCase = styled(Card)(({ theme }) => ({
       "radial-gradient(circle at 50% -20%, transparent 25%, black 25.5%)",
     WebkitMaskImage: "var(--mask1)",
     maskImage: "var(--mask1)",
-  }
+  },
+  "@keyframes fadeOut": {
+    "0%": {
+      visibility: "visible",
+    },
+    "55%": {
+      visibility: "visible",
+    },
+    "56%, 100%": {
+      visibility: "hidden",
+    },
+  },
+  ".fade-out": {
+    animation: `fadeOut 1s ${theme.transitions.easing.easeInOut} forwards`,
+    MsAnimation: `fadeOut 1s ${theme.transitions.easing.easeInOut} forwards`,
+    WebkitAnimation: `fadeOut 1s ${theme.transitions.easing.easeInOut} forwards`,
+    MozAnimation: `fadeOut 1s ${theme.transitions.easing.easeInOut} forwards`,
+  },
 }));

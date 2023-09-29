@@ -15,14 +15,70 @@ import ChipIcon from "@assets/images/chip.svg";
 import CardIcon from "@assets/images/card/card.svg";
 import IdentityCaseIcon from "@assets/images/identity-case.svg";
 import { DarkButton } from "@components/button";
-import { Button } from "@mui/material";
+import { Button, Input, InputAdornment, styled } from "@mui/material";
+import clsx from "clsx";
 
+const IdentityForm = styled("div")(({ theme }) => ({
+  perspective: 600,
+  "@keyframes takeOut": {
+    "0%": {
+      top: 0,
+    },
+    "25%": {
+      WebkitTransform: "rotateX(0deg)",
+      transform: "rotateX(0deg)",
+      left: 0,
+      right: 0,
+    },
+    "45%": {
+      top: "-70%",
+    },
+    "55%, 100%": {
+      top: "-70%",
+      WebkitTransform: "rotateX(20deg)",
+      transform: "rotateX(20deg)",
+      left: "calc(-0.375rem - 2px)",
+      right: "calc(-0.375rem - 2px)",
+    },
+  },
+  "@keyframes comeOut": {
+    "0%, 55%": {
+      top: "calc((100% - 2 * 8px) * 0.89 * -0.7 + (100% - 2 * 8px) * 0.11 + 16px + 0.375rem + 2px)",
+      width: "calc(100% - 2 * 8px)",
+      WebkitTransform: "rotateX(20deg)",
+      transform: "rotateX(20deg)",
+      visibility: "hidden",
+      left: 8,
+      right: 8,
+    },
+    "100%": {
+      top: "8%",
+      visibility: "visible",
+      WebkitTransform: "rotateX(0deg)",
+      transform: "rotateX(0deg)",
+      left: 0,
+      right: 0,
+    },
+  },
+  ".take-out": {
+    animation: `takeOut 1s ${theme.transitions.easing.easeInOut} forwards`,
+    MsAnimation: `takeOut 1s ${theme.transitions.easing.easeInOut} forwards`,
+    WebkitAnimation: `takeOut 1s ${theme.transitions.easing.easeInOut} forwards`,
+    MozAnimation: `takeOut 1s ${theme.transitions.easing.easeInOut} forwards`,
+  },
+  ".come-out": {
+    animation: `comeOut 1s ${theme.transitions.easing.easeInOut} forwards`,
+    MsAnimation: `comeOut 1s ${theme.transitions.easing.easeInOut} forwards`,
+    WebkitAnimation: `comeOut 1s ${theme.transitions.easing.easeInOut} forwards`,
+    MozAnimation: `comeOut 1s ${theme.transitions.easing.easeInOut} forwards`,
+  },
+}));
 const NewIdentityPage: FC = () => {
   const { mounted } = useMounted();
   const router = useRouter();
   const [activeUser] = useBehaviorSubject(authUser$);
   const { navigateToPostSignInLandingPage } = usePostSignInFlow();
-  const [visibleNextForm, setVisibleNextForm] = useState(false);
+  const [visibleInputForm, setVisibleInputForm] = useState(false);
 
   const showProfile = (): void => {
     navigateToPostSignInLandingPage("/profile");
@@ -32,6 +88,9 @@ const NewIdentityPage: FC = () => {
     showProfile();
   };
 
+  const startAction = (): void => {
+    setVisibleInputForm(true);
+  };
   if (!mounted) return null;
 
   return (
@@ -68,13 +127,24 @@ const NewIdentityPage: FC = () => {
           <div className="w-full max-w-md">
             <CardCase className="relative w-full md:pb-2">
               <div className="absolute inset-0 p-2">
-                <div className="dashed-body w-full h-full rounded-2xl p-1.5">
+                <div
+                  className={clsx(
+                    "dashed-body w-full h-full rounded-2xl p-1.5",
+                    visibleInputForm ? "fade-out" : ""
+                  )}
+                >
                   <div className="flex flex-col h-full">
                     <div className="basis-[11%] overflow-hidden">
                       <LandingCard className="w-full bg-[#523E21]" />
                     </div>
-                    <div className="basis-[89%] mt-2 relative">
-                      <LandingCard className="w-full h-full bg-neutral-950 absolute" position="absolute"/>
+                    <IdentityForm className="basis-[89%] mt-2 relative">
+                      <LandingCard
+                        className={clsx(
+                          "min-w-full w-auto h-full bg-neutral-950",
+                          visibleInputForm ? "take-out" : ""
+                        )}
+                        position="absolute"
+                      />
                       <div className="compartment-top absolute bottom-[45%]" />
                       <div className="compartment absolute bottom-0 h-[45%]">
                         <div className="px-[10%] pb-4 w-full">
@@ -98,9 +168,20 @@ const NewIdentityPage: FC = () => {
                             </FormControlStyled> */}
                         </div>
                       </div>
-                    </div>
+                    </IdentityForm>
                   </div>
                 </div>
+                <IdentityForm className="absolute h-full left-0 right-0 top-0">
+                  <LandingCard
+                    className={clsx(
+                      "w-auto h-auto bg-neutral-950 top-0 left-0 right-0 invisible",
+                      visibleInputForm ? "come-out" : ""
+                    )}
+                    position="absolute"
+                  >
+
+                  </LandingCard>
+                </IdentityForm>
               </div>
             </CardCase>
           </div>
@@ -123,11 +204,7 @@ const NewIdentityPage: FC = () => {
       </div>
       <div className="flex justify-center">
         <div className="inline-flex flex-col gap-2">
-          <DarkButton
-            id="bind-ms"
-            className="w-full"
-            // onClick={startAction}
-          >
+          <DarkButton id="bind-ms" className="w-full" onClick={startAction}>
             COOL! LET'S GET STARTED!
           </DarkButton>
           <Button
