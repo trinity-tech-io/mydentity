@@ -18,9 +18,9 @@ import { SecretBox } from 'src/crypto/secretbox';
 import { AppException } from 'src/exceptions/app-exception';
 import { KeyRingExceptionCode } from 'src/exceptions/exception-codes';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { ActivityService } from "../activity/activity.service";
 import { AuthKeyInput } from './dto/auth-key-input';
 import { AuthChallengeEntity } from './entities/auth-challenge.entity';
-import { ActivityService } from "../activity/activity.service";
 
 @Injectable()
 export class KeyRingService {
@@ -250,7 +250,10 @@ export class KeyRingService {
     return SecretBox.decryptWithPassword(encryptedSecretKey, password);
   }
 
-  async bindKey(newKey: AuthKeyInput, browser: Browser, user: User): Promise<UserShadowKey> {
+  async bindKey(newKey: AuthKeyInput, browserOrId: Browser | string, user: User): Promise<UserShadowKey> {
+    const browserId = browserOrId && (typeof browserOrId === "string" ? browserOrId : browserOrId.id);
+    const browser = browserOrId && (typeof browserOrId === "string" ? null : browserOrId);
+
     const shadow = await this.prisma.userShadowKey.findFirst({
       where: {
         userId: user.id
@@ -260,7 +263,7 @@ export class KeyRingService {
     let secretKey: Uint8Array;
     if (shadow) {
       // KeyRing exists, get the cached secret key if authorized
-      const masterKey = this.getMasterKey(user.id, browser.id);
+      const masterKey = this.getMasterKey(user.id, browserId);
       if (masterKey === undefined)
         throw new AppException(KeyRingExceptionCode.Unauthorized, "User unauthorized", HttpStatus.FORBIDDEN);
 
@@ -298,12 +301,14 @@ export class KeyRingService {
       key = newKey.key;
     }
 
-    const result = await this.addShadowKey(user.id, newKey.keyId, key, credentialId, counter, newKey.type, secretKey, browser.id);
+    const result = await this.addShadowKey(user.id, newKey.keyId, key, credentialId, counter, newKey.type, secretKey, browserId);
 
-    if (newKey.type === UserShadowKeyType.WEBAUTHN)
-      await this.activityService.createActivity(user, {type: ActivityType.BIND_BROWSER, browserId: browser.id, browserName: browser.name});
-    else if (newKey.type === UserShadowKeyType.PASSWORD)
-      await this.activityService.createActivity(user, {type: ActivityType.NEW_ACCOUNT, browserId: browser.id, browserName: browser.name});
+    if (browser) { // Possibly bo browser given if we come from API creation
+      if (newKey.type === UserShadowKeyType.WEBAUTHN)
+        await this.activityService.createActivity(user, { type: ActivityType.BIND_BROWSER, browserId: browser.id, browserName: browser.name });
+      else if (newKey.type === UserShadowKeyType.PASSWORD)
+        await this.activityService.createActivity(user, { type: ActivityType.NEW_ACCOUNT, browserId: browser.id, browserName: browser.name });
+    }
 
     return result;
   }
@@ -373,7 +378,7 @@ export class KeyRingService {
       isolationLevel: Prisma.TransactionIsolationLevel.Serializable
     });
 
-    await this.activityService.createActivity(user, {type: ActivityType.PASSWORD_CHANGED});
+    await this.activityService.createActivity(user, { type: ActivityType.PASSWORD_CHANGED });
 
     return keys;
   }

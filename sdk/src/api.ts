@@ -6,15 +6,19 @@ type GraphqlResponse<ResponseType> = {
   data: ResponseType;
 }
 
-export async function gqlQuery<ResponseType extends object>(methodName: string, query: string, variables?: unknown): Promise<ResponseType> {
+export async function gqlQuery<ResponseType extends object>(methodName: string, query: string, variables?: unknown, additionalHeaders?: Record<string, string>): Promise<ResponseType> {
   const endpoint = `${runtimeSettings.webServiceAPIEndpoint}/graphql`;
+
+  const developerToken = runtimeSettings.accessKey;
 
   let jsonResponse: GraphqlResponse<ResponseType>;
   try {
     const result = await fetch(endpoint, {
       method: 'POST',
       headers: new Headers({
-        "content-type": "application/json"
+        "content-type": "application/json",
+        ...(developerToken && { "x-developer-key": developerToken }),
+        ...(additionalHeaders && { ...additionalHeaders })
       }),
       body: JSON.stringify({ query, variables })
     });

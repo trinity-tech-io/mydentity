@@ -1,6 +1,8 @@
 import { DIDDocument, RootIdentity } from '@elastosfoundation/did-js-sdk';
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
-import { ActivityType, Browser, Identity, IdentityType, User } from '@prisma/client/main';
+import { JwtService } from '@nestjs/jwt';
+import { ActivityType, Browser, Identity, IdentityType, User, UserShadowKeyType } from '@prisma/client/main';
+import { AuthService } from 'src/auth/auth.service';
 import { CredentialsService } from 'src/credentials/credentials.service';
 import { AssistTransactionStatus, DIDPublishingService } from 'src/did-publishing/did-publishing.service';
 import { DidService } from 'src/did/did.service';
@@ -8,13 +10,16 @@ import { AppException } from 'src/exceptions/app-exception';
 import { AuthExceptionCode, DIDExceptionCode } from 'src/exceptions/exception-codes';
 import { KeyRingService } from 'src/key-ring/key-ring.service';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { UserService } from 'src/user/user.service';
 import { uuid } from 'uuidv4';
 import { ActivityService } from "../activity/activity.service";
 import { AddServiceInput } from './dto/add-service.input';
 import { CreateIdentityInput } from './dto/create-identity.input';
-import { CreateManagedIdentityInput } from './dto/create-managed-identity.input';
 import { SetCredentialVisibilityInput } from './dto/credential-visibility.input';
 import { RemoveServiceInput } from './dto/remove-service.input';
+import { ManagedIdentityStatusEntity } from './entities/managed-identity-status.entity';
+import { IdentityAccessInfo } from './model/identity-access-info';
+import { IdentityAccessTokenPayload } from './model/identity-access-token-payload';
 import { IdentityPublicationState } from './model/identity-publication-state';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -28,26 +33,16 @@ export class IdentityService {
     private credentialsService: CredentialsService,
     private didPublishingService: DIDPublishingService,
     private didService: DidService,
+    private userService: UserService,
+    private authService: AuthService,
     private keyRingService: KeyRingService,
+    private jwtService: JwtService,
     private activityService: ActivityService) {
   }
 
   async create(createIdentityInput: CreateIdentityInput, user: User, browser: Browser): Promise<Identity> {
     const storePassword = this.getDIDStorePassword(user?.id, browser?.id);
     return this.createIdentityInternal(user.id, storePassword, createIdentityInput.identityType, createIdentityInput.rootIdentityId, user, createIdentityInput.hiveVaultProvider);
-  }
-
-  /**
-   * Creates a new orphan identity (no user attached). This is used to easily create identities
-   * remotely by third party apps. This returns a token that can be used to manage the identity
-   * (ie: transfer to a user during claim).
-   *
-   * If the token is lost, the identity is orphan forever.
-   */
-  async createManaged(input: CreateManagedIdentityInput): Promise<Identity> {
-    const storePassword = "12345"; // TODO: check with jingyu for master key access from remote management token
-    const context = uuid(); // Unique
-    return this.createIdentityInternal(context, storePassword);
   }
 
   /**
@@ -241,8 +236,8 @@ export class IdentityService {
     const storePassword = this.getDIDStorePassword(user?.id, browser?.id);
 
     await this.didService.addService(user.id, addServiceInput.identityDid,
-        addServiceInput.serviceId, addServiceInput.type, addServiceInput.endpoint,
-        addServiceInput.properties, storePassword);
+      addServiceInput.serviceId, addServiceInput.type, addServiceInput.endpoint,
+      addServiceInput.properties, storePassword);
     return true;
   }
 
@@ -251,7 +246,7 @@ export class IdentityService {
     const storePassword = this.getDIDStorePassword(user?.id, browser?.id);
 
     await this.didService.removeService(user.id, removeServiceInput.identityDid,
-        removeServiceInput.serviceId, storePassword);
+      removeServiceInput.serviceId, storePassword);
     return true;
   }
 
@@ -277,6 +272,86 @@ export class IdentityService {
     return true;
   }
 
+  private getDIDStorePassword(userId: string, browserId: string) {
+    return this.keyRingService.getMasterKey(userId, browserId);
+  }
+
+  /**
+   * Creates a new orphan identity (unmanaged user attached). This is used to easily create identities
+   * remotely by third party apps. This returns a token that can be used to manage the identity
+   * (ie: transfer to a user during claim).
+   *
+   * If the token is lost, the identity is orphan forever.
+   */
+  async createManaged(developer: User): Promise<{ identity: Identity, identityAccessToken: string }> {
+    // Create a temporary user
+    const unmanagedUser = await this.userService.createUnmanagedUser();
+
+    const storePassword = uuid(); // random password that will be stored in the identity token returned to the calling app
+    const context = uuid(); // Unique, used for the DID store storage
+
+    // Create a master key and a password based shadow key. This is used when called by the third party app later to encrypt/decrypt DID stored content such as credentials.
+    await this.keyRingService.bindKey({
+      type: UserShadowKeyType.PASSWORD,
+      keyId: "unused-for-password",
+      key: storePassword
+    }, null, unmanagedUser);
+
+    const identity = await this.createIdentityInternal(context, storePassword, IdentityType.APPLICATION, null, unmanagedUser);
+
+    const identityAccessToken = await this.generateIdentityAccessToken(storePassword, identity.did);
+
+    return {
+      identity,
+      identityAccessToken
+    };
+  }
+
+  /**
+   * Generates an identity access token which contains the random password to
+   * decrypt the identity's master key.
+   */
+  public generateIdentityAccessToken(password: string, identityDID: string): string {
+    const payload: IdentityAccessTokenPayload = {
+      password,
+      identityDID
+    };
+
+    return this.jwtService.sign(payload, {
+      expiresIn: "3650d", // Long expiration time
+    });
+  }
+
+  public async getManagedIdentityStatus(identity: Identity): Promise<ManagedIdentityStatusEntity> {
+    return {
+      // TODO: for now, never claimed
+      claimed: false,
+      createdAt: identity.createdAt.toISOString(),
+      claimedAt: null
+    };
+  }
+
+  public async validateIdentityAccessToken(identityAccessToken: string): Promise<IdentityAccessInfo> {
+    try {
+      const decoded: IdentityAccessTokenPayload = await this.jwtService.verifyAsync(identityAccessToken);
+
+      // Look for the identity related to this access token
+      const identity = await this.prisma.identity.findUnique({
+        where: { did: decoded.identityDID }
+      });
+      if (!identity)
+        throw new AppException(AuthExceptionCode.IdentityNotOwned, "The identity related to the identity access token doesn't exist", 404);
+
+      return {
+        identity,
+        password: decoded.password
+      };
+    }
+    catch (e) {
+      console.error(e)
+      throw new AppException(AuthExceptionCode.WrongAccessToken, "This identity access token is invalid", 401);
+    }
+  }
 
   /**
    * Ensures that the identityDid identity is owned by user and returns the identity.
@@ -295,9 +370,5 @@ export class IdentityService {
     }
 
     return identity;
-  }
-
-  private getDIDStorePassword(userId: string, browserId: string) {
-    return this.keyRingService.getMasterKey(userId, browserId);
   }
 }

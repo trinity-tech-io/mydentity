@@ -13,15 +13,6 @@ import { logger } from "@services/logger";
 import { authUser$ } from "@services/user/user.events";
 import { ChangeEvent, FC, useEffect, useState } from "react";
 
-/*
-
-TODO:
-- upload avatar to hive, display preview, save to app credential
-- when clicking publish:
-    - should upsert the local app credential, make it visible, and publish the did document
-- button to get the mnemonic displayed (not shown by default)
-*/
-
 const ApplicationDetailsPage: FC<{
   params: {
     applicationdid: string;

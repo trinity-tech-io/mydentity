@@ -18,8 +18,8 @@ import { RefreshTokenInput } from "./dto/refresh-token.input";
 import { RefreshTokenOutput } from "./dto/refresh-token.output";
 import { SignUpInput } from './dto/sign-up.input';
 import { UserPropertyInput } from "./dto/user-property.input";
-import { CreatedAccessTokenEntity } from './entities/created-access-token';
-import { DeveloperAccessTokenEntity } from './entities/developer-access-token';
+import { CreatedAccessKeyEntity } from './entities/created-access-token';
+import { DeveloperAccessKeyEntity } from './entities/developer-access-token';
 import { RequestEmailAuthenticationResult } from "./entities/request-email-authentication-result.entity";
 import { UserEmailEntity } from "./entities/user-email.entity";
 import { UserEntity } from './entities/user.entity';
@@ -92,7 +92,7 @@ export class UserResolver {
   @Mutation(() => RefreshTokenOutput)
   async refreshToken(@Args('refreshTokenInput') refreshTokenInput: RefreshTokenInput, @HeaderBrowserKey() browserKey: string, @UserAgent() userAgent: string): Promise<RefreshTokenOutput> {
     try {
-      const user = await this.userService.getUserByToken(refreshTokenInput.refreshToken);
+      const user = await this.userService.getUserByAccessToken(refreshTokenInput.refreshToken);
       return this.userService.refreshAccessToken(user, browserKey, userAgent);
     } catch (e) {
       throw new GraphQLError("Can't refresh token", {
@@ -133,14 +133,14 @@ export class UserResolver {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Mutation(() => CreatedAccessTokenEntity)
-  async createDeveloperAccessToken(@CurrentUser() user: User) {
-    return this.userService.createAccessToken(user);
+  @Mutation(() => CreatedAccessKeyEntity)
+  async createDeveloperAccessKey(@CurrentUser() user: User) {
+    return this.userService.createAccessKey(user);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Query(() => [DeveloperAccessTokenEntity])
-  async developerAccessTokens(@CurrentUser() user: User) {
-    return this.userService.getAccessTokens(user);
+  @Query(() => [DeveloperAccessKeyEntity])
+  async developerAccessKeys(@CurrentUser() user: User) {
+    return this.userService.getAccessKeys(user);
   }
 }

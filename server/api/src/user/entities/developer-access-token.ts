@@ -1,7 +1,7 @@
 import { Field, GraphQLISODateTime, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
-export class DeveloperAccessTokenEntity {
+export class DeveloperAccessKeyEntity {
     @Field()
     id: string;
 

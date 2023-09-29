@@ -1,12 +1,15 @@
-import type { DID, Issuer } from "@elastosfoundation/did-js-sdk";
+import { DID, Issuer, VerifiableCredential } from "@elastosfoundation/did-js-sdk";
 
-const storeId = "client-side-store";
+const storeId = "server-side-store";
 const passphrase = ""; // Mnemonic passphrase
-const storePass = "unsafepass";
+const storePass = "store-password";
 
 /**
  * Simulate the issuer identity (this demo app).
  * The issuer is the entity who generates and signs credentials, for others.
+ * 
+ * TODO: USE APP DID CREATED ON THE DID WEB SERVICE, NOT A FAKE ISSUER
+ * 
  */
 async function loadIssuerIdentity() {
   const { Features, DefaultDIDAdapter, DIDBackend, DIDStore, RootIdentity, Mnemonic, Issuer, VerifiableCredential, DID } = await import("@elastosfoundation/did-js-sdk");
@@ -41,21 +44,22 @@ async function createNameCredential(issuer: Issuer, targetDID: DID) {
   return credential;
 }
 
-export async function importCredentials(targetDidString: string): Promise<void> {
-  console.log("Creating and importing a credential");
+/**
+ * Produces a name and address credentials for the user, signed by this demo app's
+ * DID
+ */
+export async function produceUserCredentials(userDidString: string): Promise<VerifiableCredential[]> {
+  console.log("Producing user credentials");
 
   const { DID } = await import("@elastosfoundation/did-js-sdk");
-  const { didAccessV2 } = await import("@elastosfoundation/elastos-connectivity-sdk-js");
 
   const issuer = await loadIssuerIdentity(); // Credential creator/signer
-  const targetDID = DID.from(targetDidString); // Receiving user
+  const targetDID = DID.from(userDidString); // Receiving user
   console.log("Target DID:", targetDID);
 
   // Create the credentials
   const nameCredential = await createNameCredential(issuer, targetDID);
+  // TODO: other VCs
 
-  // Send the credential to the identity wallet
-  await didAccessV2.importCredentials([
-    nameCredential
-  ]);
+  return [nameCredential];
 }

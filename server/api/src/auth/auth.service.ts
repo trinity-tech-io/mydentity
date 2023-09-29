@@ -6,7 +6,7 @@ import { AuthTokens } from './model/auth-tokens';
 
 @Injectable()
 export class AuthService {
-  private static readonly TOKEN_EXPIRES_IN = '30d'; //30 days
+  public static readonly TOKEN_EXPIRES_IN = '30d'; //30 days
 
   constructor(
     //@Inject(forwardRef(() => UserService)) private usersService: UserService,

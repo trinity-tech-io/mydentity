@@ -1,11 +1,11 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { DeveloperAccessTokenEntity } from './developer-access-token';
+import { DeveloperAccessKeyEntity } from './developer-access-token';
 
 @ObjectType()
-export class CreatedAccessTokenEntity {
-  @Field(() => DeveloperAccessTokenEntity)
-  storedToken: DeveloperAccessTokenEntity;
+export class CreatedAccessKeyEntity {
+  @Field(() => DeveloperAccessKeyEntity)
+  storedKey: DeveloperAccessKeyEntity;
 
   @Field()
-  clearToken: string;
+  clearKey: string;
 }

@@ -24,6 +24,7 @@ const groups: GroupConfig[] = [
     title: "DID Web service",
     links: [
       { title: "DID auth", url: "/didweb/auth" },
+      { title: "Donation demo", url: "/didweb/donation-demo" },
     ]
   },
   {

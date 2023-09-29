@@ -1,15 +1,10 @@
 "use client"
 import { Typography } from "@mui/material";
-import { CreatedManagedIdentity, configure } from "@trinitytech/did-web-service-sdk";
+import { CreatedManagedIdentity } from "@trinitytech/did-web-service-sdk";
 import { FC, useState } from "react";
-import { FormSubmissionStep } from "./FormSubmissionStep";
-import { IntroStep } from "./IntroStep";
+import { FormSubmissionStep } from "./components/FormSubmissionStep";
+import { IntroStep } from "./components/IntroStep";
 import "./style.css";
-
-configure({
-  webServiceEndpoint: process.env.NEXT_PUBLIC_FRONTEND_URL,
-  webServiceAPIEndpoint: process.env.NEXT_PUBLIC_BACKEND_URL,
-});
 
 enum Step {
   Intro,

@@ -1,4 +1,4 @@
-export type DeveloperAccessTokenDTO = {
+export type DeveloperAccessKeyDTO = {
     id: string;
     createdAt: string;
     title?: string;

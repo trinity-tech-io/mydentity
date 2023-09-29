@@ -23,13 +23,13 @@ model User {
   temporaryEmailAuthExpiresAt DateTime? // Date at which temporaryEmailAuthKey becomes invalid and cannot be used to confirm email sign in by magic link.
   temporaryEmail              String? // Temporary email address used to bind to user.
 
-  IdentityRoot         IdentityRoot[]
-  Identity             Identity[]
-  UserShadowKey        UserShadowKey[]
-  Device               Browser[]
-  Activities           Activity[]
-  UserEmails           UserEmail[]
-  DeveloperAccessToken DeveloperAccessToken[]
+  IdentityRoot       IdentityRoot[]
+  Identity           Identity[]
+  UserShadowKey      UserShadowKey[]
+  Device             Browser[]
+  Activities         Activity[]
+  UserEmails         UserEmail[]
+  DeveloperAccessKey DeveloperAccessKey[]
 }
 
 enum UserEmailProvider {
@@ -59,10 +59,10 @@ model IdentityRoot {
   id String @id @unique @default(uuid())
 
   createdAt              DateTime @default(now())
-  user                   User?    @relation(fields: [userId], references: [id], onDelete: Restrict) // Note: user is optionnal only when creating managed identities (from third party apps)
+  user                   User     @relation(fields: [userId], references: [id], onDelete: Restrict)
   didStoreRootIdentityId String // Unique id of the matching RootIdentity in the DID SDK, to retrieve the root mnemonic used to derive new DIDs
 
-  userId   String?
+  userId   String
   Identity Identity[]
 }
 
@@ -77,12 +77,12 @@ model Identity {
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @default(now())
   lastUsedAt      DateTime     @default(now())
-  user            User?        @relation(fields: [userId], references: [id], onDelete: Restrict) // Note: user is optionnal only when creating managed identities (from third party apps)
+  user            User         @relation(fields: [userId], references: [id], onDelete: Restrict)
   identityRoot    IdentityRoot @relation(fields: [identityRootId], references: [id], onDelete: Restrict)
   derivationIndex Int // Informative, for users: index of the DID derivation in the DID SDK
   type            IdentityType @default(REGULAR)
 
-  userId         String?
+  userId         String
   identityRootId String
 
   credentials Credential[]
@@ -267,19 +267,19 @@ model RequestedCredential {
   @@unique([credentialId, interactingApplicationId])
 }
 
-// Developer access token to programatically call our service API from third party apps.
+// Developer access key to programatically call our service API from third party apps.
 // This includes the ability to manage his account, create managed identities for others, issue credentials to manage identities, etc.
-// In theory, a developer can have multiple access tokens, but the UI may allow
-// only one access token at a time initially.
-model DeveloperAccessToken {
+// In theory, a developer can have multiple access keys, but the UI may allow
+// only one access key at a time initially.
+model DeveloperAccessKey {
   id        String   @id @unique @default(uuid())
   createdAt DateTime @default(now())
 
-  user  User    @relation(fields: [userId], references: [id], onDelete: Restrict) // User for which this access token is
-  hash  String // Hashed access token (not in cleartext)
-  title String? // Friendly title for developer to remember what the token is for
+  user  User    @relation(fields: [userId], references: [id], onDelete: Restrict) // User for which this access key is
+  hash  String // Hashed access key (not in cleartext)
+  title String? // Friendly title for developer to remember what the key is for
 
   userId String
 
-  @@unique([hash]) // Very important: make sure 2 tokens don't get the same value by chance, otherwise we would give access to the wrong user.
+  @@unique([hash]) // Very important: make sure 2 keys don't get the same value by chance, otherwise we would give access to the wrong user.
 }

@@ -4,11 +4,15 @@ import { Browser, User } from '@prisma/client/main';
 import { CurrentUser } from 'src/auth/currentuser.decorator';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CurrentBrowser } from 'src/browsers/browser-user.decorator';
+import { IdentityAccessTokenGuard } from 'src/identity/identity-access-token.guard';
+import { IdentityAccess } from 'src/identity/identity-access.decorator';
 import { IdentityService } from 'src/identity/identity.service';
+import { IdentityAccessInfo } from 'src/identity/model/identity-access-info';
 import { CredentialsService } from './credentials.service';
 import { CreateCredentialInput } from './dto/create-credential.input';
 import { CreateVerifiablePresentationInput } from './dto/create-verifiablePresentation.input';
 import { ImportCredentialInput } from './dto/import-credential.input';
+import { ImportManagedIdentityCredentialsInput } from './dto/import-managed-identity-credentials.input';
 import { IssueCredentialInput } from './dto/issue-credential.input';
 import { CredentialEntity } from './entities/credential.entity';
 import { IssueCredentialEntity } from './entities/issueCredential.entity';
@@ -61,5 +65,13 @@ export class CredentialsResolver {
   async createVerifiablePresentation(@Args('input') input: CreateVerifiablePresentationInput, @CurrentUser() user: User, @CurrentBrowser() browser: Browser) {
     await this.identityService.ensureOwnedIdentity(input.identityDid, user);
     return this.credentialsService.createVerifiablePresentation(input, user, browser);
+  }
+
+  @UseGuards(IdentityAccessTokenGuard)
+  @Mutation(() => CredentialEntity)
+  async importManagedIdentityCredentials(@IdentityAccess() identityAccess: IdentityAccessInfo, @Args('input') input: ImportManagedIdentityCredentialsInput) {
+    console.log("import identityAccess", identityAccess)
+    //await this.identityService.ensureOwnedIdentity(importCredentialInput.identityDid, user);
+    //return this.credentialsService.storeCredential(importCredentialInput, user, browser);
   }
 }

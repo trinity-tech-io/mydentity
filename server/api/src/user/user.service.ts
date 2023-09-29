@@ -33,8 +33,6 @@ export class UserService {
    * Creates a user with only a single name (optional).
    */
   public async signUp(input: SignUpInput, existingBrowserKey: string, userAgent: string): Promise<AuthTokens> {
-    // TODO: save name from the input - but cannot generate a VC, this is ok, this is the account profile, not identity profile
-
     const user = await this.prisma.user.create({
       data: {
         name: input.name,
@@ -45,6 +43,24 @@ export class UserService {
     logger.log('user', 'sign up with new user', user);
 
     return this.authService.generateUserCredentials(user, existingBrowserKey, userAgent);
+  }
+
+  /**
+   * Creates a hidden user that nobody can use to sign in, but that can hold temporarily created identities
+   * by the SDK, from third party apps.
+   */
+  public async createUnmanagedUser(): Promise<User> {
+    // TODO: store creating app DID and access token ? (to identity the user account)
+
+    const user = await this.prisma.user.create({
+      data: {
+        createdAt: new Date()
+      }
+    });
+
+    logger.log('user', 'Created a new unmanaged user', user);
+
+    return user;
   }
 
   /**
@@ -281,7 +297,7 @@ export class UserService {
     return this.authService.refreshAccessToken(user, existingBrowserKey, userAgent);
   }
 
-  async getUserByToken(token: string): Promise<User> {
+  async getUserByAccessToken(token: string): Promise<User> {
     const data = this.authService.getTokenPayload(token);
     const user = await this.findOne(data.sub);
     if (!user)
@@ -386,35 +402,50 @@ export class UserService {
   }
 
   /**
-   * Creates a developer access token to be able to remotely access apis
+   * Creates a developer access key to be able to remotely access apis
    */
-  async createAccessToken(user: User) {
-    // Generate an access token (not stored, one time display to user)
-    const clearToken = randomBytes(32).toString('hex');
-    const hashedToken = createHash('sha256').update(clearToken).digest('hex');
+  async createAccessKey(user: User) {
+    // Generate an access key (not stored, one time display to user)
+    const clearKey = randomBytes(32).toString('hex');
+    const hashedKey = createHash('sha256').update(clearKey).digest('hex');
 
-    const storedToken = await this.prisma.developerAccessToken.create({
+    const storedKey = await this.prisma.developerAccessKey.create({
       data: {
         userId: user.id,
         title: "My access key",
-        hash: hashedToken
+        hash: hashedKey
       }
     });
 
     return {
-      storedToken,
-      clearToken
+      storedKey,
+      clearKey
     }
   }
 
   /**
-   * List of access tokens owned by this user for third party app development purpose.
+   * List of access keys owned by this user for third party app development purpose.
    */
-  async getAccessTokens(user: User) {
-    return this.prisma.developerAccessToken.findMany({
+  async getAccessKeys(user: User) {
+    return this.prisma.developerAccessKey.findMany({
       where: {
         userId: user.id
       }
     });
+  }
+
+  public async validateDeveloperAccessKey(developerAccessKey: string): Promise<User> {
+    const keyHash = createHash('sha256').update(developerAccessKey).digest('hex');
+
+    const key = await this.prisma.developerAccessKey.findUnique({
+      where: {
+        hash: keyHash
+      },
+      include: {
+        user: true
+      }
+    });
+
+    return key?.user;
   }
 }

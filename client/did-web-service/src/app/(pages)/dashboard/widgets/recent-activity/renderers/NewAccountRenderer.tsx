@@ -7,7 +7,7 @@ export const NewAccountRenderer: FC<{ activity: Activity }> = ({ activity }) => 
     return (
         <div className='flex flex-row gap-2 items-center'>
             <div>
-                This account created.
+                Account created
             </div>
         </div>
     )

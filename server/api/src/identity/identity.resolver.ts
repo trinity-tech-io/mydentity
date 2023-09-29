@@ -4,6 +4,8 @@ import { Browser, User } from '@prisma/client/main';
 import { CurrentUser } from 'src/auth/currentuser.decorator';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CurrentBrowser } from 'src/browsers/browser-user.decorator';
+import { DeveloperAccessKeyGuard } from 'src/user/developer-access-key.guard';
+import { DeveloperAccess } from 'src/user/developer-access.decorator';
 import { AddServiceInput } from './dto/add-service.input';
 import { CreateIdentityInput } from './dto/create-identity.input';
 import { CreateManagedIdentityInput } from './dto/create-managed-identity.input';
@@ -14,10 +16,14 @@ import { RemoveServiceInput } from './dto/remove-service.input';
 import { DocumentEntity } from './entities/document.entity';
 import { IdentityPublicationStatusEntity } from './entities/identity-publication-status.entity';
 import { IdentityEntity } from './entities/identity.entity';
+import { ManagedIdentityStatusEntity } from './entities/managed-identity-status.entity';
 import { ManagedIdentityEntity } from './entities/managed-identity.entity';
 import { PublishResultEntity } from './entities/publish-result.entity';
 import { TransactionEntity } from './entities/transaction.entity';
+import { IdentityAccessTokenGuard } from './identity-access-token.guard';
+import { IdentityAccess } from './identity-access.decorator';
 import { IdentityService } from './identity.service';
+import { IdentityAccessInfo } from './model/identity-access-info';
 
 @Resolver(() => IdentityEntity)
 export class IdentityResolver {
@@ -74,16 +80,23 @@ export class IdentityResolver {
     return this.identityService.markIdentityInUse(identityDid);
   }
 
+  @UseGuards(DeveloperAccessKeyGuard)
   @Mutation(() => ManagedIdentityEntity)
-  async createManagedIdentity(@Args('input') input: CreateManagedIdentityInput): Promise<ManagedIdentityEntity> {
-    const identity = await this.identityService.createManaged(input);
-    if (!identity)
+  async createManagedIdentity(@DeveloperAccess() developer: User, @Args('input') input: CreateManagedIdentityInput): Promise<ManagedIdentityEntity> {
+    const createdIdentityInfo = await this.identityService.createManaged(developer);
+    if (!createdIdentityInfo)
       return null;
 
     return {
-      accessToken: "1234",
-      did: identity.did
+      identityAccessToken: createdIdentityInfo.identityAccessToken,
+      did: createdIdentityInfo.identity.did
     };
+  }
+
+  @UseGuards(IdentityAccessTokenGuard)
+  @Query(() => ManagedIdentityStatusEntity)
+  getManagedIdentityStatus(@IdentityAccess() identityAccess: IdentityAccessInfo) {
+    return this.identityService.getManagedIdentityStatus(identityAccess.identity);
   }
 
   @UseGuards(JwtAuthGuard)
