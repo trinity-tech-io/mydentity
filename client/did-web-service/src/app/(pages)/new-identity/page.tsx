@@ -1,5 +1,5 @@
 "use client";
-import { FC, useState } from "react";
+import { FC, useRef, useState } from "react";
 import { CreateIdentity } from "@components/identity-creation/CreateIdentity";
 import { useMounted } from "@hooks/useMounted";
 import { useRouter } from "next/navigation";
@@ -15,7 +15,13 @@ import ChipIcon from "@assets/images/chip.svg";
 import CardIcon from "@assets/images/card/card.svg";
 import IdentityCaseIcon from "@assets/images/identity-case.svg";
 import { DarkButton } from "@components/button";
-import { Button, Input, InputAdornment, styled } from "@mui/material";
+import {
+  Button,
+  FormControl,
+  Input,
+  InputAdornment,
+  styled,
+} from "@mui/material";
 import clsx from "clsx";
 
 const IdentityForm = styled("div")(({ theme }) => ({
@@ -73,12 +79,48 @@ const IdentityForm = styled("div")(({ theme }) => ({
     MozAnimation: `comeOut 1s ${theme.transitions.easing.easeInOut} forwards`,
   },
 }));
+
+const FormControlStyled = styled(FormControl)(({ theme }) => ({
+  ".MuiInput-root": {
+    marginTop: 0,
+    "&:before, &:after": {
+      opacity: 0.18,
+      borderColor: "white",
+    },
+  },
+  ".MuiInputBase-root.MuiInput-root:hover:not(.Mui-disabled, .Mui-error)": {
+    "&:before, &:after": {
+      opacity: 0.18,
+      borderColor: "white",
+    },
+  },
+  ".MuiInput-root.Mui-focused": {
+    "&:before, &:after": {
+      opacity: 0.3,
+    },
+  },
+  ".MuiInputLabel-root, .MuiInputLabel-root.Mui-focused:not(.Mui-error)": {
+    color: "white",
+    fontSize: "10px",
+    transform: "unset",
+    WebkitTransform: "unset",
+  },
+  "#holder-name": {
+    paddingBottom: "10%",
+    fontWeight: 600,
+    fontSize: "21pt",
+    caretColor: "white",
+    color: "rgb(255 255 255 / 65%)",
+  },
+}));
+
 const NewIdentityPage: FC = () => {
   const { mounted } = useMounted();
   const router = useRouter();
   const [activeUser] = useBehaviorSubject(authUser$);
   const { navigateToPostSignInLandingPage } = usePostSignInFlow();
   const [visibleInputForm, setVisibleInputForm] = useState(false);
+  const nameInputRef = useRef(null);
 
   const showProfile = (): void => {
     navigateToPostSignInLandingPage("/profile");
@@ -90,6 +132,9 @@ const NewIdentityPage: FC = () => {
 
   const startAction = (): void => {
     setVisibleInputForm(true);
+    setTimeout(() => {
+      nameInputRef.current.focus();
+    }, 1000);
   };
   if (!mounted) return null;
 
@@ -146,28 +191,7 @@ const NewIdentityPage: FC = () => {
                         position="absolute"
                       />
                       <div className="compartment-top absolute bottom-[45%]" />
-                      <div className="compartment absolute bottom-0 h-[45%]">
-                        <div className="px-[10%] pb-4 w-full">
-                          {/* <FormControlStyled fullWidth>
-                              <label
-                                htmlFor="holder-name"
-                                className="text-white text-[10px]"
-                              >
-                                ACCOUNT NAME
-                              </label>
-                              <Input
-                                id="holder-name"
-                                inputProps={{
-                                  maxLength: 30,
-                                }}
-                                startAdornment={
-                                  <InputAdornment position="start"></InputAdornment>
-                                }
-                                onChange={handleInputName}
-                              />
-                            </FormControlStyled> */}
-                        </div>
-                      </div>
+                      <div className="compartment absolute bottom-0 h-[45%]" />
                     </IdentityForm>
                   </div>
                 </div>
@@ -178,8 +202,26 @@ const NewIdentityPage: FC = () => {
                       visibleInputForm ? "come-out" : ""
                     )}
                     position="absolute"
+                    dividerVisible={false}
                   >
-
+                    <FormControlStyled fullWidth>
+                      <label
+                        htmlFor="holder-name"
+                        className="text-white text-[10px]"
+                      >
+                        IDENTITY NAME
+                      </label>
+                      <Input
+                        id="holder-name"
+                        autoFocus={true}
+                        inputProps={{
+                          maxLength: 30,
+                          ref: nameInputRef,
+                        }}
+                        startAdornment={<div />}
+                        // onChange={handleInputName}
+                      />
+                    </FormControlStyled>
                   </LandingCard>
                 </IdentityForm>
               </div>

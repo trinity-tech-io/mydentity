@@ -38,6 +38,7 @@ export const CardCase = styled(Card)(({ theme }) => ({
   backgroundImage: "url('./dark-leather.png')",
   backgroundColor: "black",
   borderRadius: "1.5rem",
+  overflow: "visible",
   "&:after": {
     paddingTop: "73%",
     display: "block",
