@@ -1,8 +1,14 @@
 "use client";
-import { FC, useRef, useState, ReactNode } from "react";
+import React, { FC, useRef, useState, ReactNode } from "react";
+import clsx from "clsx";
+import { first } from "rxjs";
+import { motion } from "framer-motion";
+import { Button, FormControl, Input, Zoom, styled } from "@mui/material";
+import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
+import "react-circular-progressbar/dist/styles.css";
+import { useRouter } from "next/navigation";
 import { CreateIdentity } from "@components/identity-creation/CreateIdentity";
 import { useMounted } from "@hooks/useMounted";
-import { useRouter } from "next/navigation";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { authUser$ } from "@services/user/user.events";
@@ -15,9 +21,8 @@ import ChipIcon from "@assets/images/chip.svg";
 import CardIcon from "@assets/images/card/card.svg";
 import IdentityCaseIcon from "@assets/images/identity-case.svg";
 import { DarkButton } from "@components/button";
-import { Button, FormControl, Input, Zoom, styled } from "@mui/material";
-import { motion } from "framer-motion";
-import clsx from "clsx";
+import { callWithUnlock } from "@components/security/unlock-key-prompt/call-with-unlock";
+import { identityService } from "@services/identity/identity.service";
 
 const IdentityForm = styled("div")(({ theme }) => ({
   perspective: 600,
@@ -161,7 +166,12 @@ const AnimatedTextWord: FC<{ text: string }> = ({ text }) => {
     </motion.div>
   );
 };
-
+const CreatingSteps = [
+  "Creating the secure identity",
+  "Creating credential",
+  "Registering identity",
+  "Creating storage",
+];
 const NewIdentityPage: FC = () => {
   const { mounted } = useMounted();
   const router = useRouter();
@@ -169,8 +179,11 @@ const NewIdentityPage: FC = () => {
   const [holderName, setHolderName] = useState("");
   const { navigateToPostSignInLandingPage } = usePostSignInFlow();
   const [visibleInputForm, setVisibleInputForm] = useState(false);
+  const [creatingIdentity, setCreatingIdentity] = useState(false);
+  const [progressStep, setProgressStep] = useState(0);
   const nameInputRef = useRef(null);
   const enabledButtonState = holderName.trim().length > 0;
+  const progress = (100 * progressStep) / CreatingSteps.length;
 
   const showProfile = (): void => {
     navigateToPostSignInLandingPage("/profile");
@@ -187,11 +200,41 @@ const NewIdentityPage: FC = () => {
     }, 1000);
   };
 
-  const createAction = (): void => {
-  };
-
   const handleInputName: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     setHolderName(e.target.value);
+  };
+
+  const createAction = async (): Promise<void> => {
+    setCreatingIdentity(true);
+    // Create identity for real in the backend
+    const identity = await callWithUnlock(
+      async () =>
+        await activeUser.get("identity").createRegularIdentity(holderName)
+    );
+    setProgressStep(1);
+
+    if (identity) {
+      identityService.setActiveIdentity(identity);
+
+      // First fetch the (empty list of) credentials, this is required to be able to create new credentials.
+      identity
+        .profile()
+        .profileCredentials$.pipe(first((v) => !!v))
+        .subscribe(async () => {
+          // Attach the name as credential, to this new identity
+          await identity.profile().createInitialNameCredential(holderName);
+          setProgressStep(2);
+
+          await identity.publication().awaitIdentityPublished();
+          setProgressStep(3);
+
+          // Prepare the hive vault. This also starts the vault registration is not done yet, through the lazy access of vault status.
+          await identity.hive().awaitHiveVaultReady();
+          setProgressStep(3);
+          setCreatingIdentity(false);
+          onIdentityCreated(identity);
+        });
+    }
   };
 
   if (!mounted) return null;
@@ -269,6 +312,13 @@ const NewIdentityPage: FC = () => {
                     )}
                     position="absolute"
                     dividerVisible={false}
+                    footer={
+                      creatingIdentity && (
+                        <span className="text-[#DDD]">
+                          {CreatingSteps[progressStep]} ...
+                        </span>
+                      )
+                    }
                   >
                     <FormControlStyled fullWidth>
                       <label
@@ -285,10 +335,26 @@ const NewIdentityPage: FC = () => {
                           ref: nameInputRef,
                         }}
                         startAdornment={<div />}
+                        disabled={creatingIdentity}
                         onChange={handleInputName}
                       />
                     </FormControlStyled>
                   </LandingCard>
+                  {creatingIdentity && (
+                    <>
+                      <div className="absolute w-1/4 top-[15%] left-1/2 translate-x-[-50%]">
+                        <CircularProgressbar
+                          value={progress}
+                          text={`${progress}%`}
+                          styles={buildStyles({
+                            textColor: "#DDD",
+                            pathColor: "#673ab7",
+                            trailColor: "#d1cdd9",
+                          })}
+                        />
+                      </div>
+                    </>
+                  )}
                 </IdentityForm>
               </div>
             </CardCase>
@@ -317,9 +383,10 @@ const NewIdentityPage: FC = () => {
           {visibleInputForm ? (
             <DarkButton
               id="bind-ms"
+              loading={creatingIdentity}
               className="w-full"
               onClick={createAction}
-              disabled={!enabledButtonState}
+              disabled={!enabledButtonState || creatingIdentity}
             >
               CREATE IDENTITY
             </DarkButton>
