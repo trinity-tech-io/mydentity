@@ -207,33 +207,50 @@ const NewIdentityPage: FC = () => {
   const createAction = async (): Promise<void> => {
     setCreatingIdentity(true);
     // Create identity for real in the backend
-    const identity = await callWithUnlock(
-      async () =>
-        await activeUser.get("identity").createRegularIdentity(holderName)
-    );
-    setProgressStep(1);
+    try {
+      const identity = await callWithUnlock(() =>
+        activeUser
+          .get("identity")
+          .createRegularIdentity(holderName)
+          .catch(() => {
+            setCreatingIdentity(false);
+            setProgressStep(0);
+          })
+      );
+      if (!identity) return;
 
-    if (identity) {
-      identityService.setActiveIdentity(identity);
+      setProgressStep(1);
 
-      // First fetch the (empty list of) credentials, this is required to be able to create new credentials.
-      identity
-        .profile()
-        .profileCredentials$.pipe(first((v) => !!v))
-        .subscribe(async () => {
-          // Attach the name as credential, to this new identity
-          await identity.profile().createInitialNameCredential(holderName);
-          setProgressStep(2);
+      if (identity) {
+        identityService.setActiveIdentity(identity);
 
-          await identity.publication().awaitIdentityPublished();
-          setProgressStep(3);
+        // First fetch the (empty list of) credentials, this is required to be able to create new credentials.
+        identity
+          .profile()
+          .profileCredentials$.pipe(first((v) => !!v))
+          .subscribe(async () => {
+            try {
+              // Attach the name as credential, to this new identity
+              await identity.profile().createInitialNameCredential(holderName);
+              setProgressStep(2);
 
-          // Prepare the hive vault. This also starts the vault registration is not done yet, through the lazy access of vault status.
-          await identity.hive().awaitHiveVaultReady();
-          setProgressStep(3);
-          setCreatingIdentity(false);
-          onIdentityCreated(identity);
-        });
+              await identity.publication().awaitIdentityPublished();
+              setProgressStep(3);
+
+              // Prepare the hive vault. This also starts the vault registration is not done yet, through the lazy access of vault status.
+              await identity.hive().awaitHiveVaultReady();
+              setProgressStep(3);
+              setCreatingIdentity(false);
+              onIdentityCreated(identity);
+            } catch (e) {
+              setCreatingIdentity(false);
+              setProgressStep(0);
+            }
+          });
+      }
+    } catch (e) {
+      setCreatingIdentity(false);
+      setProgressStep(0);
     }
   };
 
@@ -314,7 +331,7 @@ const NewIdentityPage: FC = () => {
                     dividerVisible={false}
                     footer={
                       creatingIdentity && (
-                        <span className="text-[#DDD]">
+                        <span className="text-[#DDD] text-sm">
                           {CreatingSteps[progressStep]} ...
                         </span>
                       )
