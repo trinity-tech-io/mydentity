@@ -21,6 +21,7 @@ import IdentityCaseIcon from "@assets/images/identity-case.svg";
 import { DarkButton } from "@components/button";
 import { callWithUnlock } from "@components/security/unlock-key-prompt/call-with-unlock";
 import { identityService } from "@services/identity/identity.service";
+import CurvedArrow from "@components/generic/CurvedArrow";
 
 const IdentityForm = styled("div")(({ theme }) => ({
   perspective: 600,
@@ -316,6 +317,13 @@ const NewIdentityPage: FC = () => {
                       />
                       <div className="compartment-top absolute bottom-[45%]" />
                       <div className="compartment absolute bottom-0 h-[45%]" />
+                      <Zoom in={!visibleInputForm}>
+                        <div>
+                          <CurvedArrow className="absolute top-[20%] w-2/5 left-4 translate-x-[-100%]" rotateX={true} />
+                          <CurvedArrow className="absolute top-[22%] w-2/5 right-0 translate-x-1/2 rotate-180" />
+                          <CurvedArrow className="absolute top-[70%] w-2/5 left-8 translate-x-[-100%]" />
+                        </div>
+                      </Zoom>
                     </IdentityForm>
                   </div>
                 </div>

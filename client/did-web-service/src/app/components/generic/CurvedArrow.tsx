@@ -22,7 +22,11 @@ const CurvedArrowBox = styled("div")(({ theme }) => ({
     },
   },
 }));
-const CurvedArrow: FC<{ className?: string, svgClassName?: string }> = ({ className = "", svgClassName = "" }) => {
+const CurvedArrow: FC<{
+  className?: string;
+  svgClassName?: string;
+  rotateX?: boolean;
+}> = ({ className = "", svgClassName = "", rotateX = false }) => {
   return (
     <CurvedArrowBox className={className}>
       <svg
@@ -32,6 +36,7 @@ const CurvedArrow: FC<{ className?: string, svgClassName?: string }> = ({ classN
         viewBox="30 178 340 48"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
+        style={rotateX ? { transform: "rotateX(180deg)" } : {}}
       >
         <clipPath id="clipPath1">
           <path
