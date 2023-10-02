@@ -1,11 +1,9 @@
 "use client";
-import React, { FC, useRef, useState, ReactNode } from "react";
+import React, { FC, useRef, useState } from "react";
 import clsx from "clsx";
 import { first } from "rxjs";
 import { motion } from "framer-motion";
-import { Button, FormControl, Input, Zoom, styled } from "@mui/material";
-import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
-import "react-circular-progressbar/dist/styles.css";
+import { Button, FormControl, Input, LinearProgress, Zoom, styled } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { CreateIdentity } from "@components/identity-creation/CreateIdentity";
 import { useMounted } from "@hooks/useMounted";
@@ -331,9 +329,21 @@ const NewIdentityPage: FC = () => {
                     dividerVisible={false}
                     footer={
                       creatingIdentity && (
-                        <span className="text-[#DDD] text-sm">
-                          {CreatingSteps[progressStep]} ...
-                        </span>
+                        <>
+                          <LinearProgress
+                            variant="determinate"
+                            value={progress}
+                            sx={{ height: 2, background: "#5a5a5aa8" }}
+                          />
+                          <div className="flex">
+                            <span className="text-[#DDD] text-[10pt] flex-1 pr-2">
+                              {CreatingSteps[progressStep]} ...
+                            </span>
+                            <span className="text-[#DDD] text-[10pt]">
+                              {`${progress}%`}
+                            </span>
+                          </div>
+                        </>
                       )
                     }
                   >
@@ -357,21 +367,6 @@ const NewIdentityPage: FC = () => {
                       />
                     </FormControlStyled>
                   </LandingCard>
-                  {creatingIdentity && (
-                    <>
-                      <div className="absolute w-1/4 top-[15%] left-1/2 translate-x-[-50%]">
-                        <CircularProgressbar
-                          value={progress}
-                          text={`${progress}%`}
-                          styles={buildStyles({
-                            textColor: "#DDD",
-                            pathColor: "#673ab7",
-                            trailColor: "#d1cdd9",
-                          })}
-                        />
-                      </div>
-                    </>
-                  )}
                 </IdentityForm>
               </div>
             </CardCase>
