@@ -53,10 +53,10 @@ const RootLayout: FC<{ children: React.ReactNode }> = ({ children }) => {
     // handle routes for unauthorized user
     if (checkIfStringEqualsWith(pathname, publicRoutes)) return;
     else if (!user && !checkIfStringStartsWith(pathname, authRoutes))
-      router.replace("entry");
+      router.replace("/entry");
     // handle routes for authorized user
     else if (user && checkIfStringStartsWith(pathname, authRoutes))
-      router.replace("dashboard");
+      router.replace("/dashboard");
     // handleProgressStop()
 
     // return () => {

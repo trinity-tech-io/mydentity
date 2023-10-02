@@ -7,6 +7,7 @@ import Headline from "@components/layout/Headline";
 import EllipseBg from "@components/layout/EllipseBg";
 import W3Icon from "@assets/images/www-circle.svg";
 import DetailLine from "@components/feature/DetailLine";
+import CurvedArrow from "@components/generic/CurvedArrow";
 
 const IPadStyled = styled(Card)(({ theme }) => ({
   maxWidth: 300,
@@ -75,7 +76,6 @@ const MacBookStyled = styled(Card)(({ theme }) => ({
     },
   },
 }));
-
 const MobileStyled = styled(Card)(({ theme }) => ({
   maxWidth: 100,
   minWidth: 60,
@@ -126,7 +126,7 @@ const BindPassKey: FC = () => {
         }
       />
       <div className="w-full flex flex-col items-center justify-center py-[6%]">
-        <div className="flex items-center">
+        <div className="flex">
           <div className="px-[8%]">
             <IPadStyled className="inline-block rounded-3xl relative">
               <div className="body">
@@ -137,14 +137,19 @@ const BindPassKey: FC = () => {
               </div>
             </IPadStyled>
           </div>
-          <DetailLine
-            icon={<SecurityIcon fontSize="small" />}
-            title="ENHANCE YOUR SECURITY"
-            description="Increase your chances of recovery in case one of your devices is
-              compromised by binding additional devices like your mobile phone,
-              tablet, and laptop."
-          />
-          <div className="px-[8%]">
+          <div className="relative flex items-center max-w-2xl">
+            <DetailLine
+              icon={<SecurityIcon fontSize="small" />}
+              title="ENHANCE YOUR SECURITY"
+              description="Increase your chances of recovery in case one of your devices is
+                compromised by binding additional devices like your mobile phone,
+                tablet, and laptop."
+            />
+            <CurvedArrow className="absolute w-2/3 top-[-2rem] left-1/2 translate-x-[-50%] translate-y-[-100%]"/>
+            <CurvedArrow className="absolute w-2/3 bottom-[-5rem] right-[-10rem] translate-y-full" svgClassName="rotate-[160deg]"/>
+            <CurvedArrow className="absolute w-2/3 bottom-[-5rem] left-[-10rem] translate-y-full" svgClassName="rotate-[200deg]"/>
+          </div>
+          <div className="px-[8%] flex items-center">
             <MacBookStyled className="inline-block rounded-3xl relative">
               <div className="body">
                 <div className="topbar w-full absolute right-0 top-0 flex items-center gap-0.5">
