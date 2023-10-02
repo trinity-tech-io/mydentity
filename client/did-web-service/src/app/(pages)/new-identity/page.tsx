@@ -4,24 +4,23 @@ import clsx from "clsx";
 import { first } from "rxjs";
 import { motion } from "framer-motion";
 import { Button, FormControl, Input, LinearProgress, Zoom, styled } from "@mui/material";
-import { useRouter } from "next/navigation";
-import { CreateIdentity } from "@components/identity-creation/CreateIdentity";
-import { useMounted } from "@hooks/useMounted";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
-import { authUser$ } from "@services/user/user.events";
-import { Identity } from "@model/identity/identity";
-import { usePostSignInFlow } from "@services/flow.service";
-import Headline from "@components/layout/Headline";
-import { CardCase, LandingCard } from "@components/card";
-import DetailLine from "@components/feature/DetailLine";
+import { useMounted } from "@hooks/useMounted";
 import ChipIcon from "@assets/images/chip.svg";
 import CardIcon from "@assets/images/card/card.svg";
 import IdentityCaseIcon from "@assets/images/identity-case.svg";
+import { Identity } from "@model/identity/identity";
+import Headline from "@components/layout/Headline";
+import { CardCase, LandingCard } from "@components/card";
+import DetailLine from "@components/feature/DetailLine";
 import { DarkButton } from "@components/button";
 import { callWithUnlock } from "@components/security/unlock-key-prompt/call-with-unlock";
-import { identityService } from "@services/identity/identity.service";
 import CurvedArrow from "@components/generic/CurvedArrow";
+import { authUser$ } from "@services/user/user.events";
+import { usePostSignInFlow } from "@services/flow.service";
+import { identityService } from "@services/identity/identity.service";
+import { useToast } from "@services/feedback.service";
 
 const IdentityForm = styled("div")(({ theme }) => ({
   perspective: 600,
@@ -173,7 +172,6 @@ const CreatingSteps = [
 ];
 const NewIdentityPage: FC = () => {
   const { mounted } = useMounted();
-  const router = useRouter();
   const [activeUser] = useBehaviorSubject(authUser$);
   const [holderName, setHolderName] = useState("");
   const { navigateToPostSignInLandingPage } = usePostSignInFlow();
@@ -181,6 +179,7 @@ const NewIdentityPage: FC = () => {
   const [creatingIdentity, setCreatingIdentity] = useState(false);
   const [progressStep, setProgressStep] = useState(0);
   const nameInputRef = useRef(null);
+  const { showSuccessToast } = useToast();
   const enabledButtonState = holderName.trim().length > 0;
   const progress = (100 * progressStep) / CreatingSteps.length;
 
@@ -240,6 +239,8 @@ const NewIdentityPage: FC = () => {
               await identity.hive().awaitHiveVaultReady();
               setProgressStep(3);
               setCreatingIdentity(false);
+
+              showSuccessToast("Your new identity was created!");
               onIdentityCreated(identity);
             } catch (e) {
               setCreatingIdentity(false);
@@ -267,7 +268,6 @@ const NewIdentityPage: FC = () => {
           )
         }
       />
-      <CreateIdentity onIdentityCreated={onIdentityCreated} />
       <div className="w-full flex justify-center py-4">
         <Zoom in={!visibleInputForm}>
           <div className="w-[30%] flex flex-col max-w-sm">
