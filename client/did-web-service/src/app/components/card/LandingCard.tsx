@@ -1,8 +1,8 @@
 import { FC, ReactNode } from "react";
 import { Box, Divider, styled } from "@mui/material";
-import ChipIcon from "@assets/images/card/Chip.svg";
-import WaveLogoIcon from "@assets/images/card/WaveLogo.svg";
-import CircleVector from "@assets/images/card/Circle.svg";
+import ChipIcon from "@assets/images/card/chip.svg";
+import WaveLogoIcon from "@assets/images/card/wave-logo.svg";
+import CircleVector from "@assets/images/card/circle.svg";
 import clsx from "clsx";
 
 const CardStyled = styled(Box)(({ theme }) => ({

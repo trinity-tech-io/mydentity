@@ -1,6 +1,6 @@
 import { FC, ReactNode } from "react";
 import { Card, styled } from "@mui/material";
-import ChipIcon from "@assets/images/card/Chip.svg";
+import ChipIcon from "@assets/images/card/chip.svg";
 
 const CardStyled = styled(Card)(({ theme }) => ({
   maxWidth: 300,
