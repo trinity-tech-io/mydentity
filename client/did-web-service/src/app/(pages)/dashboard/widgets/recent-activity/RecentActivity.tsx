@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { RecentActivityRow } from "./RecentActivityRow";
 import DetailContainer from "@components/generic/DetailContainer";
 import { DetailTable, DetailTableRow } from "@components/generic/DetailTable";
+import { ActivityRow } from "./ActivityRow";
 
 const IconAvatar = styled(Avatar)(({ theme }) => ({
   backgroundColor: "#3A3A3A",
@@ -63,6 +64,11 @@ export const RecentActivityWidget: FC = (_) => {
                   </>
                 }
               />
+              {activities &&
+              activities.length > 0 &&
+              activities.map((activity, i) => (
+                <ActivityRow activity={activity} key={i} />
+              ))}
             </>
           }
         />
