@@ -73,7 +73,7 @@ const EntryPage: FC = () => {
               id="signin-btn"
               color="primary"
               className="w-4/5 md:w-3/5"
-              value="dashboard"
+              value="signin"
               onClick={handleButton}
             >
               SIGN IN

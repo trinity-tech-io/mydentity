@@ -13,12 +13,13 @@ const CardStyled = styled(Card)(({ theme }) => ({
 const DetailContainer: FC<{
   title: string | ReactNode;
   children: ReactNode;
-}> = ({ title, children }) => {
+  showAllAction: () => void;
+}> = ({ title, children, showAllAction }) => {
   return (
     <CardStyled className="border bord" elevation={0}>
       <Box className="py-4 px-6 flex">
         <span className="flex-1 text-[20px] font-semibold">{title}</span>
-        <ButtonStyled size="small" endIcon={<NavigateNextIcon />}>
+        <ButtonStyled size="small" endIcon={<NavigateNextIcon />} onClick={showAllAction}>
           Show all
         </ButtonStyled>
       </Box>

@@ -26,7 +26,7 @@ export const RecentActivityWidget: FC = _ => {
   }
 
   return (
-    <DetailContainer title="Recent Activity">
+    <DetailContainer title="Recent Activity" showAllAction={handleShowAllClick}>
       <div className="mb-1">
         <Stack direction="row" className="pl-12 pr-2 py-1" sx={{background: "linear-gradient(to right, transparent, #444 25%, #3e3e3e 50%, #444 75%, transparent)"}}>
           <span className="text-[15px] flex-1 font-medium">ACCOUNT ACTIVITY</span>
@@ -69,19 +69,6 @@ export const RecentActivityWidget: FC = _ => {
               activities && activities.length > 0 && activities.map((activity, i) => <RecentActivityRow activity={activity} key={i} />)
             }
           </tbody>
-          <tfoot>
-            <tr>
-              <td colSpan={2} className="p-0 text-right">
-                <div className="flex justify-end">
-                  <button className="bg-indigo-500 hover:bg-indigo-600 text-white font-bold text-xs py-1 px-2 rounded relative"
-                    onClick={handleShowAllClick}
-                  >
-                    <span>Show all</span>
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tfoot>
         </table>
       </div>
     </DetailContainer>
