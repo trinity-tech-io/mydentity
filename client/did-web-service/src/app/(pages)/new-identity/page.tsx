@@ -210,7 +210,8 @@ const NewIdentityPage: FC = () => {
         activeUser
           .get("identity")
           .createRegularIdentity(holderName)
-          .catch(() => {
+          .catch((e) => {
+            console.log(e)
             setCreatingIdentity(false);
             setProgressStep(0);
           })
