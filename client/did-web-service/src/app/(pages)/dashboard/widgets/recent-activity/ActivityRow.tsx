@@ -2,14 +2,8 @@ import { Activity } from "@model/activity/activity";
 import { logger } from "@services/logger";
 import { FC, ReactNode } from 'react';
 import { Icon as ReactIcon } from "@iconify/react";
-import { BindBrowserRenderer } from "./renderers/BindBrowserRenderer";
-import { BindEmailRenderer } from "./renderers/BindEmailRenderer";
 import { CredentialsImportedRenderer } from "./renderers/CredentialsImportedRenderer";
 import { CredentialsSharedRenderer } from "./renderers/CredentialsSharedRenderer";
-import { IdentityCreatedRenderer } from "./renderers/IdentityCreatedRenderer";
-import { IdentityDeletedRenderer } from "./renderers/IdentityDeletedRenderer";
-import { PasswordChangedRenderer } from "./renderers/PasswordChangedRenderer";
-import { SignInRenderer } from "./renderers/SignInRenderer";
 import { DetailTableRow } from "@components/generic/DetailTable";
 import { Avatar, ListItemText, TableCell, styled } from "@mui/material";
 
@@ -25,17 +19,39 @@ function getActivityRenderer(activity: Activity) {
       renderer.action_name = "User sign-in"
       renderer.action_for = activity.browserNameStr
       break;
-    // case ActivityType.IDENTITY_CREATED: return <IdentityCreatedRenderer activity={activity} />
-    // case ActivityType.IDENTITY_DELETED: return <IdentityDeletedRenderer activity={activity} />
+    case ActivityType.IDENTITY_CREATED:
+      renderer.icon = <ReactIcon icon="material-symbols:credit-card" />
+      renderer.action_name = "New identity has been created"
+      renderer.action_for = activity.identityDidStr
+      break;
+    case ActivityType.IDENTITY_DELETED:
+      renderer.icon = <ReactIcon icon="game-icons:burning-skull" />
+      renderer.action_name = "Identity has been deleted"
+      renderer.action_for = activity.identityDidStr
+      break;
     case ActivityType.BIND_EMAIL:
       renderer.icon = <ReactIcon icon="entypo:email" />
       renderer.action_name = "Email address bound to account"
       renderer.action_for = activity.userEmailAddressStr
       break;
-    // case ActivityType.BIND_BROWSER: return <BindBrowserRenderer activity={activity} />
-    // case ActivityType.PASSWORD_CHANGED: return <PasswordChangedRenderer activity={activity} />
-    // case ActivityType.CREDENTIALS_SHARED: return <CredentialsSharedRenderer activity={activity} />
-    // case ActivityType.CREDENTIALS_IMPORTED: return <CredentialsImportedRenderer activity={activity} />
+    case ActivityType.BIND_BROWSER:
+      renderer.icon = <ReactIcon icon="fluent-mdl2:website" />
+      renderer.action_name = "Browser bound to account"
+      renderer.action_for = activity.browserNameStr
+      break;
+    case ActivityType.PASSWORD_CHANGED:
+      renderer.icon = <ReactIcon icon="ic:round-password" />
+      renderer.action_name = "Password has been changed"
+      renderer.action_for = "**********"
+      break;
+    case ActivityType.CREDENTIALS_SHARED:
+      renderer.icon = <ReactIcon icon="ic:round-share" />
+      renderer.action_name = `${activity.credentialsCount} verified credential(s) shared`
+      break;
+    case ActivityType.CREDENTIALS_IMPORTED:
+      renderer.icon = <ReactIcon icon="mdi:integrated-circuit-chip" />
+      renderer.action_name = `${activity.credentialsCount} verified credential(s) imported`
+      break;
     default:
       logger.error("dashboard", `Renderer not implemented for activity type ${activity.type.toString()}`);
       return renderer;
