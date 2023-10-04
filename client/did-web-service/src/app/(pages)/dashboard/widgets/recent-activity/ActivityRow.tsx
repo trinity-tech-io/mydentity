@@ -6,6 +6,7 @@ import { CredentialsImportedRenderer } from "./renderers/CredentialsImportedRend
 import { CredentialsSharedRenderer } from "./renderers/CredentialsSharedRenderer";
 import { DetailTableRow } from "@components/generic/DetailTable";
 import { Avatar, ListItemText, TableCell, styled } from "@mui/material";
+import { getDateDistance } from "@utils/date";
 
 function getActivityRenderer(activity: Activity) {
   const renderer = {icon: null as ReactNode, action_name: "", action_for: "" as string | ReactNode}
@@ -104,7 +105,7 @@ export const ActivityRow: FC<{
               }
             />
           </TableCell>
-          <TableCell>{activity.createdAtStr}</TableCell>
+          <TableCell>{getDateDistance(activity.createdAt)}</TableCell>
         </>
       }
     />

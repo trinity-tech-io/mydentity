@@ -41,7 +41,7 @@ export const RecentActivityWidget: FC = (_) => {
           }
           bodyRows={
             <>
-              <DetailTableRow
+              {/* <DetailTableRow
                 avatar={
                   <IconAvatar>
                     <ReactIcon icon="ic:round-log-in" />
@@ -63,7 +63,7 @@ export const RecentActivityWidget: FC = (_) => {
                     <TableCell>1 min ago</TableCell>
                   </>
                 }
-              />
+              /> */}
               {activities &&
               activities.length > 0 &&
               activities.map((activity, i) => (
