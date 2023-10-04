@@ -15,7 +15,7 @@ const Headline: FC<{
 }> = ({ title, description, showBg = false }) => (
   <HeadlineBox showBg={showBg} className={showBg?"p-6 rounded-lg":""}>
     <h3 className="w-full text-4xl font-bold pb-2">{title}</h3>
-    <p className="mt-4">{description}</p>
+    <span className="mt-4">{description}</span>
   </HeadlineBox>
 );
 export default Headline;

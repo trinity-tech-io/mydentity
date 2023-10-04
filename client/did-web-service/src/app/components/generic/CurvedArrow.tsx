@@ -41,34 +41,34 @@ const CurvedArrow: FC<{
         <clipPath id="clipPath1">
           <path
             d="M28 220C200 170 330 187.285 400 220"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           />
         </clipPath>
         <clipPath id="clipPath2">
           <path
             d="M330 182C400 210 388 280 361 218C382 222 347 226 318 219"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           />
         </clipPath>
         <path
           className="path"
-          clip-path="url(#clipPath1)"
+          clipPath="url(#clipPath1)"
           d="M35 215C180.529 180.938 320.006 187.285 361 215.530"
           stroke="currentColor"
-          stroke-opacity="0.9"
-          stroke-linecap="round"
-          stroke-linejoin="round"
+          strokeOpacity="0.9"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
         <path
           className="path arrowhead"
-          clip-path="url(#clipPath2)"
+          clipPath="url(#clipPath2)"
           d="M335 182C362 200 368 214 361 218C361 218 347 224 320 222"
           stroke="currentColor"
-          stroke-opacity="0.9"
-          stroke-linecap="round"
-          stroke-linejoin="round"
+          strokeOpacity="0.9"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
       </svg>
     </CurvedArrowBox>
