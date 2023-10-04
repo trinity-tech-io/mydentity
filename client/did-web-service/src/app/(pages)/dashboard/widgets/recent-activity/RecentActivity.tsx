@@ -1,21 +1,11 @@
 import { FC } from "react";
-import { Avatar, ListItemText, TableCell, styled } from "@mui/material";
-import { Icon as ReactIcon } from "@iconify/react";
+import { TableCell } from "@mui/material";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { authUser$ } from "@services/user/user.events";
 import { useRouter } from "next/navigation";
-import { RecentActivityRow } from "./RecentActivityRow";
 import DetailContainer from "@components/generic/DetailContainer";
-import { DetailTable, DetailTableRow } from "@components/generic/DetailTable";
+import { DetailTable } from "@components/generic/DetailTable";
 import { ActivityRow } from "./ActivityRow";
-
-const IconAvatar = styled(Avatar)(({ theme }) => ({
-  backgroundColor: "#3A3A3A",
-  color: "#DDD",
-  width: 36,
-  height: 36,
-  padding: 8,
-}));
 
 export const RecentActivityWidget: FC = (_) => {
   const [activeUser] = useBehaviorSubject(authUser$);
@@ -42,10 +32,10 @@ export const RecentActivityWidget: FC = (_) => {
           bodyRows={
             <>
               {activities &&
-              activities.length > 0 &&
-              activities.map((activity, i) => (
-                <ActivityRow activity={activity} key={i} />
-              ))}
+                activities.length > 0 &&
+                activities.map((activity, i) => (
+                  <ActivityRow activity={activity} key={i} />
+                ))}
             </>
           }
         />

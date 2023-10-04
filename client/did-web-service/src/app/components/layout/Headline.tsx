@@ -14,7 +14,7 @@ const Headline: FC<{
   showBg?: boolean;
 }> = ({ title, description, showBg = false }) => (
   <HeadlineBox showBg={showBg} className={showBg?"p-6 rounded-lg":""}>
-    <h3 className="w-full text-4xl font-bold pb-2">{title}</h3>
+    <h3 className="w-full text-4xl font-bold pb-8">{title}</h3>
     <span className="mt-4">{description}</span>
   </HeadlineBox>
 );
