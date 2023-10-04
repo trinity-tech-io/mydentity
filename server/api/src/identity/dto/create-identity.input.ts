@@ -9,7 +9,7 @@ export class CreateIdentityInput {
   @Field(() => String)
   identityType: IdentityType;
 
-  @Field(() => String)
+  @Field(() => String, { nullable: true })
   rootIdentityId?: string;
 
   @Field(() => String, { description: 'Hive vault provider address, where identity\'s app data is stored', nullable: true })
