@@ -16,6 +16,7 @@ export const LettersAvatar: FC<{
     alignItems: 'center',
     color: 'white',
     fontSize: '16px',
+    lineHeight: 1
   };
 
   return (

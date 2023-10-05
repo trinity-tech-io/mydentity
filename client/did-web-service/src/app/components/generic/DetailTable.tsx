@@ -35,6 +35,11 @@ export const DetailTable: FC<{ headCells: ReactNode; bodyRows: ReactNode }> = ({
           td: { px: 1, py: 0 },
           "td:first-child": { border: 0, pl: 0, pr: 1 },
           "td:last-child": { textAlign: "right" },
+          "tr:last-child": {
+            td: {
+              border: 0
+            }
+          }
         },
       }}
     >

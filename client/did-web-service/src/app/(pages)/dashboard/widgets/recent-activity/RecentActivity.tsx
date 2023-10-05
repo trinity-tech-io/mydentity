@@ -33,7 +33,7 @@ export const RecentActivityWidget: FC = (_) => {
             <>
               {activities &&
                 activities.length > 0 &&
-                activities.map((activity, i) => (
+                activities.slice(0, 5).map((activity, i) => (
                   <ActivityRow activity={activity} key={i} />
                 ))}
             </>

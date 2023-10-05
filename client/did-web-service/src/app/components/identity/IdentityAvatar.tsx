@@ -30,7 +30,7 @@ export const IdentityAvatar: FC<{
         {/* If no avatar, but have a name, show the initials */}
         {!name && <AccountIcon width={width} height={height} />}
         {/*  If not avatar nor name, show a default head icon */}
-        {name && <LettersAvatar text={initialsString(name)} />}
+        {name && <LettersAvatar width={width} height={height} text={initialsString(name)} />}
       </>
     )}
   </>)

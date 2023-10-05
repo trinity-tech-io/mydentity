@@ -1,55 +1,62 @@
-'use client';
-import { FC, useState } from 'react';
+"use client";
+import { FC, useState } from "react";
 import { useRouter } from "next/navigation";
 import AddIcon from "@mui/icons-material/Add";
-import { TableCell, TableRow } from '@mui/material';
-import { DarkButton } from '@components/button';
-import DetailContainer from '@components/generic/DetailContainer';
-import { DetailTable } from '@components/generic/DetailTable';
-import { MainButton } from '@components/generic/MainButton';
-import { IdentityCellLeft } from '@components/identity/IdentityCellLeft';
-import { IdentityRow } from '@components/identity/IdentityRow';
-import { VerticalStackLoadingCard } from '@components/loading-cards/vertical-stack-loading-card/VerticalStackLoadingCard';
-import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
-import { RegularIdentity } from '@model/regular-identity/regular-identity';
-import { activeIdentity$ } from '@services/identity/identity.events';
-import { identityService } from '@services/identity/identity.service';
-import { authUser$ } from '@services/user/user.events';
+import { TableCell, TableRow } from "@mui/material";
+import { DarkButton } from "@components/button";
+import DetailContainer from "@components/generic/DetailContainer";
+import { DetailTable } from "@components/generic/DetailTable";
+import { MainButton } from "@components/generic/MainButton";
+import { IdentityCellLeft } from "@components/identity/IdentityCellLeft";
+import { IdentityRow } from "@components/identity/IdentityRow";
+import { VerticalStackLoadingCard } from "@components/loading-cards/vertical-stack-loading-card/VerticalStackLoadingCard";
+import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
+import { RegularIdentity } from "@model/regular-identity/regular-identity";
+import { activeIdentity$ } from "@services/identity/identity.events";
+import { identityService } from "@services/identity/identity.service";
+import { authUser$ } from "@services/user/user.events";
 
-const TAG = 'IdentityListWidget'
+const TAG = "IdentityListWidget";
 
-export const IdentityListWidget: FC = _ => {
+export const IdentityListWidget: FC = (_) => {
   const [authUser] = useBehaviorSubject(authUser$);
-  const [identities] = useBehaviorSubject(authUser?.get("identity").regularIdentities$);
-  const router = useRouter()
+  const [identities] = useBehaviorSubject(
+    authUser?.get("identity").regularIdentities$
+  );
+  const router = useRouter();
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const [showToast, setShowToast] = useState<boolean>(false);
-  const sortedIdentities = identities && [...identities].sort((a, b) => {
-    const dateA = a.lastUsedAt$.getValue().getTime();
-    const dateB = b.lastUsedAt$.getValue().getTime();
-    return dateB - dateA
-  });
+  const sortedIdentities =
+    identities &&
+    [...identities].sort((a, b) => {
+      const dateA = a.lastUsedAt$.getValue().getTime();
+      const dateB = b.lastUsedAt$.getValue().getTime();
+      return dateB - dateA;
+    });
 
   const handleCellClick = (identity: RegularIdentity): void => {
     if (identity !== activeIdentity) {
-      setShowToast(true)
-    }
-    else {
-      setShowToast(false)
+      setShowToast(true);
+    } else {
+      setShowToast(false);
     }
     identityService.setActiveIdentity(identity);
     router.push("/profile");
-  }
+  };
 
   const openCreateIdentity = (): void => {
     router.push("/new-identity");
-  }
+  };
 
   const handleShowAllClick = (): void => {
     router.push("/identities");
-  }
+  };
   return (
-    <DetailContainer className="h-full" title="My Identities" showAllAction={handleShowAllClick}>
+    <DetailContainer
+      className="h-full"
+      title="My Identities"
+      showAllAction={handleShowAllClick}
+    >
       <div className="mb-1">
         <DetailTable
           headCells={
@@ -60,32 +67,33 @@ export const IdentityListWidget: FC = _ => {
           }
           bodyRows={
             <>
-            {
-              !sortedIdentities || !sortedIdentities.length ?
+              {!sortedIdentities || !sortedIdentities.length ? (
                 <>
                   <TableRow>
-                    <TableCell component="th" colSpan={3} align="center"><span className="text-base">No identity yet.</span></TableCell>
-                  </TableRow>
-                  <TableRow>
                     <TableCell component="th" colSpan={3} align="center">
-                      <DarkButton
-                        startIcon={<AddIcon />}
-                        onClick={openCreateIdentity}
-                        className="w-full mt-4"
-                      >
-                        CREATE IDENTITY
-                      </DarkButton>
+                      <span className="text-base">No identity yet.</span>
                     </TableCell>
                   </TableRow>
-                </>:
-                sortedIdentities.map((identity, _i) => (
-                  <IdentityRow key={_i} identity={identity} />
-                ))
-            }
-
+                </>
+              ) : (
+                sortedIdentities
+                  .slice(0, 4)
+                  .map((identity, _i) => (
+                    <IdentityRow key={_i} identity={identity} />
+                  ))
+              )}
             </>
           }
         />
+        <div className="w-full mt-2">
+          <DarkButton
+            startIcon={<AddIcon />}
+            onClick={openCreateIdentity}
+            className="w-full mt-4"
+          >
+            CREATE IDENTITY
+          </DarkButton>
+        </div>
       </div>
     </DetailContainer>
     // <div className="col-span-full xl:col-span-6 bg-white dark:bg-slate-800 shadow-lg rounded-sm border border-slate-200 dark:border-slate-700">
@@ -164,4 +172,4 @@ export const IdentityListWidget: FC = _ => {
     //   </div>
     // </div>
   );
-}
+};
