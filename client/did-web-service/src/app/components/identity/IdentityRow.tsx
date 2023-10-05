@@ -15,6 +15,7 @@ export const IdentityRow: FC<{
 
   return (
     <DetailTableRow
+      className="h-[3.5rem]"
       avatar={
         <IdentityAvatar identity={identity} width={36} height={36} />
       }
@@ -29,6 +30,17 @@ export const IdentityRow: FC<{
               secondary={
                 <span className="text-[12px]">{shortenDID(identity.did, 8)}</span>
               }
+              sx={{my: 0}}
+              primaryTypographyProps={{
+                sx: {
+                  lineHeight: 1.3
+                }
+              }}
+              secondaryTypographyProps={{
+                sx: {
+                  lineHeight: 1.2
+                }
+              }}
             />
           </TableCell>
           <TableCell>{getDateDistance(identity.createdAt)}</TableCell>

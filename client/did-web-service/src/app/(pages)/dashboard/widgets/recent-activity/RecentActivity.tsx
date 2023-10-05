@@ -20,7 +20,7 @@ export const RecentActivityWidget: FC = (_) => {
   };
 
   return (
-    <DetailContainer title="Recent Activity" showAllAction={handleShowAllClick}>
+    <DetailContainer className="h-full" title="Recent Activity" showAllAction={handleShowAllClick}>
       <div className="mb-1">
         <DetailTable
           headCells={

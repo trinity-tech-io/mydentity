@@ -87,6 +87,7 @@ export const ActivityRow: FC<{
 
   return (
     <DetailTableRow
+      className="h-[3.5rem]"
       avatar={
         <IconAvatar>
           {renderer.icon}
@@ -101,8 +102,19 @@ export const ActivityRow: FC<{
                 <span className="font-medium">{renderer.action_name}</span>
               }
               secondary={
-                <span className="text-[12px]">{renderer.action_for}</span>
+                <span className="text-[8pt]">{renderer.action_for}</span>
               }
+              sx={{my: 0}}
+              primaryTypographyProps={{
+                sx: {
+                  lineHeight: 1.3
+                }
+              }}
+              secondaryTypographyProps={{
+                sx: {
+                  lineHeight: 1.2
+                }
+              }}
             />
           </TableCell>
           <TableCell>{getDateDistance(activity.createdAt)}</TableCell>

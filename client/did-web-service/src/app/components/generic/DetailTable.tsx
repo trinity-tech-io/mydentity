@@ -1,12 +1,14 @@
 import { FC, ReactNode } from "react";
 import { Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
 
-export const DetailTableRow: FC<{ avatar: ReactNode; rowCells: ReactNode }> = ({
+export const DetailTableRow: FC<{ avatar: ReactNode; rowCells: ReactNode; className?: string }> = ({
   avatar,
   rowCells,
+  className = ""
 }) => {
   return (
     <TableRow
+      className={className}
     // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
     >
       <TableCell padding="none">{avatar}</TableCell>

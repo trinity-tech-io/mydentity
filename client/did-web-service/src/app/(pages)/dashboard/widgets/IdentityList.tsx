@@ -1,4 +1,8 @@
 'use client';
+import { FC, useState } from 'react';
+import { useRouter } from "next/navigation";
+import AddIcon from "@mui/icons-material/Add";
+import { TableCell, TableRow } from '@mui/material';
 import { DarkButton } from '@components/button';
 import DetailContainer from '@components/generic/DetailContainer';
 import { DetailTable } from '@components/generic/DetailTable';
@@ -8,12 +12,9 @@ import { IdentityRow } from '@components/identity/IdentityRow';
 import { VerticalStackLoadingCard } from '@components/loading-cards/vertical-stack-loading-card/VerticalStackLoadingCard';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { RegularIdentity } from '@model/regular-identity/regular-identity';
-import { TableCell, TableRow } from '@mui/material';
 import { activeIdentity$ } from '@services/identity/identity.events';
 import { identityService } from '@services/identity/identity.service';
 import { authUser$ } from '@services/user/user.events';
-import { useRouter } from "next/navigation";
-import { FC, useState } from 'react';
 
 const TAG = 'IdentityListWidget'
 
@@ -48,7 +49,7 @@ export const IdentityListWidget: FC = _ => {
     router.push("/identities");
   }
   return (
-    <DetailContainer title="My Identities" showAllAction={handleShowAllClick}>
+    <DetailContainer className="h-full" title="My Identities" showAllAction={handleShowAllClick}>
       <div className="mb-1">
         <DetailTable
           headCells={
@@ -67,7 +68,13 @@ export const IdentityListWidget: FC = _ => {
                   </TableRow>
                   <TableRow>
                     <TableCell component="th" colSpan={3} align="center">
-                      <DarkButton onClick={openCreateIdentity} className="w-full mt-4">+ CREATE IDENTITY</DarkButton>
+                      <DarkButton
+                        startIcon={<AddIcon />}
+                        onClick={openCreateIdentity}
+                        className="w-full mt-4"
+                      >
+                        CREATE IDENTITY
+                      </DarkButton>
                     </TableCell>
                   </TableRow>
                 </>:
