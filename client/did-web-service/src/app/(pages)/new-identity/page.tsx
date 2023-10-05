@@ -210,11 +210,11 @@ const NewIdentityPage: FC = () => {
         activeUser
           .get("identity")
           .createRegularIdentity(holderName)
-          .catch((e) => {
-            console.log(e)
-            setCreatingIdentity(false);
-            setProgressStep(0);
-          })
+          // .catch((e) => {
+          //   console.log(e)
+          //   setCreatingIdentity(false);
+          //   setProgressStep(0);
+          // })
       );
       if (!identity) return;
 

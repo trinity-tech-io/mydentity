@@ -43,6 +43,10 @@ import { EditableCredentialAvatar } from "../../components/credential/EditableCr
 import { OrderBy } from "./order-by";
 import Headline from "@components/layout/Headline";
 import { CopyButton, DarkButton } from "@components/button";
+import { DetailTable, DetailTableRow } from "@components/generic/DetailTable";
+import DetailContainer from "@components/generic/DetailContainer";
+import { IconAvatar } from "@components/feature/DetailLine";
+import ChipIcon from "@assets/images/chip.svg";
 
 const CREDENTIAL_LIST_HEAD = [
   { id: "name", label: "Profile item", alignRight: false },
@@ -404,6 +408,7 @@ const Profile: FC = () => {
         }}
         noValidate
         autoComplete="off"
+        className="mb-4"
       >
         <Stack direction="row">
           <div className="flex flex-1 items-center">
@@ -415,9 +420,9 @@ const Profile: FC = () => {
               updating={uploadingAvatar}
               disabled={!credentials}
             />
-            <div className="flex flex-col ml-2">
+            <div className="flex flex-col ml-4">
               <Typography variant="h4">{name}</Typography>
-              <div className="inline-flex">
+              <div className="inline-flex items-center">
                 <Typography variant="body2">{activeIdentity?.did?.toString()}</Typography>
                 <CopyButton text={activeIdentity?.did?.toString()}/>
               </div>
@@ -437,6 +442,63 @@ const Profile: FC = () => {
         </Stack>
       </Box>
 
+      <DetailContainer 
+        title={
+          <div className="inline-flex items-center">
+            <IconAvatar>
+              <div className="w-4 h-4 flex justify-center">
+                <ChipIcon />
+              </div>
+            </IconAvatar>
+            <span className="pl-2">Credentials</span>
+          </div>
+        }
+        showAllAction={() => {}}
+      >
+        <div className="mb-1">
+          <DetailTable
+            headCells={
+              <>
+                <TableCell>PROFILE ITEM</TableCell>
+                <TableCell>DETAIL</TableCell>
+                <TableCell>ISSUED</TableCell>
+                <TableCell>EXPIRES ON</TableCell>
+              </>
+            }
+            bodyRows={
+              <>
+              {
+                filteredCredentials
+                ?.slice(
+                  page * rowsPerPage,
+                  page * rowsPerPage + rowsPerPage
+                )
+                .map((credential: ProfileCredential) => {
+                  // const { id, name, value} = row;
+                  const id = credential.id;
+                  return (
+                    <DetailTableRow
+                      avatar={
+                        <CredentialAvatar credential={credential} width={36} height={36} />
+                      }
+                      rowCells={
+                        <>
+                          <TableCell>{credential.getDisplayableTitle()}</TableCell>
+                          <TableCell>{credential.getDisplayValue()}</TableCell>
+                          <TableCell></TableCell>
+                          <TableCell></TableCell>
+                        </>
+                      }
+                    />
+                  )
+                })
+              }
+              </>
+            }
+          />
+        </div>
+      </DetailContainer>
+
       <Container>
         {unlockerIsIdle && (!credentials || !mounted) && (
           <VerticalStackLoadingCard />
@@ -445,7 +507,7 @@ const Profile: FC = () => {
         {unlockerIsCancelled && (!credentials || !mounted) && (
           <UnlockRetrier className="mt-4" />
         )}
-        {credentials && mounted && (
+        {/* {credentials && mounted && (
           <Card>
             <ListToolbar
               numSelected={selected.length}
@@ -556,7 +618,7 @@ const Profile: FC = () => {
               onRowsPerPageChange={handleChangeRowsPerPage}
             />
           </Card>
-        )}
+        )} */}
 
         <div className="mt-4">
           <Typography variant="h4" gutterBottom>

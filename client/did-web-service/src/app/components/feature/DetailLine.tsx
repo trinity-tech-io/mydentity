@@ -1,11 +1,11 @@
 import { FC, ReactNode } from "react";
 import { Avatar, Typography, styled } from "@mui/material";
 
-const IconAvatar = styled(Avatar)(({ theme }) => ({
+export const IconAvatar = styled(Avatar)(({ theme }) => ({
   backgroundColor: "#9D3E3E",
   color: "white",
-  width: "100%",
-  height: "100%",
+  width: 36,
+  height: 36,
   padding: 8,
 }));
 
