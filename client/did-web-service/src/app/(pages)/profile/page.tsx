@@ -442,7 +442,7 @@ const Profile: FC = () => {
         </Stack>
       </Box>
 
-      <DetailContainer 
+      <DetailContainer
         title={
           <div className="inline-flex items-center">
             <IconAvatar>
@@ -478,6 +478,7 @@ const Profile: FC = () => {
                   const id = credential.id;
                   return (
                     <DetailTableRow
+                      key={id}
                       avatar={
                         <CredentialAvatar credential={credential} width={36} height={36} />
                       }

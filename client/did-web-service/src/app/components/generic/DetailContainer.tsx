@@ -10,6 +10,20 @@ const CardStyled = styled(Card)(({ theme }) => ({
   border: "2px solid #FFFFFF55",
   borderRadius: "0.5rem",
   background: "#1D1D1D",
+  position: "relative",
+  "&:before": {
+    opacity: 0.1,
+    content: "''",
+    position: "absolute",
+    width: "100%",
+    height: "200%",
+    background:
+      "linear-gradient(to bottom, rgba(163, 163, 163, 60%), rgba(255, 255, 255, 15%), transparent)",
+    transform: "rotate(-30deg)",
+    transformOrigin: 'top left',
+    top: 0,
+    right: "-40%",
+  }
 }));
 const DetailContainer: FC<{
   title: string | ReactNode;

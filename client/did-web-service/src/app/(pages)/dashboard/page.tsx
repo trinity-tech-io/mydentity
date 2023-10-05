@@ -53,8 +53,10 @@ const Dashboard: FC = () => {
             </Grid>
           </Grid>
           {/* Duplicate with recent activity <RecentApplicationsWidget /> */}
-          <AccountAccess />
-          <AccountUnlock />
+          <div className="pt-6">
+            <AccountAccess />
+            <AccountUnlock />
+          </div>
         </>
       }
 
