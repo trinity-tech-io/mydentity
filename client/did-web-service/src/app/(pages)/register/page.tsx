@@ -2,14 +2,14 @@
 import React, { FC, useRef, useState } from "react";
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
-// import Xarrow from "react-xarrows";
-import { Card, useMediaQuery, useTheme, styled, FormControl, Input, InputAdornment, Fade, Box, IconButton, InputBaseComponentProps, InputLabel, InputProps, FormHelperText } from "@mui/material";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { useMediaQuery, useTheme, styled, Input, InputAdornment, Fade, InputLabel, FormHelperText } from "@mui/material";
 import { useToast } from "@services/feedback.service";
 import { signOut, signUp } from "@services/user/user.service";
 import TextBarcode from "@components/text-barcode/TextBarcode";
 import { BlackButton } from "@components/button";
 import { CaseWrapper, CardCase, LandingCard } from "@components/card";
+import AccountForm from "@components/form/AccountForm";
+import PasswordInput from "./components/PasswordInput";
 
 const DescriptionText = styled("div")(({ theme }) => ({
   ".fade-in": {
@@ -60,97 +60,6 @@ const DescriptionText = styled("div")(({ theme }) => ({
   },
 }));
 
-const IconButtonStyled = styled(IconButton)(({ theme }) => ({
-  color: "white",
-}));
-
-const InputStyled = styled(Input)(({ theme }) => ({
-  input: {
-    color: "white",
-    marginTop: 20,
-  },
-}));
-
-const FormControlStyled = styled(FormControl)(({ theme }) => ({
-  ".MuiInput-root": {
-    marginTop: 0,
-    "&:before, &:after": {
-      opacity: 0.18,
-      borderColor: "white",
-    },
-  },
-  ".MuiInputBase-root.MuiInput-root:hover:not(.Mui-disabled, .Mui-error)": {
-    "&:before, &:after": {
-      opacity: 0.18,
-      borderColor: "white",
-    },
-  },
-  ".MuiInput-root.Mui-focused": {
-    "&:before, &:after": {
-      opacity: 0.3,
-    },
-  },
-  ".MuiInputLabel-root, .MuiInputLabel-root.Mui-focused:not(.Mui-error)": {
-    color: "white",
-    fontSize: "10px",
-    transform: "unset",
-    WebkitTransform: "unset",
-  },
-  "#holder-name": {
-    fontWeight: 600,
-    fontSize: "15pt",
-    textAlign: "center",
-    caretColor: "white",
-    color: "rgb(255 255 255 / 65%)",
-  },
-  ".password-input.redacted": {
-    fontFamily: "Redacted Script",
-  },
-  ".MuiFormHelperText-root": {
-    marginLeft: 0,
-    display: 'none'
-  },
-  ".MuiFormHelperText-root.Mui-error": {
-    display: 'block'
-  },
-}));
-
-const PasswordInput: FC<{
-  outerProps?: InputProps;
-  inputProps?: InputBaseComponentProps;
-}> = (props) => {
-  const { outerProps = {}, inputProps = {} } = props;
-  const [showPassword, setShowPassword] = React.useState(false);
-  const handleClickShowPassword: React.MouseEventHandler = () =>
-    setShowPassword((show) => !show);
-  const handleMouseDownPassword: React.MouseEventHandler = (event) => {
-    event.preventDefault();
-  };
-
-  return (
-    <InputStyled
-      {...outerProps}
-      type={showPassword ? "input" : "password"}
-      className={clsx("password-input", !showPassword && "redacted")}
-      inputProps={{
-        maxLength: 100,
-        ...inputProps,
-      }}
-      startAdornment={<InputAdornment position="start" className="absolute" />}
-      endAdornment={
-        <InputAdornment position="end">
-          <IconButtonStyled
-            aria-label="toggle password visibility"
-            onClick={handleClickShowPassword}
-            onMouseDown={handleMouseDownPassword}
-          >
-            {showPassword ? <VisibilityOff /> : <Visibility />}
-          </IconButtonStyled>
-        </InputAdornment>
-      }
-    />
-  );
-};
 const RegisterPage: FC = () => {
   const theme = useTheme();
   const router = useRouter();
@@ -288,7 +197,7 @@ const RegisterPage: FC = () => {
                         <div className="compartment-top absolute bottom-[45%]" />
                         <div className="compartment absolute bottom-0 h-[45%]">
                           <div className="px-[10%] py-4 w-full">
-                            <FormControlStyled fullWidth>
+                            <AccountForm fullWidth>
                               <label
                                 htmlFor="holder-name"
                                 className="text-white text-[10px]"
@@ -305,7 +214,7 @@ const RegisterPage: FC = () => {
                                 }
                                 onChange={handleInputName}
                               />
-                            </FormControlStyled>
+                            </AccountForm>
                           </div>
                         </div>
                       </div>
@@ -320,14 +229,14 @@ const RegisterPage: FC = () => {
                   <div className="dashed-body w-full h-full rounded-2xl p-1.5">
                     <div className="px-6 py-8 w-full">
                       <div className="flex flex-col gap-5">
-                        <FormControlStyled fullWidth>
+                        <AccountForm fullWidth>
                           <InputLabel htmlFor="pw">PASSWORD</InputLabel>
                           <PasswordInput
                             outerProps={{ onChange: handlePassword("pw") }}
                             inputProps={{ ref: pwInputRef }}
                           />
-                        </FormControlStyled>
-                        <FormControlStyled
+                        </AccountForm>
+                        <AccountForm
                           error={
                             validationState && password.pw !== password.confirm
                           }
@@ -347,7 +256,7 @@ const RegisterPage: FC = () => {
                           <FormHelperText>
                             Confirm password is incorrect!
                           </FormHelperText>
-                        </FormControlStyled>
+                        </AccountForm>
                       </div>
                     </div>
                   </div>

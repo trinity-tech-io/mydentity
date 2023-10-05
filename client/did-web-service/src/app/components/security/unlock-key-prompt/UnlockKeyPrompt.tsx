@@ -1,53 +1,91 @@
-import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
-import { AppException } from '@model/exceptions/app-exception';
-import { ClientError } from '@model/exceptions/exception-codes';
-import { ShadowKeyType } from '@model/shadow-key/shadow-key-type';
-import { Dialog, Typography } from '@mui/material';
-import { withCaughtAppException } from '@services/error.service';
-import { AuthKeyInput } from '@services/keyring/auth-key.input';
-import { unlockMasterKey } from '@services/keyring/keyring.service';
-import { logger } from '@services/logger';
-import { isUnlockException } from '@services/security/security.service';
-import { authUser$ } from '@services/user/user.events';
 import React, {
-  Dispatch, FC,
+  Dispatch,
+  FC,
+  FormEvent,
   createContext,
-  useContext, useEffect,
-  useState
-} from 'react';
-import { PasskeyPrompt } from './PasskeyPrompt';
-import { PasswordPrompt } from './PasswordPrompt';
-import { callWithUnlock } from './call-with-unlock';
-import { UnlockPromptState, UnlockRequest, callWithUnlockRequestEvent$, unlockPromptState$ } from './unlock.events';
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { TransitionProps } from "@mui/material/transitions";
+import SecurityIcon from "@mui/icons-material/Security";
+import {
+  Dialog,
+  FormHelperText,
+  Grow,
+  InputLabel,
+  Typography,
+  styled,
+} from "@mui/material";
+import { Icon as ReactIcon } from "@iconify/react";
+import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
+import { AppException } from "@model/exceptions/app-exception";
+import { ClientError } from "@model/exceptions/exception-codes";
+import { ShadowKeyType } from "@model/shadow-key/shadow-key-type";
+import { withCaughtAppException } from "@services/error.service";
+import { AuthKeyInput } from "@services/keyring/auth-key.input";
+import { unlockMasterKey } from "@services/keyring/keyring.service";
+import { logger } from "@services/logger";
+import { isUnlockException } from "@services/security/security.service";
+import { authUser$ } from "@services/user/user.events";
+import { PasskeyPrompt } from "./PasskeyPrompt";
+import { PasswordPrompt } from "./PasswordPrompt";
+import { callWithUnlock } from "./call-with-unlock";
+import {
+  UnlockPromptState,
+  UnlockRequest,
+  callWithUnlockRequestEvent$,
+  unlockPromptState$,
+} from "./unlock.events";
+import { IconAvatar } from "@components/feature/DetailLine";
+import { CardCase } from "@components/card";
+import AccountForm from "@components/form/AccountForm";
+import PasswordInput from "@/app/(pages)/register/components/PasswordInput";
+import { DarkButton } from "@components/button";
+import SeparateLineText from "@components/separate-line";
 
 type OnUnlockKeyCallback = (authorization: AuthKeyInput) => void;
 
 type UnlockKeyPromptActions = {
   onUnlockKey?: OnUnlockKeyCallback;
-}
+};
 
 interface UnlockKeyPromptContextType {
   actions: UnlockKeyPromptActions;
   setActions: Dispatch<UnlockKeyPromptActions>;
 }
 
-export const UnlockKeyPromptContext = createContext<UnlockKeyPromptContextType>({
-  actions: null,
-  setActions: null
-});
+export const UnlockKeyPromptContext = createContext<UnlockKeyPromptContextType>(
+  {
+    actions: null,
+    setActions: null,
+  }
+);
 
 export function UnlockKeyPromptContextProvider(props: any): JSX.Element {
   const [actions, setActions] = useState<UnlockKeyPromptActions>(null);
 
   return (
-    <UnlockKeyPromptContext.Provider
-      value={{ actions, setActions }}>
+    <UnlockKeyPromptContext.Provider value={{ actions, setActions }}>
       {props.children}
       <UnlockKeyPrompt />
     </UnlockKeyPromptContext.Provider>
-  )
+  );
 }
 
+const Transition = React.forwardRef(function Transition(
+  props: TransitionProps & {
+    children: React.ReactElement<any, any>;
+  },
+  ref: React.Ref<unknown>
+) {
+  return <Grow ref={ref} {...props} />;
+});
+
+const TitleBox = styled("div")(({ theme }) => ({
+  background: "linear-gradient(to right, #242424, #333 50%, transparent)",
+}));
 
 const UnlockKeyPrompt: FC = () => {
   const { actions, setActions } = useContext(UnlockKeyPromptContext);
@@ -55,36 +93,52 @@ const UnlockKeyPrompt: FC = () => {
   const securityFeature = authUser?.get("security");
   const [passwordKeys] = useBehaviorSubject(securityFeature?.passwordKeys$);
   const [passkeyKeys] = useBehaviorSubject(securityFeature?.passkeyKeys$);
+  const [password, setPassword] = useState("")
+  const [onValidation, setOnValidation] = useState(false)
   const { promptMasterKeyUnlock } = useUnlockKeyPrompt();
+  const pwInputRef = useRef(null);
 
   const hideDialog = (): void => {
-    setActions(null) // Hides the dialog
-  }
+    setActions(null); // Hides the dialog
+  };
 
   // User closing / click outside
   const onClose = (): void => {
     actions.onUnlockKey?.(null); // Notify that unlock was completed but with no result
     hideDialog();
-  }
+  };
+
+  const handlePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value);
+  };
+
+  const submitPassword = (event: FormEvent | MouseEvent) => {
+    event.preventDefault();
+    setOnValidation(true)
+    if(!pwInputRef.current.value) {
+      pwInputRef.current.focus()
+      return
+    }
+    onPasswordConfirmation(pwInputRef.current.value);
+  };
 
   const onPasswordConfirmation = (password: string): void => {
     actions.onUnlockKey?.({
       type: ShadowKeyType.PASSWORD,
       keyId: "unused-for-now-for-passwords",
-      key: password
+      key: password,
     });
     hideDialog();
-  }
+  };
 
   const onPasskeyConfirmation = (authKey: AuthKeyInput): void => {
     actions.onUnlockKey?.(authKey);
     hideDialog();
-  }
+  };
 
   useEffect(() => {
-    const sub = callWithUnlockRequestEvent$.subscribe(request => {
-      if (!request || request.handled)
-        return;
+    const sub = callWithUnlockRequestEvent$.subscribe((request) => {
+      if (!request || request.handled) return;
 
       request.handled = true;
 
@@ -98,29 +152,71 @@ const UnlockKeyPrompt: FC = () => {
       open={Boolean(actions)}
       disablePortal
       onClose={onClose}
+      TransitionComponent={Transition}
     >
-      <div className='p-4'>
-        <Typography variant='h4'>
-          Content unlock needed!
+      <div className="p-6">
+        <TitleBox className="flex items-center gap-x-2 px-4 py-2">
+          <IconAvatar>
+            <SecurityIcon fontSize="small" />
+          </IconAvatar>
+          <Typography variant="h6" fontWeight={600} className="ml-4">
+            Screen content is locked!
+          </Typography>
+        </TitleBox>
+        <Typography variant="body1" className="px-4 py-2">
+          Enter password or authenticate passkey to unlock the screen.
         </Typography>
-        <Typography color='#666' fontSize={14}>
-          Your encrypted data needs to be unlocked so we can display it.<br />
-          We can't do this without your interaction.
-        </Typography>
+        <CardCase className="relative w-full mt-4 md:pb-2">
+          <div className="absolute inset-0 p-2">
+            <div className="dashed-body w-full h-full rounded-2xl p-1.5 flex items-center">
+              <div className="px-6 py-8 w-full">
+                <div className="flex flex-col gap-2">
+                  <form onSubmit={submitPassword}>
+                    <AccountForm fullWidth error={onValidation && !password}>
+                      <InputLabel htmlFor="pw">PASSWORD</InputLabel>
+                      <PasswordInput
+                        outerProps={{
+                          disabled: passwordKeys?.length == 0,
+                          onChange: handlePassword,
+                        }}
+                        inputProps={{ ref: pwInputRef }}
+                      />
+                      <FormHelperText>Password is required!</FormHelperText>
+                    </AccountForm>
+                  </form>
+                  <div className="p-2 text-center">
+                    <DarkButton
+                      id="bind-ms"
+                      className="w-4/5"
+                      disabled={passwordKeys?.length == 0}
+                      onClick={submitPassword}
+                    >
+                      Continue
+                    </DarkButton>
+                    <div className="py-4">
+                      <SeparateLineText text="or browser authentication" />
+                    </div>
+                    <PasskeyPrompt
+                      onConfirm={onPasskeyConfirmation}
+                      disabled={passkeyKeys?.length == 0}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardCase>
 
-        <div className='mt-4'>
-          <PasswordPrompt onConfirm={onPasswordConfirmation} disabled={passwordKeys?.length == 0} />
-        </div>
-        <div className='my-4 text-center text-xs'>
-          or
-        </div>
-        <div className='mt-4'>
-          <PasskeyPrompt onConfirm={onPasskeyConfirmation} disabled={passkeyKeys?.length == 0} />
-        </div>
+        {/* <div className="mt-4">
+          <PasswordPrompt
+            onConfirm={onPasswordConfirmation}
+            disabled={passwordKeys?.length == 0}
+          />
+        </div> */}
       </div>
     </Dialog>
   );
-}
+};
 
 export default React.memo(UnlockKeyPrompt);
 
@@ -162,48 +258,65 @@ export const useUnlockKeyPrompt = (): {
     return new Promise((resolve) => {
       setActions({ onUnlockKey: resolve });
     });
-  }
+  };
 
   const retryUnlock = (): Promise<void> => {
     return callWithUnlock(() => {
       return activeUser.get("security").checkRemoteUnlockStatus();
-    })
-  }
+    });
+  };
 
   return { promptMasterKeyUnlock, retryUnlock };
-}
+};
 
 /**
  * Counterpart to callWithUnlock() running in the UI context.
  */
-async function callWithUnlockHandler(request: UnlockRequest<any>, promptMasterKeyUnlock: () => Promise<AuthKeyInput>): Promise<void> {
+async function callWithUnlockHandler(
+  request: UnlockRequest<any>,
+  promptMasterKeyUnlock: () => Promise<AuthKeyInput>
+): Promise<void> {
   try {
     const result = await withCaughtAppException(() => {
       return request.method();
     });
     request.resolve(result);
-  }
-  catch (e) {
+  } catch (e) {
     // Exception during the API call. Check if this is a unlock key requirement app exception and if so,
     // trigger the master unlock callback to let the UI prompt the unlock method to the user
     if (e instanceof AppException && isUnlockException(e)) {
-      logger.warn("security", "This method call requires unlock authorization from the user. Prompting");
+      logger.warn(
+        "security",
+        "This method call requires unlock authorization from the user. Prompting"
+      );
       const auth = await promptMasterKeyUnlock();
       if (auth) {
         // Client side auth provided: try to unlock on the API side and call the original api again
         await unlockMasterKey(auth);
-        const result = await callWithUnlock(request.method, request.silentCancellation, request.defaultValue, false);
+        const result = await callWithUnlock(
+          request.method,
+          request.silentCancellation,
+          request.defaultValue,
+          false
+        );
         request.resolve(result);
-      }
-      else {
+      } else {
         // Operation cancelled by user, this is a failure to bind password
         unlockPromptState$.next(UnlockPromptState.UnlockCancelled);
         logger.warn("security", "Unlock operation cancelled by user");
-        request.reject(AppException.newClientError(ClientError.UnlockKeyCancelled, "CANCELLED"));
+        request.reject(
+          AppException.newClientError(
+            ClientError.UnlockKeyCancelled,
+            "CANCELLED"
+          )
+        );
       }
-    }
-    else {
-      logger.error("security", "Unhandled callWithUnlock() exception (will get stuck):", e);
+    } else {
+      logger.error(
+        "security",
+        "Unhandled callWithUnlock() exception (will get stuck):",
+        e
+      );
     }
   }
 }

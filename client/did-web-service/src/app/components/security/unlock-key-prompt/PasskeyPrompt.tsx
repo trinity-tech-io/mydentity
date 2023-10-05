@@ -1,8 +1,9 @@
+import { FC } from 'react';
+import { Icon as ReactIcon } from "@iconify/react";
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { AuthKeyInput } from '@services/keyring/auth-key.input';
 import { authUser$ } from '@services/user/user.events';
-import { FC } from 'react';
-import { MainButton } from '../../generic/MainButton';
+import { DarkButton } from '@components/button';
 
 export const PasskeyPrompt: FC<{
   onConfirm: (authKey: AuthKeyInput) => void;
@@ -17,9 +18,14 @@ export const PasskeyPrompt: FC<{
   }
 
   return (
-    <div className='flex flex-row gap-4 bg-gray-100 mt-4 p-4 items-center'>
-      <p className='uppercase text-xs'>Browser<br />authentication</p>
-      <MainButton onClick={onSubmit} disabled={disabled}>Unlock with passkey</MainButton>
-    </div>
+    <DarkButton
+      id="bind-ms"
+      className="w-4/5"
+      startIcon={<ReactIcon icon="material-symbols:passkey" />}
+      disabled={disabled}
+      onClick={onSubmit}
+    >
+      Unlock with passkey
+    </DarkButton>
   );
 }
