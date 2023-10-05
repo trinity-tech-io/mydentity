@@ -1,24 +1,14 @@
 import React, {
   Dispatch,
   FC,
-  FormEvent,
   createContext,
   useContext,
   useEffect,
-  useRef,
   useState,
 } from "react";
 import { TransitionProps } from "@mui/material/transitions";
 import SecurityIcon from "@mui/icons-material/Security";
-import {
-  Dialog,
-  FormHelperText,
-  Grow,
-  InputLabel,
-  Typography,
-  styled,
-} from "@mui/material";
-import { Icon as ReactIcon } from "@iconify/react";
+import { Dialog, Grow, Typography, styled } from "@mui/material";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { AppException } from "@model/exceptions/app-exception";
 import { ClientError } from "@model/exceptions/exception-codes";
@@ -40,9 +30,6 @@ import {
 } from "./unlock.events";
 import { IconAvatar } from "@components/feature/DetailLine";
 import { CardCase } from "@components/card";
-import AccountForm from "@components/form/AccountForm";
-import PasswordInput from "@/app/(pages)/register/components/PasswordInput";
-import { DarkButton } from "@components/button";
 import SeparateLineText from "@components/separate-line";
 
 type OnUnlockKeyCallback = (authorization: AuthKeyInput) => void;
@@ -93,10 +80,7 @@ const UnlockKeyPrompt: FC = () => {
   const securityFeature = authUser?.get("security");
   const [passwordKeys] = useBehaviorSubject(securityFeature?.passwordKeys$);
   const [passkeyKeys] = useBehaviorSubject(securityFeature?.passkeyKeys$);
-  const [password, setPassword] = useState("")
-  const [onValidation, setOnValidation] = useState(false)
   const { promptMasterKeyUnlock } = useUnlockKeyPrompt();
-  const pwInputRef = useRef(null);
 
   const hideDialog = (): void => {
     setActions(null); // Hides the dialog
@@ -106,20 +90,6 @@ const UnlockKeyPrompt: FC = () => {
   const onClose = (): void => {
     actions.onUnlockKey?.(null); // Notify that unlock was completed but with no result
     hideDialog();
-  };
-
-  const handlePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
-  };
-
-  const submitPassword = (event: FormEvent | MouseEvent) => {
-    event.preventDefault();
-    setOnValidation(true)
-    if(!pwInputRef.current.value) {
-      pwInputRef.current.focus()
-      return
-    }
-    onPasswordConfirmation(pwInputRef.current.value);
   };
 
   const onPasswordConfirmation = (password: string): void => {
@@ -153,6 +123,7 @@ const UnlockKeyPrompt: FC = () => {
       disablePortal
       onClose={onClose}
       TransitionComponent={Transition}
+      PaperProps={{ sx: { backgroundImage: "none" } }}
     >
       <div className="p-6">
         <TitleBox className="flex items-center gap-x-2 px-4 py-2">
@@ -171,28 +142,11 @@ const UnlockKeyPrompt: FC = () => {
             <div className="dashed-body w-full h-full rounded-2xl p-1.5 flex items-center">
               <div className="px-6 py-8 w-full">
                 <div className="flex flex-col gap-2">
-                  <form onSubmit={submitPassword}>
-                    <AccountForm fullWidth error={onValidation && !password}>
-                      <InputLabel htmlFor="pw">PASSWORD</InputLabel>
-                      <PasswordInput
-                        outerProps={{
-                          disabled: passwordKeys?.length == 0,
-                          onChange: handlePassword,
-                        }}
-                        inputProps={{ ref: pwInputRef }}
-                      />
-                      <FormHelperText>Password is required!</FormHelperText>
-                    </AccountForm>
-                  </form>
-                  <div className="p-2 text-center">
-                    <DarkButton
-                      id="bind-ms"
-                      className="w-4/5"
-                      disabled={passwordKeys?.length == 0}
-                      onClick={submitPassword}
-                    >
-                      Continue
-                    </DarkButton>
+                  <PasswordPrompt
+                    onConfirm={onPasswordConfirmation}
+                    disabled={passwordKeys?.length == 0}
+                  />
+                  <div className="p-2 pt-0 text-center">
                     <div className="py-4">
                       <SeparateLineText text="or browser authentication" />
                     </div>
@@ -206,13 +160,6 @@ const UnlockKeyPrompt: FC = () => {
             </div>
           </div>
         </CardCase>
-
-        {/* <div className="mt-4">
-          <PasswordPrompt
-            onConfirm={onPasswordConfirmation}
-            disabled={passwordKeys?.length == 0}
-          />
-        </div> */}
       </div>
     </Dialog>
   );

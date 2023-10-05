@@ -1,35 +1,53 @@
-import { TextField } from '@mui/material';
-import { ChangeEvent, FC, useState } from 'react';
-import { MainButton } from '../../generic/MainButton';
+import { FC, FormEvent, useRef, useState } from 'react';
+import { InputLabel } from '@mui/material';
+import { DarkButton } from '@components/button';
+import AccountForm from '@components/form/AccountForm';
+import PasswordInput from '@/app/(pages)/register/components/PasswordInput';
 
 export const PasswordPrompt: FC<{
   onConfirm: (password: string) => void;
   disabled: boolean;
 }> = ({ onConfirm, disabled }) => {
   const [password, setPassword] = useState<string>("");
+  const pwInputRef = useRef(null);
 
-  const onSubmit = (): void => {
-    onConfirm(password);
-  }
+  const handlePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value);
+  };
 
-  const onInputChange = (e: ChangeEvent<HTMLInputElement>): void => {
-    setPassword(e.currentTarget.value);
-  }
+  const submitPassword = (event: FormEvent | MouseEvent) => {
+    event.preventDefault();
+    if(!pwInputRef.current.value) {
+      pwInputRef.current.focus()
+      return
+    }
+    onConfirm(pwInputRef.current.value);
+  };
 
   return (
-    <div className='flex flex-row gap-4 bg-gray-100 mt-4 p-4'>
-      <p className='uppercase text-xs'>master<br />password</p>
-      <TextField
-        label="Your password"
-        autoFocus
-        type='password'
-        name='master-password' // TODO + user id
-        variant="outlined"
-        size='small'
-        onChange={onInputChange}
-        disabled={disabled}
-      />
-      <MainButton onClick={onSubmit} disabled={disabled || !password}>Continue</MainButton>
-    </div>
+    <>
+      <form onSubmit={submitPassword}>
+        <AccountForm fullWidth>
+          <InputLabel htmlFor="pw">PASSWORD</InputLabel>
+          <PasswordInput
+            outerProps={{
+              disabled,
+              onChange: handlePassword,
+            }}
+            inputProps={{ ref: pwInputRef }}
+          />
+        </AccountForm>
+      </form>
+      <div className="p-2 pb-0 text-center">
+        <DarkButton
+          id="bind-ms"
+          className="w-4/5"
+          disabled={disabled || !password.length}
+          onClick={submitPassword}
+        >
+          Continue
+        </DarkButton>
+      </div>
+    </>
   );
 }
