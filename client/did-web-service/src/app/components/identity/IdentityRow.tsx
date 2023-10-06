@@ -43,7 +43,7 @@ export const IdentityRow: FC<{
               className="flex-1"
               primary={<span className="font-medium">{name}</span>}
               secondary={
-                <span className="text-[12px]">
+                <span className="text-[8pt]">
                   {shortenDID(identity.did, 8)}
                 </span>
               }

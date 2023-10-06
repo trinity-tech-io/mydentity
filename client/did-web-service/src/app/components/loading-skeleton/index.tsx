@@ -1,3 +1,4 @@
-import TableAvatarRow from "./TableAvatarRow";
+import LoadingTableAvatarRow from "./TableAvatarRow";
+import LoadingProfileInfo from "./ProfileInfo";
 
-export { TableAvatarRow };
+export { LoadingTableAvatarRow, LoadingProfileInfo };

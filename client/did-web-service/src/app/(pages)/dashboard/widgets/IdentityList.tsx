@@ -16,7 +16,7 @@ import { activeIdentity$ } from "@services/identity/identity.events";
 import { identityService } from "@services/identity/identity.service";
 import { authUser$ } from "@services/user/user.events";
 import { useMounted } from "@hooks/useMounted";
-import { TableAvatarRow } from "@components/loading-skeleton";
+import { LoadingTableAvatarRow } from "@components/loading-skeleton";
 
 const TAG = "IdentityListWidget";
 
@@ -81,7 +81,7 @@ export const IdentityListWidget: FC = (_) => {
             ) : (
               Array(2)
                 .fill(0)
-                .map((_, _i) => <TableAvatarRow key={_i} />)
+                .map((_, _i) => <LoadingTableAvatarRow key={_i} />)
             )
           }
         />

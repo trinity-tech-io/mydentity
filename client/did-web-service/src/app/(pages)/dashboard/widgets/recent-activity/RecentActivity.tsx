@@ -7,7 +7,7 @@ import DetailContainer from "@components/generic/DetailContainer";
 import { DetailTable } from "@components/generic/DetailTable";
 import { ActivityRow } from "./ActivityRow";
 import { useMounted } from "@hooks/useMounted";
-import { TableAvatarRow } from "@components/loading-skeleton";
+import { LoadingTableAvatarRow } from "@components/loading-skeleton";
 
 export const RecentActivityWidget: FC = (_) => {
   const [activeUser] = useBehaviorSubject(authUser$);
@@ -40,7 +40,7 @@ export const RecentActivityWidget: FC = (_) => {
             !mounted || !recentActivities ? (
               Array(3)
                 .fill(0)
-                .map((_, _i) => <TableAvatarRow key={_i} />)
+                .map((_, _i) => <LoadingTableAvatarRow key={_i} />)
             ) : (
               <>
                 {recentActivities.length > 0 ? (

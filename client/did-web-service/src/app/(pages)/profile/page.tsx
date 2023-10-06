@@ -47,6 +47,7 @@ import { DetailTable, DetailTableRow } from "@components/generic/DetailTable";
 import DetailContainer from "@components/generic/DetailContainer";
 import { IconAvatar } from "@components/feature/DetailLine";
 import ChipIcon from "@assets/images/chip.svg";
+import { LoadingProfileInfo } from "@components/loading-skeleton";
 
 const CREDENTIAL_LIST_HEAD = [
   { id: "name", label: "Profile item", alignRight: false },
@@ -412,23 +413,32 @@ const Profile: FC = () => {
       >
         <Stack direction="row">
           <div className="flex flex-1 items-center">
-            <EditableCredentialAvatar
-              credential={avatarCredential}
-              width={80}
-              height={80}
-              onFileUpload={handleAvatarFileChanged}
-              updating={uploadingAvatar}
-              disabled={!credentials}
-            />
-            <div className="flex flex-col ml-4">
-              <Typography variant="h4">{name}</Typography>
-              <div className="inline-flex items-center">
-                <Typography variant="body2">{activeIdentity?.did?.toString()}</Typography>
-                <CopyButton text={activeIdentity?.did?.toString()}/>
-              </div>
-            </div>
+            {
+              mounted && !!activeIdentity ?
+              <>
+                <EditableCredentialAvatar
+                  credential={avatarCredential}
+                  width={80}
+                  height={80}
+                  onFileUpload={handleAvatarFileChanged}
+                  updating={uploadingAvatar}
+                  disabled={!credentials}
+                />
+                <div className="flex flex-col ml-4">
+                  <div className="flex pb-2">
+                    <Box className="rounded-md bg-[#9291A5] text-[8pt] px-3 py-0.5 inline-block">ACTIVE IDENTITY</Box>
+                  </div>
+                  <Typography variant="h4">{name}</Typography>
+                  <div className="inline-flex items-center">
+                    <Typography variant="body2">{activeIdentity?.did?.toString()}</Typography>
+                    <CopyButton text={activeIdentity?.did?.toString()}/>
+                  </div>
+                </div>
+              </>:
+              <LoadingProfileInfo />
+            }
           </div>
-          <div>
+          <div className="ml-4">
             <DarkButton
               startIcon={<AddIcon />}
               disabled={!credentials} // Don't allow edition until credentials are fetched
