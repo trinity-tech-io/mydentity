@@ -15,15 +15,20 @@ import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useMounted } from "@hooks/useMounted";
 import { Credential } from "@model/credential/credential";
 import { ProfileCredential } from "@model/credential/profile-credential";
-import AddIcon from "@mui/icons-material/Add";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
-import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import {
+  Add as AddIcon,
+  MoreVert as MoreVertIcon,
+  NavigateNext as NavigateNextIcon,
+  Search as SearchIcon,
+} from "@mui/icons-material";
 import {
   Button,
   Card,
   Container,
   IconButton,
+  InputAdornment,
   MenuItem,
+  OutlinedInput,
   Popover,
   Stack,
   Table,
@@ -67,6 +72,7 @@ import {
   LoadingProfileInfo,
   LoadingTableAvatarRow,
 } from "@components/loading-skeleton";
+import OutlinedInputStyled from "@components/input/OutlinedInputStyled";
 
 const CREDENTIAL_LIST_HEAD = [
   { id: "name", label: "Profile item", alignRight: false },
@@ -436,7 +442,7 @@ const Profile: FC = () => {
       >
         <Stack direction="row">
           <div className="flex flex-1 items-center">
-            {mounted && !!activeIdentity ? (
+            {!unlockerIsIdle || (mounted && !!activeIdentity) ? (
               <>
                 <EditableCredentialAvatar
                   credential={avatarCredential}
@@ -467,6 +473,19 @@ const Profile: FC = () => {
           </div>
           <div className="ml-4 flex flex-col justify-center items-end gap-1">
             <div className="flex">
+              <OutlinedInputStyled
+                id="credential-search"
+                size="small"
+                placeholder="Search"
+                className="mr-4 rounded"
+                onChange={handleFilterByName}
+                // inputProps={{ ref: emailInputRef }}
+                startAdornment={
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                }
+              />
               <DarkButton
                 className="rounded"
                 startIcon={<AddIcon />}
@@ -516,50 +535,83 @@ const Profile: FC = () => {
             headCells={
               <>
                 <TableCell>PROFILE ITEM</TableCell>
-                <TableCell>DETAIL</TableCell>
-                <TableCell>ISSUED</TableCell>
-                <TableCell>EXPIRES ON</TableCell>
+                <TableCell align="center">DETAIL</TableCell>
+                <TableCell align="center">ISSUED</TableCell>
+                <TableCell align="center">EXPIRES ON</TableCell>
+                <TableCell sx={{ width: 0 }}></TableCell>
               </>
             }
             bodyRows={
               mounted && !!filteredCredentials ? (
                 <>
-                  {filteredCredentials
-                    ?.slice(
-                      page * rowsPerPage,
-                      page * rowsPerPage + rowsPerPage
-                    )
-                    .map((credential: ProfileCredential) => {
-                      // const { id, name, value} = row;
-                      const id = credential.id;
-                      return (
-                        <DetailTableRow
-                          key={id}
-                          props={{ hover: true }}
-                          onClick={(): void => handleCellClick(credential)}
-                          className="h-[3rem] cursor-pointer"
-                          avatar={
-                            <CredentialAvatar
-                              credential={credential}
-                              width={36}
-                              height={36}
+                  {
+                    !filteredCredentials.length ? (
+                      <>
+                        <TableRow>
+                          <TableCell component="th" colSpan={6} align="center">
+                            {
+                              isNotFound ? 
+                              <Typography variant="body1">
+                                No results found for &nbsp;
+                                <strong>&quot;{filterName}&quot;</strong>.
+                                <br /> Try checking for typos or using complete
+                                words.
+                              </Typography>:
+                              <Typography variant="body1">No credential found</Typography>
+                            }
+                          </TableCell>
+                        </TableRow>
+                      </>
+                    ) : (
+                      filteredCredentials
+                        ?.slice(
+                          page * rowsPerPage,
+                          page * rowsPerPage + rowsPerPage
+                        )
+                        .map((credential: ProfileCredential) => {
+                          // const { id, name, value} = row;
+                          const id = credential.id;
+                          return (
+                            <DetailTableRow
+                              key={id}
+                              props={{ hover: true }}
+                              onClick={(): void => handleCellClick(credential)}
+                              className="h-[3rem] cursor-pointer"
+                              avatar={
+                                <CredentialAvatar
+                                  credential={credential}
+                                  width={36}
+                                  height={36}
+                                />
+                              }
+                              rowCells={
+                                <>
+                                  <TableCell>
+                                    {credential.getDisplayableTitle()}
+                                  </TableCell>
+                                  <TableCell align="center">
+                                    {credential.getDisplayValue()}
+                                  </TableCell>
+                                  <TableCell align="center"></TableCell>
+                                  <TableCell align="center"></TableCell>
+                                  <TableCell align="center">
+                                    <IconButton
+                                      size="small"
+                                      color="inherit"
+                                      onClick={(event): void => {
+                                        handleOpenMenu(event, credential);
+                                      }}
+                                    >
+                                      <MoreVertIcon />
+                                    </IconButton>
+                                  </TableCell>
+                                </>
+                              }
                             />
-                          }
-                          rowCells={
-                            <>
-                              <TableCell>
-                                {credential.getDisplayableTitle()}
-                              </TableCell>
-                              <TableCell>
-                                {credential.getDisplayValue()}
-                              </TableCell>
-                              <TableCell></TableCell>
-                              <TableCell></TableCell>
-                            </>
-                          }
-                        />
-                      );
-                    })}
+                          );
+                        })
+                    )
+                  }
                 </>
               ) : (
                 Array(3)
@@ -574,9 +626,6 @@ const Profile: FC = () => {
       </DetailContainer>
 
       <Container>
-        {unlockerIsIdle && (!credentials || !mounted) && (
-          <VerticalStackLoadingCard />
-        )}
         {/* Unlocking credentials failed, cannot display them. Show a retry button to  */}
         {unlockerIsCancelled && (!credentials || !mounted) && (
           <UnlockRetrier className="mt-4" />
