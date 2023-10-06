@@ -39,7 +39,7 @@ const DetailContainer: FC<{
           Show all
         </ButtonStyled>
       </Box>
-      <CardContent sx={{px: 3, pt: 1}}>{children}</CardContent>
+      <CardContent className="relative z-10" sx={{px: 3, pt: 1}}>{children}</CardContent>
     </CardStyled>
   );
 };

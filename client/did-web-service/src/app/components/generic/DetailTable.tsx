@@ -1,16 +1,28 @@
 import { FC, ReactNode } from "react";
-import { Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  TableRowOwnProps,
+} from "@mui/material";
 
-export const DetailTableRow: FC<{ avatar: ReactNode; rowCells: ReactNode; className?: string }> = ({
+export const DetailTableRow: FC<{
+  avatar: ReactNode;
+  rowCells: ReactNode;
+  className?: string;
+  props?: TableRowOwnProps;
+  onClick?: () => void;
+}> = ({
   avatar,
   rowCells,
-  className = ""
+  className = "",
+  props = {},
+  onClick = (): void => {},
 }) => {
   return (
-    <TableRow
-      className={className}
-    // sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-    >
+    <TableRow {...props} className={className} onClick={onClick}>
       <TableCell padding="none">{avatar}</TableCell>
       {rowCells}
     </TableRow>
@@ -27,7 +39,7 @@ export const DetailTable: FC<{ headCells: ReactNode; bodyRows: ReactNode }> = ({
         th: { border: 0 },
         thead: {
           background:
-            "linear-gradient(to right, transparent, #444 25%, #3e3e3e 50%, #444 75%, transparent)",
+            "linear-gradient(to right, transparent, #4e4e4eb3 25%, #555555b3 50%, #4e4e4eb3 75%, transparent)",
           th: { px: 1, fontSize: 15, fontWeight: "600" },
           "th:last-child": { textAlign: "right" },
         },
@@ -37,9 +49,9 @@ export const DetailTable: FC<{ headCells: ReactNode; bodyRows: ReactNode }> = ({
           "td:last-child": { textAlign: "right" },
           "tr:last-child": {
             td: {
-              border: 0
-            }
-          }
+              border: 0,
+            },
+          },
         },
       }}
     >

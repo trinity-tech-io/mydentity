@@ -13,7 +13,7 @@ export const RecentActivityWidget: FC = (_) => {
   const [activeUser] = useBehaviorSubject(authUser$);
   const { mounted } = useMounted();
   const router = useRouter();
-  let [activities] = useBehaviorSubject(
+  const [activities] = useBehaviorSubject(
     activeUser?.get("activity").activities$
   );
   const recentActivities = activities?.slice(0, 5);

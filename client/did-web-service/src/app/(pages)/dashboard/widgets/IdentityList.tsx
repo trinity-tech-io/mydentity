@@ -37,15 +37,6 @@ export const IdentityListWidget: FC = (_) => {
       return dateB - dateA;
     });
 
-  const handleCellClick = (identity: RegularIdentity): void => {
-    if (identity !== activeIdentity) {
-      setShowToast(true);
-    } else {
-      setShowToast(false);
-    }
-    identityService.setActiveIdentity(identity);
-    router.push("/profile");
-  };
 
   const openCreateIdentity = (): void => {
     router.push("/new-identity");
@@ -161,20 +152,6 @@ export const IdentityListWidget: FC = (_) => {
     //               })
     //             }
     //           </tbody>
-
-    //           <tfoot>
-    //             <tr>
-    //               <td colSpan={2} className="p-3 text-right">
-    //                 <div className="flex justify-end">
-    //                   <button className="bg-indigo-500 hover:bg-indigo-600 text-white font-bold text-xs py-1 px-2 rounded relative"
-    //                     onClick={handleShowAllClick}
-    //                   >
-    //                     <span>Show all</span>
-    //                   </button>
-    //                 </div>
-    //               </td>
-    //             </tr>
-    //           </tfoot>
     //         </table>
     //       </div>
     //     }
