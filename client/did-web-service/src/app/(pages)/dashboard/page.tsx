@@ -29,29 +29,29 @@ const Dashboard: FC = () => {
       </div>
 
       {/* {!mounted && <VerticalStackLoadingCard className="col-span-full" />} */}
-
-      {/* {mounted && ( */}
-        <>
-          {/* Widgets */}
-          {/* {authUser && ( */}
-            <>
-              <Grid container spacing={3}>
-                <Grid item xs={12} md={6}>
-                  <RecentActivityWidget />
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <IdentityListWidget />
-                </Grid>
+      <>
+        {/* Widgets */}
+        {/* {authUser && ( */}
+          <>
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={6}>
+                <RecentActivityWidget />
               </Grid>
-              {/* Duplicate with recent activity <RecentApplicationsWidget /> */}
-              <div className="pt-6">
-                <AccountAccess />
-                <AccountUnlock />
-              </div>
-            </>
-          {/* )} */}
-        </>
-      {/* )} */}
+              <Grid item xs={12} md={6}>
+                <IdentityListWidget />
+              </Grid>
+            </Grid>
+            {/* Duplicate with recent activity <RecentApplicationsWidget /> */}
+            
+          </>
+        {/* )} */}
+      </>
+      {mounted && (
+        <div className="pt-6">
+          <AccountAccess />
+          <AccountUnlock />
+        </div>
+      )}
     </>
   );
 };

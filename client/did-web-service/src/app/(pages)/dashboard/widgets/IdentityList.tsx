@@ -15,6 +15,8 @@ import { RegularIdentity } from "@model/regular-identity/regular-identity";
 import { activeIdentity$ } from "@services/identity/identity.events";
 import { identityService } from "@services/identity/identity.service";
 import { authUser$ } from "@services/user/user.events";
+import { useMounted } from "@hooks/useMounted";
+import { TableAvatarRow } from "@components/loading-skeleton";
 
 const TAG = "IdentityListWidget";
 
@@ -23,6 +25,7 @@ export const IdentityListWidget: FC = (_) => {
   const [identities] = useBehaviorSubject(
     authUser?.get("identity").regularIdentities$
   );
+  const { mounted } = useMounted();
   const router = useRouter();
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const [showToast, setShowToast] = useState<boolean>(false);
@@ -66,23 +69,29 @@ export const IdentityListWidget: FC = (_) => {
             </>
           }
           bodyRows={
-            <>
-              {!sortedIdentities || !sortedIdentities.length ? (
-                <>
-                  <TableRow>
-                    <TableCell component="th" colSpan={3} align="center">
-                      <span className="text-base">No identity yet.</span>
-                    </TableCell>
-                  </TableRow>
-                </>
-              ) : (
-                sortedIdentities
-                  .slice(0, 4)
-                  .map((identity, _i) => (
-                    <IdentityRow key={_i} identity={identity} />
-                  ))
-              )}
-            </>
+            mounted && sortedIdentities ? (
+              <>
+                {!sortedIdentities.length ? (
+                  <>
+                    <TableRow>
+                      <TableCell component="th" colSpan={3} align="center">
+                        <span className="text-base">No identity yet.</span>
+                      </TableCell>
+                    </TableRow>
+                  </>
+                ) : (
+                  sortedIdentities
+                    .slice(0, 4)
+                    .map((identity, _i) => (
+                      <IdentityRow key={_i} identity={identity} />
+                    ))
+                )}
+              </>
+            ) : (
+              Array(2)
+                .fill(0)
+                .map((_, _i) => <TableAvatarRow key={_i} />)
+            )
           }
         />
         <div className="w-full mt-2">

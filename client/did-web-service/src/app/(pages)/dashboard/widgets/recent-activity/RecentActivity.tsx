@@ -16,7 +16,7 @@ export const RecentActivityWidget: FC = (_) => {
   let [activities] = useBehaviorSubject(
     activeUser?.get("activity").activities$
   );
-  activities = activities?.slice(0, 5);
+  const recentActivities = activities?.slice(0, 5);
 
   const handleShowAllClick = (): void => {
     router.push("/recent-activity");
@@ -37,18 +37,16 @@ export const RecentActivityWidget: FC = (_) => {
             </>
           }
           bodyRows={
-            !mounted ? (
+            !mounted || !recentActivities ? (
               Array(3)
                 .fill(0)
-                .map((_i) => <TableAvatarRow key={_i} />)
+                .map((_, _i) => <TableAvatarRow key={_i} />)
             ) : (
               <>
-                {activities && activities.length > 0 ? (
-                  activities
-                    .slice(0, 5)
-                    .map((activity, i) => (
-                      <ActivityRow activity={activity} key={i} />
-                    ))
+                {recentActivities.length > 0 ? (
+                  recentActivities.map((activity, i) => (
+                    <ActivityRow activity={activity} key={i} />
+                  ))
                 ) : (
                   <TableRow>
                     <TableCell component="th" colSpan={3} align="center">
