@@ -17,7 +17,21 @@ import { Credential } from "@model/credential/credential";
 import { ProfileCredential } from "@model/credential/profile-credential";
 import AddIcon from "@mui/icons-material/Add";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import { Card, Container, IconButton, MenuItem, Popover, Stack, Table, TableBody, TableCell, TableContainer, TablePagination, TableRow, Typography } from "@mui/material";
+import {
+  Card,
+  Container,
+  IconButton,
+  MenuItem,
+  Popover,
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TablePagination,
+  TableRow,
+  Typography,
+} from "@mui/material";
 import MuiAlert, { AlertProps } from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import { useToast } from "@services/feedback.service";
@@ -30,7 +44,7 @@ import { activeIdentity$ } from "@services/identity/identity.events";
 import { logger } from "@services/logger";
 import { filter } from "lodash";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next13-progressbar";
 import {
   ChangeEvent,
   FC,
@@ -47,7 +61,10 @@ import { DetailTable, DetailTableRow } from "@components/generic/DetailTable";
 import DetailContainer from "@components/generic/DetailContainer";
 import { IconAvatar } from "@components/feature/DetailLine";
 import ChipIcon from "@assets/images/chip.svg";
-import { LoadingProfileInfo } from "@components/loading-skeleton";
+import {
+  LoadingProfileInfo,
+  LoadingTableAvatarRow,
+} from "@components/loading-skeleton";
 
 const CREDENTIAL_LIST_HEAD = [
   { id: "name", label: "Profile item", alignRight: false },
@@ -69,7 +86,7 @@ const Profile: FC = () => {
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const credentialsFeature = activeIdentity?.credentials();
   const identityProfileFeature = activeIdentity?.profile();
-  const [name] = useBehaviorSubject(identityProfileFeature?.name$)
+  const [name] = useBehaviorSubject(identityProfileFeature?.name$);
   const [credentials] = useBehaviorSubject(
     identityProfileFeature?.profileCredentials$
   ); // All profile credentials of this identity
@@ -413,8 +430,7 @@ const Profile: FC = () => {
       >
         <Stack direction="row">
           <div className="flex flex-1 items-center">
-            {
-              mounted && !!activeIdentity ?
+            {mounted && !!activeIdentity ? (
               <>
                 <EditableCredentialAvatar
                   credential={avatarCredential}
@@ -426,17 +442,22 @@ const Profile: FC = () => {
                 />
                 <div className="flex flex-col ml-4">
                   <div className="flex pb-2">
-                    <Box className="rounded-md bg-[#9291A5] text-[8pt] px-3 py-0.5 inline-block">ACTIVE IDENTITY</Box>
+                    <Box className="rounded-md bg-[#9291A5] text-[8pt] px-3 py-0.5 inline-block">
+                      ACTIVE IDENTITY
+                    </Box>
                   </div>
                   <Typography variant="h4">{name}</Typography>
                   <div className="inline-flex items-center">
-                    <Typography variant="body2">{activeIdentity?.did?.toString()}</Typography>
-                    <CopyButton text={activeIdentity?.did?.toString()}/>
+                    <Typography variant="body2">
+                      {activeIdentity?.did?.toString()}
+                    </Typography>
+                    <CopyButton text={activeIdentity?.did?.toString()} />
                   </div>
                 </div>
-              </>:
+              </>
+            ) : (
               <LoadingProfileInfo />
-            }
+            )}
           </div>
           <div className="ml-4">
             <DarkButton
@@ -476,35 +497,52 @@ const Profile: FC = () => {
               </>
             }
             bodyRows={
-              <>
-              {
-                filteredCredentials
-                ?.slice(
-                  page * rowsPerPage,
-                  page * rowsPerPage + rowsPerPage
-                )
-                .map((credential: ProfileCredential) => {
-                  // const { id, name, value} = row;
-                  const id = credential.id;
-                  return (
-                    <DetailTableRow
-                      key={id}
-                      avatar={
-                        <CredentialAvatar credential={credential} width={36} height={36} />
-                      }
-                      rowCells={
-                        <>
-                          <TableCell>{credential.getDisplayableTitle()}</TableCell>
-                          <TableCell>{credential.getDisplayValue()}</TableCell>
-                          <TableCell></TableCell>
-                          <TableCell></TableCell>
-                        </>
-                      }
-                    />
-                  )
-                })
-              }
-              </>
+              mounted && !!filteredCredentials ? (
+                <>
+                  {filteredCredentials
+                    ?.slice(
+                      page * rowsPerPage,
+                      page * rowsPerPage + rowsPerPage
+                    )
+                    .map((credential: ProfileCredential) => {
+                      // const { id, name, value} = row;
+                      const id = credential.id;
+                      return (
+                        <DetailTableRow
+                          key={id}
+                          props={{hover: true}}
+                          onClick={(): void => handleCellClick(credential)}
+                          className="h-[3rem] cursor-pointer"
+                          avatar={
+                            <CredentialAvatar
+                              credential={credential}
+                              width={36}
+                              height={36}
+                            />
+                          }
+                          rowCells={
+                            <>
+                              <TableCell>
+                                {credential.getDisplayableTitle()}
+                              </TableCell>
+                              <TableCell>
+                                {credential.getDisplayValue()}
+                              </TableCell>
+                              <TableCell></TableCell>
+                              <TableCell></TableCell>
+                            </>
+                          }
+                        />
+                      );
+                    })}
+                </>
+              ) : (
+                Array(3)
+                  .fill(0)
+                  .map((_, _i) => (
+                    <LoadingTableAvatarRow key={_i} colSpan={4} />
+                  ))
+              )
             }
           />
         </div>
