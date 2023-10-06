@@ -1,14 +1,14 @@
 import { styled } from "@mui/material";
 import LoadingButton from "@mui/lab/LoadingButton";
 
-const DarkButton = styled(LoadingButton)(({ theme }) => ({
+const DarkButton = styled(LoadingButton)(({ theme, className }) => ({
   background: "#323B45 !important",
-  borderRadius: 4,
+  borderRadius: className?.includes("rounded") ? 8 : 4,
   padding: "8px 18px",
   color: "white",
   textTransform: "capitalize",
   "&:disabled": {
-    opacity: '0.7 !important',
+    opacity: "0.7 !important",
     backgroundColor: "#555 !important",
     color: "#fff !important",
   },
@@ -20,10 +20,10 @@ const DarkButton = styled(LoadingButton)(({ theme }) => ({
     padding: "6px 14px",
   },
   ".MuiLoadingButton-loadingIndicator": {
-    position: 'unset',
-    color: 'white',
-    visibility: 'inherit',
-  }
+    position: "unset",
+    color: "white",
+    visibility: "inherit",
+  },
 }));
 
 export default DarkButton;

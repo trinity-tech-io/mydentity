@@ -17,7 +17,9 @@ import { Credential } from "@model/credential/credential";
 import { ProfileCredential } from "@model/credential/profile-credential";
 import AddIcon from "@mui/icons-material/Add";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import {
+  Button,
   Card,
   Container,
   IconButton,
@@ -56,7 +58,7 @@ import {
 import { EditableCredentialAvatar } from "../../components/credential/EditableCredentialAvatar";
 import { OrderBy } from "./order-by";
 import Headline from "@components/layout/Headline";
-import { CopyButton, DarkButton } from "@components/button";
+import { CopyButton, DarkButton, NormalButton } from "@components/button";
 import { DetailTable, DetailTableRow } from "@components/generic/DetailTable";
 import DetailContainer from "@components/generic/DetailContainer";
 import { IconAvatar } from "@components/feature/DetailLine";
@@ -410,6 +412,10 @@ const Profile: FC = () => {
     router.push("/credentials/list");
   };
 
+  const handleShowAllIdentities = (): void => {
+    router.push("/identities");
+  };
+
   return (
     <div className="col-span-full">
       <Headline
@@ -459,16 +465,35 @@ const Profile: FC = () => {
               <LoadingProfileInfo />
             )}
           </div>
-          <div className="ml-4">
-            <DarkButton
-              startIcon={<AddIcon />}
-              disabled={!credentials} // Don't allow edition until credentials are fetched
-              onClick={(): void => {
-                setOpenCreateCredential(true);
-              }}
-            >
-              ADD PROFILE ITEM
-            </DarkButton>
+          <div className="ml-4 flex flex-col justify-center items-end gap-1">
+            <div className="flex">
+              <DarkButton
+                className="rounded"
+                startIcon={<AddIcon />}
+                disabled={!credentials} // Don't allow edition until credentials are fetched
+                onClick={(): void => {
+                  setOpenCreateCredential(true);
+                }}
+              >
+                ADD PROFILE ITEM
+              </DarkButton>
+            </div>
+            <div className="flex gap-1">
+              <NormalButton
+                size="small"
+                endIcon={<NavigateNextIcon />}
+                onClick={handleShowAllIdentities}
+              >
+                Show all identities
+              </NormalButton>
+              {!!explorerDIDLink && (
+                <Link target="_blank" href={explorerDIDLink} passHref={true}>
+                  <NormalButton size="small" endIcon={<NavigateNextIcon />}>
+                    View on blockchain explorer
+                  </NormalButton>
+                </Link>
+              )}
+            </div>
           </div>
         </Stack>
       </Box>
@@ -510,7 +535,7 @@ const Profile: FC = () => {
                       return (
                         <DetailTableRow
                           key={id}
-                          props={{hover: true}}
+                          props={{ hover: true }}
                           onClick={(): void => handleCellClick(credential)}
                           className="h-[3rem] cursor-pointer"
                           avatar={
@@ -668,18 +693,6 @@ const Profile: FC = () => {
             />
           </Card>
         )} */}
-
-        <div className="mt-4">
-          <Typography variant="h4" gutterBottom>
-            Advanced
-          </Typography>
-        </div>
-
-        {explorerDIDLink && (
-          <Link target="_blank" href={explorerDIDLink}>
-            View identity's DID on blockchain explorer
-          </Link>
-        )}
       </Container>
 
       <Popover

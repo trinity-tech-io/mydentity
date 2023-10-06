@@ -1,11 +1,9 @@
 import { FC, ReactNode } from "react";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import { Box, Button, Card, CardContent, styled } from "@mui/material";
+import { Box, Card, CardContent, styled } from "@mui/material";
 import clsx from "clsx";
+import { NormalButton } from "@components/button";
 
-const ButtonStyled = styled(Button)(({ theme }) => ({
-  color: theme.palette.mode === "dark" ? "white" : "black",
-}));
 const CardStyled = styled(Card)(({ theme }) => ({
   border: "2px solid #FFFFFF55",
   borderRadius: "0.5rem",
@@ -35,9 +33,9 @@ const DetailContainer: FC<{
     <CardStyled className={clsx("border bord", className)} elevation={0}>
       <Box className="py-4 px-6 flex">
         <span className="flex-1 text-[20px] font-semibold">{title}</span>
-        <ButtonStyled size="small" endIcon={<NavigateNextIcon />} onClick={showAllAction}>
+        <NormalButton size="small" endIcon={<NavigateNextIcon />} onClick={showAllAction}>
           Show all
-        </ButtonStyled>
+        </NormalButton>
       </Box>
       <CardContent className="relative z-10" sx={{px: 3, pt: 1}}>{children}</CardContent>
     </CardStyled>
