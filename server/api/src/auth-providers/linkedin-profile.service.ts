@@ -7,10 +7,10 @@ import { logger } from "../logger";
 import { SocksProxyAgent } from 'socks-proxy-agent';
 
 /**
- * https://developers.google.com/identity/protocols/oauth2
+ * https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow?tabs=HTTPS1
  */
 @Injectable()
-export class GoogleProfileService {
+export class LinkedinProfileService {
   private readonly client_id: string;
   private readonly client_secret: string;
   private readonly redirect_url: string;
@@ -18,9 +18,9 @@ export class GoogleProfileService {
   private readonly agent: any;
 
   constructor(private readonly configService: ConfigService) {
-    this.client_id = configService.getOrThrow<string>('GOOGLE_CLIENT_ID');
-    this.client_secret = configService.getOrThrow<string>('GOOGLE_SECRET');
-    this.redirect_url = configService.getOrThrow<string>('GOOGLE_CALLBACK_URL');
+    this.client_id = configService.getOrThrow<string>('LINKEDIN_CLIENT_ID');
+    this.client_secret = configService.getOrThrow<string>('LINKEDIN_CLIENT_SECRET');
+    this.redirect_url = configService.getOrThrow<string>('LINKEDIN_CALLBACK_URL');
 
     // TODO: Try http or socks proxy when can not access Google on local.
     // this.proxies = {
@@ -36,7 +36,7 @@ export class GoogleProfileService {
   private async fetchTokenByCode(code: string): Promise<string> {
     return new Promise((resolve, reject) => {
       const tokenOptions = {
-        url: 'https://oauth2.googleapis.com/token',
+        url: 'https://www.linkedin.com/oauth/v2/accessToken',
         method: 'POST',
         form: {
           client_id: this.client_id,
@@ -58,8 +58,8 @@ export class GoogleProfileService {
           const tokenData = JSON.parse(body);
           resolve(tokenData.access_token);
         } else {
-          logger.error('google', 'Error exchanging Google authorization code for access token:', error, response, body);
-          reject(new Error('Can not get token by Google code.'));
+          logger.error('linkedin', 'Error exchanging Linkedin authorization code for access token:', error, response, body);
+          reject(new Error('Can not get token by Linkedin code.'));
         }
       });
     });
@@ -72,7 +72,7 @@ export class GoogleProfileService {
       };
 
       const options = {
-        url: 'https://www.googleapis.com/oauth2/v2/userinfo',
+        url: 'https://api.linkedin.com/v2/emailAddress?q=members&projection=(elements*(handle~))',
         headers: headers,
       };
 
@@ -84,13 +84,16 @@ export class GoogleProfileService {
 
       request.get(options, (error, response, body) => {
         if (error) {
-          logger.error('google', 'Error fetching user email by token:', error);
+          logger.error('linkedin', 'Error fetching user email by token:', error);
           reject(error);
           return;
         }
 
+        // TODO:
+        console.log('linkedin', `user info: ${body}`);
         const data = JSON.parse(body);
-        const email = data.email;
+        const email = data?.elements[0]['handle~']['emailAddress'];
+        console.log('linkedin', `user email: ${email}`);
 
         resolve(email);
         return email;
@@ -100,7 +103,7 @@ export class GoogleProfileService {
 
   public async getEmailAddressByCode(code: string): Promise<string> {
     if (!code || code === '') {
-      throw new AppException(AuthExceptionCode.AuthError, `MUST provide Google code.`, 401);
+      throw new AppException(AuthExceptionCode.AuthError, `MUST provide Linkedin code.`, 401);
     }
 
     let email = null;
@@ -108,11 +111,11 @@ export class GoogleProfileService {
       const token = await this.fetchTokenByCode(code);
       email = await this.fetchEmailByToken(token);
     } catch (e) {
-      throw new AppException(AuthExceptionCode.AuthError, `Can not get email by Google code with exception.`, 401);
+      throw new AppException(AuthExceptionCode.AuthError, `Can not get email by Linkedin code with exception.`, 401);
     }
 
     if (!email) {
-      throw new AppException(AuthExceptionCode.AuthError, `Can not get email by Google code.`, 401);
+      throw new AppException(AuthExceptionCode.AuthError, `Can not get email by Linkedin code.`, 401);
     }
 
     return email;

@@ -16,4 +16,9 @@ export class AuthProvidersController {
   @UseGuards(AuthGuard('google'))
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   googleAuth(@Req() req) { }
+
+  @Get('linkedin')
+  @UseGuards(AuthGuard('linkedin'))
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  linkedinAuth(@Req() req) { }
 }

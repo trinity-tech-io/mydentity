@@ -20,6 +20,8 @@ import { authUser$, getActiveUser } from "./user.events";
 import { GoogleSignInInput } from "@services/user/google-sign-in.input";
 import { MsBindEmailInput } from "@services/user/ms-bind-email.input";
 import { GoogleBindEmailInput } from "@services/user/google-bind-email.input";
+import { LinkedinSignInInput } from "@services/user/linkedin-sign-in.input";
+import { LinkedinBindEmailInput } from "@services/user/linkedin-bind-email.input";
 
 const fetchUserQueue = new Queue(1); // Execute user retrieval from the backend one by one to avoid duplicates
 
@@ -306,7 +308,7 @@ export async function authenticateWithPasskey(): Promise<boolean> {
 // Microsoft Oauth
 
 export async function oauthMSSignIn(code: string): Promise<User> {
-  logger.log("user", "oauth MS sign in.");
+  logger.log('user', 'oauth MS sign in.');
 
   const input: MsSignInInput = { code };
 
@@ -333,7 +335,7 @@ export async function oauthMSSignIn(code: string): Promise<User> {
 }
 
 export async function oauthMSBindEmail(code: string): Promise<boolean> {
-  logger.log("user", "oauth MS bind email.");
+  logger.log('user', 'oauth MS bind email.');
 
   const input: MsBindEmailInput = { code };
 
@@ -349,7 +351,7 @@ export async function oauthMSBindEmail(code: string): Promise<boolean> {
   });
 
   if (response?.data && response.data.oauthMSBindEmail) {
-    logger.log("user", "oauth MS email bound");
+    logger.log('user', 'Oauth MS email bound successfully');
     return true;
   }
   else {
@@ -362,7 +364,7 @@ export async function oauthMSBindEmail(code: string): Promise<boolean> {
 // Google Oauth
 
 export async function oauthGoogleSignIn(code: string): Promise<User> {
-  logger.log("user", "oauth Google sign in.");
+  logger.log('user', 'oauth Google sign in.');
 
   const input: GoogleSignInInput = { code };
 
@@ -389,7 +391,7 @@ export async function oauthGoogleSignIn(code: string): Promise<User> {
 }
 
 export async function oauthGoogleBindEmail(code: string): Promise<boolean> {
-  logger.log("user", "oauth MS bind email.");
+  logger.log('user', 'oauth Google bind email.');
 
   const input: GoogleBindEmailInput = { code };
 
@@ -405,12 +407,68 @@ export async function oauthGoogleBindEmail(code: string): Promise<boolean> {
   });
 
   if (response?.data && response.data.oauthGoogleBindEmail) {
-    logger.log("user", "oauth Google email bound");
+    logger.log('user', 'Oauth Google email bound successfully');
     return true;
   }
   else {
     // TODO: print error
     logger.error('user', 'failed to oauth Google bind email.');
+    return false;
+  }
+}
+
+// Linkedin Oauth
+
+export async function oauthLinkedinSignIn(code: string): Promise<User> {
+  logger.log('user', 'oauth Linkedin sign in.');
+
+  const input: LinkedinSignInInput = { code };
+
+  const response = await withCaughtAppException(async () => {
+    return (await getApolloClient()).mutate<{ oauthLinkedinSignIn: LoggedUserOutput }>({
+      mutation: gql`
+        mutation OauthLinkedinSignIn($input: LinkedinSignInInput!) {
+          oauthLinkedinSignIn(input: $input) { accessToken refreshToken }
+        }
+      `,
+      variables: { input }
+    });
+  });
+
+  if (response?.data && response.data.oauthLinkedinSignIn) {
+    const { accessToken, refreshToken } = response.data.oauthLinkedinSignIn;
+    return updateUserByToken(accessToken, refreshToken);
+  }
+  else {
+    // TODO: print error
+    logger.error('user', 'failed to oauth Linkedin sign in.');
+    return null;
+  }
+}
+
+export async function oauthLinkedinBindEmail(code: string): Promise<boolean> {
+  logger.log('user', 'oauth Linkedin bind email.');
+
+  const input: LinkedinBindEmailInput = { code };
+
+  const response = await withCaughtAppException(async () => {
+    return (await getApolloClient()).mutate<{ oauthLinkedBindEmail: boolean }>({
+      mutation: gql`
+        mutation OauthLinkedBindEmail($input: LinkedinBindEmailInput!) {
+          oauthLinkedBindEmail(input: $input)
+        }
+      `,
+      variables: { input }
+    });
+  });
+
+  if (response?.data && response.data.oauthLinkedBindEmail) {
+    logger.log('user', 'Oauth Linkedin email bound successfully');
+    return true;
+  }
+  else {
+    // TODO: print error
+    logger.error('user', 'failed to oauth Linkedin bind email.');
     return false;
   }
 }

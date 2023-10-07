@@ -12,6 +12,8 @@ import { ActivityModule } from "../activity/activity.module";
 import { BrowsersModule } from "../browsers/browsers.module";
 import { GoogleStrategy } from "./google.strategy";
 import { GoogleProfileService } from "./google-profile.service";
+import { LinkedinStrategy } from "./linkedin.strategy";
+import { LinkedinProfileService } from "./linkedin-profile.service";
 
 @Module({
   imports: [
@@ -34,8 +36,10 @@ import { GoogleProfileService } from "./google-profile.service";
   providers: [
     MicrosoftStrategy,
     GoogleStrategy,
+    LinkedinStrategy,
     MicrosoftProfileService,
     GoogleProfileService,
+    LinkedinProfileService,
     AuthProviderResolver
   ],
 })

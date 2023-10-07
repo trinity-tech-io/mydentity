@@ -18,13 +18,17 @@ import { GoogleProfileService } from "./google-profile.service";
 import { GoogleSignInInput } from "./dto/google-sign-in.input";
 import { GoogleBindEmailInput } from "./dto/google-bind-email.input";
 import { UserEmailProvider } from "@prisma/client/main";
+import { LinkedinSignInInput } from "./dto/linkedin-sign-in.input";
+import { LinkedinBindEmailInput } from "./dto/linkedin-bind-email.input";
+import { LinkedinProfileService } from "./linkedin-profile.service";
 
 @Resolver(() => UserEntity)
 export class AuthProviderResolver {
     constructor(
         private readonly userService: UserService,
         private readonly microsoftProfileService: MicrosoftProfileService,
-        private readonly googleProfileService: GoogleProfileService
+        private readonly googleProfileService: GoogleProfileService,
+        private readonly linkedinProfileService: LinkedinProfileService
     ) { }
 
     // Microsoft Oauth
@@ -81,6 +85,35 @@ export class AuthProviderResolver {
         }
 
         logger.log('authProvider', `Bind Google oauth email successfully.`);
+
+        return true;
+    }
+
+    // Linkedin Oauth
+
+    @Mutation(() => LoggedUserOutput, { nullable: true })
+    async oauthLinkedinSignIn(@HeaderBrowserKey() browserKey: string, @UserAgent() userAgent: string, @Args('input') input: LinkedinSignInInput) {
+        const email = await this.linkedinProfileService.getEmailAddressByCode(input.code);
+        const result = await this.userService.signInByOauthEmail(email, UserEmailProvider.LINKEDIN, browserKey, userAgent);
+        if (!result) {
+            throw new AppException(AuthExceptionCode.InexistingEmail, `Linkedin email ${email} does not exists.`, 401);
+        }
+
+        logger.log('authProvider', `Sign in with Linkedin oauth email successfully.`);
+
+        return result;
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Mutation(() => Boolean)
+    async oauthLinkedBindEmail(@CurrentUser() user: User, @Args('input') input: LinkedinBindEmailInput) {
+        const email = await this.linkedinProfileService.getEmailAddressByCode(input.code);
+        const resultUser = await this.userService.bindOauthEmail(user, email, UserEmailProvider.LINKEDIN);
+        if (!resultUser) {
+            throw new AppException(AuthExceptionCode.EmailAlreadyExists, `Linkedin email ${email} already belongs to other user.`, 401);
+        }
+
+        logger.log('authProvider', `Bind Linkedin oauth email successfully.`);
 
         return true;
     }

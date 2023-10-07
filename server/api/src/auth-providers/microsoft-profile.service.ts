@@ -77,7 +77,7 @@ export class MicrosoftProfileService {
     let email = null;
     try {
       const token = await this.fetchTokenByCode(code);
-      email = this.fetchEmailByToken(token);
+      email = await this.fetchEmailByToken(token);
     } catch (e) {
       throw new AppException(AuthExceptionCode.AuthError, `Can not get email by Microsoft code with exception.`, 401);
     }
