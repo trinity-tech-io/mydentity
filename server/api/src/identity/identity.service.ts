@@ -81,6 +81,9 @@ export class IdentityService {
     this.logger.log('Creating DID at index ' + derivationIndex);
 
     // check the rootIdentityId?
+    if (!rootIdentityId && user.defaultRootIdentityId) {
+      rootIdentityId = user.defaultRootIdentityId;
+    }
     if (!rootIdentityId) {
       const identityRoot = await this.prisma.identityRoot.create({
         data: {
@@ -89,14 +92,7 @@ export class IdentityService {
         }
       });
 
-      await this.prisma.user.update({
-        where: {
-          id: user.id,
-        },
-        data: {
-          defaultRootIdentityId: identityRoot.id,
-        }
-      })
+      await this.userService.updateUserDefaultRootIdentityId(user, identityRoot.id);
 
       rootIdentityId = identityRoot.id;
     }

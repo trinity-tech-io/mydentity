@@ -7,7 +7,7 @@ import { IdentityType } from "@model/identity/identity-type";
 import { RootIdentity } from "@model/root-identity/root-identity";
 
 export interface IdentityProviderIdentity {
-  createIdentity(name: string, identityType: IdentityType, hiveVaultProvider?: string): Promise<Identity>;
+  createIdentity(name: string, identityType: IdentityType, hiveVaultProvider?: string, rootIdentityId?: string): Promise<Identity>;
   deleteIdentity(identityDid: string): Promise<boolean>;
   listIdentities(): Promise<Identity[]>;
   listRootIdentities(): Promise<RootIdentity[]>;

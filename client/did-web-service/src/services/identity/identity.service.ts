@@ -16,8 +16,8 @@ class IdentityService {
   /**
    * Creates a new identity (DID) for the signed in user
    */
-  public createIdentity(name: string, identityType: IdentityType, hiveVaultProvider?: string): Promise<Identity> {
-    return this.provider.identity.createIdentity(name, identityType, hiveVaultProvider);
+  public createIdentity(name: string, identityType: IdentityType, hiveVaultProvider?: string, rootIdentityId?: string): Promise<Identity> {
+    return this.provider.identity.createIdentity(name, identityType, hiveVaultProvider, rootIdentityId);
   }
 
   /**

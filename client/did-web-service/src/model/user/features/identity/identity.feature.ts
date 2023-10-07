@@ -6,6 +6,7 @@ import { RootIdentity } from "@model/root-identity/root-identity";
 import { getRandomQuickStartHiveNodeAddress } from "@services/hive/hive.service";
 import { identityService } from "@services/identity/identity.service";
 import { logger } from "@services/logger";
+import { fetchSelfUser } from "@services/user/user.service";
 import { AdvancedBehaviorSubject } from "@utils/advanced-behavior-subject";
 import { filter, map } from "rxjs";
 import { User } from "../../user";
@@ -40,8 +41,13 @@ export class IdentityFeature implements UserFeature {
     logger.log("identity", "Creating a new identity", name);
 
     const hiveAddress = getRandomQuickStartHiveNodeAddress();
-    const identity = <RegularIdentity>await identityService.createIdentity(name, IdentityType.REGULAR, hiveAddress);
+    const identity = <RegularIdentity>await identityService.createIdentity(name, IdentityType.REGULAR, hiveAddress, this.user.defaultRootIdentityId);
     this.identities$.next([identity, ...this.identities$.value]);
+
+    if (!this.user.defaultRootIdentityId) {
+      // Update the user.defaultRootIdentityId
+      await fetchSelfUser();
+    }
     return identity;
   }
 

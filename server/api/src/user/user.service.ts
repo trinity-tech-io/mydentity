@@ -401,6 +401,19 @@ export class UserService {
     return existingUser;
   }
 
+  async updateUserDefaultRootIdentityId(user: User, defaultRootIdentityId: string) {
+    const existingUser: User = await this.prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        defaultRootIdentityId: defaultRootIdentityId,
+      }
+    })
+
+    return existingUser;
+  }
+
   /**
    * Creates a developer access key to be able to remotely access apis
    */
