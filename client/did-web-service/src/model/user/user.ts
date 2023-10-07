@@ -24,6 +24,7 @@ export class User {
   name$?= new BehaviorSubject<string>(null);
   nameInitials$?= new BehaviorSubject<string>(null);
   createdAt: Date;
+  defaultRootIdentityId: string;
 
   // Features
   private features = new Map<string, UserFeature>();
@@ -58,7 +59,8 @@ export class User {
       type: this.type,
       name: this.name$.value,
       nameInitials: initialsString(this.name$.value),
-      createdAt: this.createdAt.toISOString()
+      createdAt: this.createdAt.toISOString(),
+      defaultRootIdentityId: this.defaultRootIdentityId,
     }
   }
 

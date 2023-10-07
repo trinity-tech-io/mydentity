@@ -1,1 +1,1 @@
-export const graphQLPublicUserFields = `id name createdAt`;
+export const graphQLPublicUserFields = `id name createdAt defaultRootIdentityId`;

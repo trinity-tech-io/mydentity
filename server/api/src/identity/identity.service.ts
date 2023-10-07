@@ -89,6 +89,15 @@ export class IdentityService {
         }
       });
 
+      await this.prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          defaultRootIdentityId: identityRoot.id,
+        }
+      })
+
       rootIdentityId = identityRoot.id;
     }
 

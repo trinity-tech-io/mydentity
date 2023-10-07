@@ -4,4 +4,5 @@ export type UserDTO = {
   name?: string;
   nameInitials?: string;
   createdAt: string;
+  defaultRootIdentityId?: string;
 }

@@ -13,4 +13,7 @@ export class UserEntity {
 
   @Field(() => GraphQLISODateTime)
   createdAt: string;
+
+  @Field({ nullable: true })
+  defaultRootIdentityId: string;
 }

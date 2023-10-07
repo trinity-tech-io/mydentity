@@ -30,6 +30,8 @@ model User {
   Activities         Activity[]
   UserEmails         UserEmail[]
   DeveloperAccessKey DeveloperAccessKey[]
+
+  defaultRootIdentityId String?
 }
 
 enum UserEmailProvider {
