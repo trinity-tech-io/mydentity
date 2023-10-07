@@ -327,4 +327,17 @@ export class DidService {
 
     return didDocument;
   }
+
+  async synchronize(context: string) {
+    const didStore = await this.openStore(context);
+    try {
+      await didStore.synchronize();
+    } catch (e) {
+      if (e instanceof Exceptions.NetworkException) {
+        throw new AppException(DIDExceptionCode.NetworkError, e.message, HttpStatus.SERVICE_UNAVAILABLE);
+      } else {
+        throw new AppException(DIDExceptionCode.DIDStorageError, e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+    }
+  }
 }

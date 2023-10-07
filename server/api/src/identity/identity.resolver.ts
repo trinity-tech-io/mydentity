@@ -126,4 +126,10 @@ export class IdentityResolver {
     await this.identityService.ensureOwnedIdentity(input.identityDid, user);
     return this.identityService.setCredentialVisibility(input, user, browser);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => Boolean)
+  async synchronize(@CurrentUser() user: User) {
+    return this.identityService.synchronize(user);
+  }
 }

@@ -277,6 +277,13 @@ export class IdentityService {
     return true;
   }
 
+  async synchronize(user: User) {
+    // Don't wait
+    // TODO: Add getSynchronizeStatus?
+    void this.didService.synchronize(user?.id);
+    return true;
+  }
+
   private getDIDStorePassword(userId: string, browserId: string) {
     return this.keyRingService.getMasterKey(userId, browserId);
   }
