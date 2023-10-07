@@ -3,6 +3,7 @@ import { ConfigService } from "@nestjs/config";
 import * as request from 'request';
 import { AppException } from "../exceptions/app-exception";
 import { AuthExceptionCode } from "../exceptions/exception-codes";
+import { logger } from "../logger";
 
 @Injectable()
 export class MicrosoftProfileService {
@@ -60,8 +61,16 @@ export class MicrosoftProfileService {
           return;
         }
 
-        const data = JSON.parse(body);
-        const email = data.mail;
+        console.log('microsoft', `user info: ${body}`);
+
+        let email = null;
+        try {
+          const data = JSON.parse(body);
+          email = data.mail;
+          console.log('microsoft', `user email: ${email}`);
+        } catch (e) {
+          logger.error('microsoft', 'Exception fetching user email:', e);
+        }
 
         resolve(email);
         return email;

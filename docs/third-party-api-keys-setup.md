@@ -29,3 +29,21 @@
   - Save client ID and client secret to .env
 - Verify domain on https://search.google.com/search-consol
 - Apply for published (verified) app
+
+## LinkedIn auth
+
+- https://developer.linkedin.com/
+- Account:
+  - tech-accounts@mingler.io
+  - ben's france phone number
+  - https://www.linkedin.com/in/mingler-mingler-b82a88276/
+- Fill fake profile
+- Create linkedin company page
+  - Could not create a page with an empty new user account. User Ben's main linkedin instead for now.
+  - Could not add the new mingler account as administrator
+- Create app
+  - Add Sign in with linkedin feature
+  - Get auth client and secret from the auth tab
+  - Add redirect urls:
+    - http://localhost:4000/oauth/linkedin/redirect
+- NOTE: APP is created by the ttech accounts user, but COMPANY PAGE is managed by Ben for now

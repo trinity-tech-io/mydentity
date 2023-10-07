@@ -8,7 +8,7 @@ import { oauthLinkedinBindEmail, oauthLinkedinSignIn } from "@services/user/user
 import { useRouter, useSearchParams } from "next/navigation";
 import { FC, useEffect } from "react";
 
-const MicrosoftRedirect: FC = () => {
+const LinkedinRedirect: FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const code = searchParams.get('code');
@@ -16,7 +16,7 @@ const MicrosoftRedirect: FC = () => {
 
   useEffect(() => {
     if (!code) {
-      alert('GoogleRedirect: No code from Google authentication callback.');
+      alert('GoogleRedirect: No code from Linked authentication callback.');
       return;
     }
 
@@ -74,4 +74,4 @@ const MicrosoftRedirect: FC = () => {
   </div>)
 }
 
-export default MicrosoftRedirect;
+export default LinkedinRedirect;

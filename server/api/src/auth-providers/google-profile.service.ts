@@ -89,8 +89,16 @@ export class GoogleProfileService {
           return;
         }
 
-        const data = JSON.parse(body);
-        const email = data.email;
+        console.log('google', `user info: ${body}`);
+
+        let email = null;
+        try {
+          const data = JSON.parse(body);
+          email = data.email;
+          console.log('google', `user email: ${email}`);
+        } catch (e) {
+          logger.error('google', 'Exception fetching user email:', e);
+        }
 
         resolve(email);
         return email;

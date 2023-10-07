@@ -89,11 +89,16 @@ export class LinkedinProfileService {
           return;
         }
 
-        // TODO:
         console.log('linkedin', `user info: ${body}`);
-        const data = JSON.parse(body);
-        const email = data?.elements[0]['handle~']['emailAddress'];
-        console.log('linkedin', `user email: ${email}`);
+
+        let email = null;
+        try {
+          const data = JSON.parse(body);
+          email = data?.elements[0]['handle~']['emailAddress'];
+          console.log('linkedin', `user email: ${email}`);
+        } catch (e) {
+          logger.error('linkedin', 'Exception fetching user email:', e);
+        }
 
         resolve(email);
         return email;
