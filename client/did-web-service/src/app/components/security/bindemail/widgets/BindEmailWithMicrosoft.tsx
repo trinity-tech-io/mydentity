@@ -8,7 +8,7 @@ import { FC } from 'react';
 const BindEmailWithMicrosoft: FC = () => {
   const router = useRouter();
 
-  const signInWithMicrosoft = (): void => {
+  const doBind = (): void => {
     setOnGoingFlowOperation(FlowOperation.OnBoardingEmailBinding);
     router.push(`${process.env.NEXT_PUBLIC_BACKEND_URL}/microsoft`);
   };
@@ -17,7 +17,7 @@ const BindEmailWithMicrosoft: FC = () => {
     <DarkButton
       id="bind-ms"
       startIcon={<ReactIcon icon="logos:microsoft-icon" />}
-      onClick={signInWithMicrosoft}
+      onClick={doBind}
       className="w-full"
     >
       Bind email with Microsoft
@@ -26,4 +26,3 @@ const BindEmailWithMicrosoft: FC = () => {
 };
 
 export default BindEmailWithMicrosoft;
-

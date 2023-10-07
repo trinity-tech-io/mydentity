@@ -5,24 +5,24 @@ import { useRouter } from "next/navigation";
 import { FC } from 'react';
 import { DarkButton } from "@components/button";
 
-const BindEmailWithGoogle: FC = () => {
+const BindEmailWithLinkedin: FC = () => {
   const router = useRouter();
 
   const doBind = (): void => {
     setOnGoingFlowOperation(FlowOperation.OnBoardingEmailBinding);
-    router.push(`${process.env.NEXT_PUBLIC_BACKEND_URL}/google`);
+    router.push(`${process.env.NEXT_PUBLIC_BACKEND_URL}/linkedin`);
   };
 
   return (
       <DarkButton
           id="bind-ms"
-          startIcon={<ReactIcon icon="logos:google-icon" />}
+          startIcon={<ReactIcon icon="logos:linkedin-icon" />}
           onClick={doBind}
           className="w-full"
       >
-        Bind email with Google
+        Bind email with Linkedin
       </DarkButton>
   );
 };
 
-export default BindEmailWithGoogle;
+export default BindEmailWithLinkedin;

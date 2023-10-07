@@ -1,11 +1,12 @@
 "use client";
 import { Box, Container, Link } from "@mui/material";
 import { isSignedIn } from "@services/user/user.service";
-import { FC, useEffect } from "react";
+import React, { FC, useEffect } from "react";
 import { BindEmailOnly } from './widgets/BindEmailOnly';
 import BindEmailWithMicrosoft from './widgets/BindEmailWithMicrosoft';
 import BindEmailWithGoogle from "@components/security/bindemail/widgets/BindEmailWithGoogle";
 import SeparateLineText from "@components/separate-line";
+import BindEmailWithLinkedin from "@components/security/bindemail/widgets/BindEmailWithLinkedin";
 
 const EmailAuthComponent: FC = () => {
   useEffect(() => {
@@ -20,6 +21,9 @@ const EmailAuthComponent: FC = () => {
         </Container>
         <Container className="py-4">
           <BindEmailWithGoogle />
+        </Container>
+        <Container className="py-4">
+          <BindEmailWithLinkedin />
         </Container>
         <div className="py-4 w-full">
           <SeparateLineText text="or sign in with your email" />
