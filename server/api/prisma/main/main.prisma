@@ -93,6 +93,7 @@ model Identity {
   publicationId                  String?
   publishedAt                    DateTime?
   IdentityInteractingApplication IdentityInteractingApplication[]
+  IdentityClaimRequest           IdentityClaimRequest[]
 }
 
 // Metadata for Verifiable Credentials, with additional information
@@ -284,4 +285,18 @@ model DeveloperAccessKey {
   userId String
 
   @@unique([hash]) // Very important: make sure 2 keys don't get the same value by chance, otherwise we would give access to the wrong user.
+}
+
+// Request made by the current temporary identity owner (third party app who created a managed identity)
+// to give access to this identity to a user. The claim request is valid only during a short time, during
+// which the user needs to go to the DID web app and complete the claim request.
+model IdentityClaimRequest {
+  id               String    @id @unique @default(uuid())
+  createdAt        DateTime  @default(now())
+  expiresAt        DateTime? // Date at which temporaryEmailAuthKey becomes invalid and cannot be used to confirm email sign in by magic link.
+  claimCompletedAt DateTime?
+
+  identity Identity @relation(fields: [identityDid], references: [did], onDelete: Restrict)
+
+  identityDid String
 }

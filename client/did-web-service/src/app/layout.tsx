@@ -1,12 +1,13 @@
 "use client";
 // import { Inter } from 'next/font/google';
-import React, { FC, useEffect } from "react";
-import { usePathname } from "next/navigation";
-import { useRouter, Next13ProgressBar } from "next13-progressbar";
-import "./globals.scss";
-import { checkIfStringEqualsWith, checkIfStringStartsWith } from "@utils/strings";
 import { authRoutes, publicRoutes } from "@/router/routes";
-import { getActiveUser } from "@services/user/user.events";
+import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
+import { authUser$, authUserReady$ } from "@services/user/user.events";
+import { checkIfStringEqualsWith as checkIfStringIsEqualTo, checkIfStringStartsWith } from "@utils/strings";
+import { usePathname } from "next/navigation";
+import { Next13ProgressBar, useRouter } from "next13-progressbar";
+import React, { FC, useEffect } from "react";
+import "./globals.scss";
 
 // const inter = Inter({ subsets: ['latin'] })
 
@@ -37,7 +38,8 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
 const RootLayout: FC<{ children: React.ReactNode }> = ({ children }) => {
   const router = useRouter();
   const pathname = usePathname();
-  const user = getActiveUser();
+  const [userStatusReady] = useBehaviorSubject(authUserReady$);
+  const [user] = useBehaviorSubject(authUser$);
   // NProgress.configure({ showSpinner: false });
 
   // const handleProgressStart = () => {
@@ -50,20 +52,23 @@ const RootLayout: FC<{ children: React.ReactNode }> = ({ children }) => {
   // }
 
   useEffect(() => {
-    // handle routes for unauthorized user
-    if (checkIfStringEqualsWith(pathname, publicRoutes)) return;
-    else if (!user && !checkIfStringStartsWith(pathname, authRoutes))
-      router.replace("/entry");
-    // handle routes for authorized user
-    else if (user && checkIfStringStartsWith(pathname, authRoutes))
-      router.replace("/dashboard");
-    // handleProgressStop()
-
-    // return () => {
-    //   handleProgressStart()
-    // }
+    if (userStatusReady) {
+      if (checkIfStringIsEqualTo(pathname, publicRoutes)) {
+        // If the route is a public route, do nothing, page display is allowed
+        return;
+      }
+      else if (!user && !checkIfStringStartsWith(pathname, authRoutes)) {
+        // If the user is not authenticated and we are on a route that does NOT require auth (authRoutes array),
+        // redirect to entry to sign in
+        router.replace("/entry"); // sign in/up page
+      }
+      else if (user && checkIfStringStartsWith(pathname, authRoutes)) {
+        // If user is authenticated and we are on a route that requires auth, go to dashboard
+        router.replace("/dashboard");
+      }
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname, user]);
+  }, [pathname, user, userStatusReady]);
 
   return (
     <html lang="en">

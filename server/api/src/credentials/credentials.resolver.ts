@@ -15,6 +15,7 @@ import { ImportCredentialInput } from './dto/import-credential.input';
 import { ImportManagedIdentityCredentialsInput } from './dto/import-managed-identity-credentials.input';
 import { IssueCredentialInput } from './dto/issue-credential.input';
 import { CredentialEntity } from './entities/credential.entity';
+import { ImportedManagedIdentityCredentialEntity } from './entities/imported-managed-identity-credential.entity';
 import { IssueCredentialEntity } from './entities/issueCredential.entity';
 import { VerifiablePresentionEntity } from './entities/verifiablePresention.entity';
 
@@ -36,7 +37,7 @@ export class CredentialsResolver {
   @Mutation(() => CredentialEntity)
   async importCredential(@Args('input') importCredentialInput: ImportCredentialInput, @CurrentUser() user: User, @CurrentBrowser() browser: Browser) {
     await this.identityService.ensureOwnedIdentity(importCredentialInput.identityDid, user);
-    return this.credentialsService.storeCredential(importCredentialInput, user, browser);
+    return this.credentialsService.storeCredential(importCredentialInput, user, browser.id);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -68,10 +69,8 @@ export class CredentialsResolver {
   }
 
   @UseGuards(IdentityAccessTokenGuard)
-  @Mutation(() => CredentialEntity)
+  @Mutation(() => [ImportedManagedIdentityCredentialEntity])
   async importManagedIdentityCredentials(@IdentityAccess() identityAccess: IdentityAccessInfo, @Args('input') input: ImportManagedIdentityCredentialsInput) {
-    console.log("import identityAccess", identityAccess)
-    //await this.identityService.ensureOwnedIdentity(importCredentialInput.identityDid, user);
-    //return this.credentialsService.storeCredential(importCredentialInput, user, browser);
+    return this.credentialsService.importManagedIdentityCredentials(identityAccess, input.credentials);
   }
 }

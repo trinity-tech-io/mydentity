@@ -1,10 +1,11 @@
 import { VerifiableCredential } from '@elastosfoundation/did-js-sdk';
 import { Injectable, Logger } from '@nestjs/common';
-import { Browser, Credential, IdentityInteractingApplication, User } from '@prisma/client/main';
+import { Browser, Credential, IdentityInteractingApplication, User, UserShadowKeyType } from '@prisma/client/main';
 import { InteractingApplicationsService } from 'src/app-interaction/interacting-applications.service';
 import { DidService } from 'src/did/did.service';
 import { AppException } from 'src/exceptions/app-exception';
-import { AuthExceptionCode } from 'src/exceptions/exception-codes';
+import { AuthExceptionCode, DataExceptionCode } from 'src/exceptions/exception-codes';
+import { IdentityAccessInfo } from 'src/identity/model/identity-access-info';
 import { KeyRingService } from 'src/key-ring/key-ring.service';
 import { logger } from 'src/logger';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -13,6 +14,7 @@ import { CreateCredentialInput } from './dto/create-credential.input';
 import { CreateVerifiablePresentationInput } from './dto/create-verifiablePresentation.input';
 import { ImportCredentialInput } from './dto/import-credential.input';
 import { IssueCredentialInput } from './dto/issue-credential.input';
+import { ImportedManagedIdentityCredentialEntity } from './entities/imported-managed-identity-credential.entity';
 import { CredentialWithStringVC } from './model/credential-with-vc';
 
 @Injectable()
@@ -44,8 +46,8 @@ export class CredentialsService {
     };
   }
 
-  async storeCredential(input: ImportCredentialInput, user: User, browser: Browser) {
-    const storePassword = this.getDIDStorePassword(user?.id, browser?.id);
+  async storeCredential(input: ImportCredentialInput, user: User, browserId: string) {
+    const storePassword = this.getDIDStorePassword(user?.id, browserId);
 
     const vc = VerifiableCredential.parse(input.credentialString);
     await this.didService.storeCredential(user.id, vc, storePassword);
@@ -149,6 +151,46 @@ export class CredentialsService {
     return {
       verifiablePresentation: vp.toString(),
     }
+  }
+
+  /**
+   * Import credentials that target the identity provided in the identity access token, directly
+   * into that identity, without user confirmation. This is called from the DID Web SDK to let
+   * applications that remotely create managed identities, to invisibly import credentials until
+   * the identity gets claimed by his user owner.
+   */
+  public async importManagedIdentityCredentials(identityAccess: IdentityAccessInfo, credentialStrings: string[]): Promise<ImportedManagedIdentityCredentialEntity[]> {
+    const credentials = credentialStrings.map(c => VerifiableCredential.parse(c));
+
+    if (!credentials || credentials.length === 0)
+      throw new AppException(DataExceptionCode.MissingContent, "Cannot import an empty credentials list", 403);
+
+    const inadequateCredential = credentials.find(c => c.getSubject().getId().toString() !== identityAccess.identity.did);
+    if (inadequateCredential)
+      throw new AppException(DataExceptionCode.InvalidContent, "Some credentials you are trying to import are not for the identity with DID " + identityAccess.identity.did, 403);
+
+    await this.keyRingService.unlockMasterKey({
+      type: UserShadowKeyType.PASSWORD,
+      keyId: "unused-for-password",
+      key: identityAccess.password
+    }, "fake-browser-id", identityAccess.identity.user);
+
+    // If we reach here, we are unlocked, otherwise there would have been an auth exception.
+    const importedIds: ImportedManagedIdentityCredentialEntity[] = [];
+    for (const credential of credentialStrings) {
+      const result = await this.storeCredential({
+        identityDid: identityAccess.identity.did,
+        credentialString: credential
+      }, identityAccess.identity.user, "fake-browser-id");
+
+      if (result) {
+        importedIds.push({
+          id: result.credentialId
+        });
+      }
+    }
+
+    return importedIds;
   }
 
   /**

@@ -349,7 +349,10 @@ export class IdentityService {
 
       // Look for the identity related to this access token
       const identity = await this.prisma.identity.findUnique({
-        where: { did: decoded.identityDID }
+        where: { did: decoded.identityDID },
+        include: {
+          user: true
+        }
       });
       if (!identity)
         throw new AppException(AuthExceptionCode.IdentityNotOwned, "The identity related to the identity access token doesn't exist", 404);

@@ -40,4 +40,9 @@ export enum DIDExceptionCode {
   DIDObjectNotExist = 10313,
 }
 
-export type AppExceptionCode = AuthExceptionCode | KeyRingExceptionCode | DIDExceptionCode;
+export enum DataExceptionCode {
+  MissingContent = 10401, // Some expected data is missing or empty
+  InvalidContent = 10402, // Some of the given content doesn't match the expected data format
+}
+
+export type AppExceptionCode = AuthExceptionCode | KeyRingExceptionCode | DIDExceptionCode | DataExceptionCode;

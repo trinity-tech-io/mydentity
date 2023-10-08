@@ -1,9 +1,9 @@
 import { MainButton } from "@components/MainButton";
 import { VerifiableCredential } from "@elastosfoundation/did-js-sdk";
-import { Checkbox, FormControlLabel, FormGroup, TextField } from "@mui/material";
+import { Checkbox, FormControlLabel, FormGroup, Link, TextField } from "@mui/material";
 import type { CreatedManagedIdentity } from "@trinitytech/did-web-service-sdk";
 import { FC, useEffect, useRef, useState } from "react";
-import { api_createManagedIdentity, api_produceUserCredentials } from "../simulated-server-api/simulated-server-api";
+import { api_createManagedIdentity, api_generateClaimUrl, api_produceUserCredentials } from "../simulated-server-api/simulated-server-api";
 
 export const FormSubmissionStep: FC<{
   onCreatedIdentity: (identity: CreatedManagedIdentity) => void;
@@ -16,6 +16,7 @@ export const FormSubmissionStep: FC<{
   const [creatingCredentials, setCreatingCredentials] = useState(false);
   const [createdIdentityDID, setCreatedIdentityDID] = useState<string>(null);
   const [producedCredentials, setProducedCredentials] = useState<string[]>(null); // Credential id
+  const [claimUrl, setClaimUrl] = useState<string>(null);
 
   const importCredentialsFromClientSide = async (credentials: VerifiableCredential[]): Promise<void> => {
     console.log("Importing user credentials to his identity wallet, client side");
@@ -48,7 +49,12 @@ export const FormSubmissionStep: FC<{
     if (identityDID) {
       console.log("Managed identity creation ended", identityDID);
       setCreatingIdentity(false);
-      setCreatedIdentityDID(identityDID)
+      setCreatedIdentityDID(identityDID);
+
+      // Without blocking, get the claim url
+      api_generateClaimUrl(identityDID).then(claimRequest => {
+        setClaimUrl(claimRequest.claimUrl);
+      });
 
       // Create credentials
       console.log("Creating and importing credentials");
@@ -56,6 +62,7 @@ export const FormSubmissionStep: FC<{
       const credentialProductionResult = await api_produceUserCredentials(identityDID, true);
       console.log("credentialProductionResult", credentialProductionResult)
       setCreatingCredentials(false);
+
       if (credentialProductionResult) {
         if (credentialProductionResult.imported) {
           // Credentials have already been imported on the server side as we used a managed identity.
@@ -107,10 +114,9 @@ export const FormSubmissionStep: FC<{
         {createdIdentityDID && <>
           <div><b>Created user identity</b>: {createdIdentityDID}</div>
         </>}
-      </div>
-
-      {/* Credentials status */}
-      <div className="mt-2">
+        {claimUrl && <>
+          <div><b>Claim your identity</b>: <Link href={claimUrl} target="_blank">Click to claim</Link></div>
+        </>}
         {!producedCredentials && <div>No credential produced yet</div>}
         {producedCredentials && <>
           <div><b>Produced</b> {importCredentialsFromClientSide.length} credential</div>

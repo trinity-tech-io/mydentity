@@ -1,11 +1,7 @@
 import type { VerifiableCredential } from "@elastosfoundation/did-js-sdk";
-import type { ManagedIdentityStatus } from "..";
-import { gqlQuery } from "../api";
+import type { CreatedManagedIdentity, ManagedIdentityStatus } from "..";
 
-export type CreatedManagedIdentity = {
-  did: string;
-  accessToken: string;
-}
+import { gqlQuery } from "../api";
 
 export async function createManagedIdentity(): Promise<CreatedManagedIdentity> {
   const response = await gqlQuery<CreatedManagedIdentity>("createManagedIdentity", `
@@ -56,6 +52,23 @@ export async function importManagedIdentityCredentials(identityAccessToken: stri
   return response;
 }
 
-export function generateClaimUrl(did: string) {
+/**
+ * Generates a claim request for a managed identity.
+ * This claim request is short lived, the user must complete the the request on the DID Web app
+ * within a few minutes, after what a new claim request must be requested.
+ *
+ * The returned claimUrl should be shared with the user.
+ */
+export async function generateClaimUrl(identityAccessToken: string) {
+  const response = await gqlQuery<CreatedManagedIdentity>("createIdentityClaimRequest", `
+    mutation CreateIdentityClaimRequest {
+      createIdentityClaimRequest {
+        id identity { did createdAt } claimUrl
+      }
+    }
+  `, null, {
+    ...(identityAccessToken && { "x-identity-access-token": identityAccessToken })
+  });
 
+  return response;
 }

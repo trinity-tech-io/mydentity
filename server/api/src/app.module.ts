@@ -22,6 +22,7 @@ import { KeyRingModule } from './key-ring/key-ring.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { UserModule } from './user/user.module';
 import { CommonWsModule } from "./websockets/ws.module";
+import { IdentityClaimModule } from './identity-claim/identity-claim.module';
 
 
 @Module({
@@ -48,7 +49,8 @@ import { CommonWsModule } from "./websockets/ws.module";
     DIDPublishingModule,
     AppInteractionModule,
     IdentityRootModule,
-    CommonWsModule
+    CommonWsModule,
+    IdentityClaimModule
   ],
   controllers: [
     AppController

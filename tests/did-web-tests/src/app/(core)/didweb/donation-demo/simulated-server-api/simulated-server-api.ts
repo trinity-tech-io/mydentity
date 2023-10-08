@@ -1,4 +1,4 @@
-import { configure, getManagedIdentityStatus, importManagedIdentityCredentials } from "@trinitytech/did-web-service-sdk";
+import { configure, generateClaimUrl, getManagedIdentityStatus, importManagedIdentityCredentials } from "@trinitytech/did-web-service-sdk";
 import { produceUserCredentials } from "./helpers/did-helpers";
 import { ProducedCredentialsResponse } from "./model/produced-credentials";
 
@@ -84,4 +84,17 @@ export async function api_produceUserCredentials(userDidString: string, simulate
     credentials: credentials.map(vc => vc.toString()),
     imported
   };
+}
+
+export async function api_generateClaimUrl(userDidString: string) {
+  // Make sure our "database" contains the access token for this target user DID
+  const identityAccessToken = identityAccessTokenMap[userDidString];
+  if (!identityAccessToken)
+    throw new Error("No access token stored for target managed user identity " + userDidString);
+
+  const claimRequest = await generateClaimUrl(identityAccessToken);
+
+  console.log("claimRequest", claimRequest);
+
+  return claimRequest;
 }
