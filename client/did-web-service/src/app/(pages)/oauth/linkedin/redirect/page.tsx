@@ -4,7 +4,7 @@ import { ExistingEmailException } from "@model/exceptions/existing-email-excepti
 import { InexistingEmailException } from "@model/exceptions/inexisting-email-exception";
 import { LinearProgress } from "@mui/material";
 import { clearOnGoingFlowOperation, FlowOperation, getOnGoingFlowOperation, usePostSignInFlow } from "@services/flow.service";
-import { oauthLinkedinBindEmail, oauthLinkedinSignIn } from "@services/user/user.service";
+import { oauthLinkedinBindEmail, oauthLinkedinSignIn } from "@services/user/linkedin/linkedin.auth.service";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FC, useEffect } from "react";
 
