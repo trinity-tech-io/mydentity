@@ -3,6 +3,7 @@ import { Icon as ReactIcon } from "@iconify/react";
 import { DetailTableRow } from "@components/generic/DetailTable";
 import { Avatar, Box, ListItemText, TableCell, styled } from "@mui/material";
 import SecurityStatusIcon from "@components/security/SecurityIcon";
+import clsx from "clsx";
 
 const IconAvatar = styled(Avatar)(({ theme }) => ({
   backgroundColor: "#3A3A3A",
@@ -16,18 +17,19 @@ const TitleByMethod = {
   email: {
     title: "Sign in with email address",
     icon: "entypo:email",
-    action: "LINKED"
+    action: "LINKED",
   },
   browser: {
     title: "Sign in with this browser",
     icon: "fluent-mdl2:website",
-    action: "BOUND"
+    action: "BOUND",
   },
 };
 export const AccountAccessRow: FC<{
   method: "email" | "browser";
   secondaryDetail: string | ReactNode;
-}> = ({ method, secondaryDetail }) => {
+  isSet: boolean;
+}> = ({ method, secondaryDetail, isSet }) => {
   return (
     <DetailTableRow
       className="h-[3.5rem]"
@@ -43,13 +45,17 @@ export const AccountAccessRow: FC<{
               className="flex-1"
               primary={
                 <div className="flex items-center gap-1">
-                    <span className="font-medium text-[11pt] text-[#9291A5]">
-                        {TitleByMethod[method].title}
-                    </span>
-                    <SecurityStatusIcon turnedOn={false} />
+                  <span className="font-medium text-[11pt] text-[#9291A5]">
+                    {TitleByMethod[method].title}
+                  </span>
+                  <SecurityStatusIcon turnedOn={isSet} />
                 </div>
               }
-              secondary={<span className="text-[8pt] text-[#9291A5]">{secondaryDetail}</span>}
+              secondary={
+                <span className="text-[8pt] text-[#9291A5]">
+                  {secondaryDetail}
+                </span>
+              }
               sx={{ my: 0 }}
               primaryTypographyProps={{
                 sx: {
@@ -63,9 +69,14 @@ export const AccountAccessRow: FC<{
               }}
             />
           </TableCell>
-          <TableCell sx={{padding: 0}}>
-            <Box className="rounded-md bg-[#EA4335] text-[8pt] px-3 py-0.5 inline-block text-white">
-              {`${method.toUpperCase()} NOT ${TitleByMethod[method].action}`}
+          <TableCell sx={{ padding: 0 }}>
+            <Box
+              className={clsx(
+                "rounded-md text-[8pt] px-3 py-0.5 inline-block text-white",
+                isSet ? "bg-[#34A853]" : "bg-[#EA4335]"
+              )}
+            >
+              {`${method.toUpperCase()} ${isSet ? "" : "NOT "}${TitleByMethod[method].action}`}
             </Box>
           </TableCell>
         </>

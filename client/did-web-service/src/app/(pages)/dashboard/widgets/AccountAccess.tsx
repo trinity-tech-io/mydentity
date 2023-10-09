@@ -1,11 +1,8 @@
 import { FC, useEffect, useState } from "react";
-import clsx from "clsx";
 import { isNil } from "lodash";
 import { useRouter } from "next13-progressbar";
 import { TableCell } from "@mui/material";
 import SecurityIcon from "@mui/icons-material/Security";
-import CheckIcon from "@assets/images/check-full.svg";
-import CrossIcon from "@assets/images/cross-full.svg";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { authUser$ } from "@services/user/user.events";
 import { SecurityState, SecurityStatus } from "../components/SecurityStatus";
@@ -13,9 +10,15 @@ import DetailContainer from "@components/generic/DetailContainer";
 import { DetailTable } from "@components/generic/DetailTable";
 import { AccountAccessRow } from "./account/AccountAccessRow";
 import { DarkButton } from "@components/button";
+import { useMounted } from "@hooks/useMounted";
+import { LoadingTableAvatarRow } from "@components/loading-skeleton";
 
 export const AccountAccess: FC = (_) => {
   const [activeUser] = useBehaviorSubject(authUser$);
+  const [activities] = useBehaviorSubject(
+    activeUser?.get("activity").activities$
+  );
+  const { mounted } = useMounted();
   const [boundEmails] = useBehaviorSubject(
     activeUser?.get("email").userEmails$
   );
@@ -28,6 +31,7 @@ export const AccountAccess: FC = (_) => {
   const [advice, setAdvice] = useState<string>(null);
   const [goToSecurityCenter, setGoToSecurityCenter] = useState(false);
   const router = useRouter();
+  console.log(activities, 999)
 
   useEffect(() => {
     setGoToSecurityCenter(false);
@@ -100,68 +104,40 @@ export const AccountAccess: FC = (_) => {
           </>
         }
         bodyRows={
-          // !mounted ? (
-          //   Array(2)
-          //     .fill(0)
-          //     .map((_, _i) => <LoadingTableAvatarRow key={_i} />)
-          // ) : (
-          <>
-            <AccountAccessRow
-              method="email"
-              secondaryDetail="No available email address found"
-            />
-            <AccountAccessRow
-              method="browser"
-              secondaryDetail="Apple Macintosh Chrome"
-            />
-          </>
-          // )
+          !mounted || isNil(boundEmails) || isNil(passkeys) ? (
+            Array(2)
+              .fill(0)
+              .map((_, _i) => <LoadingTableAvatarRow key={_i} />)
+          ) : (
+            <>
+              <AccountAccessRow
+                method="email"
+                secondaryDetail={
+                  boundEmails?.length > 0
+                    ? boundEmails[0].email
+                    : "No available email address found"
+                }
+                isSet={boundEmails?.length > 0}
+              />
+              <AccountAccessRow
+                method="browser"
+                secondaryDetail={activities[0]?.browserNameStr}
+                isSet={passkeys?.length > 0}
+              />
+            </>
+          )
         }
       />
-      <div className="p-2">
-        <div
-          className={clsx(
-            "col-span-6 flex flex-row gap-2",
-            boundEmails?.length == 0 && "opacity-30"
-          )}
-        >
-          {boundEmails?.length == 0 && (
-            <>
-              <CrossIcon width={20} /> I can't sign in using an email address
-            </>
-          )}
-          {boundEmails?.length > 0 && (
-            <>
-              <CheckIcon width={20} /> I can sign in from anywhere with my email
-              address
-            </>
-          )}
-        </div>
-        <div
-          className={clsx(
-            "col-span-6 flex flex-row gap-2",
-            passkeys?.length == 0 && "opacity-30"
-          )}
-        >
-          {passkeys?.length == 0 && (
-            <>
-              <CrossIcon width={20} /> I can't sign in with this browser
-            </>
-          )}
-          {passkeys?.length > 0 && (
-            <>
-              <CheckIcon width={20} /> I can sign in from current browser using
-              biometrics
-            </>
-          )}
-        </div>
-      </div>
 
-      <SecurityStatus state={securityState} advice={advice} />
+      {!!advice && <SecurityStatus state={securityState} advice={advice} />}
 
       {goToSecurityCenter && (
         <div className="mt-[6%]">
-          <DarkButton startIcon={<SecurityIcon />} className="w-full" onClick={openSecurityCenter}>
+          <DarkButton
+            startIcon={<SecurityIcon />}
+            className="w-full"
+            onClick={openSecurityCenter}
+          >
             Go to security center
           </DarkButton>
         </div>
