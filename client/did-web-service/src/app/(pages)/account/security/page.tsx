@@ -1,15 +1,10 @@
 "use client";
 import { FC, useEffect, useState } from "react";
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next13-progressbar";
 import { Grid, Typography } from "@mui/material";
 import { Icon as ReactIcon } from "@iconify/react";
-import EmailIcon from "@assets/images/email.svg";
-import FingerprintIcon from "@assets/images/fingerprint.svg";
-import PasswordIcon from "@assets/images/password.svg";
 import { Breadcrumbs } from "@components/breadcrumbs/Breadcrumbs";
-import { MainButton } from "@components/generic/MainButton";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useMounted } from "@hooks/useMounted";
 import { authUser$ } from "@services/user/user.events";

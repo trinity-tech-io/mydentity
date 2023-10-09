@@ -21,7 +21,7 @@ const CardStyled = styled(Box)(({ theme }) => ({
     left: 0,
   },
   ".noise-bg": {
-    background: "url('./noise1.png') repeat center center",
+    background: "url('/noise1.png') repeat center center",
   },
   ".circle-bottom-box": {
     left: "38%",
