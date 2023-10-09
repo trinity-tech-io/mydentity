@@ -1,14 +1,17 @@
-import BrowserIcon from '@assets/images/browser.svg';
-import FingerprintIcon from '@assets/images/fingerprint.svg';
-import ComfirmDialog from '@components/generic/ComfirmDialog';
-import { logger } from '@elastosfoundation/elastos-connectivity-sdk-js';
+import BrowserIcon from "@assets/images/browser.svg";
+import FingerprintIcon from "@assets/images/fingerprint.svg";
+import ComfirmDialog from "@components/generic/ComfirmDialog";
+import { logger } from "@elastosfoundation/elastos-connectivity-sdk-js";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { Browser } from "@model/browser/browser";
-import DeleteIcon from '@mui/icons-material/Delete';
-import IconButton from '@mui/material/IconButton';
-import { useToast } from '@services/feedback.service';
-import { authUser$ } from '@services/user/user.events';
-import { FC, MouseEvent, useState } from 'react';
+import DeleteIcon from "@mui/icons-material/Delete";
+import IconButton from "@mui/material/IconButton";
+import { useToast } from "@services/feedback.service";
+import { authUser$ } from "@services/user/user.events";
+import { FC, MouseEvent, useState } from "react";
+import { CardStyled } from "./SecuritySection";
+import { Box } from "@mui/material";
+import { Icon as ReactIcon } from "@iconify/react"
 
 export const BrowserRow: FC<{
   browser: Browser;
@@ -26,8 +29,7 @@ export const BrowserRow: FC<{
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const handleCloseDialog = async (isAgree: boolean): Promise<void> => {
     setOpenConfirmDialog(false);
-    if (!isAgree)
-      return;
+    if (!isAgree) return;
 
     let isSuccess = false;
     try {
@@ -36,46 +38,69 @@ export const BrowserRow: FC<{
       logger.error(TAG, error);
     }
     if (isSuccess) {
-      showSuccessToast('Browser has been deleted!');
+      showSuccessToast("Browser has been deleted!");
     } else {
-      showErrorToast('Failed to delete the browser...');
+      showErrorToast("Failed to delete the browser...");
     }
   };
 
-  const onDeleteClicked = async (event: MouseEvent, browser: Browser): Promise<void> => {
+  const onDeleteClicked = async (
+    event: MouseEvent,
+    browser: Browser
+  ): Promise<void> => {
     event.stopPropagation(); // Prevent event propagation to the cell
     event.preventDefault(); //
 
-    setOpenConfirmDialog(true)
-  }
+    setOpenConfirmDialog(true);
+  };
 
   return (
-    <div className='flex flex-row mt-4 gap-6'>
-      <BrowserIcon width={40} />
-      <div className='flex flex-col ml-4'>
-        <div className='font-bold'>{browser.name} {isCurrentBrowser && <span className='font-medium'>(This browser)</span>}</div>
-        <div className='italic text-xs'>Last used: {browser.lastUsedAt.toLocaleString()}</div>
-      </div>
-      {isPasskeyBound &&
-        <div className='flex flex-row gap-2 items-center text-white px-4 py-1 rounded-lg text-sm' style={{ backgroundColor: "var(--primary-color)" }}>
-          <FingerprintIcon height={30} color="#44CC44" />
-          Bound to passkey
+    <>
+      <CardStyled className="inline-block">
+        <div className="relative z-10 inline-flex gap-5 px-3 py-5">
+          {/* <BrowserIcon width={40} /> */}
+          <ReactIcon icon="ic:round-computer" fontSize={40} />
+          <div className="flex flex-col flex-1">
+            <div className="font-bold">
+              {browser.name}
+            </div>
+            <div className="italic text-xs">
+              Last used: {browser.lastUsedAt.toLocaleString()}
+            </div>
+          </div>
+          <div className="flex flex-col">
+            {isCurrentBrowser ? (
+              <Box className="rounded-md text-[7pt] px-3 py-0.5 inline-block text-white whitespace-nowrap bg-[#9291A5]">
+                CURRENT
+              </Box>
+            ) : (
+              <div className="text-right">
+                <IconButton
+                  aria-label="delete"
+                  onClick={(e): Promise<void> => onDeleteClicked(e, browser)}
+                >
+                  <DeleteIcon style={{ color: "red" }} />
+                </IconButton>
+              </div>
+            )}
+            {isPasskeyBound && (
+              <div
+                className="flex flex-row gap-2 items-center text-white px-4 py-1 rounded-lg text-sm"
+                style={{ backgroundColor: "var(--primary-color)" }}
+              >
+                <FingerprintIcon height={30} color="#44CC44" />
+                Bound to passkey
+              </div>
+            )}
+          </div>
         </div>
-      }
-      {!isCurrentBrowser &&
-        <div className="text-right">
-          <IconButton aria-label="delete" onClick={(e): Promise<void> => onDeleteClicked(e, browser)}>
-            <DeleteIcon style={{ color: 'red' }} />
-          </IconButton>
-        </div>
-      }
-
+      </CardStyled>
       <ComfirmDialog
-        title='Delete this Browser?'
-        content='Do you want to delete this Browser?'
+        title="Delete this Browser?"
+        content="Do you want to delete this Browser?"
         open={openConfirmDialog}
         onClose={handleCloseDialog}
       />
-    </div>
-  )
-}
+    </>
+  );
+};

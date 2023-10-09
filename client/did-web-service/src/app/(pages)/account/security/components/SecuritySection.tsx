@@ -1,12 +1,12 @@
 import { FC, ReactNode } from "react";
 import clsx from "clsx";
-import { Box, Card, CardContent, styled } from "@mui/material";
+import { Box, Card, CardContent, Typography, styled } from "@mui/material";
 import { DarkButton } from "@components/button";
 import { IconAvatar } from "@components/feature/DetailLine";
 import { useMounted } from "@hooks/useMounted";
 import { LoadingSecurityContent } from "@components/loading-skeleton";
 
-const CardStyled = styled(Card)(({ theme }) => ({
+export const CardStyled = styled(Card)(({ theme }) => ({
   border: "1px solid #FFFFFF55",
   borderRadius: "0.5rem",
   background: "#1D1D1D",
@@ -33,14 +33,14 @@ const SecuritySection: FC<{
 }) => {
   const { mounted } = useMounted();
   return (
-    <CardStyled className={clsx("border bord", className)} elevation={0}>
+    <CardStyled className={className} elevation={0}>
       <CardContent
         className="relative z-10 flex flex-col h-full"
         sx={{ px: 3, pt: 1 }}
       >
         <Box className="pb-4 pt-2 flex items-center">
           <IconAvatar>{icon}</IconAvatar>
-          <span className="flex-1 text-[20px] font-semibold ml-2">{title}</span>
+          <Typography className="flex-1" variant="h6" fontWeight={600} sx={{ml: 1}}>{title}</Typography>
           {mounted && (
             <Box
               className={clsx(

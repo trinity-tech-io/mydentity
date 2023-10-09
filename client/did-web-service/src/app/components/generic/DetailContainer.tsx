@@ -1,6 +1,6 @@
 import { FC, ReactNode } from "react";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import { Box, Card, CardContent, styled } from "@mui/material";
+import { Box, Card, CardContent, Typography, styled } from "@mui/material";
 import clsx from "clsx";
 import { NormalButton } from "@components/button";
 
@@ -37,9 +37,9 @@ const DetailContainer: FC<{
   able2ShowAll = true,
 }) => {
   return (
-    <CardStyled className={clsx("border bord", className)} elevation={0}>
+    <CardStyled className={className} elevation={0}>
       <Box className="py-4 px-6 flex">
-        <span className="flex-1 text-[20px] font-semibold">{title}</span>
+        <Typography className="flex-1" variant="h6" fontWeight={600}>{title}</Typography>
         {able2ShowAll && (
           <NormalButton
             size="small"

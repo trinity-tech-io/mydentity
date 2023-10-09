@@ -155,20 +155,18 @@ const Security: FC = () => {
           </SecuritySection>
         </Grid>
       </Grid>
-      {mounted && (
-        <>
-
-          <br />
-          <br />
-
-          <Typography variant="h5">My browsers</Typography>
-          {browsers?.length == 0 && "No browser used so far."}
-          {browsers &&
-            browsers.map((browser, i) => (
-              <BrowserRow key={i} browser={browser} />
-            ))}
-        </>
-      )}
+      <div className="">
+        <Typography variant="h6" fontWeight={600} className="py-3">My Browsers</Typography>
+        {mounted && (
+          <>
+            {browsers?.length == 0 && <Typography variant="body2">No browser used so far.</Typography>}
+            {browsers &&
+              browsers.map((browser, i) => (
+                <BrowserRow key={i} browser={browser} />
+              ))}
+          </>
+        )}
+      </div>
     </div>
   );
 };
