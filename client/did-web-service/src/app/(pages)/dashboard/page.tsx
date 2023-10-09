@@ -37,11 +37,9 @@ const Dashboard: FC = () => {
         <Grid item xs={12} md={6}>
           <AccountAccess />
         </Grid>
-        {mounted && (
-          <Grid item xs={12} md={6}>
-            <AccountUnlock />
-          </Grid>
-        )}
+        <Grid item xs={12} md={6}>
+          <AccountUnlock />
+        </Grid>
       </Grid>
     </>
   );

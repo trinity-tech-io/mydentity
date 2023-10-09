@@ -1,21 +1,40 @@
-import CheckIcon from '@assets/images/check-full.svg';
-import CrossIcon from '@assets/images/cross-full.svg';
-import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
-import { Typography } from "@mui/material";
-import { authUser$ } from "@services/user/user.events";
-import clsx from "clsx";
+import { FC, useEffect, useState } from "react";
 import { isNil } from "lodash";
-import { FC, useEffect, useState } from 'react';
+import SecurityIcon from "@mui/icons-material/Security";
+import { TableCell } from "@mui/material";
+import { useRouter } from "next13-progressbar";
+import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
+import { authUser$ } from "@services/user/user.events";
 import { SecurityState, SecurityStatus } from "../components/SecurityStatus";
+import DetailContainer from "@components/generic/DetailContainer";
+import { DetailTable } from "@components/generic/DetailTable";
+import { useMounted } from "@hooks/useMounted";
+import { LoadingTableAvatarRow } from "@components/loading-skeleton";
+import { EncryptAccessRow } from "./account/EncryptAccessRow";
+import { DarkButton } from "@components/button";
 
-export const AccountUnlock: FC = _ => {
+export const AccountUnlock: FC = (_) => {
   const [activeUser] = useBehaviorSubject(authUser$);
-  const [passkeys] = useBehaviorSubject(activeUser?.get("security").passkeyKeys$);
-  const [passwords] = useBehaviorSubject(activeUser?.get("security").passwordKeys$);
-  const [securityState, setSecurityState] = useState<SecurityState>(SecurityState.Unknown);
+  const [activities] = useBehaviorSubject(
+    activeUser?.get("activity").activities$
+  );
+  const [passkeys] = useBehaviorSubject(
+    activeUser?.get("security").passkeyKeys$
+  );
+  const [passwords] = useBehaviorSubject(
+    activeUser?.get("security").passwordKeys$
+  );
+  const [securityState, setSecurityState] = useState<SecurityState>(
+    SecurityState.Unknown
+  );
   const [advice, setAdvice] = useState<string>(null);
+  const [goToSecurityCenter, setGoToSecurityCenter] = useState(false);
+  const { mounted } = useMounted();
+  const router = useRouter();
 
   useEffect(() => {
+    setGoToSecurityCenter(false);
+
     if (isNil(passwords) || isNil(passkeys)) {
       // Unknown status so far
       setSecurityState(SecurityState.Unknown);
@@ -28,53 +47,97 @@ export const AccountUnlock: FC = _ => {
       if (passkeys.length > 0) {
         // At least one browser
         setSecurityState(SecurityState.Good);
-        setAdvice("Perfect, you will be able to unlock your encrypted data with your password or with your browser.");
+        setAdvice(
+          "Perfect, you will be able to unlock your encrypted data with your password or with your browser."
+        );
         return;
-      }
-      else {
+      } else {
         // No browser
         setSecurityState(SecurityState.Good);
-        setAdvice("All good, you will be able to unlock your encrypted data with your password. You could also bind one or more browsers for faster access");
+        setAdvice(
+          "All good, you will be able to unlock your encrypted data with your password. You could also bind one or more browsers for faster access"
+        );
         return;
       }
-    }
-    else {
+    } else {
       // No password
       if (passkeys.length > 0) {
         // At least one passkey
         setSecurityState(SecurityState.Average);
-        setAdvice("Only 1 browser bound but no password. You will loose your account if you loose access to the password. Remember that the password cannot be recovered, there is no 'password lost' service.");
+        setAdvice(
+          "Only 1 browser bound but no password. You will loose your account if you loose access to the password. Remember that the password cannot be recovered, there is no 'password lost' service."
+        );
+        setGoToSecurityCenter(true);
         return;
-      }
-      else {
+      } else {
         // No passkey
         setSecurityState(SecurityState.Bad);
-        setAdvice("No email nor password bound to your account yet, you don't have access to all the features that use encrypted data such as identities.");
+        setAdvice(
+          "No email nor password bound to your account yet, you don't have access to all the features that use encrypted data such as identities."
+        );
+        setGoToSecurityCenter(true);
         return;
       }
     }
 
-    throw new Error(`Unhandled AccountUnlock case, ${passwords?.length} emails, ${passkeys?.length} passkeys`);
+    throw new Error(
+      `Unhandled AccountUnlock case, ${passwords?.length} emails, ${passkeys?.length} passkeys`
+    );
   }, [passwords, passkeys]);
 
+  const openSecurityCenter = (): void => {
+    router.push("/account/security");
+  };
+
   return (
-    <div className="col-span-full xl:col-span-6 bg-white dark:bg-slate-800 shadow-lg rounded-sm border border-slate-200 dark:border-slate-700 p-3">
-      <header className="px-2 py-1 border-b border-slate-100 dark:border-slate-700">
-        <h2 className="font-semibold text-slate-800 dark:text-slate-100">Encrypted content access</h2>
-      </header>
+    <DetailContainer
+      className="h-full"
+      title="Encrypted Content Access"
+      able2ShowAll={false}
+    >
+      <DetailTable
+        headCells={
+          <>
+            <TableCell>DECRYPTION METHOD</TableCell>
+            <TableCell>STATUS</TableCell>
+          </>
+        }
+        bodyRows={
+          !mounted || isNil(passwords) || isNil(passkeys) ? (
+            Array(2)
+              .fill(0)
+              .map((_, _i) => <LoadingTableAvatarRow key={_i} />)
+          ) : (
+            <>
+              <EncryptAccessRow
+                method="password"
+                secondaryDetail={
+                  passwords?.length > 0 ? "**********" : "No password set"
+                }
+                isSet={passwords?.length > 0}
+              />
+              <EncryptAccessRow
+                method="biometrics"
+                secondaryDetail={activities[0]?.browserNameStr}
+                isSet={passkeys?.length > 0}
+              />
+            </>
+          )
+        }
+      />
+      {!!advice && <SecurityStatus state={securityState} advice={advice} />}
 
-      <div className='p-2'>
-        <div className={clsx("col-span-6 flex flex-row gap-2", passwords?.length == 0 && "opacity-30")}>
-          {passwords?.length == 0 && <><CrossIcon width={20} /> No global password can decrypt my data</>}
-          {passwords?.length > 0 && <><CheckIcon width={20} /> I can decrypt my data using my password, from anywhere</>}
+      {goToSecurityCenter && (
+        <div className="mt-[6%]">
+          <DarkButton
+            startIcon={<SecurityIcon />}
+            className="w-full"
+            onClick={openSecurityCenter}
+          >
+            Go to security center
+          </DarkButton>
         </div>
-        <div className={clsx("col-span-6 flex flex-row gap-2", passkeys?.length == 0 && "opacity-30")}>
-          {passkeys?.length == 0 && <><CrossIcon width={20} /> I can't decrypt my data using this browser biometrics</>}
-          {passkeys?.length > 0 && <><CheckIcon width={20} /> I can decrypt my data using this browser (biometrics)</>}
-        </div>
-      </div>
-
-      <SecurityStatus state={securityState} advice={advice}/>
-    </div>
+      )}
+    </DetailContainer>
   );
-}
+};

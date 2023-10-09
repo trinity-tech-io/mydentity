@@ -14,19 +14,19 @@ const IconAvatar = styled(Avatar)(({ theme }) => ({
 }));
 
 const TitleByMethod = {
-  email: {
-    title: "Sign in with email address",
-    icon: "entypo:email",
-    action: "LINKED",
+  password: {
+    title: "Decrypt data using password",
+    icon: "ic:round-password",
+    action: "SET",
   },
-  browser: {
-    title: "Sign in with this browser",
-    icon: "fluent-mdl2:website",
-    action: "BOUND",
+  biometrics: {
+    title: "Decrypt data using browser's biometrics",
+    icon: "fluent:fingerprint-48-filled",
+    action: "SET",
   },
 };
-export const AccountAccessRow: FC<{
-  method: "email" | "browser";
+export const EncryptAccessRow: FC<{
+  method: "password" | "biometrics";
   secondaryDetail: string | ReactNode;
   isSet: boolean;
 }> = ({ method, secondaryDetail, isSet }) => {
@@ -45,21 +45,14 @@ export const AccountAccessRow: FC<{
               className="flex-1"
               primary={
                 <div className="flex items-center gap-1">
-                  <span
-                    className={clsx(
-                      "font-medium text-[11pt]",
-                      isSet ? "" : "text-[#9291A5]"
-                    )}
-                  >
+                  <span className="font-medium text-[11pt] text-[#9291A5]">
                     {TitleByMethod[method].title}
                   </span>
                   <SecurityStatusIcon turnedOn={isSet} />
                 </div>
               }
               secondary={
-                <span
-                  className={clsx("text-[8pt]", isSet ? "" : "text-[#9291A5]")}
-                >
+                <span className="text-[8pt] text-[#9291A5]">
                   {secondaryDetail}
                 </span>
               }
@@ -83,9 +76,7 @@ export const AccountAccessRow: FC<{
                 isSet ? "bg-[#34A853]" : "bg-[#EA4335]"
               )}
             >
-              {`${method.toUpperCase()} ${isSet ? "" : "NOT "}${
-                TitleByMethod[method].action
-              }`}
+              {`${method.toUpperCase()} ${isSet ? "" : "NOT "}${TitleByMethod[method].action}`}
             </Box>
           </TableCell>
         </>
