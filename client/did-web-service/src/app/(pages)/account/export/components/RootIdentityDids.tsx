@@ -2,7 +2,8 @@
 import { IdentityAvatar } from '@components/identity/IdentityAvatar';
 import { RegularIdentity } from '@model/regular-identity/regular-identity';
 import { shortenDID } from '@services/identity/identity.utils';
-import { FC } from 'react';
+import React, { FC } from 'react';
+import { DislayName } from './DislayName';
 
 export const RootIdentityDids: FC<{
   identities: RegularIdentity[],
@@ -15,9 +16,7 @@ export const RootIdentityDids: FC<{
           <div className="flex items-center">
             <IdentityAvatar identity={identity} width={40} height={40} />
             <div className="ml-2">
-              <div className="text-sm font-bold">
-                {identity.profile().name$.value}
-              </div>
+              <DislayName identity={identity}/>
               <div className="text-left cursor-pointer">
                 {shortenDID(identity.did)}
               </div>
