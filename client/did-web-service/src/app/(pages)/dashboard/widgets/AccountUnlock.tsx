@@ -74,10 +74,7 @@ export const AccountUnlock: FC = _ => {
         </div>
       </div>
 
-      <div className="p-3 flex flex-row items-center gap-4">
-        <SecurityStatus state={securityState} />
-        <Typography>{advice}</Typography>
-      </div>
+      <SecurityStatus state={securityState} advice={advice}/>
     </div>
   );
 }

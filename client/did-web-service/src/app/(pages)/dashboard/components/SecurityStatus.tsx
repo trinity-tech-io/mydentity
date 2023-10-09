@@ -1,31 +1,39 @@
-import { FC, useEffect, useState } from "react";
+import { FC, ReactNode, useEffect, useState } from "react";
+import { Error as ErrorIcon, Info as InfoIcon } from "@mui/icons-material";
+import { Icon as ReactIcon } from "@iconify/react";
 
 export enum SecurityState {
   Unknown,
   Good,
   Average,
-  Bad
+  Bad,
 }
+
+const ColorByState = {
+  [SecurityState.Unknown]: "#3A3A3A",
+  [SecurityState.Good]: "#34A853",
+  [SecurityState.Average]: "#ED6C02",
+  [SecurityState.Bad]: "#EA4335",
+};
+
+const IconByState = {
+  [SecurityState.Unknown]: <ReactIcon icon="fluent-mdl2:unknown-solid" fontSize={24} />,
+  [SecurityState.Good]: <ReactIcon icon="carbon:checkmark-filled" fontSize={24} />,
+  [SecurityState.Average]: <InfoIcon />,
+  [SecurityState.Bad]: <ErrorIcon />,
+};
 
 export const SecurityStatus: FC<{
-  width?: number;
-  height?: number;
   state: SecurityState;
-}> = ({ width = 34, height = 34, state }) => {
-  const [backgroundColor, setBackgroundColor] = useState<string>(null);
-
-  useEffect(() => {
-    switch (state) {
-      case SecurityState.Unknown: setBackgroundColor("transparent"); break;
-      case SecurityState.Good: setBackgroundColor("green"); break;
-      case SecurityState.Average: setBackgroundColor("orange"); break;
-      case SecurityState.Bad: setBackgroundColor("red"); break;
-    }
-  }, [state]);
-
+  advice: string;
+}> = ({ state, advice }) => {
   return (
-    <div className="flex">
-      <div className="rounded-full" style={{ width, height, backgroundColor }}></div>
+    <div
+      className={`flex rounded-lg px-2 py-4 flex gap-2`}
+      style={{background: ColorByState[state]}}
+    >
+      <span className="text-white">{IconByState[state]}</span>
+      <span className="text-white text-sm">{advice}</span>
     </div>
-  )
-}
+  );
+};

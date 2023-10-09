@@ -1,17 +1,18 @@
-import CheckIcon from "@assets/images/check-full.svg";
-import CrossIcon from "@assets/images/cross-full.svg";
-import { MainButton } from "@components/generic/MainButton";
-import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
-import { TableCell, TableRow, Typography } from "@mui/material";
-import { authUser$ } from "@services/user/user.events";
+import { FC, useEffect, useState } from "react";
 import clsx from "clsx";
 import { isNil } from "lodash";
-import { useRouter } from "next/navigation";
-import { FC, useEffect, useState } from "react";
+import { useRouter } from "next13-progressbar";
+import { TableCell } from "@mui/material";
+import SecurityIcon from "@mui/icons-material/Security";
+import CheckIcon from "@assets/images/check-full.svg";
+import CrossIcon from "@assets/images/cross-full.svg";
+import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
+import { authUser$ } from "@services/user/user.events";
 import { SecurityState, SecurityStatus } from "../components/SecurityStatus";
 import DetailContainer from "@components/generic/DetailContainer";
 import { DetailTable } from "@components/generic/DetailTable";
 import { AccountAccessRow } from "./account/AccountAccessRow";
+import { DarkButton } from "@components/button";
 
 export const AccountAccess: FC = (_) => {
   const [activeUser] = useBehaviorSubject(authUser$);
@@ -104,16 +105,16 @@ export const AccountAccess: FC = (_) => {
           //     .fill(0)
           //     .map((_, _i) => <LoadingTableAvatarRow key={_i} />)
           // ) : (
-            <>
-              <AccountAccessRow
-                method="email"
-                secondaryDetail="No available email address found"
-              />
-              <AccountAccessRow
-                method="browser"
-                secondaryDetail="Apple Macintosh Chrome"
-              />
-            </>
+          <>
+            <AccountAccessRow
+              method="email"
+              secondaryDetail="No available email address found"
+            />
+            <AccountAccessRow
+              method="browser"
+              secondaryDetail="Apple Macintosh Chrome"
+            />
+          </>
           // )
         }
       />
@@ -156,14 +157,14 @@ export const AccountAccess: FC = (_) => {
         </div>
       </div>
 
-      <div className="py-2 flex flex-row items-center gap-4">
-        <SecurityStatus state={securityState} />
-        <Typography>{advice}</Typography>
-      </div>
+      <SecurityStatus state={securityState} advice={advice} />
+
       {goToSecurityCenter && (
-        <MainButton onClick={openSecurityCenter}>
-          Go to security center
-        </MainButton>
+        <div className="mt-[6%]">
+          <DarkButton startIcon={<SecurityIcon />} className="w-full" onClick={openSecurityCenter}>
+            Go to security center
+          </DarkButton>
+        </div>
       )}
     </DetailContainer>
   );
