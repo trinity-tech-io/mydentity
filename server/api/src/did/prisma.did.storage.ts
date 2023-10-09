@@ -521,10 +521,10 @@ export class PrismaDIDStorage implements DIDStorage {
   async storePrivateKey(id: DIDURL, privateKey: string): Promise<void> {
     await this.prisma.privateKey.upsert({
       where: {
-        id: id.getDid().toString()
+        id: id.toString()
       },
       create: {
-        id: id.getDid().toString(),
+        id: id.toString(),
         path: this.path,
         did: id.getDid().toString(),
         context: privateKey,
