@@ -1,20 +1,29 @@
-import CheckIcon from '@assets/images/check-full.svg';
-import CrossIcon from '@assets/images/cross-full.svg';
+import CheckIcon from "@assets/images/check-full.svg";
+import CrossIcon from "@assets/images/cross-full.svg";
 import { MainButton } from "@components/generic/MainButton";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
-import { Typography } from "@mui/material";
+import { TableCell, TableRow, Typography } from "@mui/material";
 import { authUser$ } from "@services/user/user.events";
-import clsx from 'clsx';
+import clsx from "clsx";
 import { isNil } from "lodash";
 import { useRouter } from "next/navigation";
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useState } from "react";
 import { SecurityState, SecurityStatus } from "../components/SecurityStatus";
+import DetailContainer from "@components/generic/DetailContainer";
+import { DetailTable } from "@components/generic/DetailTable";
+import { AccountAccessRow } from "./account/AccountAccessRow";
 
-export const AccountAccess: FC = _ => {
+export const AccountAccess: FC = (_) => {
   const [activeUser] = useBehaviorSubject(authUser$);
-  const [boundEmails] = useBehaviorSubject(activeUser?.get("email").userEmails$);
-  const [passkeys] = useBehaviorSubject(activeUser?.get("security").passkeyKeys$);
-  const [securityState, setSecurityState] = useState<SecurityState>(SecurityState.Unknown);
+  const [boundEmails] = useBehaviorSubject(
+    activeUser?.get("email").userEmails$
+  );
+  const [passkeys] = useBehaviorSubject(
+    activeUser?.get("security").passkeyKeys$
+  );
+  const [securityState, setSecurityState] = useState<SecurityState>(
+    SecurityState.Unknown
+  );
   const [advice, setAdvice] = useState<string>(null);
   const [goToSecurityCenter, setGoToSecurityCenter] = useState(false);
   const router = useRouter();
@@ -34,55 +43,116 @@ export const AccountAccess: FC = _ => {
       if (passkeys.length > 0) {
         // At least one browser
         setSecurityState(SecurityState.Good);
-        setAdvice("Perfect, you will be able to sign in to your account with your email or with your browser");
+        setAdvice(
+          "Perfect, you will be able to sign in to your account with your email or with your browser"
+        );
         return;
-      }
-      else {
+      } else {
         // No browser
         setSecurityState(SecurityState.Good);
-        setAdvice("All good, you will be able to sign in to your account with your email. You could also bind one or more browsers for faster access");
+        setAdvice(
+          "All good, you will be able to sign in to your account with your email. You could also bind one or more browsers for faster access"
+        );
         return;
       }
-    }
-    else {
+    } else {
       // No email
       if (passkeys.length > 0) {
         // At least one passkey
         setSecurityState(SecurityState.Average);
-        setAdvice("Only 1 browser bound but no email address. You will loose your account if you loose access to the browser.");
+        setAdvice(
+          "Only 1 browser bound but no email address. You will loose your account if you loose access to the browser."
+        );
         setGoToSecurityCenter(true);
         return;
-      }
-      else {
+      } else {
         // No passkey
         setSecurityState(SecurityState.Bad);
-        setAdvice("No email nor browser bound to your account yet, you won't be able to sign in to your account. Please check the security center soon.");
+        setAdvice(
+          "No email nor browser bound to your account yet, you won't be able to sign in to your account. Please check the security center soon."
+        );
         setGoToSecurityCenter(true);
         return;
       }
     }
 
-    throw new Error(`Unhandled AccountAccess case, ${boundEmails?.length} emails, ${passkeys?.length} passkeys`);
+    throw new Error(
+      `Unhandled AccountAccess case, ${boundEmails?.length} emails, ${passkeys?.length} passkeys`
+    );
   }, [boundEmails, passkeys]);
 
   const openSecurityCenter = (): void => {
     router.push("/account/security");
-  }
+  };
 
   return (
-    <div className="col-span-full xl:col-span-6 bg-white dark:bg-slate-800 shadow-lg rounded-sm border border-slate-200 dark:border-slate-700 p-3 ">
-      <header className="px-2 py-1 border-b border-slate-100 dark:border-slate-700">
-        <h2 className="font-semibold text-slate-800 dark:text-slate-100">Account access</h2>
-      </header>
-
-      <div className='p-2'>
-        <div className={clsx("col-span-6 flex flex-row gap-2", boundEmails?.length == 0 && "opacity-30")}>
-          {boundEmails?.length == 0 && <><CrossIcon width={20} /> I can't sign in using an email address</>}
-          {boundEmails?.length > 0 && <><CheckIcon width={20} /> I can sign in from anywhere with my email address</>}
+    <DetailContainer
+      className="h-full"
+      title="Account Access"
+      able2ShowAll={false}
+    >
+      <DetailTable
+        headCells={
+          <>
+            <TableCell>SIGN IN METHOD</TableCell>
+            <TableCell>STATUS</TableCell>
+          </>
+        }
+        bodyRows={
+          // !mounted ? (
+          //   Array(2)
+          //     .fill(0)
+          //     .map((_, _i) => <LoadingTableAvatarRow key={_i} />)
+          // ) : (
+            <>
+              <AccountAccessRow
+                method="email"
+                secondaryDetail="No available email address found"
+              />
+              <AccountAccessRow
+                method="browser"
+                secondaryDetail="Apple Macintosh Chrome"
+              />
+            </>
+          // )
+        }
+      />
+      <div className="p-2">
+        <div
+          className={clsx(
+            "col-span-6 flex flex-row gap-2",
+            boundEmails?.length == 0 && "opacity-30"
+          )}
+        >
+          {boundEmails?.length == 0 && (
+            <>
+              <CrossIcon width={20} /> I can't sign in using an email address
+            </>
+          )}
+          {boundEmails?.length > 0 && (
+            <>
+              <CheckIcon width={20} /> I can sign in from anywhere with my email
+              address
+            </>
+          )}
         </div>
-        <div className={clsx("col-span-6 flex flex-row gap-2", passkeys?.length == 0 && "opacity-30")}>
-          {passkeys?.length == 0 && <><CrossIcon width={20} /> I can't sign in with this browser</>}
-          {passkeys?.length > 0 && <><CheckIcon width={20} /> I can sign in from current browser using biometrics</>}
+        <div
+          className={clsx(
+            "col-span-6 flex flex-row gap-2",
+            passkeys?.length == 0 && "opacity-30"
+          )}
+        >
+          {passkeys?.length == 0 && (
+            <>
+              <CrossIcon width={20} /> I can't sign in with this browser
+            </>
+          )}
+          {passkeys?.length > 0 && (
+            <>
+              <CheckIcon width={20} /> I can sign in from current browser using
+              biometrics
+            </>
+          )}
         </div>
       </div>
 
@@ -90,7 +160,11 @@ export const AccountAccess: FC = _ => {
         <SecurityStatus state={securityState} />
         <Typography>{advice}</Typography>
       </div>
-      {goToSecurityCenter && <MainButton onClick={openSecurityCenter}>Go to security center</MainButton>}
-    </div>
+      {goToSecurityCenter && (
+        <MainButton onClick={openSecurityCenter}>
+          Go to security center
+        </MainButton>
+      )}
+    </DetailContainer>
   );
-}
+};

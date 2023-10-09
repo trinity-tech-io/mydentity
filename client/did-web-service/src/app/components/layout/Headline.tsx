@@ -5,7 +5,7 @@ const HeadlineBox = styled("div")((props: { showBg: boolean }) => {
   const { showBg } = props;
   return {
     marginBottom: "1.5rem",
-    background: showBg ? "url('./headline-banner.png') no-repeat center center / cover" : "none",
+    background: showBg ? "url('/headline-banner.png') no-repeat center center / cover" : "none",
   };
 });
 const Headline: FC<{

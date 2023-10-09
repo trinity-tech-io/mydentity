@@ -13,7 +13,6 @@ import { IdentityListWidget } from "./widgets/IdentityList";
 import { RecentActivityWidget } from "./widgets/recent-activity/RecentActivity";
 
 const Dashboard: FC = () => {
-  const [authUser] = useBehaviorSubject(authUser$);
   const { mounted } = useMounted();
 
   useEffect(() => {
@@ -28,30 +27,24 @@ const Dashboard: FC = () => {
         <WelcomeBanner />
       </div>
 
-      {/* {!mounted && <VerticalStackLoadingCard className="col-span-full" />} */}
-      <>
-        {/* Widgets */}
-        {/* {authUser && ( */}
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={6}>
+          <RecentActivityWidget />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <IdentityListWidget />
+        </Grid>
+        {mounted && (
           <>
-            <Grid container spacing={3}>
-              <Grid item xs={12} md={6}>
-                <RecentActivityWidget />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <IdentityListWidget />
-              </Grid>
+            <Grid item xs={12} md={6}>
+              <AccountAccess />
             </Grid>
-            {/* Duplicate with recent activity <RecentApplicationsWidget /> */}
-            
+            <Grid item xs={12} md={6}>
+              <AccountUnlock />
+            </Grid>
           </>
-        {/* )} */}
-      </>
-      {mounted && (
-        <div className="pt-6">
-          <AccountAccess />
-          <AccountUnlock />
-        </div>
-      )}
+        )}
+      </Grid>
     </>
   );
 };
