@@ -103,10 +103,10 @@ export abstract class Credential {
 
     At this time, the return data structure is:
       {
-          title: title,
+          title: 'Medical certificate',
           description: "Drink more, Eat less",
           prepareRemoveKey: [prescription1, prescription2],
-          icon: icon
+          icon: 'nowhere'
         };
     */
     const prepareRemoveKey = []; 
