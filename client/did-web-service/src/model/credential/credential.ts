@@ -88,7 +88,31 @@ export abstract class Credential {
   }
 
   protected parseDisplayable(credProps: JSONObject): any {
-    const prepareRemoveKey = [];
+    /* When the data structure of credential is as follows (import credential):
+        Add prepareRemoveKey field to remove description1 and description2, 
+        because description1 and description2 are the content of description and do not need to be displayed repeatedly.
+    credProps: {
+      displayable: {description: "${prescription1}，${prescription2}",
+                    icon:"nowhere",
+                    title:"Medical certificate"
+                    prescription1:"Drink more'
+                    prescription2: "Eat less"
+                    }
+      subField:{firstSubValue: 'Yes', secondSubValue: 'Tomorrow'}
+    }
+
+    At this time, the return data structure is:
+    {
+      {
+          title: title,
+          description: "Drink more, Eat less",
+          prepareRemoveKey: [prescription1, prescription2],
+          icon: icon
+        };
+    }
+    */
+    const prepareRemoveKey = []; 
+
     if ("displayable" in credProps) {
 
       // rawDescription sample: hello ${firstName} ${lastName.test}
@@ -96,7 +120,7 @@ export abstract class Credential {
       const title = (credProps["displayable"] as JSONObject)['title'] as string;
       const icon = (credProps["displayable"] as JSONObject)['icon'] as string;
       // From a raw description, find all special ${...} tags and replace them with values from the subject.
-      if (rawDescription) {
+      if (rawDescription) { 
         const tagsMatch = rawDescription.match(/\${([a-zA-Z0-9.]+)}/g);
         const keywordTags = tagsMatch ? Array.from(tagsMatch) : [];
 
@@ -168,6 +192,7 @@ export abstract class Credential {
     let credProps = this.verifiableCredential.getSubject().getProperties();
     const displayable = this.parseDisplayable(credProps)
     if (!displayable) return null
+    // Remove duplicate fields: comment in parseDisplayable() method
     const removeArray = displayable.prepareRemoveKey
     credProps.displayable = displayable;
     delete displayable['prepareRemoveKey']; // Remove specified key
