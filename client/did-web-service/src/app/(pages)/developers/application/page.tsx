@@ -12,7 +12,7 @@ import { didDocumentService } from "@services/identity/diddocuments.service";
 import { logger } from "@services/logger";
 import { authUser$ } from "@services/user/user.events";
 import { useSearchParams } from "next/navigation";
-import { ChangeEvent, FC, useEffect, useState } from "react";
+import { ChangeEvent, FC, useCallback, useEffect, useState } from "react";
 
 const ApplicationDetailsPage: FC<{
   params: {
@@ -40,12 +40,15 @@ const ApplicationDetailsPage: FC<{
   const uploadingIcon = false;
   const base64iconPath: string = null;
 
+  // console.log("------")
+  // console.log("appIdentityNeedsToBePublished", appIdentityNeedsToBePublished)
+  // console.log("appName", appName)
+  // console.log("appIconUrl", appIconUrl)
+
   const { showSuccessToast, showErrorToast } = useToast();
 
-  // Component initialization
-  useEffect(() => {
-    // Get the did document on chain, without any local cache
-    logger.log("developers", "Checking if the application DID is on chain or not");
+  const fetchRemoteDIDDocument = useCallback((): void => {
+    setAppDIDDocumentStatusWasChecked(false);
     didDocumentService.resolveDIDDocument(applicationDid, true).then(async doc => {
       setPublishedDIDDocument(doc);
       setAppDIDDocumentStatusWasChecked(true);
@@ -55,11 +58,16 @@ const ApplicationDetailsPage: FC<{
       }
       else {
         logger.log("developers", "App DID is NOT on chain");
-
-        //appName = app.name; // TODO
       }
     })
-  }, []);
+  }, [applicationDid]);
+
+  // Component initialization
+  useEffect(() => {
+    // Get the did document on chain, without any local cache
+    logger.log("developers", "Checking if the application DID is on chain or not");
+    fetchRemoteDIDDocument();
+  }, [fetchRemoteDIDDocument]);
 
   // App identity initialization
   useEffect(() => {
@@ -102,9 +110,9 @@ const ApplicationDetailsPage: FC<{
     updateLocalAppCredential();
     // Publish the local DID document on chain
     const publishedSuccessfully = await appIdentity.publication().publish();
+    // Get a fresh version of the published document so the UI can normally update and tell "up to date"
+    fetchRemoteDIDDocument();
     setPublishingIdentity(false);
-
-    // TODO: check pub status?
   }
 
   const isAppIdentityPublished = (): boolean => {
@@ -274,14 +282,14 @@ const ApplicationDetailsPage: FC<{
         </div>
         <div className="mt-4">
           {
-            appDIDDocumentStatusWasChecked && appIdentityNeedsToBePublished && !publishingIdentity &&
+            appDIDDocumentStatusWasChecked && localAppCredential && appIdentityNeedsToBePublished &&
             <div>
               <div>The local application info has been modified, please publish it for others to view your new app info.</div>
               <MainButton onClick={publishAppIdentity} busy={publishingIdentity}>Publish DID</MainButton>
             </div>
           }
 
-          {!appIdentityNeedsToBePublished && <p>Up to date</p>}
+          {appDIDDocumentStatusWasChecked && localAppCredential && !appIdentityNeedsToBePublished && <p>Up to date</p>}
 
         </div>
       </div>

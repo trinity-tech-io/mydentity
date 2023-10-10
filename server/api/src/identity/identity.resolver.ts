@@ -54,7 +54,7 @@ export class IdentityResolver {
   @Mutation(() => PublishResultEntity)
   async publishIdentity(@Args('input') input: PublishIdentityInput, @CurrentUser() user: User) {
     await this.identityService.ensureOwnedIdentity(input.identityDid, user);
-    return this.identityService.publishIdentity(input.identityDid, JSON.parse(input.payload));
+    return this.identityService.publishIdentity(input.identityDid, input.payload);
   }
 
   @UseGuards(JwtAuthGuard)

@@ -79,13 +79,16 @@ export class DIDPublishingService {
    *
    * DOC FOR ASSIST API: https://github.com/tuum-tech/assist-restapi-backend#verify
    */
-  public async publishDID(didString: string, payloadObject: any, memo = ''): Promise<string> {
+  public async publishDID(didString: string, payload: string | any, memo = ''): Promise<string> {
     this.logger.log("Requesting identity publication to Assist for DID: " + didString);
 
     return new Promise(async (resolve, reject) => {
       let didRequest: any;
       try {
-        didRequest = JSON.parse(payloadObject);
+        if (typeof payload === "string")
+          didRequest = JSON.parse(payload);
+        else
+          didRequest = payload;
       }
       catch (e) {
         // Probably a parse error

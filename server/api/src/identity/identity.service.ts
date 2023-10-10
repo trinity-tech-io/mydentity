@@ -153,10 +153,10 @@ export class IdentityService {
    * Posts a publication request and only waits for the post confirmation but not for the DID
    * transaction to be confirmed on chain.
    */
-  async publishIdentity(didString: string, payloadObject: any) {
+  async publishIdentity(didString: string, payload: string | any) {
     this.logger.log("Publishing identity:" + didString)
 
-    const publicationId = await this.didPublishingService.publishDID(didString, payloadObject);
+    const publicationId = await this.didPublishingService.publishDID(didString, payload);
     await this.prisma.identity.update({
       where: {
         did: didString

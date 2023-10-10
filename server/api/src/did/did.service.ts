@@ -193,7 +193,7 @@ export class DidService {
       const newDoc = await (await docBuilder.addCredential(credential)).seal(storePassword);
       await didStore.storeDid(newDoc);
     } catch (e) {
-      if (e instanceof Exceptions.CredentialAlreadyExistException) {
+      if (e instanceof Exceptions.CredentialAlreadyExistException || e instanceof Exceptions.DIDObjectAlreadyExistException) {
         // Do nothing
       } else {
         this.logger.warn('add credential to DIDDocument error:' + e.message);
