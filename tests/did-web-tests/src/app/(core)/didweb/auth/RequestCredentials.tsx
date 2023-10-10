@@ -22,6 +22,7 @@ export const RequestCredentials: FC = () => {
   }, []);
 
   const didAuth = async () => {
+    setReceivedPresentation(null);
     setAwaitingResult(true);
     await didAccessV2.requestCredentials({
       claims: [

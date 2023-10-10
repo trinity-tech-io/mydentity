@@ -11,7 +11,7 @@
   "dependencies": {
     "@elastosfoundation/did-js-sdk": "^2.2.14",
     "@elastosfoundation/elastos-connectivity-sdk-js": "^2.0.7-next",
-    "@elastosfoundation/essentials-connector-client-browser": "^1.0.43",
+    "@elastosfoundation/essentials-connector-client-browser": "^1.0.44",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@mui/material": "^5.14.4",
