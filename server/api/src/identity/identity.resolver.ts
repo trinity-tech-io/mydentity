@@ -131,7 +131,8 @@ export class IdentityResolver {
 
   @UseGuards(JwtAuthGuard)
   @Mutation(() => Boolean)
-  async synchronize(@CurrentUser() user: User) {
-    return this.identityService.synchronize(user);
+  async synchronize(@Args('identityDid') identityDid: string, @CurrentUser() user: User, @CurrentBrowser() browser: Browser) {
+    await this.identityService.ensureOwnedIdentity(identityDid, user);
+    return this.identityService.synchronize(user, browser);
   }
 }

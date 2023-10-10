@@ -122,6 +122,7 @@ export class DidService {
       await didStore.storeCredential(vc, storepass);
       return vc;
     } catch (e) {
+      this.logger.warn('createCredential error:' + e.message);
       if (e instanceof Exceptions.CredentialAlreadyExistException) {
         throw new AppException(DIDExceptionCode.CredentialAlreadyExists, e.message, HttpStatus.BAD_REQUEST);
       } else {
@@ -142,6 +143,7 @@ export class DidService {
       const vc = await vcBuilder.id(credentialId).types(...types).expirationDate(expirationDate).properties(properties).seal(storepass);
       return vc;
     } catch (e) {
+      this.logger.warn('issueCredential error:' + e.message);
       if (e instanceof Exceptions.CredentialAlreadyExistException) {
         throw new AppException(DIDExceptionCode.CredentialAlreadyExists, e.message, HttpStatus.BAD_REQUEST);
       } else {
@@ -155,6 +157,7 @@ export class DidService {
       const didStore = await this.openStore(context);
       return await didStore.loadCredential(credentialId, storePassword);
     } catch (e) {
+      this.logger.warn('loadCredential error:' + e.message);
       throw new AppException(DIDExceptionCode.DIDStorageError, e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -164,6 +167,7 @@ export class DidService {
       const didStore = await this.openStore(context);
       return await didStore.storeCredential(credential, storePassword);
     } catch (e) {
+      this.logger.warn('storeCredential error:' + e.message);
       throw new AppException(DIDExceptionCode.DIDStorageError, e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -192,6 +196,7 @@ export class DidService {
       if (e instanceof Exceptions.CredentialAlreadyExistException) {
         // Do nothing
       } else {
+        this.logger.warn('add credential to DIDDocument error:' + e.message);
         throw new AppException(DIDExceptionCode.DIDStorageError, e.message, HttpStatus.INTERNAL_SERVER_ERROR);
       }
     }
@@ -215,6 +220,7 @@ export class DidService {
       if (e instanceof Exceptions.DIDObjectNotExistException) {
         // Do nothing
       } else {
+        this.logger.warn('remove credential from DIDDocument error:' + e.message);
         throw new AppException(DIDExceptionCode.DIDStorageError, e.message, HttpStatus.INTERNAL_SERVER_ERROR);
       }
     }
@@ -228,6 +234,7 @@ export class DidService {
       const vpBuilder = await VerifiablePresentation.createFor(didString, null, didStore);
       return vpBuilder.credentials(...vc).nonce(nonce).realm(realm).seal(storepass);
     } catch (e) {
+      this.logger.warn('create verifiable presentation from credentials error:' + e.message);
       if ((e instanceof Exceptions.DIDObjectAlreadyExistException) || (e instanceof Exceptions.IllegalUsage)) {
         throw new AppException(DIDExceptionCode.InvalidCredential, e.message, HttpStatus.BAD_REQUEST);
       } else {
@@ -328,10 +335,10 @@ export class DidService {
     return didDocument;
   }
 
-  async synchronize(context: string) {
+  async synchronize(context: string, storepass: string) {
     const didStore = await this.openStore(context);
     try {
-      await didStore.synchronize();
+      await didStore.synchronize(null, storepass);
     } catch (e) {
       if (e instanceof Exceptions.NetworkException) {
         throw new AppException(DIDExceptionCode.NetworkError, e.message, HttpStatus.SERVICE_UNAVAILABLE);

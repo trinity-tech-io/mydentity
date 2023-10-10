@@ -172,7 +172,7 @@ export class IdentityService {
   }
 
   async getPublicationStatus(did: string): Promise<IdentityPublicationState> {
-    this.logger.log("Checking identity publicaiton status for DID " + did);
+    this.logger.log("Checking identity publication status for DID " + did);
 
     // Get the publication status from prisma first
     const identity = await this.prisma.identity.findFirst({ where: { did } });
@@ -278,10 +278,10 @@ export class IdentityService {
     return true;
   }
 
-  async synchronize(user: User) {
-    // Don't wait
-    // TODO: Add getSynchronizeStatus?
-    void this.didService.synchronize(user?.id);
+  async synchronize(user: User, browser: Browser) {
+    const storePassword = this.getDIDStorePassword(user?.id, browser?.id);
+
+    await this.didService.synchronize(user?.id, storePassword);
     return true;
   }
 

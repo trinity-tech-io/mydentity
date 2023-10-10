@@ -145,6 +145,10 @@ class IdentityService {
   public getLocalDIDDocument(identityDid: string): Promise<Document> {
     return this.provider.document.getLocalDIDDocument(identityDid);
   }
+
+  public synchronize(identityDid: string): Promise<void> {
+    return this.provider.document.synchronize(identityDid);
+  }
 }
 
 export const identityService = new IdentityService();

@@ -95,8 +95,19 @@ export class DocumentModule implements IdentityProviderDocument {
     return null;
   }
 
-  synchronize(identityDid: string): Promise<void> {
-    throw new Error("Method not implemented.");
+  async synchronize(identityDid: string): Promise<void> {
+    const result = await withCaughtAppException(async () => {
+      return (await getApolloClient()).mutate<{ synchronize: boolean }>({
+        mutation: gql`
+          mutation synchronize($identityDid: String!) {
+            synchronize(identityDid: $identityDid)
+          }
+        `,
+        variables: {
+          identityDid
+        }
+      });
+    });
   }
 
   async setCredentialVisibility(identityDid: string, credentialId: string, visible: boolean): Promise<boolean> {
