@@ -1,6 +1,6 @@
 import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { AuthGuard } from '@nestjs/passport';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { IdentityEntity } from 'src/identity/entities/identity.entity';
 import { IdentityAccessTokenGuard } from 'src/identity/identity-access-token.guard';
 import { IdentityAccess } from 'src/identity/identity-access.decorator';
@@ -37,7 +37,7 @@ export class IdentityClaimResolver {
     }
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Mutation(() => IdentityEntity)
   async claimManagedIdentity(@Args("input") input: ClaimIdentityInput): Promise<IdentityEntity> {
     // TODO
