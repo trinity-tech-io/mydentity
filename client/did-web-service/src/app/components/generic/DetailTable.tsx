@@ -8,6 +8,10 @@ import {
   TableRowOwnProps,
 } from "@mui/material";
 
+/**
+ * Component to be used as table row within following table component body.
+ * First cell contains avatar component.
+ */
 export const DetailTableRow: FC<{
   avatar: ReactNode;
   rowCells: ReactNode;
@@ -28,6 +32,11 @@ export const DetailTableRow: FC<{
     </TableRow>
   );
 };
+
+/**
+ * Component to be used as table in several widgets such as Recent Activiy.
+ * Table header has a linear gradient style and first cell of every table body rows contains avatar component.
+ */
 export const DetailTable: FC<{ headCells: ReactNode; bodyRows: ReactNode }> = ({
   headCells,
   bodyRows,

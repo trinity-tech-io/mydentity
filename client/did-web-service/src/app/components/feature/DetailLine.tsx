@@ -15,6 +15,11 @@ interface DetailLineType {
   description: string;
   className?: string;
 }
+
+/**
+ * Component to be used with curved arrow in Create identity page 
+ * This component is group template of object icon, object name and description of it.
+ */
 const DetailLine: FC<DetailLineType> = ({
   icon,
   title,

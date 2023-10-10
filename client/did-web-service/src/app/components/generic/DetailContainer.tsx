@@ -1,7 +1,6 @@
 import { FC, ReactNode } from "react";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import { Box, Card, CardContent, Typography, styled } from "@mui/material";
-import clsx from "clsx";
 import { NormalButton } from "@components/button";
 
 const CardStyled = styled(Card)(({ theme }) => ({
@@ -23,6 +22,11 @@ const CardStyled = styled(Card)(({ theme }) => ({
     right: "-40%",
   },
 }));
+
+/**
+ * Component to be used as card styled wrapper with title in several pages such as dashboard page.
+ * <Show all> button can be visible or invisibe on top right position.
+ */
 const DetailContainer: FC<{
   title: string | ReactNode;
   className?: string;

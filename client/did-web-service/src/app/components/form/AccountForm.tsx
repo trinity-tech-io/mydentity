@@ -1,5 +1,8 @@
 import { FormControl, styled } from "@mui/material";
 
+/**
+ * Component to be used as password input form control in register and bind-password page
+ */
 const AccountForm = styled(FormControl)(({ theme }) => ({
   ".MuiInput-root": {
     marginTop: 0,
