@@ -2,8 +2,12 @@
 import { FC, useState } from "react";
 import { Icon as ReactIcon } from "@iconify/react";
 import { useRouter } from "next/navigation";
-import { Box, InputAdornment, Typography } from "@mui/material";
-import { Add as AddIcon, Search as SearchIcon } from "@mui/icons-material";
+import { Box, Grid, IconButton, InputAdornment, Typography } from "@mui/material";
+import {
+  Add as AddIcon,
+  Search as SearchIcon,
+  MoreVert as MoreVertIcon,
+} from "@mui/icons-material";
 import { IconAvatar } from "@components/feature/DetailLine";
 import { MainButton } from "@components/generic/MainButton";
 import { IdentityCellLeft } from "@components/identity/IdentityCellLeft";
@@ -16,6 +20,8 @@ import { identityService } from "@services/identity/identity.service";
 import { authUser$ } from "@services/user/user.events";
 import OutlinedInputStyled from "@components/input/OutlinedInputStyled";
 import { DarkButton } from "@components/button";
+import { LandingCard } from "@components/card";
+import { IdentityCard } from "@components/identity/IdentityCard";
 
 const TAG = "IdentityListWidget";
 
@@ -95,6 +101,16 @@ export const AllIdentityList: FC = (_) => {
             </DarkButton>
           </div>
         </Box>
+        {
+          sortedIdentities?.length > 0 &&
+          <Grid container spacing={2}>
+            {sortedIdentities.map((identity, _id) => (
+              <Grid item key={_id}>
+                <IdentityCard identity={identity} />
+              </Grid>
+            ))}
+          </Grid>
+        }
         {/* Table */}
         <div className="overflow-x-auto">
           <table className="table-auto w-full" style={{ tableLayout: "fixed" }}>

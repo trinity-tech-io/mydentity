@@ -36,6 +36,7 @@ const CardStyled = styled(Box)(({ theme }) => ({
 const LandingCard: FC<{
   className?: string;
   children?: ReactNode;
+  topRightSection?: ReactNode;
   footer?: ReactNode;
   waveIconVisible?: boolean;
   position?: string;
@@ -45,6 +46,7 @@ const LandingCard: FC<{
   waveIconVisible = true,
   position = "relative",
   dividerVisible = true,
+  topRightSection = null,
   children,
   footer,
 }) => {
@@ -69,10 +71,12 @@ const LandingCard: FC<{
               <ChipIcon width="100%" height="100%" viewBox="0 0 50 38" />
             </div>
             <div className="flex-1" />
-            {waveIconVisible && (
+            {waveIconVisible ? (
               <div className="h-full">
                 <WaveLogoIcon width="100%" height="100%" viewBox="0 0 32 40" />
               </div>
+            ) : (
+              topRightSection
             )}
           </div>
           <div className="flex flex-1 items-end">{children}</div>
