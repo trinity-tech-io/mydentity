@@ -4,6 +4,10 @@ import { FC, ReactNode, useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { EffectCards } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/effect-cards';
 
 import AccountIcon from '@assets/images/account.svg';
 import CardIcon from '@assets/images/card.svg';
@@ -42,7 +46,7 @@ const groups: GroupConfig[] = [
   },
   {
     icon: <CardIcon />,
-    title: "Identity",
+    title: "My identities",
     url: "/identities",
     requiresAuth: true
   },
@@ -241,9 +245,22 @@ const Sidebar: FC<{
         className={clsx("flex flex-col absolute z-40 left-0 top-0 lg:static lg:left-auto lg:top-auto lg:translate-x-0 h-screen overflow-y-scroll lg:overflow-y-auto no-scrollbar w-64 lg:w-20 2xl:!w-64 shrink-0 bg-[#292B29] p-4 transition-all duration-200 ease-in-out", sidebarOpen ? 'translate-x-0' : '-translate-x-64', sidebarExpanded && "lg:!w-64")}
       >
         {/* Sidebar header */}
-        <LandingCard className="bg-black" footer={<span className="text-[7pt] opacity-70">did:elastos:XXXXXXXXXX</span>} waveIconVisible={false}>
-          <Typography variant="body2" className="opacity-70 pb-2">XXXXXXXXXX</Typography>
-        </LandingCard>
+        <Swiper
+          effect={'cards'}
+          grabCursor={true}
+          modules={[EffectCards]}
+          className="mySwiper w-full"
+        >
+          {
+            Array(2).fill(0).map((_, _id) => (
+              <SwiperSlide key={_id}>
+                <LandingCard className="bg-black w-full" footer={<span className="text-[7pt] opacity-70">did:elastos:XXXXXXXXXX</span>} waveIconVisible={false}>
+                  <Typography variant="body2" className="opacity-70 pb-2">XXXXXXXXXX</Typography>
+                </LandingCard>
+              </SwiperSlide>
+            ))
+          }
+        </Swiper>
         <div className="flex justify-between mb-10 pr-3 sm:px-2">
           {/* Close button */}
           <button

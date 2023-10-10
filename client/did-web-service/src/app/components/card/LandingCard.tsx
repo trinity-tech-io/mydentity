@@ -7,6 +7,7 @@ import clsx from "clsx";
 
 const CardStyled = styled(Box)(({ theme }) => ({
   borderRadius: "6.329% / 10%",
+  boxShadow: "inset 0 0 0 1.5px #FFFFFF4C",
   overflow: "hidden",
   "&:after": {
     paddingTop: "63.29%",
@@ -53,7 +54,7 @@ const LandingCard: FC<{
   return (
     <CardStyled
       className={clsx(
-        "inline-block border-white border-opacity-30 border-2 drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]",
+        "inline-block drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]",
         className,
         position
       )}

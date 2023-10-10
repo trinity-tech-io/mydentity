@@ -19,7 +19,7 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
         style={`
           #nprogress .bar {
             filter: drop-shadow(rgb(51, 255, 255) 0px 0px 5px);
-            background: linear-gradient(to right, rgb(59, 130, 246), rgb(255 255 255));
+            background: linear-gradient(to left, #0ff 50%, #0083ef 74%, #1e1e1e);
             position: fixed;
             z-index: 1031;
             top: 0;

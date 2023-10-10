@@ -41,8 +41,8 @@ export const IdentityCard: FC<{
   return (
     <LandingCard
       className={clsx(
-        "w-[26rem] h-auto bg-neutral-950",
-        activeIdentity != identity ? "bg-[#675216]" : ""
+        "w-[26rem] h-auto",
+        activeIdentity != identity ? "bg-[#675216]" : "bg-neutral-950"
       )}
       waveIconVisible={false}
       topRightSection={
