@@ -1,4 +1,3 @@
-import BrowserIcon from "@assets/images/browser.svg";
 import FingerprintIcon from "@assets/images/fingerprint.svg";
 import ComfirmDialog from "@components/generic/ComfirmDialog";
 import { logger } from "@elastosfoundation/elastos-connectivity-sdk-js";
@@ -10,7 +9,7 @@ import { useToast } from "@services/feedback.service";
 import { authUser$ } from "@services/user/user.events";
 import { FC, MouseEvent, useState } from "react";
 import { CardStyled } from "./SecuritySection";
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { Icon as ReactIcon } from "@iconify/react"
 
 export const BrowserRow: FC<{
@@ -58,19 +57,14 @@ export const BrowserRow: FC<{
     <>
       <CardStyled className="inline-block">
         <div className="relative z-10 inline-flex gap-5 px-3 py-5">
-          {/* <BrowserIcon width={40} /> */}
           <ReactIcon icon="ic:round-computer" fontSize={40} />
           <div className="flex flex-col flex-1">
-            <div className="font-bold">
-              {browser.name}
-            </div>
-            <div className="italic text-xs">
-              Last used: {browser.lastUsedAt.toLocaleString()}
-            </div>
+            <Typography variant="body2" fontWeight={600}>{browser.name}</Typography>
+            <Typography variant="caption" fontStyle="italic">Last used: {browser.lastUsedAt.toLocaleString()}</Typography>
           </div>
           <div className="flex flex-col">
             {isCurrentBrowser ? (
-              <Box className="rounded-md text-[7pt] px-3 py-0.5 inline-block text-white whitespace-nowrap bg-[#9291A5]">
+              <Box className="rounded-[4px] text-[7pt] px-3 py-0.5 inline-block text-white whitespace-nowrap bg-[#9291A5]">
                 CURRENT
               </Box>
             ) : (

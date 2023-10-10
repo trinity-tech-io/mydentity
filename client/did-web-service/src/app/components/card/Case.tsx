@@ -35,7 +35,7 @@ export const CaseWrapper = styled(Box)(({ theme }) => ({
 export const CardCase = styled(Card)(({ theme }) => ({
   minWidth: 180,
   cursor: "initial",
-  backgroundImage: "url('./dark-leather.png')",
+  backgroundImage: "url('/dark-leather.png')",
   backgroundColor: "black",
   borderRadius: "1.5rem",
   overflow: "visible",
@@ -48,7 +48,7 @@ export const CardCase = styled(Card)(({ theme }) => ({
     border: "2px dashed rgb(50 38 38)",
   },
   ".compartment, .compartment-top": {
-    backgroundImage: "url('./dark-leather.png')",
+    backgroundImage: "url('/dark-leather.png')",
     backgroundColor: "black",
     width: "100%",
   },
