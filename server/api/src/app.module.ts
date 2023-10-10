@@ -23,6 +23,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { UserModule } from './user/user.module';
 import { CommonWsModule } from "./websockets/ws.module";
 import { IdentityClaimModule } from './identity-claim/identity-claim.module';
+import { ContactUsModule } from "./contact-us/contact-us.module";
 
 
 @Module({
@@ -50,7 +51,8 @@ import { IdentityClaimModule } from './identity-claim/identity-claim.module';
     AppInteractionModule,
     IdentityRootModule,
     CommonWsModule,
-    IdentityClaimModule
+    IdentityClaimModule,
+    ContactUsModule,
   ],
   controllers: [
     AppController

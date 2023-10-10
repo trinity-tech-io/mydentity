@@ -461,4 +461,10 @@ export class UserService {
 
     return key?.user;
   }
+
+  public async getUserEmail(user: User) {
+    return this.prisma.userEmail.findFirst({
+      where: {userId: user.id}
+    });
+  }
 }
