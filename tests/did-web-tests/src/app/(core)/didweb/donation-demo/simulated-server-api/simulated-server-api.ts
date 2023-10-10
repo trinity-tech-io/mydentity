@@ -1,10 +1,11 @@
-import { configure, generateClaimUrl, getManagedIdentityStatus, importManagedIdentityCredentials } from "@trinitytech/did-web-service-sdk";
+import { configure, createManagedIdentity, generateClaimUrl, getManagedIdentityStatus, importManagedIdentityCredentials } from "@trinitytech/did-web-service-sdk";
 import { produceUserCredentials } from "./helpers/did-helpers";
 import { ProducedCredentialsResponse } from "./model/produced-credentials";
 
 configure({
   // Secret developer access key
   accessKey: process.env.NEXT_PUBLIC_DID_WEB_SDK_DEVELOPER_KEY,
+  appDID: process.env.NEXT_PUBLIC_DID_WEB_SDK_APP_DID,
   webServiceEndpoint: process.env.NEXT_PUBLIC_FRONTEND_URL,
   webServiceAPIEndpoint: process.env.NEXT_PUBLIC_BACKEND_URL,
 });
@@ -22,11 +23,11 @@ const identityAccessTokenMap: { [did: string]: string } = {
  * That managed identity will belong to our app temporarily, until the user decides to claim it.
  */
 export async function api_createManagedIdentity(): Promise<string> {
-  //const createdIdentity = await createManagedIdentity();
-  const createdIdentity = {
+  const createdIdentity = await createManagedIdentity();
+  /* const createdIdentity = {
     did: Object.keys(identityAccessTokenMap)[0],
     identityAccessToken: Object.values(identityAccessTokenMap)[0]
-  }; // TEMP DEV
+  }; // TEMP DEV */
   console.log(createdIdentity);
 
   identityAccessTokenMap[createdIdentity.did] = createdIdentity.identityAccessToken;

@@ -2,6 +2,7 @@ import type { VerifiableCredential } from "@elastosfoundation/did-js-sdk";
 import type { CreatedManagedIdentity, ManagedIdentityStatus } from "..";
 
 import { gqlQuery } from "../api";
+import { runtimeSettings } from "./settings.service";
 
 export async function createManagedIdentity(): Promise<CreatedManagedIdentity> {
   const response = await gqlQuery<CreatedManagedIdentity>("createManagedIdentity", `
@@ -11,7 +12,9 @@ export async function createManagedIdentity(): Promise<CreatedManagedIdentity> {
       }
     }
   `, {
-    input: {}
+    input: {
+      ...(runtimeSettings.appDID && { appDID: runtimeSettings.appDID })
+    }
   });
 
   return response;

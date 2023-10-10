@@ -1,7 +1,9 @@
-import { IdentityDTO } from "@model/identity/identity.dto";
+import { ClaimableIdentityDTO } from "./claimable-identity.dto";
 
 export type IdentityClaimRequestDTO = {
   id: string;
-  identity: IdentityDTO;
+  identityInfo: ClaimableIdentityDTO;
   claimUrl: string;
+  expiresAt: string;
+  claimCompletedAt: string;
 }

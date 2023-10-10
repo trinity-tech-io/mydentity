@@ -83,7 +83,9 @@ export class IdentityResolver {
   @UseGuards(DeveloperAccessKeyGuard)
   @Mutation(() => ManagedIdentityEntity)
   async createManagedIdentity(@DeveloperAccess() developer: User, @Args('input') input: CreateManagedIdentityInput): Promise<ManagedIdentityEntity> {
-    const createdIdentityInfo = await this.identityService.createManaged(developer);
+    await this.identityService.ensureOwnedApplicationIdentity(input.appDID, developer);
+
+    const createdIdentityInfo = await this.identityService.createManaged(developer, input.appDID);
     if (!createdIdentityInfo)
       return null;
 

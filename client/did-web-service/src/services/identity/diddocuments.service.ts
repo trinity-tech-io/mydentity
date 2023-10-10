@@ -1,5 +1,8 @@
 import { DIDDocument } from "@elastosfoundation/did-js-sdk";
 import { Document } from "@model/document/document";
+import { AppException } from "@model/exceptions/app-exception";
+import { ClientError } from "@model/exceptions/exception-codes";
+import { lazyDIDInit } from "@services/did.service";
 import { logger } from "@services/logger";
 import { ObjectCache } from "@utils/caches/object-cache";
 import { PermanentCache } from "@utils/caches/permanent-cache";
@@ -22,9 +25,12 @@ class DIDDocumentsService {
    * If the same document is already being fetched, we await until a response is received, but
    * without fetching again.
    */
-  public resolveDIDDocument(didString: string, forceRemote = false): Promise<Document> {
+  public async resolveDIDDocument(didString: string, forceRemote = false): Promise<Document> {
+    await lazyDIDInit();
+
     if (forceRemote)
       logger.warn("identity", "forceRemote not fully implemented for resolveDIDDocument()!")
+
     return this.documentsMemoryCache.get(didString, {
       create: async () => {
         // Try to get from the disk cache
@@ -40,6 +46,9 @@ class DIDDocumentsService {
   }
 
   private fetchDIDDocumentWithoutDIDStore(didString: string, forceRemote: boolean): Promise<DIDDocument> {
+    if (!didString)
+      throw AppException.newClientError(ClientError.InvalidParameter, "Can't fetch a DID document from an empty DID string");
+
     return this.resolveDIDQueue.add(async () => {
       try {
         const { DIDBackend, DID } = await lazyElastosDIDSDKImport();

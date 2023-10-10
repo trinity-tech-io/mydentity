@@ -1,13 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Identity, IdentityClaimRequest } from '@prisma/client/main';
+import { CredentialsService } from 'src/credentials/credentials.service';
 import { IdentityAccessInfo } from 'src/identity/model/identity-access-info';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { ClaimableIdentity } from './model/claimable-identity';
 
 @Injectable()
 export class IdentityClaimService {
   constructor(
     private prisma: PrismaService,
-    private config: ConfigService
+    private config: ConfigService,
+    private credentialsService: CredentialsService
   ) { }
 
   /**
@@ -32,7 +36,11 @@ export class IdentityClaimService {
     return this.prisma.identityClaimRequest.findFirst({
       where: { id },
       include: {
-        identity: true
+        identity: {
+          include: {
+            creatingAppIdentity: true
+          }
+        }
       }
     });
   }
@@ -43,5 +51,14 @@ export class IdentityClaimService {
    */
   public getClaimUrl(claimRequestId: string): string {
     return this.config.getOrThrow("FRONTEND_URL") + `/claim-identity?request=${encodeURIComponent(claimRequestId)}`;
+  }
+
+  public async getClaimableIdentityInfo(claimRequest: IdentityClaimRequest & { identity: Identity }): Promise<ClaimableIdentity> {
+    return {
+      did: claimRequest.identityDid,
+      createdAt: claimRequest.createdAt,
+      credentialsCount: await this.credentialsService.getCredentialsCount(claimRequest.identityDid),
+      creatingAppDid: claimRequest.identity.creatingAppIdentityDid
+    };
   }
 }

@@ -194,6 +194,17 @@ export class CredentialsService {
   }
 
   /**
+   * Returns the number of credentials attached to the given identity.
+   */
+  public async getCredentialsCount(identityDid: string): Promise<number> {
+    return this.prisma.credential.count({
+      where: {
+        identityDid
+      }
+    });
+  }
+
+  /**
   * Ensures that the credential is owned by user and returns the credential.
   * If not, throws an exception.
   */

@@ -5,14 +5,24 @@ import { logger } from "@services/logger";
 import { awaitSubjectNonNull } from "@utils/promises";
 import moment from "moment";
 import { Identity } from "../identity/identity";
+import { ProfileFeature } from "./features/profile/profile.feature";
 
 const ApplicationCredentialFullType = "did://elastos/iXyYFboFAd2d9VmfqSvppqg1XQxBtX9ea2/ApplicationCredential#ApplicationCredential";
 
 export class ApplicationIdentity extends Identity {
+  constructor() {
+    super();
+    this.addFeature("profile", new ProfileFeature(this));
+  }
+
   public static async fromJson(json: IdentityDTO, provider: IdentityProvider): Promise<ApplicationIdentity> {
     const identity = new ApplicationIdentity();
     await identity.fillFromJson(json, provider);
     return identity;
+  }
+
+  public profile(): ProfileFeature {
+    return <ProfileFeature>this.get("profile");
   }
 
   /**
@@ -49,15 +59,20 @@ export class ApplicationIdentity extends Identity {
 
     // Find any existing application credential
     const existingAppCredential = this.credentials().getCredentialByType(credentialType);
-    if (existingAppCredential)
+    if (existingAppCredential) {
+      // Remove the app info VC from the DID document
+      await this.document().setCredentialVisibility(existingAppCredential.id, false);
+      // Remove the app info VC totally
       await this.credentials().deleteCredential(existingAppCredential);
+    }
 
     logger.log("identity", "Creating application credential");
 
     const expirationDate = moment().add(5, "years");
     const credential = await this.credentials().createCredential(credentialName, [credentialType], expirationDate.toDate(), properties);
 
-    // TODO: make the credential visible = in local did document
+    // Make the newly created credential visible (= in local did document, ready to get published on chain)
+    await this.document().setCredentialVisibility(credential.id, true);
 
     return credential;
   }

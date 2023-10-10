@@ -8,7 +8,7 @@ export const AppRow: FC<{
   const router = useRouter();
 
   const openApp = (): void => {
-    router.push("/developers/application/" + application.did);
+    router.push("/developers/application?did=" + application.did);
   }
 
   return (

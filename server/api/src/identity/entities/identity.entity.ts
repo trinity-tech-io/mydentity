@@ -17,4 +17,7 @@ export class IdentityEntity {
 
   @Field(() => String)
   identityRootId: string;
+
+  @Field(() => IdentityEntity, { nullable: true })
+  creatingAppIdentity?: string;
 }

@@ -1,4 +1,5 @@
 import { ApplicationIdentity } from "@model/application-identity/application-identity";
+import { IdentityClaimRequest } from "@model/identity-claim-request/identity-claim-request";
 import { Identity } from "@model/identity/identity";
 import { IdentityType } from "@model/identity/identity-type";
 import { RegularIdentity } from "@model/regular-identity/regular-identity";
@@ -8,9 +9,15 @@ import { identityService } from "@services/identity/identity.service";
 import { logger } from "@services/logger";
 import { fetchSelfUser } from "@services/user/user.service";
 import { AdvancedBehaviorSubject } from "@utils/advanced-behavior-subject";
-import { filter, map } from "rxjs";
+import { filter, identity, map } from "rxjs";
 import { User } from "../../user";
 import { UserFeature } from "../user-feature";
+import { gql } from "@apollo/client";
+import { gqlIdentityFields } from "@graphql/identity.fields";
+import { IdentityDTO } from "@model/identity/identity.dto";
+import { withCaughtAppException } from "@services/error.service";
+import { getApolloClient } from "@services/graphql.service";
+import { CreateIdentityInput } from "@services/identity/dto/create-identity.input.dto";
 
 export class IdentityFeature implements UserFeature {
   public identities$ = new AdvancedBehaviorSubject<Identity[]>(null, () => this.fetchIdentities());
@@ -99,4 +106,43 @@ export class IdentityFeature implements UserFeature {
     return identityService.listRootIdentities();
   }
 
+  /**
+   * Requests to transfer a manage identity created by a third party app, into current user's account.
+   * During this operation, all identity data is migrated to fully become owned by the user.
+   * 
+   * The newly owned identity is returned and added to user's identities list.
+   */
+  public async claimManagedIdentity(claimRequest: IdentityClaimRequest): Promise<Identity> {
+    const input: CreateIdentityInput = {
+      name,
+      hiveVaultProvider,
+      identityType,
+      rootIdentityId
+    };
+
+    const result = await withCaughtAppException(async () => {
+      return (await getApolloClient()).mutate<{ createIdentity: IdentityDTO }>({
+        mutation: gql`
+          mutation createIdentity($input: CreateIdentityInput!) {
+            createIdentity(input: $input) {
+              ${gqlIdentityFields}
+            }
+          }
+        `,
+        variables: {
+          input
+        }
+      });
+    });
+
+    if (result?.data?.createIdentity) {
+      const { identityFromJson } = await import("@model/identity/identity-builder");
+      return identityFromJson(result.data.createIdentity, this.provider);
+    }
+    else {
+      throw new Error("Failed to create DID");
+    }
+
+    this.identities$.next([identity, ...this.identities$.value]);
+  }
 }

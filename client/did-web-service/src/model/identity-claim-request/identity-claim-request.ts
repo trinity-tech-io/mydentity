@@ -1,18 +1,24 @@
-import { Identity } from "@model/identity/identity";
-import { identityFromJson } from "@model/identity/identity-builder";
-import { custodialIdentityProvider } from "@services/identity/identity.service";
+import { ClaimableIdentity } from "./claimable-identity";
 import { IdentityClaimRequestDTO } from "./identity-claim-request.dto";
 
 export class IdentityClaimRequest {
   id: string;
-  identity: Identity;
+  identityInfo: ClaimableIdentity;
   claimUrl: string;
+  expiresAt: Date;
+  claimCompletedAt: Date;
 
   public static async fromJson(json: IdentityClaimRequestDTO): Promise<IdentityClaimRequest> {
     const claimRequest = new IdentityClaimRequest();
     Object.assign(claimRequest, json);
 
-    claimRequest.identity = await identityFromJson(json.identity, custodialIdentityProvider);
+    claimRequest.identityInfo = await ClaimableIdentity.fromJson(json.identityInfo);
+
+    if (json.expiresAt)
+      claimRequest.expiresAt = new Date(json.expiresAt);
+
+    if (json.claimCompletedAt)
+      claimRequest.claimCompletedAt = new Date(json.claimCompletedAt);
 
     return claimRequest;
   }

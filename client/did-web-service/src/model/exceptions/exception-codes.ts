@@ -37,6 +37,7 @@ export enum ClientError {
   OtherApolloError = 10901, // Apollo client error except handled graphql errors
   OtherAxiosError = 10902,
   UnlockKeyCancelled = 10903, // The unlock master key prompt operation has been cancelled by the user
+  InvalidParameter = 10904,
 }
 
 export type AppExceptionCode = AuthExceptionCode | KeyRingExceptionCode | DIDExceptionCode | ClientError;

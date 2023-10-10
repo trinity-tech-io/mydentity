@@ -76,24 +76,27 @@ enum IdentityType {
 model Identity {
   did String @unique
 
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @default(now())
-  lastUsedAt      DateTime     @default(now())
-  user            User         @relation(fields: [userId], references: [id], onDelete: Restrict)
-  identityRoot    IdentityRoot @relation(fields: [identityRootId], references: [id], onDelete: Restrict)
-  derivationIndex Int // Informative, for users: index of the DID derivation in the DID SDK
-  type            IdentityType @default(REGULAR)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now())
+  lastUsedAt  DateTime  @default(now())
+  publishedAt DateTime?
 
-  userId         String
-  identityRootId String
+  user                User         @relation(fields: [userId], references: [id], onDelete: Restrict)
+  identityRoot        IdentityRoot @relation(fields: [identityRootId], references: [id], onDelete: Restrict)
+  derivationIndex     Int // Informative, for users: index of the DID derivation in the DID SDK
+  type                IdentityType @default(REGULAR)
+  creatingAppIdentity Identity?    @relation("createdAppIdentities", fields: [creatingAppIdentityDid], references: [did], onDelete: Restrict) // If any, application used to create this regular identity
 
-  credentials Credential[]
-  activities  Activity[]
+  userId                 String
+  identityRootId         String
+  publicationId          String?
+  creatingAppIdentityDid String?
 
-  publicationId                  String?
-  publishedAt                    DateTime?
+  credentials                    Credential[]
+  activities                     Activity[]
   IdentityInteractingApplication IdentityInteractingApplication[]
   IdentityClaimRequest           IdentityClaimRequest[]
+  createdAppIdentities           Identity[]                       @relation("createdAppIdentities")
 }
 
 // Metadata for Verifiable Credentials, with additional information

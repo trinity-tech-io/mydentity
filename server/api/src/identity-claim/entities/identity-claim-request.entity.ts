@@ -1,14 +1,20 @@
-import { Field, ObjectType } from '@nestjs/graphql';
-import { IdentityEntity } from 'src/identity/entities/identity.entity';
+import { Field, GraphQLISODateTime, ObjectType } from '@nestjs/graphql';
+import { ClaimableIdentityEntity } from './claimable-identity.entity';
 
 @ObjectType()
 export class IdentityClaimRequestEntity {
   @Field(() => String)
   id: string;
 
-  @Field(() => IdentityEntity)
-  identity: IdentityEntity;
+  @Field(() => ClaimableIdentityEntity)
+  identityInfo: ClaimableIdentityEntity;
 
   @Field(() => String)
   claimUrl: string;
+
+  @Field(() => GraphQLISODateTime, { nullable: true })
+  expiresAt?: string;
+
+  @Field(() => GraphQLISODateTime, { nullable: true })
+  claimCompletedAt?: string;
 }

@@ -1,7 +1,9 @@
-import { gqlIdentityFields } from "./identity.fields";
+import { gqlClaimableIdentityInfoFields } from "./claimable-identity-info.fields";
 
 export const gqlIdentityClaimRequestFields = `
-  id 
-  identity { ${gqlIdentityFields} }
+  id
+  identityInfo { ${gqlClaimableIdentityInfoFields} }
   claimUrl
+  expiresAt
+  claimCompletedAt
 `;

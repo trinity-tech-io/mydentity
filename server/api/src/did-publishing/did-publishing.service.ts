@@ -83,11 +83,21 @@ export class DIDPublishingService {
     this.logger.log("Requesting identity publication to Assist for DID: " + didString);
 
     return new Promise(async (resolve, reject) => {
+      let didRequest: any;
+      try {
+        didRequest = JSON.parse(payloadObject);
+      }
+      catch (e) {
+        // Probably a parse error
+        reject(new AppException(DIDExceptionCode.DIDPublishError, "Invalid DID publish payload, could not be parsed", HttpStatus.BAD_REQUEST));
+        return;
+      }
+
       const requestBody = {
         "did": didString,
         "memo": memo || "",
         "requestFrom": "did-web-service",
-        "didRequest": JSON.parse(payloadObject)
+        "didRequest": didRequest
       };
 
       const headers = {

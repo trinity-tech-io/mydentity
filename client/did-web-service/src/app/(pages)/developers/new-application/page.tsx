@@ -58,7 +58,7 @@ const NewApplicationPage: FC = () => {
     <Typography variant="h6">New application</Typography>
 
     <Typography>
-      You are about to create a new DID to represent your application. This DID will be used in various locations to identity your application.
+      You are about to create a new DID to represent your application. This DID will be used in various locations to identify your application.
       For instance, when you create and sign credentials from your app using this identity, users will see your application logo and icon as the "issuer".
     </Typography>
 

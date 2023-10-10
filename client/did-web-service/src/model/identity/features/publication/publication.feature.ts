@@ -14,9 +14,27 @@ export class PublicationFeature implements IdentityFeature {
 
   constructor(protected identity: Identity) { }
 
+  /**
+   * Requests to publish the latest version of the DID Document and returns true if published, false in case
+   * of error.
+   */
   public async publish(): Promise<boolean> {
-    console.log("Identity publish NOT IMPLEMENTED");
-    return false;
+    // TODO: MERGE INTO ONE OPERATION
+    const payload = await identityService.createDIDPublishTransaction(this.identity.did);
+    console.log("payload", payload);
+    await identityService.publishIdentity(this.identity.did, payload);
+
+    this.startCheckingPublicationStatus();
+
+    // Resolve only when the status became published or failed to publish. Wait otherwise
+    return new Promise(resolve => {
+      this.publicationStatus$.subscribe(status => {
+        if (status == IdentityPublicationState.PUBLISHED)
+          resolve(true);
+        else if (status == IdentityPublicationState.FAILED_TO_PUBLISH)
+          resolve(false);
+      });
+    });
   }
 
   private async startCheckingPublicationStatus(): Promise<void> {

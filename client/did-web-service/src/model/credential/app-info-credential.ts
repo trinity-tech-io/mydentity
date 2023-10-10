@@ -1,9 +1,16 @@
 import { getHiveScriptPictureDataUrl } from "@services/hive/hive-pictures.service";
+import { BehaviorSubject } from "rxjs";
 import { Credential } from "./credential";
 
 export class AppInfoCredential extends Credential {
+  public name$ = new BehaviorSubject<string>(null);
+
   constructor() {
     super();
+  }
+
+  protected prepareVerifiableCredential(): void | Promise<void> {
+    this.name$.next(this.verifiableCredential?.getSubject().getProperty("name"));
   }
 
   protected async prepareRepresentativeIcon(): Promise<void> {

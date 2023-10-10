@@ -48,7 +48,7 @@ export class IdentityService {
   /**
   * @param context sandboxing context for DID storage
   */
-  private async createIdentityInternal(context: string, storePassword: string, type: IdentityType = IdentityType.REGULAR, rootIdentityId?: string, user?: User, hiveVaultProvider?: string): Promise<Identity> {
+  private async createIdentityInternal(context: string, storePassword: string, type: IdentityType = IdentityType.REGULAR, rootIdentityId?: string, user?: User, hiveVaultProvider?: string, creatingAppDid?: string): Promise<Identity> {
     let rootIdentity: RootIdentity = null;
     let didDocument: DIDDocument = null;
     let identityDid: string = null;
@@ -105,6 +105,7 @@ export class IdentityService {
         derivationIndex: derivationIndex,
         ...(user && { user: { connect: { id: user.id } } }),
         publicationId: "",
+        ...(creatingAppDid && { creatingAppIdentity: { connect: { did: creatingAppDid } } })
       }
     })
 
@@ -295,7 +296,7 @@ export class IdentityService {
    *
    * If the token is lost, the identity is orphan forever.
    */
-  async createManaged(developer: User): Promise<{ identity: Identity, identityAccessToken: string }> {
+  async createManaged(developer: User, appDid: string): Promise<{ identity: Identity, identityAccessToken: string }> {
     // Create a temporary user
     const unmanagedUser = await this.userService.createUnmanagedUser();
 
@@ -309,7 +310,7 @@ export class IdentityService {
       key: storePassword
     }, null, unmanagedUser);
 
-    const identity = await this.createIdentityInternal(context, storePassword, IdentityType.APPLICATION, null, unmanagedUser);
+    const identity = await this.createIdentityInternal(context, storePassword, IdentityType.REGULAR, null, unmanagedUser, null, appDid);
 
     const identityAccessToken = await this.generateIdentityAccessToken(storePassword, identity.did);
 
@@ -382,6 +383,32 @@ export class IdentityService {
     if (!identity) {
       this.logger.log('ensureOwnedIdentity identityDid:' + identityDid + ' user.id:' + user.id);
       throw new AppException(AuthExceptionCode.IdentityNotOwned, `You are not owner of identity ${identityDid}`, 401);
+    }
+
+    return identity;
+  }
+
+  /**
+   * Ensures that the appDID identity is:
+   * - owned by the developer
+   * - is an application DID
+   *
+   * If not, throws an exception.
+   */
+  public async ensureOwnedApplicationIdentity(appDid: string, developer: User): Promise<Identity> {
+    if (!appDid)
+      throw new AppException(AuthExceptionCode.IdentityNotOwned, `This API requires the application DID to be provided.`, 401);
+
+    const identity = await this.prisma.identity.findFirst({
+      where: {
+        did: appDid,
+        type: IdentityType.APPLICATION,
+        userId: developer.id
+      }
+    });
+
+    if (!identity) {
+      throw new AppException(AuthExceptionCode.IdentityNotOwned, `The developer access key account and app DID ${appDid} don't match. Make sure your app DID is in the same user account as the one from which you generated the API access key.`, 401);
     }
 
     return identity;

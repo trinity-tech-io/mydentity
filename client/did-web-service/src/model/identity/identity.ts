@@ -1,7 +1,6 @@
 import { gql } from "@apollo/client";
 import { callWithUnlock } from "@components/security/unlock-key-prompt/call-with-unlock";
 import type { VerifiableCredential, VerifiablePresentation } from "@elastosfoundation/did-js-sdk";
-import { gqlMnemonicFields } from "@graphql/mnemonic.fields";
 import { Document } from "@model/document/document";
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
@@ -10,13 +9,13 @@ import moment from "moment";
 import { BehaviorSubject } from "rxjs";
 import { CredentialsFeature } from "./features/credentials/credentials.feature";
 import { DIDFeature } from "./features/did/did.feature";
+import { DocumentFeature } from "./features/document/credentials.feature";
 import { HiveFeature } from "./features/hive/hive.feature";
 import { IdentityFeature } from "./features/identity-feature";
 import { PublicationFeature } from "./features/publication/publication.feature";
 import { StorageFeature } from "./features/storage/storage.feature";
 import { IdentityType } from "./identity-type";
 import { IdentityDTO } from "./identity.dto";
-import { MnemonicDTO } from "./mnemonic.dto";
 
 export abstract class Identity {
   did: string;
@@ -33,6 +32,7 @@ export abstract class Identity {
 
   constructor() {
     this.addFeature("credentials", new CredentialsFeature(this));
+    this.addFeature("document", new DocumentFeature(this));
     this.addFeature("DID", new DIDFeature(this));
     this.addFeature("hive", new HiveFeature(this));
     this.addFeature("storage", new StorageFeature(this));
@@ -51,6 +51,10 @@ export abstract class Identity {
 
   public credentials(): CredentialsFeature {
     return <CredentialsFeature>this.features.get("credentials");
+  }
+
+  public document(): DocumentFeature {
+    return <DocumentFeature>this.features.get("document");
   }
 
   public DID(): DIDFeature {
@@ -98,6 +102,10 @@ export abstract class Identity {
     return this.did === otherIdentity.did;
   }
 
+  /**
+   * Saves the fact that we just used this identity. Used to display the most
+   * recently used activities on the user dashboard.
+   */
   async markIdentityInUse(identityDid: string): Promise<boolean> {
     const result = await withCaughtAppException(async () => {
       return (await getApolloClient()).mutate<{ markIdentityInUse: boolean }>({

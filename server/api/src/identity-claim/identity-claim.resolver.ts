@@ -8,7 +8,9 @@ import { IdentityClaimService } from './identity-claim.service';
 
 @Resolver(() => IdentityClaimRequestEntity)
 export class IdentityClaimResolver {
-  constructor(private identityClaimService: IdentityClaimService) { }
+  constructor(
+    private identityClaimService: IdentityClaimService
+  ) { }
 
   @UseGuards(IdentityAccessTokenGuard)
   @Mutation(() => IdentityClaimRequestEntity)
@@ -16,17 +18,18 @@ export class IdentityClaimResolver {
     const claimRequest = await this.identityClaimService.createClaimRequest(identityAccess);
 
     return {
-      id: claimRequest.id,
-      identity: <any>claimRequest.identity, // Cast as any to allow auto filed conversion by nest
+      ...claimRequest as any, // Cast as any to allow auto filed conversion by nest
+      identityInfo: this.identityClaimService.getClaimableIdentityInfo(claimRequest),
       claimUrl: this.identityClaimService.getClaimUrl(claimRequest.id)
     }
   }
 
   @Query(() => IdentityClaimRequestEntity, { name: 'identityClaimRequest' })
-  async findOne(@Args('id') claimRequestId: string) {
+  async findOne(@Args('id') claimRequestId: string): Promise<IdentityClaimRequestEntity> {
     const claimRequest = await this.identityClaimService.findOne(claimRequestId);
     return {
-      ...claimRequest,
+      ...claimRequest as any, // Cast as any to allow auto filed conversion by nest
+      identityInfo: this.identityClaimService.getClaimableIdentityInfo(claimRequest),
       claimUrl: this.identityClaimService.getClaimUrl(claimRequest.id)
     }
   }

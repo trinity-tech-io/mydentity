@@ -11,6 +11,7 @@ import { useToast } from "@services/feedback.service";
 import { didDocumentService } from "@services/identity/diddocuments.service";
 import { logger } from "@services/logger";
 import { authUser$ } from "@services/user/user.events";
+import { useSearchParams } from "next/navigation";
 import { ChangeEvent, FC, useEffect, useState } from "react";
 
 const ApplicationDetailsPage: FC<{
@@ -18,12 +19,14 @@ const ApplicationDetailsPage: FC<{
     applicationdid: string;
   }
 }> = ({ params }) => {
+  const searchParams = useSearchParams();
+  const appDidParam = searchParams?.get('did');
+  const applicationDid = appDidParam && decodeURIComponent(appDidParam); // From the url, app we are trying to manage
   const [activeUser] = useBehaviorSubject(authUser$);
   const identityFeature = activeUser?.get("identity");
   const [appIdentities] = useBehaviorSubject(identityFeature?.applicationIdentities$);
-  const applicationDid = decodeURIComponent(params?.applicationdid); // From the url, app we are trying to manage
   const appIdentity = appIdentities?.find(a => a.did === applicationDid); // Real app identity object from the user, if found
-  const [localAppIdentityCredentials] = useBehaviorSubject(appIdentity?.credentials().credentials$); // Credentials of the app identity, local (maybe not published) - KEEP it unused to local the credentials
+  const [localAppIdentityCredentials] = useBehaviorSubject(appIdentity?.credentials().credentials$); // Credentials of the app identity, local (maybe not published) - KEEP it unused to load the credentials
   const [localAppCredential, setLocalAppCredential] = useState<Credential>(null);
   const [appName, setAppName] = useState<string>(null); // UI model, possibly not yet saved to local VC/published VC
   const [appIconUrl, setAppIconUrl] = useState<string>(null); // UI model, possibly not yet saved to local VC/published VC
@@ -78,7 +81,7 @@ const ApplicationDetailsPage: FC<{
 
   useEffect(() => {
     setLocalAppCredential(appIdentity?.credentials().getCredentialByType("ApplicationCredential"));
-  }, [localAppIdentityCredentials]);
+  }, [appIdentity, localAppIdentityCredentials]);
 
   const updateLocalAppCredential = async () => {
     await appIdentity.update(appName, appIconUrl);

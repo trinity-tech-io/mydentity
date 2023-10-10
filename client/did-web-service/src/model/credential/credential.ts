@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 import AccountIcon from '@assets/images/account.svg';
-import type { VerifiableCredential } from "@elastosfoundation/did-js-sdk";
+import { VerifiableCredential } from "@elastosfoundation/did-js-sdk";
 import { gqlIdentityInteractingApplicationFields } from '@graphql/identity-interacting-application.fields';
 import { IdentityInteractingApplication } from '@model/identity-interacting-application/identity-interacting-application';
 import type { IdentityInteractingApplicationDTO } from '@model/identity-interacting-application/identity-interacting-application.dto';
@@ -34,12 +34,20 @@ export abstract class Credential {
   // Backend data
   public id: string = null;
   public createdAt: Date = null;
-  public verifiableCredential: VerifiableCredential;
+
+  private _verifiableCredential: VerifiableCredential;
+  public get verifiableCredential(): VerifiableCredential { return this._verifiableCredential; }
+  public set verifiableCredential(value: VerifiableCredential | string) {
+    // Note: can be a string during Object.assign() when deserializing credentials from the backend, so we skip that.
+    if (value instanceof VerifiableCredential) {
+      this._verifiableCredential = value;
+      this.prepareVerifiableCredential();
+    }
+  }
 
   // Computed client data
   protected displayTitle: string;
   protected displayValue: any = null;
-  //private onIconReadyCallback: (iconSrc: string | JSX.Element) => void = null;
 
   /**
    * Prepare all display data.
@@ -48,6 +56,9 @@ export abstract class Credential {
     this.prepareDisplayTitle();
     this.prepareDisplayValue();
   }
+
+  // Method to override to prepare higher level data from a VC we just set.
+  protected prepareVerifiableCredential(): Promise<void> | void { }
 
   protected getDisplayableCredentialTitle(): string {
     // If the credential implements the DisplayableCredential type, get the title from there.
@@ -251,7 +262,6 @@ export abstract class Credential {
   }
 
   protected abstract prepareRepresentativeIcon(): Promise<void>;
-
 
   /**
    * Tries to load the target picture, and in case of error, replaces the icon src with
