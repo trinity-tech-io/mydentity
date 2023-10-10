@@ -4,12 +4,22 @@ import { MoreVert as MoreVertIcon } from "@mui/icons-material";
 import { LandingCard } from "@components/card";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { RegularIdentity } from "@model/regular-identity/regular-identity";
-import { Box, IconButton, Typography } from "@mui/material";
+import { Box, IconButton, Typography, styled } from "@mui/material";
 import { useToast } from "@services/feedback.service";
 import { activeIdentity$ } from "@services/identity/identity.events";
 import { shortenDID } from "@services/identity/identity.utils";
 import clsx from "clsx";
 
+const GradientTypography = styled(Typography)({
+  backgroundImage: 'linear-gradient(180deg, #FFFFFFAE, #FFFFFF)',
+  backgroundSize: '100%',
+  backgroundRepeat: 'repeat',
+  WebkitBackgroundClip: 'text',
+  WebkitTextFillColor: 'transparent',
+  MozBackgroundClip: 'text',
+  MozTextFillColor: 'transparent',
+  display: 'inline'
+});
 /**
  * Component used as card styled identity in My identity page
  */
@@ -75,9 +85,9 @@ export const IdentityCard: FC<{
         <label htmlFor="holder-name" className="text-white text-[10px]">
           IDENTITY NAME
         </label>
-        <Typography variant="h5" fontSize={26} fontWeight={600}>
+        <GradientTypography variant="h5" fontSize={26} fontWeight={600}>
           {name}
-        </Typography>
+        </GradientTypography>
       </div>
     </LandingCard>
   );
