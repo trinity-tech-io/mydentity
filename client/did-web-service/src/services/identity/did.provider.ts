@@ -31,15 +31,9 @@ export interface IdentityProviderPresentation {
 
 export interface IdentityProviderPublication {
   /**
-   * Gets the DID transaction payload, used to publish the identity.
-   */
-  createDIDPublishTransaction(identityDid: string): Promise<string>;
-
-  /**
    * Publishes the identity's DID Document as it is currently, to the EID chain.
-   * Call createDIDPublishTransaction() to obtain the payload.
    */
-  publishIdentity(identityDid: string, payload: string): Promise<string>;
+  publishIdentity(identityDid: string): Promise<string>;
 
   /**
    * Returns the current publication status for a given identity (on chain existence or not)

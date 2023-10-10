@@ -1,10 +1,16 @@
+import { gql } from "@apollo/client";
+import { gqlIdentityFields } from "@graphql/identity.fields";
 import { ApplicationIdentity } from "@model/application-identity/application-identity";
 import { IdentityClaimRequest } from "@model/identity-claim-request/identity-claim-request";
 import { Identity } from "@model/identity/identity";
 import { IdentityType } from "@model/identity/identity-type";
+import { IdentityDTO } from "@model/identity/identity.dto";
 import { RegularIdentity } from "@model/regular-identity/regular-identity";
 import { RootIdentity } from "@model/root-identity/root-identity";
+import { withCaughtAppException } from "@services/error.service";
+import { getApolloClient } from "@services/graphql.service";
 import { getRandomQuickStartHiveNodeAddress } from "@services/hive/hive.service";
+import { CreateIdentityInput } from "@services/identity/dto/create-identity.input.dto";
 import { identityService } from "@services/identity/identity.service";
 import { logger } from "@services/logger";
 import { fetchSelfUser } from "@services/user/user.service";
@@ -12,12 +18,6 @@ import { AdvancedBehaviorSubject } from "@utils/advanced-behavior-subject";
 import { filter, identity, map } from "rxjs";
 import { User } from "../../user";
 import { UserFeature } from "../user-feature";
-import { gql } from "@apollo/client";
-import { gqlIdentityFields } from "@graphql/identity.fields";
-import { IdentityDTO } from "@model/identity/identity.dto";
-import { withCaughtAppException } from "@services/error.service";
-import { getApolloClient } from "@services/graphql.service";
-import { CreateIdentityInput } from "@services/identity/dto/create-identity.input.dto";
 
 export class IdentityFeature implements UserFeature {
   public identities$ = new AdvancedBehaviorSubject<Identity[]>(null, () => this.fetchIdentities());
@@ -83,19 +83,6 @@ export class IdentityFeature implements UserFeature {
     return rootIdentities
   }
 
-  /* public async createDIDPublishTransaction(didString: string): Promise<string> {
-    logger.log("identity", "Creating identity publication transaction");
-
-    return await identityService.createDIDPublishTransaction(didString);
-  } */
-
-  // Call createDIDPublishTransaction to obtain the payload
-  /* public async publishIdentity(didString: string, payload: string): Promise<string> {
-    logger.log("identity", "Publishing identity");
-
-    return await identityService.publishIdentity(didString, payload);
-  } */
-
   private async fetchIdentities(): Promise<Identity[]> {
     logger.log("identity", "Fetching identities", this.user);
     return identityService.listIdentities();
@@ -109,7 +96,7 @@ export class IdentityFeature implements UserFeature {
   /**
    * Requests to transfer a manage identity created by a third party app, into current user's account.
    * During this operation, all identity data is migrated to fully become owned by the user.
-   * 
+   *
    * The newly owned identity is returned and added to user's identities list.
    */
   public async claimManagedIdentity(claimRequest: IdentityClaimRequest): Promise<Identity> {

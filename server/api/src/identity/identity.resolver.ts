@@ -11,7 +11,6 @@ import { CreateIdentityInput } from './dto/create-identity.input';
 import { CreateManagedIdentityInput } from './dto/create-managed-identity.input';
 import { SetCredentialVisibilityInput } from './dto/credential-visibility.input';
 import { PublicationStatusInput } from './dto/publication-status.input';
-import { PublishIdentityInput } from './dto/publish-identity.input';
 import { RemoveServiceInput } from './dto/remove-service.input';
 import { DocumentEntity } from './entities/document.entity';
 import { IdentityPublicationStatusEntity } from './entities/identity-publication-status.entity';
@@ -19,7 +18,6 @@ import { IdentityEntity } from './entities/identity.entity';
 import { ManagedIdentityStatusEntity } from './entities/managed-identity-status.entity';
 import { ManagedIdentityEntity } from './entities/managed-identity.entity';
 import { PublishResultEntity } from './entities/publish-result.entity';
-import { TransactionEntity } from './entities/transaction.entity';
 import { IdentityAccessTokenGuard } from './identity-access-token.guard';
 import { IdentityAccess } from './identity-access.decorator';
 import { IdentityService } from './identity.service';
@@ -44,17 +42,11 @@ export class IdentityResolver {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Mutation(() => TransactionEntity)
-  async createDIDPublishTransaction(@Args('identityDid') identityDid: string, @CurrentUser() user: User, @CurrentBrowser() browser: Browser) {
-    await this.identityService.ensureOwnedIdentity(identityDid, user);
-    return this.identityService.createDIDPublishTransaction(identityDid, user, browser);
-  }
-
-  @UseGuards(JwtAuthGuard)
   @Mutation(() => PublishResultEntity)
-  async publishIdentity(@Args('input') input: PublishIdentityInput, @CurrentUser() user: User) {
-    await this.identityService.ensureOwnedIdentity(input.identityDid, user);
-    return this.identityService.publishIdentity(input.identityDid, input.payload);
+  async publishIdentity(@Args('identityDid') identityDid: string, @CurrentUser() user: User, @CurrentBrowser() browser: Browser) {
+    await this.identityService.ensureOwnedIdentity(identityDid, user);
+    const payload = await this.identityService.createDIDPublishTransaction(identityDid, user, browser);
+    return this.identityService.publishIdentity(identityDid, payload);
   }
 
   @UseGuards(JwtAuthGuard)

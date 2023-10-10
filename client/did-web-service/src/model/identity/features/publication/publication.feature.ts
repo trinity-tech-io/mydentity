@@ -19,10 +19,7 @@ export class PublicationFeature implements IdentityFeature {
    * of error.
    */
   public async publish(): Promise<boolean> {
-    // TODO: MERGE INTO ONE OPERATION
-    const payload = await identityService.createDIDPublishTransaction(this.identity.did);
-    console.log("payload", payload);
-    await identityService.publishIdentity(this.identity.did, payload);
+    await identityService.publishIdentity(this.identity.did);
 
     this.startCheckingPublicationStatus();
 

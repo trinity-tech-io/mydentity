@@ -143,10 +143,7 @@ export class IdentityService {
   async createDIDPublishTransaction(didString: string, user: User, browser: Browser) {
     const storePassword = this.getDIDStorePassword(user?.id, browser?.id);
 
-    const payload = await this.didService.createDIDPublishTransaction(user.id, didString, storePassword);
-    return {
-      payload: payload.toString(),
-    }
+    return await this.didService.createDIDPublishTransaction(user.id, didString, storePassword);
   }
 
   /**
