@@ -9,6 +9,8 @@ import { credentialFromVerifiableCredential } from '@model/credential/credential
 import { Document } from '@model/document/document';
 import { IdentityClaimRequest } from '@model/identity-claim-request/identity-claim-request';
 import { Typography } from '@mui/material';
+import { useToast } from '@services/feedback.service';
+import { setPostSignInUrl } from '@services/flow.service';
 import { fetchIdentityClaimRequest } from '@services/identity-claim/identity-claim.service';
 import { didDocumentService } from '@services/identity/diddocuments.service';
 import { logger } from '@services/logger';
@@ -23,6 +25,7 @@ const ClaimIdentityPage: FC = () => {
   const searchParams = useSearchParams();
   const claimRequestId = searchParams.get("request");
   const [fetchingRequestDetails, setFetchingRequestDetails] = useState(true);
+  const [claimingIdentity, setClaimingIdentity] = useState(false);
   const [claimRequest, setClaimRequest] = useState<IdentityClaimRequest>(null);
   const [creatingAppDID, setCreatingAppDID] = useState<string>(null);
   const [creatingAppDocument, setCreatingAppDocument] = useState<Document>(null);
@@ -32,6 +35,7 @@ const ClaimIdentityPage: FC = () => {
   const [authUserReady] = useBehaviorSubject(authUserReady$);
   const [authUser] = useBehaviorSubject(authUser$);
   const readyToDisplayDetails = !fetchingRequestDetails && authUserReady;
+  const { showSuccessToast, showErrorToast } = useToast();
 
   /**
    * Fetch the claim request info
@@ -76,28 +80,32 @@ const ClaimIdentityPage: FC = () => {
   }, [creatingAppDID, creatingAppDocument]);
 
   const signUp = (): void => {
+    setPostSignInUrl(window.location.toString()); // Come back to claim page after sign up
     router.push("/signup")
   }
 
   const signIn = (): void => {
+    setPostSignInUrl(window.location.toString()); // Come back to claim page after sign in
     router.push("/signin")
   }
 
-  const claimIdentity = () => {
-
+  const claimIdentity = async () => {
+    // TODO
+    setClaimingIdentity(true);
+    const claimedIdentity = await authUser.get("identity").claimManagedIdentity(claimRequest);
+    if (!claimedIdentity) {
+      showErrorToast("Sorry, the identity failed to be claimed for some reason");
+      setClaimingIdentity(false);
+    }
+    else {
+      // Identity was claimed successfully, go back to dashboard.
+      showSuccessToast("Identity claimed successfully");
+      router.replace("/dashboard");
+    }
   }
 
   if (!mounted)
     return null;
-
-  /**
-   * TODO:
-   * - finalize app did: finalize publish DID document
-   *  - Ability to make the app info cred into the did doc
-   * - check sign in status, redirect if needed
-   * - probably unable to fetch creating app icon if no active identity yet (because hive needs a DID to call scripts)
-   * - confirm claiming + transfer identity to another user (confirm temp shadow key with jingyu first)
-   */
 
   return (
     <div className='flex flex-col col-span-full'>
@@ -145,7 +153,7 @@ const ClaimIdentityPage: FC = () => {
 
           {/* User is signed in, we can proceed to claiming */}
           {authUser && <>
-            <MainButton className='mt-8' onClick={claimIdentity}>Claim this identity</MainButton>
+            <MainButton className='mt-8' onClick={claimIdentity} busy={claimingIdentity}>Claim this identity</MainButton>
             <Typography>This new identity will be transfered to your account.</Typography>
           </>
           }

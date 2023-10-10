@@ -1,16 +1,16 @@
 "use client"
 import type { VerifiableCredential } from "@elastosfoundation/did-js-sdk";
+import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { Credential } from "@model/credential/credential";
 import { Intent } from "@model/intent/intent";
+import { clearPostSignInUrl, setPostSignInUrl } from "@services/flow.service";
+import { activeIdentity$ } from "@services/identity/identity.events";
 import { fetchIntent } from "@services/intent.service";
+import { authUser$ } from "@services/user/user.events";
 import { useSearchParams } from "next/navigation";
 import { FC, useEffect, useState } from "react";
 import { PreparingRequest } from "../components/PreparingRequest";
 import { RequestDetails } from "./RequestDetails";
-import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
-import { setPostSignInUrl, clearPostSignInUrl } from "@services/flow.service";
-import { activeIdentity$ } from "@services/identity/identity.events";
-import { authUser$ } from "@services/user/user.events";
 
 // Displayable version of a verifiable credential subject entry (a credential can contain several information
 // in its subject).
@@ -64,7 +64,6 @@ const ImportCredentialsIntent: FC = () => {
       clearPostSignInUrl();
     }
   }, [activeUser, activeIdentity]);
-
 
   return (
     <div className="col-span-full">

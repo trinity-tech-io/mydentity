@@ -1,5 +1,5 @@
 import { useRouter } from "next13-progressbar";
-// import { useRouter } from "next/navigation";
+//import { useRouter } from "next/navigation";
 import { logger } from "./logger";
 
 export enum FlowOperation {
@@ -60,6 +60,7 @@ export function usePostSignInFlow(): { navigateToPostSignInLandingPage: (default
       if (postSignInUrl) {
         logger.log("flow", "Navigating to post sign in landing page:", postSignInUrl);
         router.replace(postSignInUrl);
+        clearPostSignInUrl();
       }
       else {
         const targetPage = defaultLanding || "/dashboard";

@@ -2,6 +2,7 @@
 // import { Inter } from 'next/font/google';
 import { authRoutes, publicRoutes } from "@/router/routes";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
+import { usePostSignInFlow } from "@services/flow.service";
 import { authUser$, authUserReady$ } from "@services/user/user.events";
 import { checkIfStringEqualsWith as checkIfStringIsEqualTo, checkIfStringStartsWith } from "@utils/strings";
 import { usePathname } from "next/navigation";
@@ -40,6 +41,7 @@ const RootLayout: FC<{ children: React.ReactNode }> = ({ children }) => {
   const pathname = usePathname();
   const [userStatusReady] = useBehaviorSubject(authUserReady$);
   const [user] = useBehaviorSubject(authUser$);
+  const { navigateToPostSignInLandingPage } = usePostSignInFlow();
   // NProgress.configure({ showSpinner: false });
 
   // const handleProgressStart = () => {
@@ -62,10 +64,11 @@ const RootLayout: FC<{ children: React.ReactNode }> = ({ children }) => {
         // redirect to entry to sign in
         router.replace("/entry"); // sign in/up page
       }
-      else if (user && checkIfStringStartsWith(pathname, authRoutes)) {
-        // If user is authenticated and we are on a route that requires auth, go to dashboard
-        router.replace("/dashboard");
-      }
+      /* No - this creates a mess just after authenticating
+         else if (user && checkIfStringStartsWith(pathname, authRoutes)) {
+         // If user is authenticated and we are on a route that requires auth, go to dashboard
+         navigateToPostSignInLandingPage();
+       } */
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, user, userStatusReady]);

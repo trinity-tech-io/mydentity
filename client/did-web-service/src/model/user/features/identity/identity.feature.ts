@@ -10,14 +10,14 @@ import { RootIdentity } from "@model/root-identity/root-identity";
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { getRandomQuickStartHiveNodeAddress } from "@services/hive/hive.service";
-import { CreateIdentityInput } from "@services/identity/dto/create-identity.input.dto";
-import { identityService } from "@services/identity/identity.service";
+import { custodialIdentityProvider, identityService } from "@services/identity/identity.service";
 import { logger } from "@services/logger";
 import { fetchSelfUser } from "@services/user/user.service";
 import { AdvancedBehaviorSubject } from "@utils/advanced-behavior-subject";
-import { filter, identity, map } from "rxjs";
+import { filter, map } from "rxjs";
 import { User } from "../../user";
 import { UserFeature } from "../user-feature";
+import { ClaimIdentityInput } from "./claim-identity.input";
 
 export class IdentityFeature implements UserFeature {
   public identities$ = new AdvancedBehaviorSubject<Identity[]>(null, () => this.fetchIdentities());
@@ -100,18 +100,15 @@ export class IdentityFeature implements UserFeature {
    * The newly owned identity is returned and added to user's identities list.
    */
   public async claimManagedIdentity(claimRequest: IdentityClaimRequest): Promise<Identity> {
-    const input: CreateIdentityInput = {
-      name,
-      hiveVaultProvider,
-      identityType,
-      rootIdentityId
+    const input: ClaimIdentityInput = {
+      // TODO
     };
 
     const result = await withCaughtAppException(async () => {
       return (await getApolloClient()).mutate<{ createIdentity: IdentityDTO }>({
         mutation: gql`
-          mutation createIdentity($input: CreateIdentityInput!) {
-            createIdentity(input: $input) {
+          mutation claimManagedIdentity($input: ClaimIdentityInput!) {
+            claimManagedIdentity(input: $input) {
               ${gqlIdentityFields}
             }
           }
@@ -124,12 +121,14 @@ export class IdentityFeature implements UserFeature {
 
     if (result?.data?.createIdentity) {
       const { identityFromJson } = await import("@model/identity/identity-builder");
-      return identityFromJson(result.data.createIdentity, this.provider);
+      const identity = await identityFromJson(result.data.createIdentity, custodialIdentityProvider);
+      this.identities$.next([identity, ...this.identities$.value]);
+
+      logger.log("identity", "Managed identity claimed successfully", identity);
+      return identity;
     }
     else {
-      throw new Error("Failed to create DID");
+      throw new Error("Failed to claim identity");
     }
-
-    this.identities$.next([identity, ...this.identities$.value]);
   }
 }
