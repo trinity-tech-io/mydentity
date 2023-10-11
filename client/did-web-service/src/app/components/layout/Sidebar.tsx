@@ -251,7 +251,7 @@ const IdentityCardGroup: FC = () => {
   const [myIdentities, setMyIdentites] = useState<RegularIdentity[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
   useEffect(() => {
-    if (identities) {
+    if (identities && identities?.length !== myIdentities.length && activeIdentity) {
       const tempIdentities = [...identities];
       const activeIdentityIndex =
         identities?.findIndex((i) => i == activeIdentity) || activeIndex;
@@ -263,7 +263,7 @@ const IdentityCardGroup: FC = () => {
         );
       setMyIdentites(tempIdentities);
     }
-  }, [identities?.length]);
+  }, [identities?.length, activeIdentity]);
 
   // const sortedIdentities =
   //   identities &&

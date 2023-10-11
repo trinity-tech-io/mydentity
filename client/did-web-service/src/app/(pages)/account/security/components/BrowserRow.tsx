@@ -77,7 +77,7 @@ export const BrowserRow: FC<{
                 </IconButton>
               </div>
             )}
-            {isPasskeyBound && (
+            {/* {isPasskeyBound && (
               <div
                 className="flex flex-row gap-2 items-center text-white px-4 py-1 rounded-lg text-sm"
                 style={{ backgroundColor: "var(--primary-color)" }}
@@ -85,7 +85,7 @@ export const BrowserRow: FC<{
                 <FingerprintIcon height={30} color="#44CC44" />
                 Bound to passkey
               </div>
-            )}
+            )} */}
           </div>
         </div>
       </CardStyled>
