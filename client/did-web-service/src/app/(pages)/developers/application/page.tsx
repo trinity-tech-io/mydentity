@@ -1,8 +1,8 @@
 "use client";
 import { Breadcrumbs } from "@components/breadcrumbs/Breadcrumbs";
+import { CopyButton } from "@components/button";
 import { EditableCredentialAvatar } from "@components/credential/EditableCredentialAvatar";
 import { MainButton } from "@components/generic/MainButton";
-import { CopyButton } from "@components/button";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { Credential } from "@model/credential/credential";
 import { Document } from "@model/document/document";
@@ -31,23 +31,14 @@ const ApplicationDetailsPage: FC<{
   const [localAppCredential, setLocalAppCredential] = useState<Credential>(null);
   const [appName, setAppName] = useState<string>(null); // UI model, possibly not yet saved to local VC/published VC
   const [appIconUrl, setAppIconUrl] = useState<string>(null); // UI model, possibly not yet saved to local VC/published VC
-
   const [appDIDDocumentStatusWasChecked, setAppDIDDocumentStatusWasChecked] = useState(false); // Whether the App DID document has been checked on chain or not yet
   const [publishedDIDDocument, setPublishedDIDDocument] = useState<Document>(null);
   const [appIdentityNeedsToBePublished, setAppIdentityNeedsToBePublished] = useState(false);
   //const developerDIDDocument: DIDPlugin.DIDDocument = null;
   const [publishingIdentity, setPublishingIdentity] = useState(false);
-  const fetchingIcon = false;
-  const uploadingIcon = false;
-  const base64iconPath: string = null;
-
-  // console.log("------")
-  // console.log("appIdentityNeedsToBePublished", appIdentityNeedsToBePublished)
-  // console.log("appName", appName)
-  // console.log("appIconUrl", appIconUrl)
-
   const { showSuccessToast, showErrorToast } = useToast();
   const [showMnemonic, setShowMnemonic] = useState<string>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   const fetchRemoteDIDDocument = useCallback((): void => {
     setAppDIDDocumentStatusWasChecked(false);
@@ -189,26 +180,11 @@ const ApplicationDetailsPage: FC<{
     native.genericToast('developers.app-did-copied', 2000); */
   }
 
-  /* private async fetchAppIcon() {
-  if (appIconUrl) {
-    fetchingIcon = true;
-    logger.log("developers", `Fetching app icon from ${appIconUrl}`);
-    base64iconPath = await globalHiveService.fetchHiveScriptPictureToDataUrl(appIconUrl);
-    logger.log("developers", `Got app icon`);
-    fetchingIcon = false;
-  }
-} */
-
-  /* public getAppIcon(): string {
-  return base64iconPath || "assets/developers/images/logo.png";
-} */
-
   const handleAppIconFileChanged = async (file: File): Promise<void> => {
-    //setUploadingAvatar(true);
-    //await identityProfileFeature.upsertIdentityAvatar(file);
-    //setUploadingAvatar(false);
+    setUploadingAvatar(true);
     const uploadedAvatar = await editAvatarOnHive(appIdentity, file);
     console.log("uploadedAvatar", uploadedAvatar)
+    setUploadingAvatar(false);
 
     await appIdentity.update(appName, uploadedAvatar.avatarHiveURL);
   }
@@ -230,8 +206,8 @@ const ApplicationDetailsPage: FC<{
         {/*  Header */}
         <div className="flex flex-col">
           {/* App icon */}
-          <div>
-            <EditableCredentialAvatar credential={localAppCredential} onFileUpload={handleAppIconFileChanged} />
+          <div className="flex">
+            <EditableCredentialAvatar credential={localAppCredential} onFileUpload={handleAppIconFileChanged} updating={uploadingAvatar} />
             {/* <ion-img *ngIf="!fetchingIcon && !uploadingIcon" [src]="getAppIcon()"
               onClick="selectAndUploadAppIconFromLibrary()"></ion-img> */}
             {/* <p *ngIf="!fetchingIcon && !uploadingIcon && !base64iconPath">{{ 'developers.set-app-icon' | translate
@@ -296,13 +272,13 @@ const ApplicationDetailsPage: FC<{
         {/** Show application DID mnemonic*/}
         {showMnemonic ? (
           <div className="inline-flex items-center">
-          <div>{'Application DID mnemonic：' + showMnemonic}</div>
-          <CopyButton text={showMnemonic} />
+            <div>{'Application DID mnemonic：' + showMnemonic}</div>
+            <CopyButton text={showMnemonic} />
           </div>
-        ): (
+        ) : (
           <MainButton onClick={handleExportMnemonic}>
-          Application DID mnemonic
-        </MainButton>
+            Application DID mnemonic
+          </MainButton>
         )}
 
         <div className="mt-4">

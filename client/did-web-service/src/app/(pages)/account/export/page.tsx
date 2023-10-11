@@ -1,13 +1,13 @@
 "use client";
-import React, { FC, useState } from 'react';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { useMounted } from '@hooks/useMounted';
-import { Typography } from "@mui/material";
-import FileCopyIcon from '@mui/icons-material/FileCopy';
-import { RootIdentity } from "@model/root-identity/root-identity";
 import { RegularIdentity } from '@model/regular-identity/regular-identity';
-import { authUser$ } from '@services/user/user.events';
+import { RootIdentity } from "@model/root-identity/root-identity";
+import FileCopyIcon from '@mui/icons-material/FileCopy';
+import { Typography } from "@mui/material";
 import { useToast } from "@services/feedback.service";
+import { authUser$ } from '@services/user/user.events';
+import { FC, useState } from 'react';
 import { RootIdentityDids } from './components/RootIdentityDids';
 
 const TAG = "export-mnemonic";
@@ -24,7 +24,7 @@ const ExportMnemonicPage: FC = () => {
   const [showMnemonic, setShowMnemonic] = useState(false);
 
   const handleExportMnemonic: (rootIdentity: RootIdentity) => Promise<string> = async (rootIdentity) => {
-    const identityRootId= rootIdentity.id;
+    const identityRootId = rootIdentity.id;
     const mnemonic = await rootIdentity?.exportMnemonic(identityRootId);
     setClickedMnemonics((prevMnemonics) => ({
       ...prevMnemonics,
@@ -43,16 +43,16 @@ const ExportMnemonicPage: FC = () => {
   const getRegularIdentitiesById = (identities: RegularIdentity[], rootIdentityId: string): RegularIdentity[] => {
     const filteredRootIdentities = identities.filter(rootIdentity => {
       return rootIdentity.identityRootId === rootIdentityId;
-    });    
+    });
     return filteredRootIdentities
   }
-  
+
   return (
     <div className="flex flex-wrap mt-12">
       {rootIdentities?.map((rootIdentity, groupIndex) => {
         // 1. Get the identities for the corresponding rootIdentityId
-        const correspondingIdentities = getRegularIdentitiesById(identities,rootIdentity.id);
-  
+        const correspondingIdentities = getRegularIdentitiesById(identities, rootIdentity.id);
+
         return (
           <div key={groupIndex} className="m-4 mt-11 p-6 border rounded-lg relative w-[800px]">
             <div className="absolute top-0 left-0 font-bold -mt-12 ml-2">
@@ -68,7 +68,7 @@ const ExportMnemonicPage: FC = () => {
               >
                 Export Mnemonic
               </button>
-  
+
               {/* show Mnemonic and copy Mnemonic */}
               {showMnemonic && clickedMnemonics[rootIdentity.id] && (
                 <Typography
@@ -90,7 +90,7 @@ const ExportMnemonicPage: FC = () => {
                 </Typography>
               )}
             </div>
-  
+
             {/* Display all Identities under the Identity root id */}
             <div style={{ width: '300px' }}>
               <RootIdentityDids identities={correspondingIdentities} />
