@@ -55,6 +55,7 @@ then
 
   cd tests/did-web-tests
   npm i
+  npm i ../../sdk
   npm run build
   cd ../..
 else

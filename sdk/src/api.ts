@@ -39,7 +39,7 @@ export async function gqlQuery<ResponseType extends object>(methodName: string, 
     throw SDKException.create(ExceptionCode.InvalidResponse, `Not a json response received during a call to ${methodName}`);
 
   if ("errors" in jsonResponse)
-    throw SDKException.create(ExceptionCode.ServerError, `Server errors during a call to ${methodName}`, jsonResponse.errors);
+    throw SDKException.create(ExceptionCode.ServerError, `Server errors during a call to ${methodName}`, jsonResponse['errors']);
 
   if (!("data" in jsonResponse))
     throw SDKException.create(ExceptionCode.InvalidResponse, `No 'data' field in graphql response during a call to ${methodName}`);
