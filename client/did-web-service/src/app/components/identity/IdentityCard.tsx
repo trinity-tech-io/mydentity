@@ -21,7 +21,7 @@ const GradientTypography = styled(Typography)({
   display: 'inline'
 });
 /**
- * Component used as card styled identity in My identity page
+ * Component used as card styled identity in My identities page
  */
 export const IdentityCard: FC<{
   identity: RegularIdentity;

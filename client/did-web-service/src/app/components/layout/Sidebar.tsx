@@ -1,32 +1,33 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
-'use client'
-import { FC, ReactNode, useEffect, useRef, useState } from 'react';
-import clsx from 'clsx';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { EffectCards } from 'swiper/modules';
-import 'swiper/css';
-import 'swiper/css/effect-cards';
+"use client";
+import { FC, ReactNode, useEffect, useRef, useState } from "react";
+import clsx from "clsx";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { EffectCards } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/effect-cards";
 
-import AccountIcon from '@assets/images/account.svg';
-import CardIcon from '@assets/images/card.svg';
-import WidgetIcon from '@assets/images/widgets.svg';
-import DashboardIcon from '@assets/images/dashboard.svg';
-import ExploreIcon from '@assets/images/explore.svg';
-import SupportIcon from '@assets/images/contact-support.svg';
-import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
-import { useMounted } from '@hooks/useMounted';
-import { activeIdentity$ } from '@services/identity/identity.events';
-import { authUser$ } from '@services/user/user.events';
-import ThemeToggle from '../generic/ThemeToggle';
-import { LandingCard } from '@components/card';
-import { Typography } from '@mui/material';
+import AccountIcon from "@assets/images/account.svg";
+import CardIcon from "@assets/images/card.svg";
+import WidgetIcon from "@assets/images/widgets.svg";
+import DashboardIcon from "@assets/images/dashboard.svg";
+import ExploreIcon from "@assets/images/explore.svg";
+import SupportIcon from "@assets/images/contact-support.svg";
+import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
+import { useMounted } from "@hooks/useMounted";
+import { activeIdentity$ } from "@services/identity/identity.events";
+import { authUser$ } from "@services/user/user.events";
+import ThemeToggle from "../generic/ThemeToggle";
+import { LandingCard } from "@components/card";
+import { Typography } from "@mui/material";
+import { IdentityInfoCard } from "@components/identity/IdentityInfoCard";
 
 type LinkConfig = {
   title: string;
   url: string;
-}
+};
 
 type GroupConfig = {
   icon: ReactNode;
@@ -36,19 +37,19 @@ type GroupConfig = {
   requiresAuth?: boolean; // This link group will be shown only if user is signed in
   requiresActiveIdentity?: boolean; // This link gorup will show only if there is an active identity
   openByDefault?: boolean; // Whether the group is open by default or not
-}
+};
 
 const groups: GroupConfig[] = [
   {
     icon: <WidgetIcon />,
     title: "Dashboard",
-    url: "/dashboard"
+    url: "/dashboard",
   },
   {
     icon: <CardIcon />,
     title: "My identities",
     url: "/identities",
-    requiresAuth: true
+    requiresAuth: true,
   },
   {
     icon: <AccountIcon />,
@@ -62,13 +63,13 @@ const groups: GroupConfig[] = [
     ],
     requiresAuth: true,
     requiresActiveIdentity: true,
-    openByDefault: true
+    openByDefault: true,
   },
   {
     icon: <DashboardIcon />,
     title: "Recent activity",
     url: "/recent-activity",
-    requiresAuth: true
+    requiresAuth: true,
   },
   /* {
     icon: <MarketplaceIcon />,
@@ -98,8 +99,8 @@ const groups: GroupConfig[] = [
     links: [
       { title: "Essentials identity wallet", url: "/discover/essentials" },
       { title: "Elastos Web3 Tech", url: "/discover/elastos" },
-      { title: "Trinity Tech", url: "/discover/trinity-tech" }
-    ]
+      { title: "Trinity Tech", url: "/discover/trinity-tech" },
+    ],
   },
   {
     icon: <SupportIcon />,
@@ -108,8 +109,8 @@ const groups: GroupConfig[] = [
       { title: "FAQ", url: "/support/faq" },
       { title: "Contact us", url: "/support/contact" },
       //{ title: "Developers", url: "/support/developers" },
-    ]
-  }
+    ],
+  },
 ];
 
 const LinkElement: FC<{
@@ -123,45 +124,66 @@ const LinkElement: FC<{
     <li className="mb-1 last:mb-0">
       <Link
         href={link.url}
-        className={clsx('block transition duration-150 truncate', isActive ? 'text-indigo-500' : 'text-slate-400 hover:text-slate-200')}>
-        <span className={clsx("text-sm font-medium lg:opacity-0 2xl:opacity-100 duration-200", sidebarExpanded && "lg:opacity-100")}>
+        className={clsx(
+          "block transition duration-150 truncate",
+          isActive ? "text-indigo-500" : "text-slate-400 hover:text-slate-200"
+        )}
+      >
+        <span
+          className={clsx(
+            "text-sm font-medium lg:opacity-0 2xl:opacity-100 duration-200",
+            sidebarExpanded && "lg:opacity-100"
+          )}
+        >
           {link.title}
         </span>
       </Link>
     </li>
-  )
-}
+  );
+};
 
 const GroupElement: FC<{
   group: GroupConfig;
   sidebarExpanded: boolean;
   onGroupHeaderClicked: () => void;
 }> = ({ group, sidebarExpanded, onGroupHeaderClicked }) => {
-  const { icon, title, links, requiresAuth = false, requiresActiveIdentity = false, openByDefault = false } = group;
+  const {
+    icon,
+    title,
+    links,
+    requiresAuth = false,
+    requiresActiveIdentity = false,
+    openByDefault = false,
+  } = group;
   const pathname = usePathname();
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
-  const isActive = group.url === pathname || group.links?.some(l => l.url === pathname);
+  const isActive =
+    group.url === pathname || group.links?.some((l) => l.url === pathname);
   const [open, setOpen] = useState(openByDefault);
   const [authUser] = useBehaviorSubject(authUser$);
   const { mounted } = useMounted();
 
-  if ((requiresAuth && (!authUser || !mounted))) // render server and client without this item until we know more about "authUser"
+  if (requiresAuth && (!authUser || !mounted))
+    // render server and client without this item until we know more about "authUser"
     return null;
 
-  if ((requiresActiveIdentity && (!activeIdentity || !mounted)))
-    return null;
+  if (requiresActiveIdentity && (!activeIdentity || !mounted)) return null;
 
   return (
     <div>
       <ul className="">
-        <li className={`px-3 py-2 rounded-sm mb-0.5 last:mb-0 ${isActive && 'bg-stone-900'}`}>
+        <li
+          className={`px-3 py-2 rounded-sm mb-0.5 last:mb-0 ${
+            isActive && "bg-stone-900"
+          }`}
+        >
           <Link
             href={group.url || ""}
-            className={`block text-[#ddd] truncate transition duration-150 ${isActive ? 'hover:text-slate-200' : 'hover:text-white'
-              }`}
+            className={`block text-[#ddd] truncate transition duration-150 ${
+              isActive ? "hover:text-slate-200" : "hover:text-white"
+            }`}
             onClick={(e) => {
-              if (!group.url)
-                e.preventDefault();
+              if (!group.url) e.preventDefault();
 
               setOpen(!open);
               onGroupHeaderClicked();
@@ -169,35 +191,96 @@ const GroupElement: FC<{
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <div className='p-1 h-6 w-6' >
-                  {icon}
-                </div>
-                <span className={clsx("text-base font-medium ml-3 lg:opacity-0 2xl:opacity-100 duration-200", sidebarExpanded && "lg:!opacity-100")}>
+                <div className="p-1 h-6 w-6">{icon}</div>
+                <span
+                  className={clsx(
+                    "text-base font-medium ml-3 lg:opacity-0 2xl:opacity-100 duration-200",
+                    sidebarExpanded && "lg:!opacity-100"
+                  )}
+                >
                   {title}
                 </span>
               </div>
-              {links &&
+              {links && (
                 <div className="flex shrink-0 ml-2">
-                  <svg className={`w-3 h-3 shrink-0 ml-1 fill-current text-slate-400 ${open && 'rotate-180'}`} viewBox="0 0 12 12">
+                  <svg
+                    className={`w-3 h-3 shrink-0 ml-1 fill-current text-slate-400 ${
+                      open && "rotate-180"
+                    }`}
+                    viewBox="0 0 12 12"
+                  >
                     <path d="M5.9 11.4L.5 6l1.4-1.4 4 4 4-4L11.3 6z" />
                   </svg>
                 </div>
-              }
+              )}
             </div>
           </Link>
           {/* Inner links */}
-          {
-            links && <div className={clsx("lg:hidden 2xl:block", sidebarExpanded && "lg:!block")}>
-              <ul className={`pl-9 mt-1 ${!open && 'hidden'}`}>
-                {links.map(link => <LinkElement key={link.title} link={link} sidebarExpanded={sidebarExpanded} />)}
+          {links && (
+            <div
+              className={clsx(
+                "lg:hidden 2xl:block",
+                sidebarExpanded && "lg:!block"
+              )}
+            >
+              <ul className={`pl-9 mt-1 ${!open && "hidden"}`}>
+                {links.map((link) => (
+                  <LinkElement
+                    key={link.title}
+                    link={link}
+                    sidebarExpanded={sidebarExpanded}
+                  />
+                ))}
               </ul>
             </div>
-          }
+          )}
         </li>
       </ul>
     </div>
-  )
-}
+  );
+};
+
+const IdentityCardGroup: FC = () => {
+  const [authUser] = useBehaviorSubject(authUser$);
+  const [activeIdentity] = useBehaviorSubject(activeIdentity$);
+  const [identities] = useBehaviorSubject(
+    authUser?.get("identity").regularIdentities$
+  );
+  const sortedIdentities =
+    identities &&
+    [...identities].sort((a, b) => {
+      const dateA = a.lastUsedAt$.getValue().getTime();
+      const dateB = b.lastUsedAt$.getValue().getTime();
+      return dateB - dateA;
+    });
+  return !identities ? (
+    <LandingCard
+      className="bg-black w-full"
+      footer={
+        <span className="text-[7pt] opacity-70">did:elastos:XXXXXXXXXX</span>
+      }
+      waveIconVisible={false}
+    >
+      <Typography variant="body2" className="opacity-70 pb-2">
+        XXXXXXXXXX
+      </Typography>
+    </LandingCard>
+  ) : (
+    <Swiper
+      effect={"cards"}
+      grabCursor={true}
+      modules={[EffectCards]}
+      className="mySwiper w-full"
+    >
+      {sortedIdentities
+        .map((identity, _id) => (
+          <SwiperSlide key={_id}>
+            <IdentityInfoCard identity={identity} />
+          </SwiperSlide>
+        ))}
+    </Swiper>
+  );
+};
 
 const Sidebar: FC<{
   sidebarOpen: boolean;
@@ -206,17 +289,21 @@ const Sidebar: FC<{
   const trigger = useRef<any>(null);
   const sidebar = useRef<any>(null);
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
-  const [activeIdentity] = useBehaviorSubject(activeIdentity$);
 
   // close on click outside
   useEffect(() => {
     const clickHandler: EventListener = (e) => {
       if (!sidebar.current || !trigger.current) return;
-      if (!sidebarOpen || sidebar.current.contains(e.target) || trigger.current.contains(e.target)) return;
+      if (
+        !sidebarOpen ||
+        sidebar.current.contains(e.target) ||
+        trigger.current.contains(e.target)
+      )
+        return;
       setSidebarOpen(false);
     };
-    document.addEventListener('click', clickHandler);
-    return () => document.removeEventListener('click', clickHandler);
+    document.addEventListener("click", clickHandler);
+    return () => document.removeEventListener("click", clickHandler);
   });
 
   // close if the esc key is pressed
@@ -225,16 +312,17 @@ const Sidebar: FC<{
       if (!sidebarOpen || e.keyCode !== 27) return;
       setSidebarOpen(false);
     };
-    document.addEventListener('keydown', keyHandler);
-    return () => document.removeEventListener('keydown', keyHandler);
+    document.addEventListener("keydown", keyHandler);
+    return () => document.removeEventListener("keydown", keyHandler);
   });
 
   return (
     <div>
       {/* Sidebar backdrop (mobile only) */}
       <div
-        className={`fixed inset-0 bg-opacity-30 z-40 lg:hidden lg:z-auto transition-opacity duration-200 ${sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
-          }`}
+        className={`fixed inset-0 bg-opacity-30 z-40 lg:hidden lg:z-auto transition-opacity duration-200 ${
+          sidebarOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
         aria-hidden="true"
       ></div>
 
@@ -242,25 +330,14 @@ const Sidebar: FC<{
       <div
         id="sidebar"
         ref={sidebar}
-        className={clsx("flex flex-col absolute z-40 left-0 top-0 lg:static lg:left-auto lg:top-auto lg:translate-x-0 h-screen overflow-y-scroll lg:overflow-y-auto no-scrollbar w-64 lg:w-20 2xl:!w-64 shrink-0 bg-[#292B29] p-4 transition-all duration-200 ease-in-out", sidebarOpen ? 'translate-x-0' : '-translate-x-64', sidebarExpanded && "lg:!w-64")}
+        className={clsx(
+          "flex flex-col absolute z-40 left-0 top-0 lg:static lg:left-auto lg:top-auto lg:translate-x-0 h-screen overflow-y-scroll lg:overflow-y-auto no-scrollbar w-64 lg:w-20 2xl:!w-64 shrink-0 bg-[#292B29] p-4 transition-all duration-200 ease-in-out",
+          sidebarOpen ? "translate-x-0" : "-translate-x-64",
+          sidebarExpanded && "lg:!w-64"
+        )}
       >
         {/* Sidebar header */}
-        <Swiper
-          effect={'cards'}
-          grabCursor={true}
-          modules={[EffectCards]}
-          className="mySwiper w-full"
-        >
-          {
-            Array(2).fill(0).map((_, _id) => (
-              <SwiperSlide key={_id}>
-                <LandingCard className="bg-black w-full" footer={<span className="text-[7pt] opacity-70">did:elastos:XXXXXXXXXX</span>} waveIconVisible={false}>
-                  <Typography variant="body2" className="opacity-70 pb-2">XXXXXXXXXX</Typography>
-                </LandingCard>
-              </SwiperSlide>
-            ))
-          }
-        </Swiper>
+        <IdentityCardGroup />
         <div className="flex justify-between mb-10 pr-3 sm:px-2">
           {/* Close button */}
           <button
@@ -288,23 +365,33 @@ const Sidebar: FC<{
         {/* Links */}
         <div /* className="space-y-8" */>
           {/* Link groups */}
-          {groups.map(group => <GroupElement
-            key={group.title}
-            group={group}
-            sidebarExpanded={sidebarExpanded}
-            onGroupHeaderClicked={() => {
-              if (!sidebarExpanded)
-                setSidebarExpanded(true);
-            }}
-          />)}
+          {groups.map((group) => (
+            <GroupElement
+              key={group.title}
+              group={group}
+              sidebarExpanded={sidebarExpanded}
+              onGroupHeaderClicked={() => {
+                if (!sidebarExpanded) setSidebarExpanded(true);
+              }}
+            />
+          ))}
         </div>
         {/* Expand / collapse button */}
         <div className="pt-3 hidden lg:inline-flex 2xl:hidden justify-end mt-auto">
           <div className="px-3 py-2">
             <button onClick={() => setSidebarExpanded(!sidebarExpanded)}>
               <span className="sr-only">Expand / collapse sidebar</span>
-              <svg className={clsx("w-6 h-6 fill-current", sidebarExpanded && "rotate-180")} viewBox="0 0 24 24">
-                <path className="text-slate-400" d="M19.586 11l-5-5L16 4.586 23.414 12 16 19.414 14.586 18l5-5H7v-2z" />
+              <svg
+                className={clsx(
+                  "w-6 h-6 fill-current",
+                  sidebarExpanded && "rotate-180"
+                )}
+                viewBox="0 0 24 24"
+              >
+                <path
+                  className="text-slate-400"
+                  d="M19.586 11l-5-5L16 4.586 23.414 12 16 19.414 14.586 18l5-5H7v-2z"
+                />
                 <path className="text-slate-600" d="M3 23H1V1h2z" />
               </svg>
             </button>
@@ -315,6 +402,6 @@ const Sidebar: FC<{
       </div>
     </div>
   );
-}
+};
 
 export default Sidebar;

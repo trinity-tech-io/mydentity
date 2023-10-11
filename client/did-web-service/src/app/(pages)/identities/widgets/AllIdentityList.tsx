@@ -51,7 +51,7 @@ export const AllIdentityList: FC = (_) => {
   return (
     <div className="col-span-full">
       <Headline
-        title="My Identity"
+        title="My Identities"
         description="Here, you can access all of your generated Web3 identities. Simply hover over each “card chip” to reveal additional details and explore
         the wealth of information at your fingertips."
         showBg={true}

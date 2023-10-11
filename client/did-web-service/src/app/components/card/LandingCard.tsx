@@ -25,8 +25,8 @@ const CardStyled = styled(Box)(({ theme }) => ({
     background: "url('/noise1.png') repeat center center",
   },
   ".circle-bottom-box": {
-    left: "38%",
-    top: "63%",
+    left: "37%",
+    top: "62%",
     transform: "rotate(335deg)",
   },
   hr: {
@@ -59,14 +59,14 @@ const LandingCard: FC<{
         position
       )}
     >
-      <div className="body noise-bg">
-        <div className="absolute w-4/6">
+      <div className="body noise-bg px-[5%] py-[5%]">
+        <div className="absolute w-4/6 top-[1.5px] left-[1.5px]">
           <CircleVector width="100%" height="100%" viewBox="0 0 349 354" />
         </div>
         <div className="absolute w-full circle-bottom-box">
           <CircleVector width="100%" height="100%" viewBox="0 0 349 354" />
         </div>
-        <div className="px-[5%] py-[5%] flex flex-col h-full">
+        <div className=" flex flex-col h-full">
           <div className="flex h-[14%] mb-7">
             <div className="h-full">
               <ChipIcon width="100%" height="100%" viewBox="0 0 50 38" />
@@ -82,7 +82,7 @@ const LandingCard: FC<{
           </div>
           <div className="flex flex-1 items-end">{children}</div>
           {dividerVisible && <Divider />}
-          <div className="min-h-[12%]">{footer}</div>
+          <div className="h-[15%] flex items-end">{footer}</div>
         </div>
       </div>
     </CardStyled>
