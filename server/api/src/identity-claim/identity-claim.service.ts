@@ -1,8 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { UserShadowKeyType } from '@prisma/client';
 import { Identity, IdentityClaimRequest } from '@prisma/client/main';
 import { CredentialsService } from 'src/credentials/credentials.service';
+import { Nonce, SecretBox } from 'src/crypto/secretbox';
+import { AppException } from 'src/exceptions/app-exception';
+import { IdentityClaimExceptionCode } from 'src/exceptions/exception-codes';
 import { IdentityAccessInfo } from 'src/identity/model/identity-access-info';
+import { KeyRingService } from 'src/key-ring/key-ring.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ClaimableIdentity } from './model/claimable-identity';
 
@@ -11,7 +16,8 @@ export class IdentityClaimService {
   constructor(
     private prisma: PrismaService,
     private config: ConfigService,
-    private credentialsService: CredentialsService
+    private credentialsService: CredentialsService,
+    private keyRingService: KeyRingService
   ) { }
 
   /**
@@ -20,16 +26,27 @@ export class IdentityClaimService {
    * on the identity.
    */
   async createClaimRequest(accessInfo: IdentityAccessInfo) {
+    const secret = SecretBox.random();
+    const nonce = Nonce.random();
+    const encryptedPassword = Buffer.from(secret.encrypt(accessInfo.password, nonce)).toString("hex");
+
+    const expire = new Date();
+    expire.setMinutes(expire.getMinutes() + 10);
+
     const claimRequest = await this.prisma.identityClaimRequest.create({
       data: {
-        identityDid: accessInfo.identity.did
+        identityDid: accessInfo.identity.did,
+        expiresAt: expire,
+        secretkey: secret.toString(),
+        password: encryptedPassword
       },
       include: {
         identity: true
       }
     });
 
-    return claimRequest;
+    const claimURL = this.getClaimUrl(claimRequest.id, nonce.toString());
+    return {claimRequest, claimURL};
   }
 
   findOne(id: string) {
@@ -49,8 +66,9 @@ export class IdentityClaimService {
    * Returns the claim url to be used by end users for to reach
    * the claim identity page.
    */
-  public getClaimUrl(claimRequestId: string): string {
-    return this.config.getOrThrow("FRONTEND_URL") + `/claim-identity?request=${encodeURIComponent(claimRequestId)}`;
+  private getClaimUrl(claimRequestId: string, nonce: string): string {
+    return this.config.getOrThrow("FRONTEND_URL") + `/claim-identity?request=${encodeURIComponent(claimRequestId)}` +
+                        `&nonce=${encodeURIComponent(nonce)}`;
   }
 
   public async getClaimableIdentityInfo(claimRequest: IdentityClaimRequest & { identity: Identity }): Promise<ClaimableIdentity> {
@@ -60,5 +78,69 @@ export class IdentityClaimService {
       credentialsCount: await this.credentialsService.getCredentialsCount(claimRequest.identityDid),
       creatingAppDid: claimRequest.identity.creatingAppIdentityDid
     };
+  }
+
+  public async verifyClaimRequest(claimRequestId: string, nonce: string): Promise<boolean> {
+    const claimRequest = await this.prisma.identityClaimRequest.findFirst({
+      where: {
+        id: claimRequestId
+      }
+    });
+
+    if (!claimRequest)
+      throw new AppException(IdentityClaimExceptionCode.RequestNotExists, "Identity claim request not exists", HttpStatus.NOT_FOUND);
+
+    if (claimRequest.expiresAt < new Date())
+      throw new AppException(IdentityClaimExceptionCode.RequestExpired, "Identity claim request expired", HttpStatus.NOT_ACCEPTABLE);
+
+    const secret = new SecretBox(Buffer.from(claimRequest.secretkey, "hex"));
+    const n = new Nonce(Buffer.from(nonce, "hex"));
+    const encryptedPassword = Buffer.from(claimRequest.password, "hex");
+
+    return secret.decrypt(encryptedPassword, n) != null;
+  }
+
+  public async claimManagedIdentity(claimRequestId: string, nonce: string, newPassword: string) {
+    const claimRequest = await this.prisma.identityClaimRequest.findFirst({
+      where: {
+        id: claimRequestId
+      },
+      include: {
+        identity: {
+          include: {
+            user: true,
+            creatingAppIdentity: true
+          }
+        }
+      }
+    });
+
+    if (!claimRequest)
+      throw new AppException(IdentityClaimExceptionCode.RequestNotExists, "Identity claim request not exists", HttpStatus.NOT_FOUND);
+
+    if (claimRequest.expiresAt < new Date())
+      throw new AppException(IdentityClaimExceptionCode.RequestExpired, "Identity claim request expired", HttpStatus.NOT_ACCEPTABLE);
+
+    const secret = new SecretBox(Buffer.from(claimRequest.secretkey, "hex"));
+    const n = new Nonce(Buffer.from(nonce, "hex"));
+    const encryptedPassword = Buffer.from(claimRequest.password, "hex");
+
+    const oldPassword = Buffer.from(secret.decrypt(encryptedPassword, n)).toString("utf-8");
+
+    const authKey = {
+      type: UserShadowKeyType.PASSWORD,
+      keyId: claimRequest.identity.user.temporaryEmail,
+      key: oldPassword
+    }
+
+    this.keyRingService.unlockMasterKey(authKey,
+      claimRequest.identity.creatingAppIdentityDid /* as the browser id */,
+      claimRequest.identity.user);
+
+    this.keyRingService.changePassword(newPassword,
+        claimRequest.identity.creatingAppIdentityDid /* as the browser id */,
+        claimRequest.identity.user);
+
+    return claimRequest.identity;
   }
 }

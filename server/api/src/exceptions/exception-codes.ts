@@ -45,4 +45,10 @@ export enum DataExceptionCode {
   InvalidContent = 10402, // Some of the given content doesn't match the expected data format
 }
 
-export type AppExceptionCode = AuthExceptionCode | KeyRingExceptionCode | DIDExceptionCode | DataExceptionCode;
+export enum IdentityClaimExceptionCode {
+  RequestNotExists = 10501,
+  RequestExpired = 10502,
+  InvalidNonce = 10503
+}
+
+export type AppExceptionCode = AuthExceptionCode | KeyRingExceptionCode | DIDExceptionCode | DataExceptionCode | IdentityClaimExceptionCode;

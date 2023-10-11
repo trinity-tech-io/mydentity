@@ -18,12 +18,12 @@ export class IdentityClaimResolver {
   @UseGuards(IdentityAccessTokenGuard)
   @Mutation(() => IdentityClaimRequestEntity)
   async createIdentityClaimRequest(@IdentityAccess() identityAccess: IdentityAccessInfo): Promise<IdentityClaimRequestEntity> {
-    const claimRequest = await this.identityClaimService.createClaimRequest(identityAccess);
+    const {claimRequest, claimURL} = await this.identityClaimService.createClaimRequest(identityAccess);
 
     return {
       ...claimRequest as any, // Cast as any to allow auto filed conversion by nest
       identityInfo: this.identityClaimService.getClaimableIdentityInfo(claimRequest),
-      claimUrl: this.identityClaimService.getClaimUrl(claimRequest.id)
+      claimUrl: claimURL
     }
   }
 
@@ -33,14 +33,17 @@ export class IdentityClaimResolver {
     return {
       ...claimRequest as any, // Cast as any to allow auto filed conversion by nest
       identityInfo: this.identityClaimService.getClaimableIdentityInfo(claimRequest),
-      claimUrl: this.identityClaimService.getClaimUrl(claimRequest.id)
     }
+  }
+
+  @Query(() => IdentityClaimRequestEntity, { name: 'identityClaimRequest' })
+  async verifyClaimRequest(@Args('id') claimRequestId: string, @Args('nonce') nonce: string): Promise<boolean> {
+    return this.identityClaimService.verifyClaimRequest(claimRequestId, nonce);
   }
 
   @UseGuards(JwtAuthGuard)
   @Mutation(() => IdentityEntity)
   async claimManagedIdentity(@Args("input") input: ClaimIdentityInput): Promise<IdentityEntity> {
-    // TODO
-    return null;
+    return this.identityClaimService.claimManagedIdentity(input.requestId, input.nonce, input.newPassword);
   }
 }

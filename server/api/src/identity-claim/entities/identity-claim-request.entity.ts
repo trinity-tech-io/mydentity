@@ -10,7 +10,7 @@ export class IdentityClaimRequestEntity {
   identityInfo: ClaimableIdentityEntity;
 
   @Field(() => String)
-  claimUrl: string;
+  claimUrl?: string;
 
   @Field(() => GraphQLISODateTime, { nullable: true })
   expiresAt?: string;

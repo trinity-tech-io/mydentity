@@ -3,5 +3,11 @@ import { Field, InputType } from '@nestjs/graphql';
 @InputType()
 export class ClaimIdentityInput {
   @Field(() => String)
-  todo: string;
+  requestId: string;
+
+  @Field(() => String)
+  nonce: string;
+
+  @Field(() => String)
+  newPassword: string;
 }

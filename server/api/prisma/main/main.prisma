@@ -273,7 +273,7 @@ model RequestedCredential {
   @@unique([credentialId, interactingApplicationId])
 }
 
-// Developer access key to programatically call our service API from third party apps.
+// Developer access key to programatically call our service API npmfrom third party apps.
 // This includes the ability to manage his account, create managed identities for others, issue credentials to manage identities, etc.
 // In theory, a developer can have multiple access keys, but the UI may allow
 // only one access key at a time initially.
@@ -300,6 +300,8 @@ model IdentityClaimRequest {
   claimCompletedAt DateTime?
 
   identity Identity @relation(fields: [identityDid], references: [did], onDelete: Restrict)
+  identityDid      String
 
-  identityDid String
+  secretkey        String
+  password         String
 }
