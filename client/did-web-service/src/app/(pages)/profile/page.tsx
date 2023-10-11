@@ -8,7 +8,6 @@ import CreateCredentialDialog from "@components/identity-profile/CreateCredentia
 import EditCredentialDialog, {
   EditionMode,
 } from "@components/identity-profile/EditCredentialDialog";
-import { VerticalStackLoadingCard } from "@components/loading-cards/vertical-stack-loading-card/VerticalStackLoadingCard";
 import { UnlockRetrier } from "@components/security/UnlockRetrier";
 import { useUnlockPromptState } from "@components/security/unlock-key-prompt/UnlockKeyPrompt";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
@@ -22,13 +21,11 @@ import {
   Search as SearchIcon,
 } from "@mui/icons-material";
 import {
-  Button,
   Card,
   Container,
   IconButton,
   InputAdornment,
   MenuItem,
-  OutlinedInput,
   Popover,
   Stack,
   Table,
@@ -544,74 +541,74 @@ const Profile: FC = () => {
             bodyRows={
               mounted && !!filteredCredentials ? (
                 <>
-                  {
-                    !filteredCredentials.length ? (
-                      <>
-                        <TableRow>
-                          <TableCell component="th" colSpan={6} align="center">
-                            {
-                              isNotFound ? 
-                              <Typography variant="body1">
-                                No results found for &nbsp;
-                                <strong>&quot;{filterName}&quot;</strong>.
-                                <br /> Try checking for typos or using complete
-                                words.
-                              </Typography>:
-                              <Typography variant="body1">No credential found</Typography>
+                  {!filteredCredentials.length ? (
+                    <>
+                      <TableRow>
+                        <TableCell component="th" colSpan={6} align="center">
+                          {isNotFound ? (
+                            <Typography variant="body1">
+                              No results found for &nbsp;
+                              <strong>&quot;{filterName}&quot;</strong>.
+                              <br /> Try checking for typos or using complete
+                              words.
+                            </Typography>
+                          ) : (
+                            <Typography variant="body1">
+                              No credential found
+                            </Typography>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    </>
+                  ) : (
+                    filteredCredentials
+                      ?.slice(
+                        page * rowsPerPage,
+                        page * rowsPerPage + rowsPerPage
+                      )
+                      .map((credential: ProfileCredential) => {
+                        // const { id, name, value} = row;
+                        const id = credential.id;
+                        return (
+                          <DetailTableRow
+                            key={id}
+                            props={{ hover: true }}
+                            onClick={(): void => handleCellClick(credential)}
+                            className="h-[3rem] cursor-pointer"
+                            avatar={
+                              <CredentialAvatar
+                                credential={credential}
+                                width={36}
+                                height={36}
+                              />
                             }
-                          </TableCell>
-                        </TableRow>
-                      </>
-                    ) : (
-                      filteredCredentials
-                        ?.slice(
-                          page * rowsPerPage,
-                          page * rowsPerPage + rowsPerPage
-                        )
-                        .map((credential: ProfileCredential) => {
-                          // const { id, name, value} = row;
-                          const id = credential.id;
-                          return (
-                            <DetailTableRow
-                              key={id}
-                              props={{ hover: true }}
-                              onClick={(): void => handleCellClick(credential)}
-                              className="h-[3rem] cursor-pointer"
-                              avatar={
-                                <CredentialAvatar
-                                  credential={credential}
-                                  width={36}
-                                  height={36}
-                                />
-                              }
-                              rowCells={
-                                <>
-                                  <TableCell>
-                                    {credential.getDisplayableTitle()}
-                                  </TableCell>
-                                  <TableCell align="center">
-                                    {credential.getDisplayValue()}
-                                  </TableCell>
-                                  <TableCell align="center"></TableCell>
-                                  <TableCell align="center"></TableCell>
-                                  <TableCell align="center">
-                                    <IconButton
-                                      size="small"
-                                      color="inherit"
-                                      onClick={(event): void => {
-                                        handleOpenMenu(event, credential);
-                                      }}
-                                    >
-                                      <MoreVertIcon />
-                                    </IconButton>
-                                  </TableCell>
-                                </>
-                              }
-                            />
-                          );
-                        })
-                    )
-                  }
+                            rowCells={
+                              <>
+                                <TableCell>
+                                  {credential.getDisplayableTitle()}
+                                </TableCell>
+                                <TableCell align="center">
+                                  {credential.getDisplayValue()}
+                                </TableCell>
+                                <TableCell align="center"></TableCell>
+                                <TableCell align="center"></TableCell>
+                                <TableCell align="center">
+                                  <IconButton
+                                    size="small"
+                                    color="inherit"
+                                    onClick={(event): void => {
+                                      handleOpenMenu(event, credential);
+                                    }}
+                                  >
+                                    <MoreVertIcon />
+                                  </IconButton>
+                                </TableCell>
+                              </>
+                            }
+                          />
+                        );
+                      })
+                  )}
                 </>
               ) : (
                 Array(3)

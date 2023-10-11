@@ -1,75 +1,87 @@
 import { Activity } from "@model/activity/activity";
 import { logger } from "@services/logger";
-import { FC, ReactNode } from 'react';
+import { FC, ReactNode } from "react";
 import { Icon as ReactIcon } from "@iconify/react";
-import { CredentialsImportedRenderer } from "./renderers/CredentialsImportedRenderer";
-import { CredentialsSharedRenderer } from "./renderers/CredentialsSharedRenderer";
+import {
+  Avatar,
+  IconButton,
+  ListItemText,
+  TableCell,
+  styled,
+} from "@mui/material";
+import { MoreVert as MoreVertIcon } from "@mui/icons-material";
 import { DetailTableRow } from "@components/generic/DetailTable";
-import { Avatar, ListItemText, TableCell, styled } from "@mui/material";
 import { getDateDistance } from "@utils/date";
 
 function getActivityRenderer(activity: Activity) {
-  const renderer = {icon: null as ReactNode, action_name: "", action_for: "" as string | ReactNode}
+  const renderer = {
+    icon: null as ReactNode,
+    action_name: "",
+    action_for: "" as string | ReactNode,
+  };
   switch (activity.type) {
     case ActivityType.NEW_ACCOUNT:
-      renderer.icon = <ReactIcon icon="mdi:register" />
-      renderer.action_name = "Account created"
+      renderer.icon = <ReactIcon icon="mdi:register" />;
+      renderer.action_name = "Account created";
       break;
     case ActivityType.USER_SIGN_IN:
-      renderer.icon = <ReactIcon icon="ic:round-log-in" />
-      renderer.action_name = "User sign-in"
-      renderer.action_for = activity.browserNameStr
+      renderer.icon = <ReactIcon icon="ic:round-log-in" />;
+      renderer.action_name = "User sign-in";
+      renderer.action_for = activity.browserNameStr;
       break;
     case ActivityType.IDENTITY_CREATED:
-      renderer.icon = <ReactIcon icon="material-symbols:credit-card" />
-      renderer.action_name = "New identity has been created"
-      renderer.action_for = activity.identityDidStr
+      renderer.icon = <ReactIcon icon="material-symbols:credit-card" />;
+      renderer.action_name = "New identity has been created";
+      renderer.action_for = activity.identityDidStr;
       break;
     case ActivityType.IDENTITY_DELETED:
-      renderer.icon = <ReactIcon icon="game-icons:burning-skull" />
-      renderer.action_name = "Identity has been deleted"
-      renderer.action_for = activity.identityDidStr
+      renderer.icon = <ReactIcon icon="game-icons:burning-skull" />;
+      renderer.action_name = "Identity has been deleted";
+      renderer.action_for = activity.identityDidStr;
       break;
     case ActivityType.BIND_EMAIL:
-      renderer.icon = <ReactIcon icon="entypo:email" />
-      renderer.action_name = "Email address bound to account"
-      renderer.action_for = activity.userEmailAddressStr
+      renderer.icon = <ReactIcon icon="entypo:email" />;
+      renderer.action_name = "Email address bound to account";
+      renderer.action_for = activity.userEmailAddressStr;
       break;
     case ActivityType.BIND_BROWSER:
-      renderer.icon = <ReactIcon icon="fluent-mdl2:website" />
-      renderer.action_name = "Browser bound to account"
-      renderer.action_for = activity.browserNameStr
+      renderer.icon = <ReactIcon icon="fluent-mdl2:website" />;
+      renderer.action_name = "Browser bound to account";
+      renderer.action_for = activity.browserNameStr;
       break;
     case ActivityType.PASSWORD_CHANGED:
-      renderer.icon = <ReactIcon icon="ic:round-password" />
-      renderer.action_name = "Password has been changed"
-      renderer.action_for = "**********"
+      renderer.icon = <ReactIcon icon="ic:round-password" />;
+      renderer.action_name = "Password has been changed";
+      renderer.action_for = "**********";
       break;
     case ActivityType.CREDENTIALS_SHARED:
-      renderer.icon = <ReactIcon icon="ic:round-share" />
-      renderer.action_name = `${activity.credentialsCount} verified credential(s) shared`
+      renderer.icon = <ReactIcon icon="ic:round-share" />;
+      renderer.action_name = `${activity.credentialsCount} verified credential(s) shared`;
       break;
     case ActivityType.CREDENTIALS_IMPORTED:
-      renderer.icon = <ReactIcon icon="mdi:integrated-circuit-chip" />
-      renderer.action_name = `${activity.credentialsCount} verified credential(s) imported`
+      renderer.icon = <ReactIcon icon="mdi:integrated-circuit-chip" />;
+      renderer.action_name = `${activity.credentialsCount} verified credential(s) imported`;
       break;
     default:
-      logger.error("dashboard", `Renderer not implemented for activity type ${activity.type.toString()}`);
+      logger.error(
+        "dashboard",
+        `Renderer not implemented for activity type ${activity.type.toString()}`
+      );
       return renderer;
   }
-  return renderer
+  return renderer;
 }
 
 export enum ActivityType {
-  NEW_ACCOUNT = 'NEW_ACCOUNT',
-  USER_SIGN_IN = 'USER_SIGN_IN',
-  IDENTITY_CREATED = 'IDENTITY_CREATED',
-  IDENTITY_DELETED = 'IDENTITY_DELETED',
-  CREDENTIALS_IMPORTED = 'CREDENTIALS_IMPORTED',
-  CREDENTIALS_SHARED = 'CREDENTIALS_SHARED',
-  BIND_EMAIL = 'BIND_EMAIL',
-  BIND_BROWSER = 'BIND_BROWSER',
-  PASSWORD_CHANGED = 'PASSWORD_CHANGED',
+  NEW_ACCOUNT = "NEW_ACCOUNT",
+  USER_SIGN_IN = "USER_SIGN_IN",
+  IDENTITY_CREATED = "IDENTITY_CREATED",
+  IDENTITY_DELETED = "IDENTITY_DELETED",
+  CREDENTIALS_IMPORTED = "CREDENTIALS_IMPORTED",
+  CREDENTIALS_SHARED = "CREDENTIALS_SHARED",
+  BIND_EMAIL = "BIND_EMAIL",
+  BIND_BROWSER = "BIND_BROWSER",
+  PASSWORD_CHANGED = "PASSWORD_CHANGED",
 }
 
 const IconAvatar = styled(Avatar)(({ theme }) => ({
@@ -82,17 +94,14 @@ const IconAvatar = styled(Avatar)(({ theme }) => ({
 
 export const ActivityRow: FC<{
   activity: Activity;
-}> = ({ activity }) => {
+  needMoreAction?: boolean;
+}> = ({ activity, needMoreAction = false }) => {
   const renderer = getActivityRenderer(activity);
 
   return (
     <DetailTableRow
       className="h-[3.5rem]"
-      avatar={
-        <IconAvatar>
-          {renderer.icon}
-        </IconAvatar>
-      }
+      avatar={<IconAvatar>{renderer.icon}</IconAvatar>}
       rowCells={
         <>
           <TableCell>
@@ -104,22 +113,37 @@ export const ActivityRow: FC<{
               secondary={
                 <span className="text-[8pt]">{renderer.action_for}</span>
               }
-              sx={{my: 0}}
+              sx={{ my: 0 }}
               primaryTypographyProps={{
                 sx: {
-                  lineHeight: 1.3
-                }
+                  lineHeight: 1.3,
+                },
               }}
               secondaryTypographyProps={{
                 sx: {
-                  lineHeight: 1.2
-                }
+                  lineHeight: 1.2,
+                },
               }}
             />
           </TableCell>
-          <TableCell>{getDateDistance(activity.createdAt)}</TableCell>
+          <TableCell align={needMoreAction ? "center" : "right"}>
+            {getDateDistance(activity.createdAt)}
+          </TableCell>
+          {needMoreAction && (
+            <TableCell>
+              <IconButton
+                size="small"
+                color="inherit"
+                // onClick={(event): void => {
+                //   handleOpenMenu(event, credential);
+                // }}
+              >
+                <MoreVertIcon />
+              </IconButton>
+            </TableCell>
+          )}
         </>
       }
     />
-  )
-}
+  );
+};
