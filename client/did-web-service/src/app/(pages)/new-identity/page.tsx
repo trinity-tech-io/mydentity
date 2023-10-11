@@ -169,6 +169,7 @@ const CreatingSteps = [
   "Creating credential",
   "Registering identity",
   "Creating storage",
+  "Successfully created",
 ];
 const NewIdentityPage: FC = () => {
   const { mounted } = useMounted();
@@ -180,8 +181,8 @@ const NewIdentityPage: FC = () => {
   const [progressStep, setProgressStep] = useState(0);
   const nameInputRef = useRef(null);
   const { showSuccessToast } = useToast();
-  const enabledButtonState = holderName.trim().length > 0;
-  const progress = (100 * progressStep) / CreatingSteps.length;
+  const enabledButtonState = holderName.trim().length > 0 && progressStep < 4;
+  const progress = (100 * progressStep) / (CreatingSteps.length - 1);
 
   const showProfile = (): void => {
     navigateToPostSignInLandingPage("/profile");
@@ -207,14 +208,7 @@ const NewIdentityPage: FC = () => {
     // Create identity for real in the backend
     try {
       const identity = await callWithUnlock(() =>
-        activeUser
-          .get("identity")
-          .createRegularIdentity(holderName)
-          // .catch((e) => {
-          //   console.log(e)
-          //   setCreatingIdentity(false);
-          //   setProgressStep(0);
-          // })
+        activeUser.get("identity").createRegularIdentity(holderName)
       );
       if (!identity) return;
 
@@ -238,7 +232,7 @@ const NewIdentityPage: FC = () => {
 
               // Prepare the hive vault. This also starts the vault registration is not done yet, through the lazy access of vault status.
               await identity.hive().awaitHiveVaultReady();
-              setProgressStep(3);
+              setProgressStep(4);
               setCreatingIdentity(false);
 
               showSuccessToast("Your new identity was created!");
@@ -320,7 +314,10 @@ const NewIdentityPage: FC = () => {
                       <div className="compartment absolute bottom-0 h-[45%]" />
                       <Zoom in={!visibleInputForm}>
                         <div>
-                          <CurvedArrow className="absolute top-[20%] w-2/5 left-4 translate-x-[-100%]" rotateX={true} />
+                          <CurvedArrow
+                            className="absolute top-[20%] w-2/5 left-4 translate-x-[-100%]"
+                            rotateX={true}
+                          />
                           <CurvedArrow className="absolute top-[22%] w-2/5 right-0 translate-x-1/2 rotate-180" />
                           <CurvedArrow className="absolute top-[70%] w-2/5 left-8 translate-x-[-100%]" />
                         </div>
@@ -337,22 +334,24 @@ const NewIdentityPage: FC = () => {
                     position="absolute"
                     dividerVisible={false}
                     footer={
-                      creatingIdentity && (
-                        <>
+                      (creatingIdentity ||
+                        progressStep === CreatingSteps.length - 1) && (
+                        <div className="flex flex-col w-full h-full">
                           <LinearProgress
                             variant="determinate"
                             value={progress}
                             sx={{ height: 2, background: "#5a5a5aa8" }}
                           />
-                          <div className="flex">
+                          <div className="flex flex-1 items-end">
                             <span className="text-[#DDD] text-[10pt] flex-1 pr-2">
-                              {CreatingSteps[progressStep]} ...
+                              {CreatingSteps[progressStep]}{" "}
+                              {progressStep < CreatingSteps.length - 1 && "..."}
                             </span>
                             <span className="text-[#DDD] text-[10pt]">
                               {`${progress}%`}
                             </span>
                           </div>
-                        </>
+                        </div>
                       )
                     }
                   >

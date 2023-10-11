@@ -31,6 +31,7 @@ export const PasswordPrompt: FC<{
           <InputLabel htmlFor="pw">PASSWORD</InputLabel>
           <PasswordInput
             outerProps={{
+              autoFocus: true,
               disabled,
               onChange: handlePassword,
             }}
