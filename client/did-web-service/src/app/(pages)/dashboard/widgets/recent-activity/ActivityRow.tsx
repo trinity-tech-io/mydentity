@@ -12,6 +12,7 @@ import {
 import { MoreVert as MoreVertIcon } from "@mui/icons-material";
 import { DetailTableRow } from "@components/generic/DetailTable";
 import { getDateDistance } from "@utils/date";
+import { ActivityType } from "@model/activity/activity-type";
 
 function getActivityRenderer(activity: Activity) {
   const renderer = {
@@ -70,18 +71,6 @@ function getActivityRenderer(activity: Activity) {
       return renderer;
   }
   return renderer;
-}
-
-export enum ActivityType {
-  NEW_ACCOUNT = "NEW_ACCOUNT",
-  USER_SIGN_IN = "USER_SIGN_IN",
-  IDENTITY_CREATED = "IDENTITY_CREATED",
-  IDENTITY_DELETED = "IDENTITY_DELETED",
-  CREDENTIALS_IMPORTED = "CREDENTIALS_IMPORTED",
-  CREDENTIALS_SHARED = "CREDENTIALS_SHARED",
-  BIND_EMAIL = "BIND_EMAIL",
-  BIND_BROWSER = "BIND_BROWSER",
-  PASSWORD_CHANGED = "PASSWORD_CHANGED",
 }
 
 const IconAvatar = styled(Avatar)(({ theme }) => ({
