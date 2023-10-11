@@ -1,5 +1,5 @@
 import { MainButton } from "@components/MainButton";
-import { VerifiableCredential } from "@elastosfoundation/did-js-sdk";
+import type { VerifiableCredential } from "@elastosfoundation/did-js-sdk";
 import { Checkbox, FormControlLabel, FormGroup, Link, TextField } from "@mui/material";
 import type { CreatedManagedIdentity } from "@trinitytech/did-web-service-sdk";
 import { FC, useEffect, useRef, useState } from "react";
@@ -64,6 +64,7 @@ export const FormSubmissionStep: FC<{
       setCreatingCredentials(false);
 
       if (credentialProductionResult) {
+        const { VerifiableCredential } = await import("@elastosfoundation/did-js-sdk");
         if (credentialProductionResult.imported) {
           // Credentials have already been imported on the server side as we used a managed identity.
           // Nothing else to do.
