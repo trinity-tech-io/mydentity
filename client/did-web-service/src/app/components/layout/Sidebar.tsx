@@ -4,7 +4,7 @@ import { FC, ReactNode, useEffect, useRef, useState } from "react";
 import clsx from "clsx";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Swiper, SwiperSlide } from "swiper/react";
+import { Swiper, SwiperClass, SwiperSlide } from "swiper/react";
 import { EffectCards } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/effect-cards";
@@ -23,6 +23,8 @@ import ThemeToggle from "../generic/ThemeToggle";
 import { LandingCard } from "@components/card";
 import { Typography } from "@mui/material";
 import { IdentityInfoCard } from "@components/identity/IdentityInfoCard";
+import { identityService } from "@services/identity/identity.service";
+import { RegularIdentity } from "@model/regular-identity/regular-identity";
 
 type LinkConfig = {
   title: string;
@@ -246,13 +248,36 @@ const IdentityCardGroup: FC = () => {
   const [identities] = useBehaviorSubject(
     authUser?.get("identity").regularIdentities$
   );
-  const sortedIdentities =
-    identities &&
-    [...identities].sort((a, b) => {
-      const dateA = a.lastUsedAt$.getValue().getTime();
-      const dateB = b.lastUsedAt$.getValue().getTime();
-      return dateB - dateA;
-    });
+  const [myIdentities, setMyIdentites] = useState<RegularIdentity[]>([]);
+  const [activeIndex, setActiveIndex] = useState(0);
+  useEffect(() => {
+    if (identities) {
+      const tempIdentities = [...identities];
+      const activeIdentityIndex =
+        identities?.findIndex((i) => i == activeIdentity) || activeIndex;
+      if (activeIndex != activeIdentityIndex)
+        tempIdentities.splice(
+          activeIndex,
+          0,
+          tempIdentities.splice(activeIdentityIndex, 1)[0]
+        );
+      setMyIdentites(tempIdentities);
+    }
+  }, [identities?.length]);
+
+  // const sortedIdentities =
+  //   identities &&
+  //   [...identities].sort((a, b) => {
+  //     const dateA = a.lastUsedAt$.getValue().getTime();
+  //     const dateB = b.lastUsedAt$.getValue().getTime();
+  //     return dateB - dateA;
+  //   });
+
+  const handleTransitionEnd = (sw: SwiperClass) => {
+    identityService.setActiveIdentity(myIdentities[sw.activeIndex]);
+    setActiveIndex(sw.activeIndex);
+  };
+
   return !identities ? (
     <LandingCard
       className="bg-black w-full"
@@ -271,13 +296,13 @@ const IdentityCardGroup: FC = () => {
       grabCursor={true}
       modules={[EffectCards]}
       className="mySwiper w-full"
+      onTransitionEnd={handleTransitionEnd}
     >
-      {sortedIdentities
-        .map((identity, _id) => (
-          <SwiperSlide key={_id}>
-            <IdentityInfoCard identity={identity} />
-          </SwiperSlide>
-        ))}
+      {myIdentities.map((identity, _id) => (
+        <SwiperSlide key={_id}>
+          <IdentityInfoCard identity={identity} />
+        </SwiperSlide>
+      ))}
     </Swiper>
   );
 };

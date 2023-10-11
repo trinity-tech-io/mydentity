@@ -31,7 +31,6 @@ export const AccountAccess: FC = (_) => {
   const [advice, setAdvice] = useState<string>(null);
   const [goToSecurityCenter, setGoToSecurityCenter] = useState(false);
   const router = useRouter();
-  console.log(activities, 999)
 
   useEffect(() => {
     setGoToSecurityCenter(false);

@@ -181,7 +181,7 @@ const NewIdentityPage: FC = () => {
   const [progressStep, setProgressStep] = useState(0);
   const nameInputRef = useRef(null);
   const { showSuccessToast } = useToast();
-  const enabledButtonState = holderName.trim().length > 0 && progressStep < 4;
+  const enabledButtonState = holderName.trim().length > 0 && progressStep < (CreatingSteps.length-1);
   const progress = (100 * progressStep) / (CreatingSteps.length - 1);
 
   const showProfile = (): void => {
