@@ -7,7 +7,6 @@ import { ActivityType } from "@model/activity/activity-type";
 import { credentialFromVerifiableCredential } from "@model/credential/credential-builder";
 import { Intent } from "@model/intent/intent";
 import { JSONObject } from "@model/json";
-import { ActivityFeature } from "@model/user/features/activity/activity.feature";
 import { Typography } from "@mui/material";
 import { useToast } from "@services/feedback.service";
 import { activeIdentity$ } from "@services/identity/identity.events";
@@ -31,29 +30,34 @@ export const RequestDetails: FC<{
   const [preparingResponse, setPreparingResponse] = useState(false);
   const [credentials] = useBehaviorSubject(credentialFeature?.credentials$); // NOTE: keep it to fetch the credentials, required before importing
   const [importedCredentials, setImportedCredentials] = useState<ImportedCredential[]>(null);
+  // The target DID should belong to the user
   const [wrongTargetDID, setWrongTargetDID] = useState<boolean>(false);
+  const [targetDID, setTargetDID] = useState<string>('');
+  // Make sure that all subjects of imported VCs are for the same DID
+  const [differentTargetDID, setDifferentTargetDID] = useState<boolean>(false);
+  // The target DID belongs to the user, but is not the active identity.
+  const [needSwitchIdentity, setNeedSwitchIdentity] = useState<boolean>(false);
   const { showErrorToast } = useToast();
   const { unlockerIsCancelled } = useUnlockPromptState();
   const [activeUser] = useBehaviorSubject(authUser$);
+  const [identities] = useBehaviorSubject(
+    activeUser?.get("identity").regularIdentities$
+  );
   const payload = intent.requestPayload;
   const requestingAppDID = intent.requestPayload.caller;
 
   useEffect(() => {
-    runPreliminaryChecks();
-
-    if (payload) {
+    if (payload && identities && activeIdentity) {
       organizeImportedCredentials(payload.credentials).then(importedCredentials => {
         setImportedCredentials(importedCredentials);
       });
     }
-  }, [payload]);
+  }, [payload, identities, activeIdentity]);
 
   /**
    * Check a few things after entering the screen. Mostly, imported credentials content quality.
    */
   const runPreliminaryChecks = (): void => {
-    //TODO
-    setWrongTargetDID(false);
   }
 
   /**
@@ -65,10 +69,28 @@ export const RequestDetails: FC<{
     if (!credentialObjList)
       return [];
 
+    let targetDID = null;
     const displayableCredentials = [];
     for (const credentialObj of credentialObjList) {
       const verifiableCredential = VerifiableCredential.parse(credentialObj.toString());
       const credentialSubject = verifiableCredential.getSubject().getProperties();
+
+      const vcTargetDID = verifiableCredential.id.getDid().toString()
+      // The target DID must belong to this user
+      const index = identities.findIndex( i => i.did == vcTargetDID)
+      if (index == -1) {
+        setWrongTargetDID(true);
+      }
+
+      if (!targetDID) {
+        targetDID = vcTargetDID;
+      } else if (targetDID != vcTargetDID) {
+        setDifferentTargetDID(true);
+      }
+
+      if (targetDID != activeIdentity.did) {
+        setNeedSwitchIdentity(true)
+      }
 
       // Generate a displayable version of each entry found in the credential subject
       const displayableEntries: ImportedCredentialItem[] = [];
@@ -98,6 +120,7 @@ export const RequestDetails: FC<{
       displayableCredentials.push(displayableCredential);
     }
 
+    setTargetDID(targetDID);
     return displayableCredentials;
   }
 
@@ -167,10 +190,41 @@ export const RequestDetails: FC<{
             <CredentialPreviewWithDetails key={i} importedCredential={importedCredential} />
           )
         })}
-        <div className="flex items-center space-x-3">
-          <MainButton className="w-1/2" onClick={rejectRequest}>Cancel</MainButton>
-          <MainButton className="w-1/2" onClick={approveRequest} busy={preparingResponse} disabled={!credentials}>Import this to my profile</MainButton>
-        </div>
+
+        { differentTargetDID &&
+          <Typography my={4}>
+            Import is only supported for one identity at a time for now.
+          </Typography>
+        }
+
+        { wrongTargetDID &&
+          <Typography my={4}>
+            Sorry, you don't own the target identity.
+          </Typography>
+        }
+
+        { (differentTargetDID || wrongTargetDID) &&
+          <MainButton onClick={rejectRequest}>Cancel</MainButton>
+        }
+
+        { !wrongTargetDID && !differentTargetDID && needSwitchIdentity &&
+          <div>
+            <Typography my={4}>
+              The identity that will contain the imported information is:
+            </Typography>
+            <Typography fontSize={14}>
+                { targetDID }
+            </Typography>
+          </div>
+        }
+
+        {!wrongTargetDID && !differentTargetDID && !needSwitchIdentity &&
+          <div className="flex items-center space-x-3">
+            <MainButton className="w-1/2" onClick={rejectRequest}>Cancel</MainButton>
+            <MainButton className="w-1/2" onClick={approveRequest} busy={preparingResponse} disabled={!credentials}>Import this to my profile</MainButton>
+          </div>
+        }
+
         {unlockerIsCancelled && <UnlockRetrier className="mt-2" />}
       </div>
     }
