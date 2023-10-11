@@ -39,6 +39,7 @@ import {
 import MuiAlert, { AlertProps } from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import { useToast } from "@services/feedback.service";
+import { shortenDID } from '@services/identity/identity.utils';
 import {
   findProfileInfoByTypes,
   getAvailableProfileEntries,
@@ -590,8 +591,8 @@ const Profile: FC = () => {
                                 <TableCell align="center">
                                   {credential.getDisplayValue()}
                                 </TableCell>
-                                <TableCell align="center"></TableCell>
-                                <TableCell align="center"></TableCell>
+                                <TableCell align="center">{shortenDID(credential.getIssuer())}</TableCell>
+                                <TableCell align="center">{credential.isExpiration().toString()}</TableCell>
                                 <TableCell align="center">
                                   <IconButton
                                     size="small"

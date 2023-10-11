@@ -321,6 +321,13 @@ export abstract class Credential {
   }
 
   /**
+   * Whether the credential has expired
+   */
+  public isExpiration(): boolean {
+    return this.verifiableCredential.isExpired();
+  }
+
+  /**
    * Convenient shortcut to the real credential
    */
   public getSubject(): VerifiableCredential.Subject {
