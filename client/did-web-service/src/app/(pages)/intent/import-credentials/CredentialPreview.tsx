@@ -2,7 +2,7 @@
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { Credential } from '@model/credential/credential';
 import InfoIcon from '@mui/icons-material/Info';
-import { Card, Stack, Typography } from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 import Paper from '@mui/material/Paper';
 import { styled } from '@mui/material/styles';
 import { shortenString } from '@utils/strings';
@@ -27,15 +27,7 @@ export const CredentialPreview: FC<Props> = (props: Props) => {
 
     return (
         <Stack alignItems={'center'}>
-            <Card
-                sx={{
-                    mx: 10,
-                    mt: 4,
-                    mb: 1,
-                    boxShadow: 0,
-                    textAlign: 'left',
-                    bgcolor: "#ffffff",
-                }}>
+            <div className='mx-4 mb-1 mt-2 shadow text-left'>
                 <div className='flex flex-row gap-2 p-2' style={{ width: 400 }}>
                     <InfoIcon sx={{ fontSize: 40 }} />
                     {/* <Avatar src={icon}/> */}
@@ -67,7 +59,7 @@ export const CredentialPreview: FC<Props> = (props: Props) => {
                         </div>
                     </Stack>
                 </div>
-            </Card>
+            </div>
         </Stack>
     )
 }

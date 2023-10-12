@@ -19,5 +19,5 @@ export class IdentityEntity {
   identityRootId: string;
 
   @Field(() => IdentityEntity, { nullable: true })
-  creatingAppIdentityDid?: string;
+  creatingAppIdentity?: IdentityEntity;
 }

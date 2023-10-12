@@ -1,7 +1,6 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { UserShadowKeyType } from '@prisma/client';
-import { Identity, IdentityClaimRequest } from '@prisma/client/main';
+import { Identity, IdentityClaimRequest, UserShadowKeyType } from '@prisma/client/main';
 import { CredentialsService } from 'src/credentials/credentials.service';
 import { Nonce, SecretBox } from 'src/crypto/secretbox';
 import { AppException } from 'src/exceptions/app-exception';
@@ -46,7 +45,7 @@ export class IdentityClaimService {
     });
 
     const claimURL = this.getClaimUrl(claimRequest.id, nonce.toString());
-    return {claimRequest, claimURL};
+    return { claimRequest, claimURL };
   }
 
   findOne(id: string) {
@@ -68,7 +67,7 @@ export class IdentityClaimService {
    */
   private getClaimUrl(claimRequestId: string, nonce: string): string {
     return this.config.getOrThrow("FRONTEND_URL") + `/claim-identity?request=${encodeURIComponent(claimRequestId)}` +
-                        `&nonce=${encodeURIComponent(nonce)}`;
+      `&nonce=${encodeURIComponent(nonce)}`;
   }
 
   public async getClaimableIdentityInfo(claimRequest: IdentityClaimRequest & { identity: Identity }): Promise<ClaimableIdentity> {
@@ -138,8 +137,8 @@ export class IdentityClaimService {
       claimRequest.identity.user);
 
     this.keyRingService.changePassword(newPassword,
-        claimRequest.identity.creatingAppIdentityDid /* as the browser id */,
-        claimRequest.identity.user);
+      claimRequest.identity.creatingAppIdentityDid /* as the browser id */,
+      claimRequest.identity.user);
 
     return claimRequest.identity;
   }

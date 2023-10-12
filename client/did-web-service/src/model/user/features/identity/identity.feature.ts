@@ -94,14 +94,15 @@ export class IdentityFeature implements UserFeature {
   }
 
   /**
-   * Requests to transfer a manage identity created by a third party app, into current user's account.
+   * Requests to transfer a managed identity created by a third party app, into current user's account.
    * During this operation, all identity data is migrated to fully become owned by the user.
    *
    * The newly owned identity is returned and added to user's identities list.
    */
-  public async claimManagedIdentity(claimRequest: IdentityClaimRequest): Promise<Identity> {
+  public async claimManagedIdentity(claimRequest: IdentityClaimRequest, claimRequestNonce: string): Promise<Identity> {
     const input: ClaimIdentityInput = {
-      // TODO
+      requestId: claimRequest.id,
+      nonce: claimRequestNonce
     };
 
     const result = await withCaughtAppException(async () => {

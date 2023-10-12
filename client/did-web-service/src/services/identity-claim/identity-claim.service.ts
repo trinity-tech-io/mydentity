@@ -12,18 +12,19 @@ import { IdentityClaimRequestDTO } from "@model/identity-claim-request/identity-
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 
-export async function fetchIdentityClaimRequest(claimRequestId: string): Promise<IdentityClaimRequest> {
+export async function fetchIdentityClaimRequest(claimRequestId: string, nonce: string): Promise<IdentityClaimRequest> {
   const result = await callWithUnlock(() => withCaughtAppException(async () => {
     return (await getApolloClient()).query<{ identityClaimRequest: IdentityClaimRequestDTO }>({
       query: gql`
-        query IdentityClaimRequest($claimRequestId: String!) {
-          identityClaimRequest(id: $claimRequestId) {
+        query IdentityClaimRequest($claimRequestId: String!, $nonce: String!) {
+          identityClaimRequest(id: $claimRequestId, nonce: $nonce) {
             ${gqlIdentityClaimRequestFields}
           }
         }
       `,
       variables: {
-        claimRequestId
+        claimRequestId,
+        nonce
       }
     });
   }));

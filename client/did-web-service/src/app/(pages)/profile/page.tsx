@@ -1,13 +1,21 @@
 "use client";
-import { Breadcrumbs } from "@components/breadcrumbs/Breadcrumbs";
+import ChipIcon from "@assets/images/chip.svg";
+import { CopyButton, DarkButton, NormalButton } from "@components/button";
 import { CredentialAvatar } from "@components/credential/CredentialAvatar";
+import { IconAvatar } from "@components/feature/DetailLine";
 import ComfirmDialog from "@components/generic/ComfirmDialog";
-import ListHead from "@components/generic/ListHead";
-import ListToolbar from "@components/generic/ListToolbar";
+import DetailContainer from "@components/generic/DetailContainer";
+import { DetailTable, DetailTableRow } from "@components/generic/DetailTable";
 import CreateCredentialDialog from "@components/identity-profile/CreateCredentialDialog";
 import EditCredentialDialog, {
   EditionMode,
 } from "@components/identity-profile/EditCredentialDialog";
+import OutlinedInputStyled from "@components/input/OutlinedInputStyled";
+import Headline from "@components/layout/Headline";
+import {
+  LoadingProfileInfo,
+  LoadingTableAvatarRow,
+} from "@components/loading-skeleton";
 import { UnlockRetrier } from "@components/security/UnlockRetrier";
 import { useUnlockPromptState } from "@components/security/unlock-key-prompt/UnlockKeyPrompt";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
@@ -21,31 +29,26 @@ import {
   Search as SearchIcon,
 } from "@mui/icons-material";
 import {
-  Card,
   Container,
   IconButton,
   InputAdornment,
   MenuItem,
   Popover,
   Stack,
-  Table,
-  TableBody,
   TableCell,
-  TableContainer,
-  TablePagination,
   TableRow,
-  Typography,
+  Typography
 } from "@mui/material";
 import MuiAlert, { AlertProps } from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import { useToast } from "@services/feedback.service";
-import { shortenDID } from '@services/identity/identity.utils';
 import {
   findProfileInfoByTypes,
   getAvailableProfileEntries,
 } from "@services/identity-profile-info/identity-profile-info.service";
 import { ProfileCredentialInfo } from "@services/identity-profile-info/profile-credential-info";
 import { activeIdentity$ } from "@services/identity/identity.events";
+import { shortenDID } from '@services/identity/identity.utils';
 import { logger } from "@services/logger";
 import { filter } from "lodash";
 import Link from "next/link";
@@ -60,17 +63,6 @@ import {
 } from "react";
 import { EditableCredentialAvatar } from "../../components/credential/EditableCredentialAvatar";
 import { OrderBy } from "./order-by";
-import Headline from "@components/layout/Headline";
-import { CopyButton, DarkButton, NormalButton } from "@components/button";
-import { DetailTable, DetailTableRow } from "@components/generic/DetailTable";
-import DetailContainer from "@components/generic/DetailContainer";
-import { IconAvatar } from "@components/feature/DetailLine";
-import ChipIcon from "@assets/images/chip.svg";
-import {
-  LoadingProfileInfo,
-  LoadingTableAvatarRow,
-} from "@components/loading-skeleton";
-import OutlinedInputStyled from "@components/input/OutlinedInputStyled";
 
 const CREDENTIAL_LIST_HEAD = [
   { id: "name", label: "Profile item", alignRight: false },
@@ -526,7 +518,7 @@ const Profile: FC = () => {
             <span className="pl-2">Credentials</span>
           </div>
         }
-        showAllAction={() => {}}
+        showAllAction={() => { }}
       >
         <div className="mb-1">
           <DetailTable
@@ -535,7 +527,6 @@ const Profile: FC = () => {
                 <TableCell>PROFILE ITEM</TableCell>
                 <TableCell align="center">DETAIL</TableCell>
                 <TableCell align="center">ISSUED</TableCell>
-                <TableCell align="center">EXPIRES ON</TableCell>
                 <TableCell sx={{ width: 0 }}></TableCell>
               </>
             }
@@ -592,7 +583,7 @@ const Profile: FC = () => {
                                   {credential.getDisplayValue()}
                                 </TableCell>
                                 <TableCell align="center">{shortenDID(credential.getIssuer())}</TableCell>
-                                <TableCell align="center">{credential.isExpiration().toString()}</TableCell>
+                                {/* <TableCell align="center">{credential.isExpiration().toString()}</TableCell> */}
                                 <TableCell align="center">
                                   <IconButton
                                     size="small"

@@ -47,7 +47,7 @@ const NewApplicationPage: FC = () => {
       showSuccessToast("The application identity was created");
       //});
 
-      router.push("/developers/application/" + applicationIdentity.did);
+      router.push("/developers/application?did=" + applicationIdentity.did);
     }
   }
 

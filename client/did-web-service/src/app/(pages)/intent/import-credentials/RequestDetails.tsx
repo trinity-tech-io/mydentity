@@ -77,7 +77,7 @@ export const RequestDetails: FC<{
 
       const vcTargetDID = verifiableCredential.id.getDid().toString()
       // The target DID must belong to this user
-      const index = identities.findIndex( i => i.did == vcTargetDID)
+      const index = identities.findIndex(i => i.did == vcTargetDID)
       if (index == -1) {
         setWrongTargetDID(true);
       }
@@ -191,29 +191,29 @@ export const RequestDetails: FC<{
           )
         })}
 
-        { differentTargetDID &&
+        {differentTargetDID &&
           <Typography my={4}>
             Import is only supported for one identity at a time for now.
           </Typography>
         }
 
-        { wrongTargetDID &&
+        {wrongTargetDID &&
           <Typography my={4}>
-            Sorry, you don't own the target identity.
+            Is this credential really for you? It's not targeted at any of your existing identities...
           </Typography>
         }
 
-        { (differentTargetDID || wrongTargetDID) &&
+        {(differentTargetDID || wrongTargetDID) &&
           <MainButton onClick={rejectRequest}>Cancel</MainButton>
         }
 
-        { !wrongTargetDID && !differentTargetDID && needSwitchIdentity &&
+        {!wrongTargetDID && !differentTargetDID && needSwitchIdentity &&
           <div>
             <Typography my={4}>
               The identity that will contain the imported information is:
             </Typography>
             <Typography fontSize={14}>
-                { targetDID }
+              {targetDID}
             </Typography>
           </div>
         }

@@ -1,3 +1,4 @@
 export type ClaimIdentityInput = {
-  // TODO
+  requestId: string;
+  nonce: string;
 }

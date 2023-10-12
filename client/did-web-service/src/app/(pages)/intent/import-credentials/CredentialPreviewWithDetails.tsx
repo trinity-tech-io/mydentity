@@ -59,7 +59,6 @@ export const CredentialPreviewWithDetails: FC<Props> = (props: Props) => {
                                 my: 1,
                                 boxShadow: 0,
                                 textAlign: 'left',
-                                bgcolor: "#ffffff",
                             }}>
                             {!isShowDisplayable &&
                                 <Stack px={2} py={2} minWidth={400} alignItems={"left"} >

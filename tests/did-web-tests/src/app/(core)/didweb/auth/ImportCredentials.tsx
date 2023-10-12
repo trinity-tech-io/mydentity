@@ -1,8 +1,10 @@
+import { authUserDID$ } from "@/app/services/auth.service";
 import { MainButton } from "@components/MainButton";
 import type { ImportedCredential } from "@elastosfoundation/elastos-connectivity-sdk-js/typings/did";
+import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { FC, useEffect, useState } from "react";
 
-async function importCredentials(withDisplayableCredential: boolean) {
+async function importCredentials(targetDID: string, withDisplayableCredential: boolean) {
   console.log("Creating and importing a credential");
 
   let storeId = "client-side-store";
@@ -26,7 +28,7 @@ async function importCredentials(withDisplayableCredential: boolean) {
   let issuer = await Issuer.create(issuerDID);
   console.log("Issuer:", issuer);
 
-  let targetDID = DID.from("did:elastos:insTmxdDDuS9wHHfeYD1h5C2onEHh3D8Vq");
+  const targetDIDObject = DID.from(targetDID);
   console.log("Target DID:", targetDID);
 
   const credentialTypes = [
@@ -34,7 +36,7 @@ async function importCredentials(withDisplayableCredential: boolean) {
   ].filter(t => !!t);
 
   // Create the credential
-  let vcb = new VerifiableCredential.Builder(issuer, targetDID);
+  let vcb = new VerifiableCredential.Builder(issuer, targetDIDObject);
   let credential = await vcb.id("#testinstance" + Math.random())
     .properties({
       //prescription1: "Take 3 pills per day during one week.",
@@ -61,6 +63,7 @@ async function importCredentials(withDisplayableCredential: boolean) {
 export const ImportCredentials: FC = () => {
   const [awaitingResult, setAwaitingResult] = useState(false);
   const [importedVCs, setImportedVCs] = useState<ImportedCredential[]>(null);
+  const [authUserDID] = useBehaviorSubject(authUserDID$);
 
   useEffect(() => {
     let unsub = null;
@@ -80,13 +83,13 @@ export const ImportCredentials: FC = () => {
 
   const testImport = async (withDisplayableCredential: boolean) => {
     setAwaitingResult(true);
-    await importCredentials(withDisplayableCredential);
+    await importCredentials(authUserDID, withDisplayableCredential);
   }
 
   return (
     <>
-      <MainButton onClick={() => testImport(true)} busy={awaitingResult}>Import displayable credential</MainButton>
-      <MainButton onClick={() => testImport(false)} busy={awaitingResult}>Import non displayable credential</MainButton>
+      <MainButton onClick={() => testImport(true)} busy={awaitingResult} disabled={!authUserDID}>Import displayable credential</MainButton>
+      <MainButton onClick={() => testImport(false)} busy={awaitingResult} disabled={!authUserDID}>Import non displayable credential</MainButton>
       {
         importedVCs &&
         <div className="flex flex-col">

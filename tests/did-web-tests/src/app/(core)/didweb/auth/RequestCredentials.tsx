@@ -1,3 +1,4 @@
+import { authUserDID$ } from "@/app/services/auth.service";
 import { MainButton } from "@components/MainButton";
 import type { VerifiablePresentation } from "@elastosfoundation/did-js-sdk";
 import { DID as ConnDID, didAccessV2 } from "@elastosfoundation/elastos-connectivity-sdk-js";
@@ -15,6 +16,10 @@ export const RequestCredentials: FC = () => {
       unsub = didAccessV2.onRequestCredentialsResponse((context, presentation) => {
         console.log("onRequestCredentialsResponse", context, presentation);
         setReceivedPresentation(presentation);
+
+        if (presentation) {
+          authUserDID$.next(presentation.getHolder().toString());
+        }
       });
     }, 500);
 

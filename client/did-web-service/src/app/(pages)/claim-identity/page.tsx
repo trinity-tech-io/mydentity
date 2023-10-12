@@ -24,6 +24,7 @@ const ClaimIdentityPage: FC = () => {
   const { mounted } = useMounted();
   const searchParams = useSearchParams();
   const claimRequestId = searchParams.get("request");
+  const claimRequestNonce = searchParams.get("nonce");
   const [fetchingRequestDetails, setFetchingRequestDetails] = useState(true);
   const [claimingIdentity, setClaimingIdentity] = useState(false);
   const [claimRequest, setClaimRequest] = useState<IdentityClaimRequest>(null);
@@ -43,13 +44,13 @@ const ClaimIdentityPage: FC = () => {
   useEffect(() => {
     if (claimRequestId && !claimRequest) {
       logger.log(TAG, "Fetching claim request details");
-      fetchIdentityClaimRequest(claimRequestId).then(cr => {
+      fetchIdentityClaimRequest(claimRequestId, claimRequestNonce).then(cr => {
         logger.log(TAG, "Got claim request", cr);
         setClaimRequest(cr);
         setCreatingAppDID(cr.identityInfo?.creatingAppDid);
       });
     }
-  }, [claimRequestId, claimRequest]);
+  }, [claimRequestId, claimRequestNonce, claimRequest]);
 
   /**
    * Fetch the creating app's DID document on chain
@@ -89,10 +90,10 @@ const ClaimIdentityPage: FC = () => {
     router.push("/signin")
   }
 
-  const claimIdentity = async () => {
+  const claimIdentity = async (): Promise<void> => {
     // TODO
     setClaimingIdentity(true);
-    const claimedIdentity = await authUser.get("identity").claimManagedIdentity(claimRequest);
+    const claimedIdentity = await authUser.get("identity").claimManagedIdentity(claimRequest, claimRequestNonce);
     if (!claimedIdentity) {
       showErrorToast("Sorry, the identity failed to be claimed for some reason");
       setClaimingIdentity(false);

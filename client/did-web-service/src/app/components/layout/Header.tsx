@@ -2,12 +2,11 @@
 import { FC } from 'react';
 // import Help from '../components/DropdownHelp';
 // import Notifications from '../components/DropdownNotifications';
-import { styled } from '@mui/material';
 import { MainButton } from '@components/generic/MainButton';
-import { DropdownIdentity } from '@components/layout/DropdownIdentity';
 import { DropdownUserProfile } from '@components/layout/DropdownProfile';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { useMounted } from '@hooks/useMounted';
+import { styled } from '@mui/material';
 import { authUser$ } from '@services/user/user.events';
 import { useRouter } from 'next/navigation';
 // import SearchModal from '../components/ModalSearch';
@@ -68,8 +67,8 @@ export const Header: FC<{
 
             {/* User is signed in */}
             {mounted && authUser && <>
-              <DropdownIdentity align="right" />
-              <hr className="w-px h-6 bg-slate-200 dark:bg-slate-700 border-none" />
+              {/* <DropdownIdentity align="right" /> */}
+              {/* <hr className="w-px h-6 bg-slate-200 dark:bg-slate-700 border-none" /> */}
               <DropdownUserProfile align="right" />
             </>}
           </div>
