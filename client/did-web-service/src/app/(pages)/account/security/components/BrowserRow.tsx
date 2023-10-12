@@ -9,8 +9,8 @@ import { useToast } from "@services/feedback.service";
 import { authUser$ } from "@services/user/user.events";
 import { FC, MouseEvent, useState } from "react";
 import { CardStyled } from "./SecuritySection";
-import { Box, Typography } from "@mui/material";
-import { Icon as ReactIcon } from "@iconify/react"
+import { Avatar, Box, Tooltip, Typography } from "@mui/material";
+import { Icon as ReactIcon } from "@iconify/react";
 
 export const BrowserRow: FC<{
   browser: Browser;
@@ -57,10 +57,29 @@ export const BrowserRow: FC<{
     <>
       <CardStyled className="inline-block">
         <div className="relative z-10 inline-flex gap-5 px-3 py-5">
-          <ReactIcon icon="ic:round-computer" fontSize={40} />
+          <div className="relative">
+            <ReactIcon icon="ic:round-computer" fontSize={40} />
+            {!isPasskeyBound && (
+              <div className="absolute bottom-0 right-[-10%]">
+                <Tooltip title="Biometrics passkey is bound to this browser" arrow>
+                  <Avatar sx={{ width: 20, height: 20, bgcolor: "#3A3A3A" }}>
+                    <ReactIcon
+                      icon="fluent:fingerprint-48-filled"
+                      fontSize={10}
+                      color="white"
+                    />
+                  </Avatar>
+                </Tooltip>
+              </div>
+            )}
+          </div>
           <div className="flex flex-col flex-1">
-            <Typography variant="body2" fontWeight={600}>{browser.name}</Typography>
-            <Typography variant="caption" fontStyle="italic">Last used: {browser.lastUsedAt.toLocaleString()}</Typography>
+            <Typography variant="body2" fontWeight={600}>
+              {browser.name}
+            </Typography>
+            <Typography variant="caption" fontStyle="italic">
+              Last used: {browser.lastUsedAt.toLocaleString()}
+            </Typography>
           </div>
           <div className="flex flex-col">
             {isCurrentBrowser ? (
