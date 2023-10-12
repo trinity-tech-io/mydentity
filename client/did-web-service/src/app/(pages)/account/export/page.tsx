@@ -49,7 +49,7 @@ const ExportMnemonicPage: FC = () => {
   
   return (
     <div className="flex flex-wrap mt-12">
-      {rootIdentities.map((rootIdentity, groupIndex) => {
+      {rootIdentities?.map((rootIdentity, groupIndex) => {
         // 1. Get the identities for the corresponding rootIdentityId
         const correspondingIdentities = getRegularIdentitiesById(identities,rootIdentity.id);
   
