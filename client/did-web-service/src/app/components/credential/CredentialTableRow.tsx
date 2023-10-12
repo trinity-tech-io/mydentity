@@ -7,17 +7,19 @@ import { DetailTableRow } from "@components/generic/DetailTable";
 import { ProfileCredential } from "@model/credential/profile-credential";
 import { CredentialAvatar } from "./CredentialAvatar";
 import { shortenDID } from "@services/identity/identity.utils";
-import { ProfileFeature } from "@model/regular-identity/features/profile/profile.feature";
+import { activeIdentity$ } from "@services/identity/identity.events";
+import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 
 interface Props {
   credential: ProfileCredential;
-  identityProfileFeature: ProfileFeature;
   handleOpenMenu: (event: MouseEvent, credential: ProfileCredential) => void;
 }
 
 function CredentialTableRow(props: Props): JSX.Element {
-  const { credential, identityProfileFeature, handleOpenMenu } = props;
-    useState<ProfileCredential>(null);
+  const { credential, handleOpenMenu } = props;
+  const [activeIdentity] = useBehaviorSubject(activeIdentity$);
+  const identityProfileFeature = activeIdentity?.profile();
+  useState<ProfileCredential>(null);
   const router = useRouter();
 
   const handleCellClick = (credential: Credential): void => {
@@ -44,7 +46,9 @@ function CredentialTableRow(props: Props): JSX.Element {
           <TableCell>{credential.getDisplayableTitle()}</TableCell>
           <TableCell align="center">{credential.getDisplayValue()}</TableCell>
           <TableCell align="center">
-            {shortenDID(credential.getIssuer())}
+            {activeIdentity?.did == credential.getIssuer()
+              ? "Myself"
+              : shortenDID(credential.getIssuer())}
           </TableCell>
           <TableCell align="center">
             <IconButton size="small" color="inherit" onClick={handleClickMore}>

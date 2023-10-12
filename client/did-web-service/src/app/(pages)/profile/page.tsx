@@ -369,11 +369,6 @@ const Profile: FC = () => {
       return JSON.stringify(credential.verifiableCredential.getSubject());
   } */
 
-  const handleCellClick = (credential: Credential): void => {
-    identityProfileFeature.setActiveCredential(credential);
-    router.push("/credentials/list");
-  };
-
   const handleShowAllIdentities = (): void => {
     router.push("/identities");
   };
@@ -528,7 +523,6 @@ const Profile: FC = () => {
                         <CredentialTableRow
                           key={credential.id}
                           credential={credential}
-                          identityProfileFeature={identityProfileFeature}
                           handleOpenMenu={handleOpenMenu}
                         />
                       ))
