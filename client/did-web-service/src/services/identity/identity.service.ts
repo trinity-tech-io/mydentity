@@ -3,7 +3,7 @@ import { IdentityPublicationStatusResult } from "@model/identity-publication/ide
 import { Identity } from "@model/identity/identity";
 import { IdentityType } from "@model/identity/identity-type";
 import { RegularIdentity } from "@model/regular-identity/regular-identity";
-import { RootIdentity } from "@model/root-identity/root-identity";
+import { IdentityRoot } from "@model/identity-root/identity-root";
 import { CustodialDIDProvider } from "./custodial/custodial-did.provider";
 import { activeIdentity$ } from "./identity.events";
 
@@ -117,8 +117,8 @@ class IdentityService {
   /**
    * Returns the list of root identities
    */
-  public async listRootIdentities(): Promise<RootIdentity[]> {
-    return this.provider.identity.listRootIdentities();
+  public async listIdentityRoots(): Promise<IdentityRoot[]> {
+    return this.provider.identity.listIdentityRoots();
   }
 
   /**
@@ -141,6 +141,13 @@ class IdentityService {
 
   public synchronize(identityDid: string): Promise<void> {
     return this.provider.document.synchronize(identityDid);
+  }
+
+  /**
+   * Export mnemonics based on identity root
+   */ 
+  public exportMnemonic(identityRootId: string): Promise<string> {
+    return this.provider.identity.exportMnemonic(identityRootId);
   }
 }
 

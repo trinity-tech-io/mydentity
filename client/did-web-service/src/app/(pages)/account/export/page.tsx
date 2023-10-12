@@ -2,13 +2,13 @@
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { useMounted } from '@hooks/useMounted';
 import { RegularIdentity } from '@model/regular-identity/regular-identity';
-import { RootIdentity } from "@model/root-identity/root-identity";
+import { IdentityRoot } from "@model/identity-root/identity-root";
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import { Typography } from "@mui/material";
 import { useToast } from "@services/feedback.service";
 import { authUser$ } from '@services/user/user.events';
 import { FC, useState } from 'react';
-import { RootIdentityDids } from './components/RootIdentityDids';
+import { IdentityRootDids } from './components/IdentityRootDids';
 
 const TAG = "export-mnemonic";
 interface ClickedMnemonics {
@@ -17,18 +17,18 @@ interface ClickedMnemonics {
 const ExportMnemonicPage: FC = () => {
   const { mounted } = useMounted();
   const [activeUser] = useBehaviorSubject(authUser$);
-  const [rootIdentities] = useBehaviorSubject(activeUser?.get("identity").rootIdentities$);
+  const [identityRoots] = useBehaviorSubject(activeUser?.get("identity").identityRoots$);
   const [clickedMnemonics, setClickedMnemonics] = useState<ClickedMnemonics>({});
   const { showSuccessToast, showErrorToast } = useToast();
   const [identities] = useBehaviorSubject(activeUser?.get("identity").regularIdentities$);//TODO: Replace with Identities under the Identity root id
   const [showMnemonic, setShowMnemonic] = useState(false);
 
-  const handleExportMnemonic: (rootIdentity: RootIdentity) => Promise<string> = async (rootIdentity) => {
-    const identityRootId = rootIdentity.id;
-    const mnemonic = await rootIdentity?.exportMnemonic(identityRootId);
+  const handleExportMnemonic: (identityRoot: IdentityRoot) => Promise<string> = async (identityRoot) => {
+    const identityRootId = identityRoot.id;
+    const mnemonic = await activeUser.get("identity").exportMnemonic(identityRootId);
     setClickedMnemonics((prevMnemonics) => ({
       ...prevMnemonics,
-      [rootIdentity.id]: mnemonic,
+      [identityRoot.id]: mnemonic,
     }));
     if (mnemonic) {
       setShowMnemonic(true);
@@ -49,9 +49,9 @@ const ExportMnemonicPage: FC = () => {
 
   return (
     <div className="flex flex-wrap mt-12">
-      {rootIdentities?.map((rootIdentity, groupIndex) => {
+      {identityRoots?.map((identityRoot, groupIndex) => {
         // 1. Get the identities for the corresponding rootIdentityId
-        const correspondingIdentities = getRegularIdentitiesById(identities, rootIdentity.id);
+        const correspondingIdentities = getRegularIdentitiesById(identities, identityRoot.id);
 
         return (
           <div key={groupIndex} className="m-4 mt-11 p-6 border rounded-lg relative w-[800px]">
@@ -63,18 +63,18 @@ const ExportMnemonicPage: FC = () => {
               <button
                 className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded ${showMnemonic ? 'hidden' : ''}`}
                 onClick={() => {
-                  handleExportMnemonic(rootIdentity);
+                  handleExportMnemonic(identityRoot);
                 }}
               >
                 Export Mnemonic
               </button>
 
               {/* show Mnemonic and copy Mnemonic */}
-              {showMnemonic && clickedMnemonics[rootIdentity.id] && (
+              {showMnemonic && clickedMnemonics[identityRoot.id] && (
                 <Typography
                   variant="body2"
                   onClick={() => {
-                    navigator.clipboard.writeText(clickedMnemonics[rootIdentity.id]);
+                    navigator.clipboard.writeText(clickedMnemonics[identityRoot.id]);
                     showSuccessToast('Mnemonic copied to clipboard.');
                   }}
                   sx={{
@@ -85,7 +85,7 @@ const ExportMnemonicPage: FC = () => {
                     },
                   }}
                 >
-                  Mnemonic: {clickedMnemonics[rootIdentity.id]}
+                  Mnemonic: {clickedMnemonics[identityRoot.id]}
                   <FileCopyIcon style={{ fontSize: 16, marginLeft: 5 }} />
                 </Typography>
               )}
@@ -93,7 +93,7 @@ const ExportMnemonicPage: FC = () => {
 
             {/* Display all Identities under the Identity root id */}
             <div style={{ width: '300px' }}>
-              <RootIdentityDids identities={correspondingIdentities} />
+              <IdentityRootDids identities={correspondingIdentities} />
             </div>
           </div>
         );

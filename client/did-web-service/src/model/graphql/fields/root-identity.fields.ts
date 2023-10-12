@@ -1,6 +1,6 @@
 import { gqlIdentityFields } from "./identity.fields";
 
-export const gqlRootIdentityFields = `
+export const gqlIdentityRootFields = `
   id
   createdAt
   didStoreRootIdentityId

@@ -1,6 +1,6 @@
 import { IdentityDTO } from "@model/identity/identity.dto";
 
-export class RootIdentityDTO {
+export class IdentityRootDTO {
   id: string;
   didStoreRootIdentityId: string;
   userId: string;

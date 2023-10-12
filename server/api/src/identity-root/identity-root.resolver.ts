@@ -16,14 +16,14 @@ export class IdentityRootResolver {
 
   @UseGuards(JwtAuthGuard)
   @Query(() => [IdentityRootEntity])
-  async listRootIdentities(@CurrentUser() user: User) {
+  async listIdentityRoots(@CurrentUser() user: User) {
     return this.identityRootService.findAll(user.id);
   }
 
   @UseGuards(JwtAuthGuard)
   @Mutation(() => MnemonicEntity)
-  async exportMnemonic(@Args('rootIdentityId') rootIdentityId: string, @CurrentUser() user: User, @CurrentBrowser() browser: Browser): Promise<MnemonicEntity> {
-    const identityRoot = await this.identityRootService.ensureOwnedIdentityRoot(rootIdentityId, user);
+  async exportMnemonic(@Args('identityRootId') identityRootId: string, @CurrentUser() user: User, @CurrentBrowser() browser: Browser): Promise<MnemonicEntity> {
+    const identityRoot = await this.identityRootService.ensureOwnedIdentityRoot(identityRootId, user);
     return await this.identityRootService.exportMnemonic(identityRoot.userId, identityRoot.didStoreRootIdentityId, user, browser);
   }
 }

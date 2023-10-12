@@ -1,11 +1,14 @@
 import { gql } from "@apollo/client";
 import { gqlIdentityFields } from "@graphql/identity.fields";
-import { gqlRootIdentityFields } from "@graphql/root-identity.fields";
+import { gqlIdentityRootFields } from "@graphql/root-identity.fields";
+import { gqlMnemonicFields } from "@graphql/mnemonic.fields";
 import type { Identity } from "@model/identity/identity";
 import { IdentityType } from "@model/identity/identity-type";
 import type { IdentityDTO } from "@model/identity/identity.dto";
-import { RootIdentity } from "@model/root-identity/root-identity";
-import { RootIdentityDTO } from "@model/root-identity/root-identity.dto";
+import { IdentityRoot } from "@model/identity-root/identity-root";
+import { IdentityRootDTO } from "@model/identity-root/identity-root.dto";
+import { MnemonicDTO } from "@model/identity/mnemonic.dto";
+import { callWithUnlock } from "@components/security/unlock-key-prompt/call-with-unlock";
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { IdentityProvider, IdentityProviderIdentity } from "@services/identity/did.provider";
@@ -92,25 +95,48 @@ export class IdentityModule implements IdentityProviderIdentity {
     return null;
   }
 
-  async listRootIdentities(): Promise<RootIdentity[]> {
+  async listIdentityRoots(): Promise<IdentityRoot[]> {
     const result = await withCaughtAppException(async () => {
-      return (await getApolloClient()).query<{ listRootIdentities: RootIdentityDTO[] }>({
+      return (await getApolloClient()).query<{ listIdentityRoots: IdentityRootDTO[] }>({
         query: gql`
-        query listRootIdentities {
-          listRootIdentities {
-            ${gqlRootIdentityFields}
+        query listIdentityRoots {
+          listIdentityRoots {
+            ${gqlIdentityRootFields}
           }
         }
       `
       });
     });
 
-    if (result?.data?.listRootIdentities) {
-      const rootIdentities = await Promise.all(result.data.listRootIdentities.map(rootIdentity => RootIdentity.fromJson(rootIdentity, this.provider)));
-      logger.log("custodial-provider", "Fetched root identities:", rootIdentities);
-      return rootIdentities;
+    if (result?.data?.listIdentityRoots) {
+      const identityRoots = await Promise.all(result.data.listIdentityRoots.map(rootIdentity => IdentityRoot.fromJson(rootIdentity, this.provider)));
+      logger.log("custodial-provider", "Fetched identity roots:", identityRoots);
+      return identityRoots;
     }
 
     return null;
+  }
+
+  async exportMnemonic(identityRootId: string): Promise<string> {
+    logger.log("Root identity", "Export mnemonic ");
+    return callWithUnlock(() => this.exportingMnemonic(identityRootId));
+  }
+
+  private async exportingMnemonic(identityRootId: string): Promise<string> {
+    const result = await withCaughtAppException(async () => {
+      return (await getApolloClient()).mutate<{ exportMnemonic: MnemonicDTO }>({
+        mutation: gql`
+        mutation exportMnemonic($identityRootId: String!) {
+          exportMnemonic(identityRootId: $identityRootId) {
+            ${gqlMnemonicFields}
+          }
+        }
+      `,
+        variables: {
+          identityRootId
+        }
+      });
+    });
+    return result?.data?.exportMnemonic.mnemonic;
   }
 }

@@ -190,7 +190,7 @@ const ApplicationDetailsPage: FC<{
   }
 
   const handleExportMnemonic = async (): Promise<void> => {
-    const mnemonic = await appIdentity?.exportMnemonic(appIdentity.identityRootId);
+    const mnemonic = await activeUser.get("identity").exportMnemonic(appIdentity.identityRootId);
     if (mnemonic) {
       setShowMnemonic(mnemonic)
     }

@@ -5,10 +5,10 @@ import { shortenDID } from '@services/identity/identity.utils';
 import React, { FC } from 'react';
 import { DislayName } from './DislayName';
 
-export const RootIdentityDids: FC<{
+export const IdentityRootDids: FC<{
   identities: RegularIdentity[],
 }> = ({ identities }) => {
-
+  
   return (
     <div>
       {identities.map((identity, index) => (

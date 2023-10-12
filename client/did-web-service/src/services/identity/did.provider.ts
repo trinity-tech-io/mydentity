@@ -4,13 +4,13 @@ import { Document } from "@model/document/document";
 import { IdentityPublicationStatusResult } from "@model/identity-publication/identity-publication-status.dto";
 import { Identity } from "@model/identity/identity";
 import { IdentityType } from "@model/identity/identity-type";
-import { RootIdentity } from "@model/root-identity/root-identity";
+import { IdentityRoot } from "@model/identity-root/identity-root";
 
 export interface IdentityProviderIdentity {
   createIdentity(name: string, identityType: IdentityType, hiveVaultProvider?: string, rootIdentityId?: string): Promise<Identity>;
   deleteIdentity(identityDid: string): Promise<boolean>;
   listIdentities(): Promise<Identity[]>;
-  listRootIdentities(): Promise<RootIdentity[]>;
+  listIdentityRoots(): Promise<IdentityRoot[]>;
 }
 
 export interface IdentityProviderCredentials {

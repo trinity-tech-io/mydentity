@@ -6,7 +6,7 @@ import { Identity } from "@model/identity/identity";
 import { IdentityType } from "@model/identity/identity-type";
 import { IdentityDTO } from "@model/identity/identity.dto";
 import { RegularIdentity } from "@model/regular-identity/regular-identity";
-import { RootIdentity } from "@model/root-identity/root-identity";
+import { IdentityRoot } from "@model/identity-root/identity-root";
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { getRandomQuickStartHiveNodeAddress } from "@services/hive/hive.service";
@@ -21,7 +21,7 @@ import { ClaimIdentityInput } from "./claim-identity.input";
 
 export class IdentityFeature implements UserFeature {
   public identities$ = new AdvancedBehaviorSubject<Identity[]>(null, () => this.fetchIdentities());
-  public rootIdentities$ = new AdvancedBehaviorSubject<RootIdentity[]>([], () => this.fetchRootIdentities());
+  public identityRoots$ = new AdvancedBehaviorSubject<IdentityRoot[]>([], () => this.fetchIdentityRoots());
 
   /**
    * Basic user identities showed to all users. Not including application identities.
@@ -75,12 +75,12 @@ export class IdentityFeature implements UserFeature {
     return successfulDeletion;
   }
 
-  public async listRootIdentities(): Promise<RootIdentity[]> {
+  public async listIdentityRoots(): Promise<IdentityRoot[]> {
     logger.log("identity", "list Root Identities identity");
 
-    const rootIdentities = await identityService.listRootIdentities();
-    this.rootIdentities$.next(this.rootIdentities$.value.filter(i => i.id));
-    return rootIdentities
+    const identityRoots = await identityService.listIdentityRoots();
+    this.identityRoots$.next(this.identityRoots$.value.filter(i => i.id));
+    return identityRoots
   }
 
   private async fetchIdentities(): Promise<Identity[]> {
@@ -88,9 +88,9 @@ export class IdentityFeature implements UserFeature {
     return identityService.listIdentities();
   }
 
-  private async fetchRootIdentities(): Promise<RootIdentity[]> {
+  private async fetchIdentityRoots(): Promise<IdentityRoot[]> {
     logger.log("identity", "Fetching root identities", this.user);
-    return identityService.listRootIdentities();
+    return identityService.listIdentityRoots();
   }
 
   /**
@@ -131,5 +131,9 @@ export class IdentityFeature implements UserFeature {
     else {
       throw new Error("Failed to claim identity");
     }
+  }
+
+  public exportMnemonic(identityRootId: string): Promise<string> {
+    return identityService.exportMnemonic(identityRootId);
   }
 }
