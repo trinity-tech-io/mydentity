@@ -27,7 +27,9 @@ export const DetailTableRow: FC<{
 }) => {
   return (
     <TableRow {...props} className={className} onClick={onClick}>
-      <TableCell padding="none">{avatar}</TableCell>
+      <TableCell padding="none" sx={{ width: 0 }}>
+        {avatar}
+      </TableCell>
       {rowCells}
     </TableRow>
   );

@@ -3,15 +3,18 @@ import { FC, MouseEventHandler, useEffect, useState } from "react";
 import { MoreVert as MoreVertIcon } from "@mui/icons-material";
 import {
   Box,
+  Button,
   ClickAwayListener,
   Fade,
   IconButton,
   Paper,
   Popper,
+  TableCell,
   Typography,
   styled,
 } from "@mui/material";
 import clsx from "clsx";
+import { NavigateNext as NavigateNextIcon } from "@mui/icons-material";
 import { useToast } from "@services/feedback.service";
 import { LandingCard } from "@components/card";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
@@ -20,6 +23,9 @@ import { activeIdentity$ } from "@services/identity/identity.events";
 import ChipIcon from "@assets/images/chip.svg";
 import { shortenDID } from "@services/identity/identity.utils";
 import { IconAvatar } from "@components/feature/DetailLine";
+import { NormalButton } from "@components/button";
+import { DetailTable } from "@components/generic/DetailTable";
+import { CredentialInfoRow } from "@components/credential/CredentialInfoRow";
 
 const GradientTypography = styled(Typography)({
   backgroundImage: "linear-gradient(180deg, #FFFFFFAE, #FFFFFF)",
@@ -42,6 +48,9 @@ export const IdentityCard: FC<{
   const { showSuccessToast } = useToast();
   const [name] = useBehaviorSubject(identity.profile().name$);
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
+  const [credentials] = useBehaviorSubject(
+    identity?.credentials().credentials$
+  );
 
   // useEffect(() => {
   //   if (activeIdentity == identity) {
@@ -121,17 +130,46 @@ export const IdentityCard: FC<{
         transition
       >
         {({ TransitionProps }) => (
-          <ClickAwayListener onClickAway={() => { setMenuAnchorEl(null) }}>
+          <ClickAwayListener
+            onClickAway={() => {
+              setMenuAnchorEl(null);
+            }}
+          >
             <Fade {...TransitionProps} timeout={350}>
-              <Paper sx={{padding: 2}}>
-                <div className="inline-flex items-center">
-                  <IconAvatar className="mr-2">
-                    <div className="w-4 h-4 flex justify-center">
-                      <ChipIcon />
-                    </div>
-                  </IconAvatar>
-                  <Typography fontWeight={600}>Credentials</Typography>
+              <Paper sx={{ padding: 2, minWidth: 300 }}>
+                <div className="inline-flex items-center gap-2 w-full">
+                  <div className="flex flex-1 items-center">
+                    <IconAvatar className="mr-2">
+                      <div className="w-4 h-4 flex justify-center">
+                        <ChipIcon />
+                      </div>
+                    </IconAvatar>
+                    <Typography fontWeight={600}>Credentials</Typography>
+                  </div>
+                  <NormalButton
+                    size="small"
+                    endIcon={<NavigateNextIcon />}
+                    // onClick={showAllAction}
+                  >
+                    Show all
+                  </NormalButton>
                 </div>
+                <Box
+                  className="mt-4"
+                  sx={{ "thead th:first-child": { display: "none" } }}
+                >
+                  <DetailTable
+                    headCells={
+                      <>
+                        <TableCell colSpan={2}>DETAILS</TableCell>
+                        <TableCell>SHARED APPS</TableCell>
+                      </>
+                    }
+                    bodyRows={credentials.map((c, _id) => (
+                      <CredentialInfoRow credential={c} key={_id} />
+                    ))}
+                  />
+                </Box>
               </Paper>
             </Fade>
           </ClickAwayListener>

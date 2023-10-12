@@ -49,10 +49,6 @@ export function JsonViewer({ data }: JsonViewerProps): React.ReactElement {
           }
           .json-key {
             font-weight: bold;
-            color: #0074d9;
-          }
-          .json-value {
-            color: #333;
           }
         `}
       </style>
