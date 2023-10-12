@@ -65,7 +65,7 @@ export function usePostSignInFlow(): { navigateToPostSignInLandingPage: (default
       else {
         const targetPage = defaultLanding || "/dashboard";
         logger.log("flow", `Navigating to post sign in landing page ${targetPage}`);
-        router.replace(targetPage);
+        router.push(targetPage);
       }
     }
   }

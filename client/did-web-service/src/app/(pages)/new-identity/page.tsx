@@ -3,7 +3,14 @@ import React, { FC, useRef, useState } from "react";
 import clsx from "clsx";
 import { first } from "rxjs";
 import { motion } from "framer-motion";
-import { Button, FormControl, Input, LinearProgress, Zoom, styled } from "@mui/material";
+import {
+  Button,
+  FormControl,
+  Input,
+  LinearProgress,
+  Zoom,
+  styled,
+} from "@mui/material";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useMounted } from "@hooks/useMounted";
@@ -181,7 +188,8 @@ const NewIdentityPage: FC = () => {
   const [progressStep, setProgressStep] = useState(0);
   const nameInputRef = useRef(null);
   const { showSuccessToast } = useToast();
-  const enabledButtonState = holderName.trim().length > 0 && progressStep < (CreatingSteps.length-1);
+  const enabledButtonState =
+    holderName.trim().length > 0 && progressStep < CreatingSteps.length - 1;
   const progress = (100 * progressStep) / (CreatingSteps.length - 1);
 
   const showProfile = (): void => {
@@ -190,6 +198,10 @@ const NewIdentityPage: FC = () => {
 
   const onIdentityCreated = async (identity: Identity): Promise<void> => {
     showProfile();
+  };
+
+  const onSkip = () => {
+    navigateToPostSignInLandingPage();
   };
 
   const startAction = (): void => {
@@ -419,7 +431,7 @@ const NewIdentityPage: FC = () => {
             <Button
               sx={{ color: "#9D3E3E", textDecoration: "underline" }}
               endIcon={<KeyboardArrowRightIcon />}
-              //  onClick={onSkip}
+               onClick={onSkip}
             >
               Not now. I'm just checking things out
             </Button>
