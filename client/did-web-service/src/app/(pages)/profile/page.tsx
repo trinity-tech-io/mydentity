@@ -1,11 +1,30 @@
 "use client";
+import { ChangeEvent, FC, MouseEvent, useEffect, useState } from "react";
+import { useRouter } from "next13-progressbar";
+import Link from "next/link";
+import { filter } from "lodash";
+import {
+  Add as AddIcon,
+  NavigateNext as NavigateNextIcon,
+  Search as SearchIcon,
+} from "@mui/icons-material";
+import {
+  Container,
+  InputAdornment,
+  MenuItem,
+  Popover,
+  Stack,
+  TableCell,
+  TableRow,
+  Typography,
+  Box,
+} from "@mui/material";
 import ChipIcon from "@assets/images/chip.svg";
 import { CopyButton, DarkButton, NormalButton } from "@components/button";
-import { CredentialAvatar } from "@components/credential/CredentialAvatar";
 import { IconAvatar } from "@components/feature/DetailLine";
 import ComfirmDialog from "@components/generic/ComfirmDialog";
 import DetailContainer from "@components/generic/DetailContainer";
-import { DetailTable, DetailTableRow } from "@components/generic/DetailTable";
+import { DetailTable } from "@components/generic/DetailTable";
 import CreateCredentialDialog from "@components/identity-profile/CreateCredentialDialog";
 import EditCredentialDialog, {
   EditionMode,
@@ -22,25 +41,6 @@ import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useMounted } from "@hooks/useMounted";
 import { Credential } from "@model/credential/credential";
 import { ProfileCredential } from "@model/credential/profile-credential";
-import {
-  Add as AddIcon,
-  MoreVert as MoreVertIcon,
-  NavigateNext as NavigateNextIcon,
-  Search as SearchIcon,
-} from "@mui/icons-material";
-import {
-  Container,
-  IconButton,
-  InputAdornment,
-  MenuItem,
-  Popover,
-  Stack,
-  TableCell,
-  TableRow,
-  Typography
-} from "@mui/material";
-import MuiAlert, { AlertProps } from "@mui/material/Alert";
-import Box from "@mui/material/Box";
 import { useToast } from "@services/feedback.service";
 import {
   findProfileInfoByTypes,
@@ -48,34 +48,17 @@ import {
 } from "@services/identity-profile-info/identity-profile-info.service";
 import { ProfileCredentialInfo } from "@services/identity-profile-info/profile-credential-info";
 import { activeIdentity$ } from "@services/identity/identity.events";
-import { shortenDID } from '@services/identity/identity.utils';
 import { logger } from "@services/logger";
-import { filter } from "lodash";
-import Link from "next/link";
-import { useRouter } from "next13-progressbar";
-import {
-  ChangeEvent,
-  FC,
-  MouseEvent,
-  forwardRef,
-  useEffect,
-  useState,
-} from "react";
-import { EditableCredentialAvatar } from "../../components/credential/EditableCredentialAvatar";
+import { EditableCredentialAvatar } from "@components/credential/EditableCredentialAvatar";
 import { OrderBy } from "./order-by";
+import CredentialTableRow from "@components/credential/CredentialTableRow";
+import UserListHead from "@components/generic/ListHead";
 
 const CREDENTIAL_LIST_HEAD = [
   { id: "name", label: "Profile item", alignRight: false },
   { id: "value", label: "Value", alignRight: false },
   { id: "", alignRight: false },
 ];
-
-const Alert = forwardRef<HTMLDivElement, AlertProps>(function Alert(
-  props,
-  ref
-) {
-  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
-});
 
 type ComparatorMethod = (a: ProfileCredential, b: ProfileCredential) => number;
 
@@ -116,7 +99,6 @@ const Profile: FC = () => {
   const [isOpenPopupMenu, setOpenPopupMenu] = useState(null);
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState<"desc" | "asc">("asc");
-  const [selected, setSelected] = useState([]);
   const [orderBy, setOrderBy] = useState<OrderBy>(OrderBy.NAME);
   const [filterName, setFilterName] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -241,8 +223,6 @@ const Profile: FC = () => {
     event: MouseEvent,
     credential: ProfileCredential
   ): void => {
-    event.stopPropagation(); // Prevent event propagation to the cell
-    event.preventDefault(); //
     setOpenPopupMenu(event.currentTarget);
     setOriginCredential(credential);
   };
@@ -255,17 +235,6 @@ const Profile: FC = () => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
-  };
-
-  const handleChangePage = (event: MouseEvent, newPage: number): void => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (
-    event: ChangeEvent<HTMLInputElement>
-  ): void => {
-    setPage(0);
-    setRowsPerPage(parseInt(event.target.value, 10));
   };
 
   const handleFilterByName = (event: ChangeEvent<HTMLInputElement>): void => {
@@ -342,9 +311,6 @@ const Profile: FC = () => {
 
     return stabilizedThis?.map((el) => el[0]);
   }
-
-  const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - credentials?.length) : 0;
 
   const filteredCredentials = applySortFilter(
     credentials,
@@ -518,7 +484,7 @@ const Profile: FC = () => {
             <span className="pl-2">Credentials</span>
           </div>
         }
-        showAllAction={() => { }}
+        showAllAction={() => {}}
       >
         <div className="mb-1">
           <DetailTable
@@ -526,7 +492,7 @@ const Profile: FC = () => {
               <>
                 <TableCell>PROFILE ITEM</TableCell>
                 <TableCell align="center">DETAIL</TableCell>
-                <TableCell align="center">ISSUED</TableCell>
+                <TableCell align="center">ISSUED BY</TableCell>
                 <TableCell sx={{ width: 0 }}></TableCell>
               </>
             }
@@ -558,48 +524,14 @@ const Profile: FC = () => {
                         page * rowsPerPage,
                         page * rowsPerPage + rowsPerPage
                       )
-                      .map((credential: ProfileCredential) => {
-                        // const { id, name, value} = row;
-                        const id = credential.id;
-                        return (
-                          <DetailTableRow
-                            key={id}
-                            props={{ hover: true }}
-                            onClick={(): void => handleCellClick(credential)}
-                            className="h-[3rem] cursor-pointer"
-                            avatar={
-                              <CredentialAvatar
-                                credential={credential}
-                                width={36}
-                                height={36}
-                              />
-                            }
-                            rowCells={
-                              <>
-                                <TableCell>
-                                  {credential.getDisplayableTitle()}
-                                </TableCell>
-                                <TableCell align="center">
-                                  {credential.getDisplayValue()}
-                                </TableCell>
-                                <TableCell align="center">{shortenDID(credential.getIssuer())}</TableCell>
-                                {/* <TableCell align="center">{credential.isExpiration().toString()}</TableCell> */}
-                                <TableCell align="center">
-                                  <IconButton
-                                    size="small"
-                                    color="inherit"
-                                    onClick={(event): void => {
-                                      handleOpenMenu(event, credential);
-                                    }}
-                                  >
-                                    <MoreVertIcon />
-                                  </IconButton>
-                                </TableCell>
-                              </>
-                            }
-                          />
-                        );
-                      })
+                      .map((credential: ProfileCredential) => (
+                        <CredentialTableRow
+                          key={credential.id}
+                          credential={credential}
+                          identityProfileFeature={identityProfileFeature}
+                          handleOpenMenu={handleOpenMenu}
+                        />
+                      ))
                   )}
                 </>
               ) : (
@@ -621,14 +553,9 @@ const Profile: FC = () => {
         )}
         {/* {credentials && mounted && (
           <Card>
-            <ListToolbar
-              numSelected={selected.length}
-              filterName={filterName}
-              onFilterName={handleFilterByName}
-            />
             <TableContainer sx={{ maxWidth: 1200 }}>
               <Table>
-                <ListHead
+                <UserListHead
                   order={order}
                   orderBy={orderBy}
                   headLabel={CREDENTIAL_LIST_HEAD}
@@ -637,98 +564,8 @@ const Profile: FC = () => {
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={(): void => {}}
                 />
-                <TableBody>
-                  {filteredCredentials
-                    ?.slice(
-                      page * rowsPerPage,
-                      page * rowsPerPage + rowsPerPage
-                    )
-                    .map((credential: ProfileCredential) => {
-                      // const { id, name, value} = row;
-                      const id = credential.id;
-                      return (
-                        <TableRow
-                          hover
-                          key={id}
-                          tabIndex={-1}
-                          onClick={(): void => handleCellClick(credential)}
-                          className="cursor-pointer"
-                        >
-                          <TableCell component="th" scope="row" padding="none">
-                            <Stack
-                              ml={1}
-                              direction="row"
-                              alignItems="center"
-                              spacing={2}
-                            >
-                              <CredentialAvatar
-                                credential={credential}
-                                width={60}
-                                height={60}
-                              />
-                              <Typography variant="subtitle2" noWrap>
-                                {credential.getDisplayableTitle()}
-                              </Typography>
-                            </Stack>
-                          </TableCell>
-
-                          <TableCell align="left">
-                            {credential.getDisplayValue()}
-                          </TableCell>
-
-                          <TableCell align="right">
-                            <IconButton
-                              size="large"
-                              color="inherit"
-                              onClick={(event): void => {
-                                handleOpenMenu(event, credential);
-                              }}
-                            >
-                              <MoreVertIcon />
-                            </IconButton>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  {emptyRows > 0 && (
-                    <TableRow style={{ height: 53 * emptyRows }}>
-                      <TableCell colSpan={6} />
-                    </TableRow>
-                  )}
-                </TableBody>
-
-                {isNotFound && (
-                  <TableBody>
-                    <TableRow>
-                      <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
-                        <div className="text-center">
-                          <Typography variant="h6" paragraph>
-                            Not found
-                          </Typography>
-
-                          <Typography variant="body2">
-                            No results found for &nbsp;
-                            <strong>&quot;{filterName}&quot;</strong>.
-                            <br /> Try checking for typos or using complete
-                            words.
-                          </Typography>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                )}
               </Table>
             </TableContainer>
-
-            <TablePagination
-              rowsPerPageOptions={[5, 10, 25]}
-              component="div"
-              count={credentials ? credentials.length : 0}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-            />
           </Card>
         )} */}
       </Container>
