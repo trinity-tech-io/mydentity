@@ -1,5 +1,5 @@
-import { FC, ReactNode } from "react";
-import { Box, Divider, styled } from "@mui/material";
+import { FC, MouseEventHandler, ReactNode } from "react";
+import { Box, ButtonBase, Divider, styled } from "@mui/material";
 import ChipIcon from "@assets/images/card/chip.svg";
 import WaveLogoIcon from "@assets/images/card/wave-logo.svg";
 import CircleVector from "@assets/images/card/circle.svg";
@@ -42,12 +42,16 @@ const LandingCard: FC<{
   waveIconVisible?: boolean;
   position?: string;
   dividerVisible?: boolean;
+  chipClickable?: boolean;
+  handleClickChip?: MouseEventHandler<HTMLButtonElement>;
 }> = ({
   className = "",
   waveIconVisible = true,
   position = "relative",
   dividerVisible = true,
   topRightSection = null,
+  chipClickable = false,
+  handleClickChip = (e) => {},
   children,
   footer,
 }) => {
@@ -68,9 +72,17 @@ const LandingCard: FC<{
         </div>
         <div className=" flex flex-col h-full">
           <div className="flex h-[14%] mb-7">
-            <div className="h-full">
-              <ChipIcon width="100%" height="100%" viewBox="0 0 50 38" />
-            </div>
+            {chipClickable ? (
+              <ButtonBase onClick={handleClickChip}>
+                <div className="h-full chip-item">
+                  <ChipIcon width="100%" height="100%" viewBox="0 0 50 38" />
+                </div>
+              </ButtonBase>
+            ) : (
+              <div className="h-full chip-item">
+                <ChipIcon width="100%" height="100%" viewBox="0 0 50 38" />
+              </div>
+            )}
             <div className="flex-1" />
             {waveIconVisible ? (
               <div className="h-full">

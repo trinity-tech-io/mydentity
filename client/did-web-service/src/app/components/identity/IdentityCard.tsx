@@ -1,34 +1,47 @@
 "use client";
-import { FC, useEffect } from "react";
+import { FC, MouseEventHandler, useEffect, useState } from "react";
 import { MoreVert as MoreVertIcon } from "@mui/icons-material";
+import {
+  Box,
+  ClickAwayListener,
+  Fade,
+  IconButton,
+  Paper,
+  Popper,
+  Typography,
+  styled,
+} from "@mui/material";
+import clsx from "clsx";
+import { useToast } from "@services/feedback.service";
 import { LandingCard } from "@components/card";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { RegularIdentity } from "@model/regular-identity/regular-identity";
-import { Box, IconButton, Typography, styled } from "@mui/material";
-import { useToast } from "@services/feedback.service";
 import { activeIdentity$ } from "@services/identity/identity.events";
+import ChipIcon from "@assets/images/chip.svg";
 import { shortenDID } from "@services/identity/identity.utils";
-import clsx from "clsx";
+import { IconAvatar } from "@components/feature/DetailLine";
 
 const GradientTypography = styled(Typography)({
-  backgroundImage: 'linear-gradient(180deg, #FFFFFFAE, #FFFFFF)',
-  backgroundSize: '100%',
-  backgroundRepeat: 'repeat',
-  WebkitBackgroundClip: 'text',
-  WebkitTextFillColor: 'transparent',
-  MozBackgroundClip: 'text',
-  MozTextFillColor: 'transparent',
-  display: 'inline'
+  backgroundImage: "linear-gradient(180deg, #FFFFFFAE, #FFFFFF)",
+  backgroundSize: "100%",
+  backgroundRepeat: "repeat",
+  WebkitBackgroundClip: "text",
+  WebkitTextFillColor: "transparent",
+  MozBackgroundClip: "text",
+  MozTextFillColor: "transparent",
+  display: "inline",
 });
 /**
  * Component used as card styled identity in My identities page
  */
 export const IdentityCard: FC<{
   identity: RegularIdentity;
-}> = ({ identity }) => {
+  onClickChip?: Function;
+}> = ({ identity, onClickChip = () => {} }) => {
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const { showSuccessToast } = useToast();
   const [name] = useBehaviorSubject(identity.profile().name$);
+  const [menuAnchorEl, setMenuAnchorEl] = useState(null);
 
   // useEffect(() => {
   //   if (activeIdentity == identity) {
@@ -38,57 +51,92 @@ export const IdentityCard: FC<{
   //   }
   // }, [showSuccessToast, name, activeIdentity, identity]);
 
+  const handleClickChip: MouseEventHandler<HTMLButtonElement> = (e) => {
+    setMenuAnchorEl(e.currentTarget);
+    onClickChip();
+  };
   return (
-    <LandingCard
-      className={clsx(
-        "w-[26rem] h-auto",
-        activeIdentity != identity ? "bg-[#675216]" : "bg-neutral-950"
-      )}
-      waveIconVisible={false}
-      topRightSection={
-        <div
-          className={clsx(
-            "flex",
-            activeIdentity != identity ? "items-center" : ""
-          )}
-        >
-          <div className="flex">
-            <div className="flex flex-col items-end">
-              {activeIdentity == identity && (
-                <Box className="rounded-[4px] text-[6pt] px-3 py-0.5 mt-1 inline-block text-white whitespace-nowrap bg-[#9291A5]">
-                  ACTIVE IDENTITY
-                </Box>
-              )}
-              <Typography variant="caption" fontSize={10} fontStyle="italic" lineHeight={2.2}>
-                Last used :{" "}
-                {identity.lastUsedAt$.getValue().toLocaleString()}
-              </Typography>
+    <>
+      <LandingCard
+        className={clsx(
+          "w-[26rem] h-auto",
+          activeIdentity != identity ? "bg-[#675216]" : "bg-neutral-950"
+        )}
+        waveIconVisible={false}
+        chipClickable={true}
+        handleClickChip={handleClickChip}
+        topRightSection={
+          <div
+            className={clsx(
+              "flex",
+              activeIdentity != identity ? "items-center" : ""
+            )}
+          >
+            <div className="flex">
+              <div className="flex flex-col items-end">
+                {activeIdentity == identity && (
+                  <Box className="rounded-[4px] text-[6pt] px-3 py-0.5 mt-1 inline-block text-white whitespace-nowrap bg-[#9291A5]">
+                    ACTIVE IDENTITY
+                  </Box>
+                )}
+                <Typography
+                  variant="caption"
+                  fontSize={10}
+                  fontStyle="italic"
+                  lineHeight={2.2}
+                >
+                  Last used : {identity.lastUsedAt$.getValue().toLocaleString()}
+                </Typography>
+              </div>
+            </div>
+            <div className="flex flex-col">
+              <IconButton
+                size="small"
+                color="inherit"
+                sx={{ p: 0.5 }}
+                // onClick={(event): void => {
+                //   handleOpenMenu(event, credential);
+                // }}
+              >
+                <MoreVertIcon sx={{ fontSize: 16 }} />
+              </IconButton>
             </div>
           </div>
-          <div className="flex flex-col">
-            <IconButton
-              size="small"
-              color="inherit"
-              sx={{ p: 0.5 }}
-              // onClick={(event): void => {
-              //   handleOpenMenu(event, credential);
-              // }}
-            >
-              <MoreVertIcon sx={{ fontSize: 16 }} />
-            </IconButton>
-          </div>
+        }
+        footer={<Typography variant="caption">{identity.did}</Typography>}
+      >
+        <div className="flex flex-col mb-[5%]">
+          <label htmlFor="holder-name" className="text-white text-[10px]">
+            IDENTITY NAME
+          </label>
+          <GradientTypography variant="h5" fontSize={26} fontWeight={600}>
+            {name}
+          </GradientTypography>
         </div>
-      }
-      footer={<Typography variant="caption">{identity.did}</Typography>}
-    >
-      <div className="flex flex-col mb-[5%]">
-        <label htmlFor="holder-name" className="text-white text-[10px]">
-          IDENTITY NAME
-        </label>
-        <GradientTypography variant="h5" fontSize={26} fontWeight={600}>
-          {name}
-        </GradientTypography>
-      </div>
-    </LandingCard>
+      </LandingCard>
+      <Popper
+        open={Boolean(menuAnchorEl)}
+        anchorEl={menuAnchorEl}
+        placement="bottom-start"
+        transition
+      >
+        {({ TransitionProps }) => (
+          <ClickAwayListener onClickAway={() => { setMenuAnchorEl(null) }}>
+            <Fade {...TransitionProps} timeout={350}>
+              <Paper sx={{padding: 2}}>
+                <div className="inline-flex items-center">
+                  <IconAvatar className="mr-2">
+                    <div className="w-4 h-4 flex justify-center">
+                      <ChipIcon />
+                    </div>
+                  </IconAvatar>
+                  <Typography fontWeight={600}>Credentials</Typography>
+                </div>
+              </Paper>
+            </Fade>
+          </ClickAwayListener>
+        )}
+      </Popper>
+    </>
   );
 };
