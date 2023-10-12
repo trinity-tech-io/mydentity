@@ -26,11 +26,7 @@ const OnBoarding: FC = () => {
 
   return (
     <div className="col-span-full">
-      {!initialDataFetched ? (
-        <VerticalStackLoadingCard />
-      ) : (
-        <BindingSuggestionStep onSkip={skipBindingStep} />
-      )}
+      <BindingSuggestionStep onSkip={skipBindingStep} initialDataFetched={initialDataFetched} />
     </div>
   );
 };

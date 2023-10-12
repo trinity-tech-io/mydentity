@@ -14,14 +14,13 @@ const TourTooltip = ({
   return (
     <Card
       {...tooltipProps}
-      border={false}
       radius="sm"
       sx={{ background: "linear-gradient(to bottom, #5300bd, #380976)", px: 2, py: 1, maxWidth: 420, minWidth: 300 }}
     >
       <Box padding="md">
-        {step.title && <Typography variant="body1" className="underline underline-offset-2">{step.title}</Typography>}
+        {step.title && <Typography component="div" variant="body1" className="underline underline-offset-2">{step.title}</Typography>}
         {step.content && (
-          <Typography variant="body2">{step.content}</Typography>
+          <Typography component="div" variant="body2">{step.content}</Typography>
         )}
       </Box>
       {!step.hideFooter && (
