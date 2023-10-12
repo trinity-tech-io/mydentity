@@ -1,9 +1,10 @@
 import { FC, MouseEventHandler, ReactNode } from "react";
-import { Box, ButtonBase, Divider, styled } from "@mui/material";
+import { Box, Divider, styled } from "@mui/material";
+import clsx from "clsx";
 import ChipIcon from "@assets/images/card/chip.svg";
 import WaveLogoIcon from "@assets/images/card/wave-logo.svg";
 import CircleVector from "@assets/images/card/circle.svg";
-import clsx from "clsx";
+import { BaseButton } from "@components/button";
 
 const CardStyled = styled(Box)(({ theme }) => ({
   borderRadius: "6.329% / 10%",
@@ -73,11 +74,11 @@ const LandingCard: FC<{
         <div className=" flex flex-col h-full">
           <div className="flex h-[14%] mb-7">
             {chipClickable ? (
-              <ButtonBase onClick={handleClickChip}>
+              <BaseButton onClick={handleClickChip}>
                 <div className="h-full chip-item">
                   <ChipIcon width="100%" height="100%" viewBox="0 0 50 38" />
                 </div>
-              </ButtonBase>
+              </BaseButton>
             ) : (
               <div className="h-full chip-item">
                 <ChipIcon width="100%" height="100%" viewBox="0 0 50 38" />
