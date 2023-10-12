@@ -59,7 +59,7 @@ export const BrowserRow: FC<{
         <div className="relative z-10 inline-flex gap-5 px-3 py-5">
           <div className="relative">
             <ReactIcon icon="ic:round-computer" fontSize={40} />
-            {!isPasskeyBound && (
+            {isPasskeyBound && (
               <div className="absolute bottom-0 right-[-10%]">
                 <Tooltip title="Biometrics passkey is bound to this browser" arrow>
                   <Avatar sx={{ width: 20, height: 20, bgcolor: "#3A3A3A" }}>
