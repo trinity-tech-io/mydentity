@@ -2,6 +2,7 @@
 import { Breadcrumbs } from "@components/breadcrumbs/Breadcrumbs";
 import { EditableCredentialAvatar } from "@components/credential/EditableCredentialAvatar";
 import { MainButton } from "@components/generic/MainButton";
+import { CopyButton } from "@components/button";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { Credential } from "@model/credential/credential";
 import { Document } from "@model/document/document";
@@ -46,6 +47,7 @@ const ApplicationDetailsPage: FC<{
   // console.log("appIconUrl", appIconUrl)
 
   const { showSuccessToast, showErrorToast } = useToast();
+  const [showMnemonic, setShowMnemonic] = useState<string>(null);
 
   const fetchRemoteDIDDocument = useCallback((): void => {
     setAppDIDDocumentStatusWasChecked(false);
@@ -211,6 +213,13 @@ const ApplicationDetailsPage: FC<{
     await appIdentity.update(appName, uploadedAvatar.avatarHiveURL);
   }
 
+  const handleExportMnemonic = async (): Promise<void> => {
+    const mnemonic = await appIdentity?.exportMnemonic(appIdentity.identityRootId);
+    if (mnemonic) {
+      setShowMnemonic(mnemonic)
+    }
+  }
+
   return (
     <div className="col-span-full">
       <Breadcrumbs entries={["developers", "application-details"]} />
@@ -260,8 +269,11 @@ const ApplicationDetailsPage: FC<{
             <p>DID</p>
             {/* <ion-icon name="copy" onClick={copyAppDIDToClipboard}></ion-icon> */}
           </div>
-          <div>
-            <Typography>{applicationDid}</Typography>
+          <div className="inline-flex items-center">
+            <Typography variant="body2">
+              {applicationDid}
+            </Typography>
+            <CopyButton text={applicationDid} />
           </div>
         </div>
         {/* <div>
@@ -280,6 +292,19 @@ const ApplicationDetailsPage: FC<{
             {appDIDDocumentStatusWasChecked && !publishedDIDDocument && <Typography>No</Typography>}
           </div>
         </div>
+
+        {/** Show application DID mnemonic*/}
+        {showMnemonic ? (
+          <div className="inline-flex items-center">
+          <div>{'Application DID mnemonic：' + showMnemonic}</div>
+          <CopyButton text={showMnemonic} />
+          </div>
+        ): (
+          <MainButton onClick={handleExportMnemonic}>
+          Application DID mnemonic
+        </MainButton>
+        )}
+
         <div className="mt-4">
           {
             appDIDDocumentStatusWasChecked && localAppCredential && appIdentityNeedsToBePublished &&
