@@ -1,8 +1,8 @@
-import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
+import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { Credential } from "@model/credential/credential";
 import { Avatar } from "@mui/material";
-import clsx from 'clsx';
-import Image from 'next/image';
+import clsx from "clsx";
+import Image from "next/image";
 import { FC } from "react";
 
 /**
@@ -15,15 +15,22 @@ export const CredentialAvatar: FC<{
   height?: number;
   className?: string;
 }> = ({ credential, width = 60, height = 60, className }) => {
-  const [representativeIconPath] = useBehaviorSubject(credential?.representativeIcon$);
+  const [representativeIconPath] = useBehaviorSubject(
+    credential?.representativeIcon$
+  );
 
   return (
-    <Avatar sx={{ width, height }} className={clsx(className)}>
-      {typeof representativeIconPath === 'string' ? (
-        <Image src={representativeIconPath} alt="" width={width} height={height} />
+    <Avatar sx={{ width, height, padding: "22%", backgroundColor: "#7575754d" }} className={clsx(className)}>
+      {typeof representativeIconPath === "string" ? (
+        <Image
+          src={representativeIconPath}
+          alt=""
+          width={width}
+          height={height}
+        />
       ) : (
         representativeIconPath
       )}
     </Avatar>
-  )
-}
+  );
+};

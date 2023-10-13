@@ -44,6 +44,13 @@ export const generateTheme = (mode: PaletteMode): Theme => createTheme({
         }
       }
     },
+    MuiAvatar: {
+      styleOverrides: {
+        root: {
+          color: 'inherit'
+        }
+      }
+    }
   },
   palette: {
     mode,
