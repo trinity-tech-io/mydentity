@@ -319,8 +319,6 @@ const IdentityCardGroup: FC = () => {
         pagination={{
           clickable: true,
         }}
-        style={{
-        }}
       >
         {myIdentities.map((identity, _id) => (
           <SwiperSlide key={_id}>
