@@ -1,5 +1,5 @@
 "use client";
-import { FC, useEffect, useState } from "react";
+import { ChangeEvent, FC, useEffect, useState } from "react";
 import { Icon as ReactIcon } from "@iconify/react";
 import { useRouter } from "next13-progressbar";
 import { Box, Grid, InputAdornment, Typography } from "@mui/material";
@@ -29,6 +29,7 @@ export const AllIdentityList: FC = (_) => {
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const [showToast, setShowToast] = useState<boolean>(false);
   const [runTour, setRunTour] = useState<boolean>(false);
+  const [filterName, setFilterName] = useState<string>("");
   const sortedIdentities =
     identities &&
     [...identities].sort((a, b) => {
@@ -36,6 +37,12 @@ export const AllIdentityList: FC = (_) => {
       const dateB = b.lastUsedAt$.getValue().getTime();
       return dateB - dateA;
     });
+  const filteredIdentites =
+    sortedIdentities && filterName.trim()
+      ? sortedIdentities.filter((i) =>
+          i.profile().name$.getValue()?.includes(filterName) || i.did?.includes(filterName)
+        )
+      : sortedIdentities;
 
   const credentialData4check =
     identities && identities?.length > 0
@@ -91,6 +98,12 @@ export const AllIdentityList: FC = (_) => {
     const { action, index, status, type } = data;
   };
 
+  const handleFilterIdentities = (
+    event: ChangeEvent<HTMLInputElement>
+  ): void => {
+    setFilterName(event.target.value);
+  };
+
   return (
     <div className="col-span-full">
       <Headline
@@ -132,7 +145,7 @@ export const AllIdentityList: FC = (_) => {
               size="small"
               placeholder="Search"
               className="mr-4 rounded"
-              // onChange={handleFilterByName}
+              onChange={handleFilterIdentities}
               // inputProps={{ ref: emailInputRef }}
               startAdornment={
                 <InputAdornment position="start">
@@ -149,13 +162,13 @@ export const AllIdentityList: FC = (_) => {
             </DarkButton>
           </div>
         </Box>
-        {!sortedIdentities ? (
+        {!filteredIdentites ? (
           <LoadingCard />
         ) : (
           <>
-            {sortedIdentities?.length > 0 ? (
+            {filteredIdentites?.length > 0 ? (
               <Grid container spacing={2} className="card-grid">
-                {sortedIdentities.map((identity, _id) => (
+                {filteredIdentites.map((identity, _id) => (
                   <Grid item key={_id}>
                     <IdentityCard
                       identity={identity}
@@ -166,9 +179,15 @@ export const AllIdentityList: FC = (_) => {
                   </Grid>
                 ))}
               </Grid>
-            ) : (
+            ) : !filterName.trim() ? (
               <Typography variant="body1" marginTop={1}>
                 No identity found
+              </Typography>
+            ) : (
+              <Typography variant="body1">
+                No results found for &nbsp;
+                <strong>&quot;{filterName}&quot;</strong>.
+                <br /> Try checking for typos or using complete words.
               </Typography>
             )}
           </>

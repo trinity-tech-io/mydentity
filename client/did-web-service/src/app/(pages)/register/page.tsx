@@ -186,7 +186,7 @@ const RegisterPage: FC = () => {
           <div className={clsx("card", visibleNextForm && "is-flipped")}>
             <div className="card-face front">
               <CardCase className="relative w-full md:pb-2">
-                <div className="absolute inset-0 p-2">
+                <div className="absolute w-full h-full p-2">
                   <div className="dashed-body w-full h-full rounded-2xl p-1.5">
                     <div className="flex flex-col h-full">
                       <div className="basis-[11%] overflow-hidden">
@@ -225,7 +225,7 @@ const RegisterPage: FC = () => {
             </div>
             <div className="card-face back">
               <CardCase className="relative w-full md:pb-2">
-                <div className="absolute inset-0 p-2">
+                <div className="absolute w-full h-full p-2">
                   <div className="dashed-body w-full h-full rounded-2xl p-1.5">
                     <div className="px-6 py-8 w-full">
                       <div className="flex flex-col gap-5">
