@@ -237,14 +237,25 @@ export function isSignedIn(): boolean {
   return accessToken && accessToken !== '';
 }
 
-function pkCredentialCreationOptions(challengeInfo: ChallengeEntity): PublicKeyCredentialRequestOptionsJSON {
+function unlockPasskeyOptions(challengeInfo: ChallengeEntity): PublicKeyCredentialRequestOptionsJSON {
   const rpId = process.env.NEXT_PUBLIC_RP_ID
   const challengeEncoder = new TextEncoder()
   const challengeUint8Array = challengeEncoder.encode(challengeInfo.content)
   // TO UNLOCK PASSKEY
+  const credentialId = localStorage.getItem('passkey_credentialId')
+  // TODO: REMOVER
+  console.log("unlockPasskeyOptions: credentialId = ", credentialId)
   const publicKeyCredentialCreationOptions: PublicKeyCredentialRequestOptionsJSON = {
-    challenge: Buffer.from(challengeUint8Array).toString(),
-    allowCredentials: [],
+    // challenge: Buffer.from(challengeUint8Array).toString(),
+    // allowCredentials: [],
+    challenge: challengeInfo.content,
+    allowCredentials: [
+      {
+        id: credentialId,
+        type: "public-key",
+        transports: ['internal'],
+      }
+    ],
     rpId: rpId,
     userVerification: "required",
     timeout: 60000
@@ -257,13 +268,16 @@ export async function authenticateWithPasskey(): Promise<boolean> {
   logger.log("user", "Authenticating with passkey");
 
   const challengeInfo = await getPasskeyChallenge()
-  const infos = pkCredentialCreationOptions(challengeInfo)
+  const unlockOptions = unlockPasskeyOptions(challengeInfo)
   // true: Autofill account password will report an error
-  const attResp = await startAuthentication(infos, false)
+  const authenResponse = await startAuthentication(unlockOptions, false)
+  // TODO: REMOVER
+  console.log("authenticateWithPasskey: authenResponse = ", authenResponse)
+
   const authKey = {
     type: ShadowKeyType.WEBAUTHN,//-7
-    keyId: attResp.id,
-    key: JSON.stringify(attResp),
+    keyId: authenResponse.id,
+    key: JSON.stringify(authenResponse),
     challengeId: challengeInfo.id,
   };
 

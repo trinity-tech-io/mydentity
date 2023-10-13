@@ -109,11 +109,17 @@ export class SecurityFeature implements UserFeature {
   public async bindPasskey(): Promise<boolean> {
     const challengeInfo = await getPasskeyChallenge()
     const registerPasskeyOptions = await this.registerPasskeyOptions(challengeInfo, this.user.name$.value)
-    const attResp = await startRegistration(registerPasskeyOptions)
+    // TODO: REMOVER
+    console.log("bindPasskey: registerPasskeyOptions ==== ", registerPasskeyOptions)
+    const registResponse = await startRegistration(registerPasskeyOptions)
+    // TODO: REMOVER
+    console.log("bindPasskey: registResponse ==== ", registResponse)
+
+    localStorage.setItem("passkey_credentialId", registResponse.id)
     const newKey = {
       type: ShadowKeyType.WEBAUTHN,
-      keyId: attResp.id,
-      key: JSON.stringify(attResp),
+      keyId: registResponse.id,
+      key: JSON.stringify(registResponse),
       challengeId: challengeInfo.id,
     };
     const shadowKey = await bindKey(newKey)
@@ -136,14 +142,17 @@ export class SecurityFeature implements UserFeature {
     const challengeInfo = await getPasskeyChallenge()
     const unlockPasskeyOptions = await this.unlockPasskeyOptions(challengeInfo, null)
     // true: Autofill account password will report an error
-    const attResp = await startAuthentication(unlockPasskeyOptions, false)
+    const authenResponse = await startAuthentication(unlockPasskeyOptions, false)
+
+    // TODO: REMOVER
+    console.log("unlockPasskeyOptions: authenResponse = ", authenResponse)
     const authKey = {
       type: ShadowKeyType.WEBAUTHN, //-7
-      keyId: attResp.id,
-      key: JSON.stringify(attResp),
+      keyId: authenResponse.id,
+      key: JSON.stringify(authenResponse),
       challengeId: challengeInfo.id,
     };
-    logger.log("Keyring", "start unlock passkey, attResp: ", attResp);
+    logger.log("Keyring", "start unlock passkey, authenResponse: ", authenResponse);
     return authKey;
   }
 
@@ -152,10 +161,18 @@ export class SecurityFeature implements UserFeature {
     const rpId = process.env.NEXT_PUBLIC_RP_ID
     const challengeEncoder = new TextEncoder()
     const challengeUint8Array = challengeEncoder.encode(challengeInfo.content)
+    const credentialId = localStorage.getItem('passkey_credentialId')
+
     const publicKeyCredentialCreationOptions: PublicKeyCredentialRequestOptionsJSON = {
       // challenge: Buffer.from(challengeUint8Array).toString(),
       challenge: challengeInfo.content,
-      allowCredentials: [],
+      // allowCredentials: [],
+      allowCredentials: [
+        {
+          id: credentialId,
+          type: "public-key"
+        }
+      ],
       rpId: rpId,
       userVerification: "required",
       timeout: 60000
