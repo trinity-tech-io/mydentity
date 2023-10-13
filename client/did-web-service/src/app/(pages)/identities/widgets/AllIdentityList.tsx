@@ -39,8 +39,10 @@ export const AllIdentityList: FC = (_) => {
     });
   const filteredIdentites =
     sortedIdentities && filterName.trim()
-      ? sortedIdentities.filter((i) =>
-          i.profile().name$.getValue()?.includes(filterName) || i.did?.includes(filterName)
+      ? sortedIdentities.filter(
+          (i) =>
+            i.profile().name$.getValue()?.includes(filterName) ||
+            i.did?.includes(filterName)
         )
       : sortedIdentities;
 
