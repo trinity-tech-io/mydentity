@@ -180,7 +180,7 @@ export const IdentityCard: FC<{
                       </>
                     }
                     bodyRows={
-                      !credentials && credentials.length > 0 ? (
+                      credentials && credentials.length > 0 ? (
                         credentials?.map((c, _id) => (
                           <CredentialInfoRow credential={c} key={_id} />
                         ))
