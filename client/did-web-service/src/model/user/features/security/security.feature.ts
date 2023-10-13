@@ -180,6 +180,10 @@ export class SecurityFeature implements UserFeature {
       pubKeyCredParams: [{ type: "public-key", alg: -7 }],
       rp: rp,
       challenge: challengeInfo.content,
+      authenticatorSelection: {
+        userVerification: "required", // Webauthn default is "preferred"
+        residentKey: "required", // <-- This will trigger passkey support in Android
+      },
     }
 
     return pkCredentialCreationOptionsJSON
