@@ -448,21 +448,23 @@ const Profile: FC = () => {
                 ADD PROFILE ITEM
               </DarkButton>
             </div>
-            <div className="flex gap-1">
-              <NormalButton
-                size="small"
-                endIcon={<NavigateNextIcon />}
-                onClick={handleShowAllIdentities}
-              >
-                Show all identities
-              </NormalButton>
-              {!!explorerDIDLink && (
-                <Link target="_blank" href={explorerDIDLink} passHref={true}>
-                  <NormalButton size="small" endIcon={<NavigateNextIcon />}>
-                    View on blockchain explorer
-                  </NormalButton>
-                </Link>
-              )}
+            <div className="flex flex-1 gap-1 items-end">
+              <div className="inline-flex">
+                <NormalButton
+                  size="small"
+                  endIcon={<NavigateNextIcon />}
+                  onClick={handleShowAllIdentities}
+                >
+                  Show all identities
+                </NormalButton>
+                {!!explorerDIDLink && (
+                  <Link target="_blank" href={explorerDIDLink} passHref={true}>
+                    <NormalButton size="small" endIcon={<NavigateNextIcon />}>
+                      View on blockchain explorer
+                    </NormalButton>
+                  </Link>
+                )}
+              </div>
             </div>
           </div>
         </Stack>

@@ -1,19 +1,18 @@
 import { FC } from "react";
-import {
-  Avatar,
-  ListItemText,
-  TableCell,
-  Typography,
-  styled,
-} from "@mui/material";
+import { ListItemText, TableCell, Typography } from "@mui/material";
 import { DetailTableRow } from "@components/generic/DetailTable";
 import { CredentialAvatar } from "./CredentialAvatar";
 import { Credential } from "@model/credential/credential";
 import { JsonViewer } from "./JsonViewer";
+import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
+import SharedCountLabel from "./SharedCountLabel";
 
 export const CredentialInfoRow: FC<{ credential: Credential }> = ({
   credential,
 }) => {
+  const [isConform] = useBehaviorSubject(credential?.isConform$);
+  const [requestingApplications] = useBehaviorSubject(credential?.requestingApplications$);
+
   return (
     <DetailTableRow
       className="h-[3.5rem]"
@@ -51,9 +50,7 @@ export const CredentialInfoRow: FC<{ credential: Credential }> = ({
             />
           </TableCell>
           <TableCell sx={{ padding: 0 }}>
-            <div className="w-4 h-4 bg-[#9291A5] inline-flex justify-center items-center p-2 text-[7pt] rounded-[4px]">
-              1
-            </div>
+            <SharedCountLabel count={requestingApplications?.length || 0} isConform={isConform} />
           </TableCell>
         </>
       }
