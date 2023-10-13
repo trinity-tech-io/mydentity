@@ -108,8 +108,8 @@ export class SecurityFeature implements UserFeature {
 
   public async bindPasskey(): Promise<boolean> {
     const challengeInfo = await getPasskeyChallenge()
-    const infos = await this.pkCredentialCreationOptions(challengeInfo, this.user.name$.value)
-    const attResp = await startRegistration(infos[1])
+    const registerPasskeyOptions = await this.registerPasskeyOptions(challengeInfo, this.user.name$.value)
+    const attResp = await startRegistration(registerPasskeyOptions)
     const newKey = {
       type: ShadowKeyType.WEBAUTHN,
       keyId: attResp.id,
@@ -134,9 +134,9 @@ export class SecurityFeature implements UserFeature {
   public async unlockPasskeyLocally(): Promise<AuthKeyInput> {
     logger.log("Keyring", "start unlock passkey...")
     const challengeInfo = await getPasskeyChallenge()
-    const infos = await this.pkCredentialCreationOptions(challengeInfo, null)
+    const unlockPasskeyOptions = await this.unlockPasskeyOptions(challengeInfo, null)
     // true: Autofill account password will report an error
-    const attResp = await startAuthentication(infos[0], false)
+    const attResp = await startAuthentication(unlockPasskeyOptions, false)
     const authKey = {
       type: ShadowKeyType.WEBAUTHN, //-7
       keyId: attResp.id,
@@ -147,21 +147,26 @@ export class SecurityFeature implements UserFeature {
     return authKey;
   }
 
-  private async pkCredentialCreationOptions(challengeInfo: ChallengeEntity, userName?: string): Promise<[PublicKeyCredentialRequestOptionsJSON, PublicKeyCredentialCreationOptionsJSON]> {
+  // TO UNLOCK PASSKEY
+  private async unlockPasskeyOptions(challengeInfo: ChallengeEntity, userName?: string): Promise<PublicKeyCredentialRequestOptionsJSON> {
     const rpId = process.env.NEXT_PUBLIC_RP_ID
-    const rpName = process.env.NEXT_PUBLIC_RP_NAME
     const challengeEncoder = new TextEncoder()
     const challengeUint8Array = challengeEncoder.encode(challengeInfo.content)
-    // TO UNLOCK PASSKEY
     const publicKeyCredentialCreationOptions: PublicKeyCredentialRequestOptionsJSON = {
-      challenge: Buffer.from(challengeUint8Array).toString(),
+      // challenge: Buffer.from(challengeUint8Array).toString(),
+      challenge: challengeInfo.content,
       allowCredentials: [],
       rpId: rpId,
       userVerification: "required",
       timeout: 60000
     };
+    return publicKeyCredentialCreationOptions
+  }
 
-    // TO REGISTER PASSKEY
+  // TO REGISTER PASSKEY
+  private async registerPasskeyOptions(challengeInfo: ChallengeEntity, userName?: string): Promise<PublicKeyCredentialCreationOptionsJSON> {
+    const rpId = process.env.NEXT_PUBLIC_RP_ID
+    const rpName = process.env.NEXT_PUBLIC_RP_NAME
     const rp: PublicKeyCredentialRpEntity = {
       id: rpId,
       name: rpName
@@ -177,7 +182,7 @@ export class SecurityFeature implements UserFeature {
       challenge: challengeInfo.content,
     }
 
-    return [publicKeyCredentialCreationOptions, pkCredentialCreationOptionsJSON]
+    return pkCredentialCreationOptionsJSON
   }
 
   private upsertShadowKey(shadowKey: ShadowKey): void {
