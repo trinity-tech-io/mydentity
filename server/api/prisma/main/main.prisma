@@ -302,6 +302,5 @@ model IdentityClaimRequest {
   identity Identity @relation(fields: [identityDid], references: [did], onDelete: Restrict)
   identityDid      String
 
-  secretkey        String
-  password         String
+  password         String   // encrypted password with nonce
 }

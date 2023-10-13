@@ -17,6 +17,7 @@ export class DidService {
     this.globalDidAdapter = new DidAdapter();
     DIDBackend.initialize(new DefaultDIDAdapter(this.network));
     Features.enableJsonLdContext(true);
+    DIDStore.register("ds", PrismaDIDStorage);
   }
 
   generateMnemonic(language: string) {
@@ -31,7 +32,6 @@ export class DidService {
     if (path in this.didStoreCache)
       return this.didStoreCache[path];
 
-    DIDStore.register("ds", PrismaDIDStorage);
     const didStore = await DIDStore.open(path, "ds");
     if (!didStore)
       throw new AppException(DIDExceptionCode.DIDStorageError, "Can't open did store: " + path, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -346,5 +346,9 @@ export class DidService {
         throw new AppException(DIDExceptionCode.DIDStorageError, e.message, HttpStatus.INTERNAL_SERVER_ERROR);
       }
     }
+  }
+
+  async transfer(src: string, srcPassword: string, dest: string, destPassword): Promise<void> {
+    PrismaDIDStorage.transfer(src, srcPassword, dest, destPassword);
   }
 }

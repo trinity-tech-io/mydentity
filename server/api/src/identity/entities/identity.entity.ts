@@ -10,10 +10,10 @@ export class IdentityEntity {
   type: IdentityType;
 
   @Field(() => GraphQLISODateTime)
-  createdAt: Date;
+  createdAt: string;
 
   @Field(() => GraphQLISODateTime)
-  lastUsedAt: Date;
+  lastUsedAt: string;
 
   @Field(() => String)
   identityRootId: string;

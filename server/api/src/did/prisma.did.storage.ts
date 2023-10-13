@@ -1,5 +1,6 @@
-import { CredentialMetadata, DID, DIDDocument, DIDMetadata, DIDStorage, DIDStoreMetadata, DIDURL, ReEncryptor, RootIdentity } from '@elastosfoundation/did-js-sdk';
+import { Aes256cbc, CredentialMetadata, DID, DIDDocument, DIDMetadata, DIDStorage, DIDStoreMetadata, DIDURL, ReEncryptor, RootIdentity } from '@elastosfoundation/did-js-sdk';
 import { DIDPrismaService } from '../prisma/did.prisma.service';
+import { Prisma } from '@prisma/client';
 
 export class PrismaDIDStorage implements DIDStorage {
   private prisma: DIDPrismaService;
@@ -649,5 +650,96 @@ export class PrismaDIDStorage implements DIDStorage {
         });
       }
     }
+  }
+
+  private static reEncrypt(secret: string, oldpass: string, newpass: string): string {
+      const plain = Aes256cbc.decryptFromBase64(secret, oldpass);
+      const newSecret = Aes256cbc.encryptToBase64(plain, newpass);
+      return newSecret;
+  }
+
+  public static async transfer(src: string, srcPassword: string, dest: string, destPassword): Promise<void> {
+    const prisma = DIDPrismaService.getInstance(); // Dirty way to access the singleton. It must have been initialized by someone else first.
+
+    await prisma.$transaction<void>(async (tx) => {
+      const identityRoots = await tx.rootIdentity.findMany({
+        where: { path: src, },
+        select: {
+          id: true,
+          mnemonic: true,
+        }
+      });
+
+      for (const identityRoot of identityRoots) {
+        await tx.rootIdentity.update({
+          where: {
+            path: src,
+            id: identityRoot.id
+          },
+          data: {
+            path: dest,
+            mnemonic: PrismaDIDStorage.reEncrypt(identityRoot.mnemonic, srcPassword, destPassword),
+          }
+        });
+      }
+
+      const privateKeys = await tx.privateKey.findMany({
+        where: { path: src },
+      });
+
+      for (const sk of privateKeys) {
+        await tx.privateKey.update({
+          where: {
+            path: src,
+            id: sk.id
+          },
+          data: {
+            path: dest,
+            context: PrismaDIDStorage.reEncrypt(sk.context, srcPassword, destPassword),
+          }
+        });
+      }
+
+      const credentials = await tx.verifiableCredential.findMany({
+        where: { path: src },
+      });
+
+      for (const vc of credentials) {
+        const content = Buffer.from(vc.credential);
+        if (content && content[0] == 0x0E && content[1] == 0x0C && content[2] == 0x56 && content[3] == 0x43) {
+          const d = PrismaDIDStorage.reEncrypt(Buffer.from(content.slice(4)).toString(), srcPassword, destPassword);
+          let dataBuffer = Buffer.from(d, "utf-8");
+          const prefix = Buffer.alloc(4);
+          prefix[0] = 0x0E;
+          prefix[1] = 0x0C;
+          prefix[2] = 0x56;
+          prefix[3] = 0x43;
+          dataBuffer = Buffer.concat([prefix, dataBuffer]);
+
+          await tx.verifiableCredential.update({
+            where: {
+              path: src,
+              id: vc.id,
+            },
+            data: {
+              path: dest,
+              credential: dataBuffer.toString(),
+            }
+          });
+        } else {
+          await tx.verifiableCredential.update({
+            where: {
+              path: src,
+              id: vc.id,
+            },
+            data: {
+              path: dest
+            }
+          });
+        }
+      }
+    }, {
+        isolationLevel: Prisma.TransactionIsolationLevel.Serializable
+    });
   }
 }

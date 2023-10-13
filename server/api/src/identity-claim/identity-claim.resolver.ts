@@ -8,6 +8,9 @@ import { IdentityAccessInfo } from 'src/identity/model/identity-access-info';
 import { ClaimIdentityInput } from './dto/claim-identity.input';
 import { IdentityClaimRequestEntity } from './entities/identity-claim-request.entity';
 import { IdentityClaimService } from './identity-claim.service';
+import { CurrentBrowser } from 'src/browsers/browser-user.decorator';
+import { CurrentUser } from 'src/auth/currentuser.decorator';
+import { Browser, User } from '@prisma/client/main';
 
 @Resolver(() => IdentityClaimRequestEntity)
 export class IdentityClaimResolver {
@@ -28,22 +31,18 @@ export class IdentityClaimResolver {
   }
 
   @Query(() => IdentityClaimRequestEntity, { name: 'identityClaimRequest' })
-  async findOne(@Args('id') claimRequestId: string): Promise<IdentityClaimRequestEntity> {
-    const claimRequest = await this.identityClaimService.findOne(claimRequestId);
+  async verifyClaimRequest(@Args('id') claimRequestId: string, @Args('nonce') nonce: string): Promise<IdentityClaimRequestEntity> {
+    const claimRequest = await this.identityClaimService.verifyClaimRequest(claimRequestId, nonce);
     return {
       ...claimRequest as any, // Cast as any to allow auto filed conversion by nest
-      identityInfo: this.identityClaimService.getClaimableIdentityInfo(claimRequest),
+      identityInfo: this.identityClaimService.getClaimableIdentityInfo(claimRequest)
     }
-  }
-
-  @Query(() => IdentityClaimRequestEntity, { name: 'identityClaimRequest' })
-  async verifyClaimRequest(@Args('id') claimRequestId: string, @Args('nonce') nonce: string): Promise<boolean> {
-    return this.identityClaimService.verifyClaimRequest(claimRequestId, nonce);
   }
 
   @UseGuards(JwtAuthGuard)
   @Mutation(() => IdentityEntity)
-  async claimManagedIdentity(@Args("input") input: ClaimIdentityInput): Promise<IdentityEntity> {
-    return this.identityClaimService.claimManagedIdentity(input.requestId, input.nonce, input.newPassword);
+  async claimManagedIdentity(@Args("input") input: ClaimIdentityInput, @CurrentBrowser() browser: Browser, @CurrentUser() user: User): Promise<IdentityEntity> {
+    const identity = this.identityClaimService.claimManagedIdentity(input.requestId, input.nonce, input.newPassword, browser.id, user);
+    return identity as any;
   }
 }

@@ -404,9 +404,9 @@ export class KeyRingService {
   }
 
   /**
-   * Unlocks a signed in user's master key during a few minutes.
+   * decrypt the master key with auth key. internal only!!!
    */
-  async unlockMasterKey(authKey: AuthKeyInput, browserId: string, user: User): Promise<boolean> {
+  async _decryptMasterKey(authKey: AuthKeyInput, browserId: string, user: User): Promise<string> {
     if (!user)
       throw new AppException(KeyRingExceptionCode.Unauthorized, "Missing user", HttpStatus.FORBIDDEN);
 
@@ -443,7 +443,15 @@ export class KeyRingService {
     }
 
     const masterKey = Buffer.from(this.getSecretKey(shadow, key)).toString("hex");
-    this.masterKeyCache.set(shadow.userId + "-" + browserId, masterKey);
+    return masterKey;
+  }
+
+  /**
+   * Unlocks a signed in user's master key during a few minutes.
+   */
+  async unlockMasterKey(authKey: AuthKeyInput, browserId: string, user: User): Promise<boolean> {
+    const masterKey = await this._decryptMasterKey(authKey, browserId, user);
+    this.masterKeyCache.set(user.id + "-" + browserId, masterKey);
     return true;
   }
 

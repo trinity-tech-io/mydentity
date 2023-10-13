@@ -48,7 +48,8 @@ export enum DataExceptionCode {
 export enum IdentityClaimExceptionCode {
   RequestNotExists = 10501,
   RequestExpired = 10502,
-  InvalidNonce = 10503
+  InvalidNonce = 10503,
+  AlreadyClaimed = 10504
 }
 
 export type AppExceptionCode = AuthExceptionCode | KeyRingExceptionCode | DIDExceptionCode | DataExceptionCode | IdentityClaimExceptionCode;
