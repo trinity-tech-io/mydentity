@@ -185,7 +185,9 @@ export const IdentityCard: FC<{
                       ) : (
                         <TableRow>
                           <TableCell component="th" colSpan={3} align="center">
-                              No credential found
+                            {!credentials
+                              ? "No credential found"
+                              : "No credential attached to this identity yet"}
                           </TableCell>
                         </TableRow>
                       )
