@@ -256,16 +256,18 @@ const IdentityCardGroup: FC = () => {
   const slideTo = (index: number) => swiper?.slideTo(index);
 
   useEffect(() => {
-    if (identities && identities?.length !== myIdentities.length && activeIdentity) {
+    if (identities && identities?.length !== myIdentities.length) {
       const tempIdentities = [...identities];
-      const activeIdentityIndex =
-        identities?.findIndex((i) => i == activeIdentity) || activeIndex;
-      if (activeIndex != activeIdentityIndex)
-        tempIdentities.splice(
-          activeIndex,
-          0,
-          tempIdentities.splice(activeIdentityIndex, 1)[0]
-        );
+      if(activeIdentity) {
+        const activeIdentityIndex =
+          identities?.findIndex((i) => i == activeIdentity) || activeIndex;
+        if (activeIndex != activeIdentityIndex)
+          tempIdentities.splice(
+            activeIndex,
+            0,
+            tempIdentities.splice(activeIdentityIndex, 1)[0]
+          );
+      }
       setMyIdentites(tempIdentities);
     }
 
