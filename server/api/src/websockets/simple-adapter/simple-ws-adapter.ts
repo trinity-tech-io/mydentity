@@ -25,7 +25,7 @@ export class SimpleWebsocketAdapter implements WebsocketAdapter {
   private createWebSocketServer(server: Server) {
     // Standalone WS server not bound to express during development
     this.wss = new WebSocket.Server({
-      path: "/ws",
+      path: "/",
       port: 3020
     });
 
