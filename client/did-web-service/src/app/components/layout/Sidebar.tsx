@@ -3,6 +3,7 @@
 import { FC, ReactNode, useEffect, useRef, useState } from "react";
 import clsx from "clsx";
 import Link from "next/link";
+import { useRouter } from "next13-progressbar";
 import { usePathname } from "next/navigation";
 import { Swiper, SwiperClass, SwiperSlide } from "swiper/react";
 import { EffectCards } from "swiper/modules";
@@ -250,6 +251,10 @@ const IdentityCardGroup: FC = () => {
   );
   const [myIdentities, setMyIdentites] = useState<RegularIdentity[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
+  const router = useRouter()
+  const [swiper, setSwiper] = useState(null);
+  const slideTo = (index: number) => swiper?.slideTo(index);
+
   useEffect(() => {
     if (identities && identities?.length !== myIdentities.length && activeIdentity) {
       const tempIdentities = [...identities];
@@ -262,6 +267,13 @@ const IdentityCardGroup: FC = () => {
           tempIdentities.splice(activeIdentityIndex, 1)[0]
         );
       setMyIdentites(tempIdentities);
+    }
+
+    if(identities?.length === myIdentities.length && activeIdentity) {
+      const activeIdentityIndex =
+        myIdentities?.findIndex((i) => i == activeIdentity) || activeIndex;
+      if (activeIndex != activeIdentityIndex)
+        slideTo(activeIdentityIndex)
     }
   }, [identities?.length, activeIdentity]);
 
@@ -278,6 +290,10 @@ const IdentityCardGroup: FC = () => {
     setActiveIndex(sw.activeIndex);
   };
 
+  const handleClick = (sw: SwiperClass) => {
+    router.push("/profile")
+  }
+
   return !identities ? (
     <LandingCard
       className="bg-black w-full"
@@ -290,6 +306,8 @@ const IdentityCardGroup: FC = () => {
       modules={[EffectCards]}
       className="mySwiper w-full"
       onTransitionEnd={handleTransitionEnd}
+      onClick={handleClick}
+      onSwiper={setSwiper}
     >
       {myIdentities.map((identity, _id) => (
         <SwiperSlide key={_id}>
