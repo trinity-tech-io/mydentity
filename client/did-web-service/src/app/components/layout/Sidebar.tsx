@@ -6,8 +6,9 @@ import Link from "next/link";
 import { useRouter } from "next13-progressbar";
 import { usePathname } from "next/navigation";
 import { Swiper, SwiperClass, SwiperSlide } from "swiper/react";
-import { EffectCards } from "swiper/modules";
+import { EffectCards, Pagination } from "swiper/modules";
 import "swiper/css";
+import "swiper/css/pagination";
 import "swiper/css/effect-cards";
 
 import AccountIcon from "@assets/images/account.svg";
@@ -22,7 +23,7 @@ import { activeIdentity$ } from "@services/identity/identity.events";
 import { authUser$ } from "@services/user/user.events";
 import ThemeToggle from "../generic/ThemeToggle";
 import { LandingCard } from "@components/card";
-import { Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { IdentityInfoCard } from "@components/identity/IdentityInfoCard";
 import { identityService } from "@services/identity/identity.service";
 import { RegularIdentity } from "@model/regular-identity/regular-identity";
@@ -251,14 +252,14 @@ const IdentityCardGroup: FC = () => {
   );
   const [myIdentities, setMyIdentites] = useState<RegularIdentity[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
-  const router = useRouter()
+  const router = useRouter();
   const [swiper, setSwiper] = useState(null);
   const slideTo = (index: number) => swiper?.slideTo(index);
 
   useEffect(() => {
     if (identities && identities?.length !== myIdentities.length) {
       const tempIdentities = [...identities];
-      if(activeIdentity) {
+      if (activeIdentity) {
         const activeIdentityIndex =
           identities?.findIndex((i) => i == activeIdentity) || activeIndex;
         if (activeIndex != activeIdentityIndex)
@@ -271,11 +272,10 @@ const IdentityCardGroup: FC = () => {
       setMyIdentites(tempIdentities);
     }
 
-    if(identities?.length === myIdentities.length && activeIdentity) {
+    if (identities?.length === myIdentities.length && activeIdentity) {
       const activeIdentityIndex =
         myIdentities?.findIndex((i) => i == activeIdentity) || activeIndex;
-      if (activeIndex != activeIdentityIndex)
-        slideTo(activeIdentityIndex)
+      if (activeIndex != activeIdentityIndex) slideTo(activeIdentityIndex);
     }
   }, [identities?.length, activeIdentity]);
 
@@ -293,30 +293,42 @@ const IdentityCardGroup: FC = () => {
   };
 
   const handleClick = (sw: SwiperClass) => {
-    router.push("/profile")
-  }
+    router.push("/profile");
+  };
 
   return !identities ? (
-    <LandingCard
-      className="bg-black w-full"
-      waveIconVisible={false}
-    />
+    <LandingCard className="bg-black w-full" waveIconVisible={false} />
   ) : (
-    <Swiper
-      effect={"cards"}
-      grabCursor={true}
-      modules={[EffectCards]}
-      className="mySwiper w-full"
-      onTransitionEnd={handleTransitionEnd}
-      onClick={handleClick}
-      onSwiper={setSwiper}
+    <Box
+      sx={{
+        ".swiper-pagination": {
+          bottom: 0,
+          transform: "translateY(60%)",
+        },
+        "--swiper-pagination-color": "#C4C4C4",
+      }}
     >
-      {myIdentities.map((identity, _id) => (
-        <SwiperSlide key={_id}>
-          <IdentityInfoCard identity={identity} />
-        </SwiperSlide>
-      ))}
-    </Swiper>
+      <Swiper
+        effect={"cards"}
+        grabCursor={true}
+        modules={[EffectCards, Pagination]}
+        className="mySwiper w-full"
+        onTransitionEnd={handleTransitionEnd}
+        onClick={handleClick}
+        onSwiper={setSwiper}
+        pagination={{
+          clickable: true,
+        }}
+        style={{
+        }}
+      >
+        {myIdentities.map((identity, _id) => (
+          <SwiperSlide key={_id}>
+            <IdentityInfoCard identity={identity} />
+          </SwiperSlide>
+        ))}
+      </Swiper>
+    </Box>
   );
 };
 
