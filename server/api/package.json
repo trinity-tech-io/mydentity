@@ -34,7 +34,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "update": "npm i --legacy-peer-deps && npm run prisma:generate && npm run prisma:deploy"
+    "update": "npm i --legacy-peer-deps && npm run prisma:generate && npm run prisma:deploy",
+    "gen-dev-https-certificates": "openssl req -nodes -newkey rsa:2048 -keyout certificates/dev-server.key -x509 -days 365 -out certificates/dev-server.crt"
   },
   "dependencies": {
     "@apollo/server": "^4.9.0",

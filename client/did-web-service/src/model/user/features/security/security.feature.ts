@@ -1,4 +1,5 @@
 import { gql } from "@apollo/client";
+import { callWithUnlock } from "@components/security/unlock-key-prompt/call-with-unlock";
 import { gqlShadowKeyFields } from "@graphql/shadow-key.fields";
 import { ChallengeEntity } from "@model/shadow-key/challenge-entity";
 import { ShadowKey } from "@model/shadow-key/shadow-key";
@@ -15,7 +16,6 @@ import { AdvancedBehaviorSubject } from "@utils/advanced-behavior-subject";
 import { map } from "rxjs";
 import { User } from "../../user";
 import { UserFeature } from "../user-feature";
-import { callWithUnlock } from "@components/security/unlock-key-prompt/call-with-unlock";
 
 export class SecurityFeature implements UserFeature {
   /**
@@ -174,8 +174,8 @@ export class SecurityFeature implements UserFeature {
         }
       ],
       rpId: rpId,
-      userVerification: "required",
-      timeout: 60000
+      userVerification: "preferred",
+      timeout: 30000
     };
     return publicKeyCredentialCreationOptions
   }
@@ -197,10 +197,12 @@ export class SecurityFeature implements UserFeature {
       pubKeyCredParams: [{ type: "public-key", alg: -7 }],
       rp: rp,
       challenge: challengeInfo.content,
+
       authenticatorSelection: {
-        userVerification: "required", // Webauthn default is "preferred"
-        residentKey: "required", // <-- This will trigger passkey support in Android
+        userVerification: "preferred", // Webauthn default is "preferred"
+        //residentKey: "required", // <-- This will trigger passkey support in Android
       },
+      timeout: 30000
     }
 
     return pkCredentialCreationOptionsJSON

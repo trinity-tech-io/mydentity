@@ -31,6 +31,33 @@ This web app aims at helping users easily get a W3C DID and manage it. The app a
 - Setup the [React web app](/client/did-web-service/README.md)
 - Setup the [API server](/server/api/README.md)
 
+# HTTPS Setup
+
+In case the app needs to run in local dev environment, for example to test from local mobile devices on a local network:
+
+- Change frontend's .env:
+  - NEXT_PUBLIC_FRONTEND_URL=https://YOUR_192_xxx_IP:4000
+  - NEXT_PUBLIC_BACKEND_URL=https://YOUR_192_xxx_IP:3000
+- Change backend's .env:
+  - SERVER_URL=https://YOUR_192_xxx_IP:3000
+- From the mobile browser, manually first browse https://YOUR_192_xxx_IP:3000 and accept to access the untrusted domain (otherwise, api calls will fail)
+- From the mobile browser, open https://YOUR_192_xxx_IP:4000 and access the untrusted domain
+
+# Webauthn issues
+
+Webauthn can work EITHER from "http://localhost" (not a local ip address) OR from a real https domain with a valid SSL certificate (not self signed)
+
+Problem:
+
+- In order to test passkey from mobile browsers, with a local app running on a computer of the same network, we need to go through the computer IP address.
+- But then we would need to use HTTPS for front end and backend, so we need a SSL certificate.
+- But passkey doesn't work with IP address or with self signed certificates, so it's impossible to solve this issue.
+
+Potential solution:
+
+- Serve the local app behind a xxxx.pc2.net carrier proxy.
+- TODO
+
 # VSCode plugins to use:
 
 - For Tailwind CSS rules: bradlc.vscode-tailwindcss

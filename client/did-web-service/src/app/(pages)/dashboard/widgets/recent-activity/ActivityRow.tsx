@@ -1,7 +1,8 @@
-import { Activity } from "@model/activity/activity";
-import { logger } from "@services/logger";
-import { FC, ReactNode } from "react";
+import { DetailTableRow } from "@components/generic/DetailTable";
 import { Icon as ReactIcon } from "@iconify/react";
+import { Activity } from "@model/activity/activity";
+import { ActivityType } from "@model/activity/activity-type";
+import { MoreVert as MoreVertIcon } from "@mui/icons-material";
 import {
   Avatar,
   IconButton,
@@ -9,10 +10,9 @@ import {
   TableCell,
   styled,
 } from "@mui/material";
-import { MoreVert as MoreVertIcon } from "@mui/icons-material";
-import { DetailTableRow } from "@components/generic/DetailTable";
+import { logger } from "@services/logger";
 import { getDateDistance } from "@utils/date";
-import { ActivityType } from "@model/activity/activity-type";
+import { FC, ReactNode } from "react";
 
 function getActivityRenderer(activity: Activity) {
   const renderer = {
@@ -57,11 +57,11 @@ function getActivityRenderer(activity: Activity) {
       break;
     case ActivityType.CREDENTIALS_SHARED:
       renderer.icon = <ReactIcon icon="ic:round-share" />;
-      renderer.action_name = `${activity.credentialsCount} verified credential(s) shared`;
+      renderer.action_name = `${activity.credentialsCount} credential(s) shared`;
       break;
     case ActivityType.CREDENTIALS_IMPORTED:
       renderer.icon = <ReactIcon icon="mdi:integrated-circuit-chip" />;
-      renderer.action_name = `${activity.credentialsCount} verified credential(s) imported`;
+      renderer.action_name = `${activity.credentialsCount} credential(s) imported`;
       break;
     default:
       logger.error(
@@ -123,9 +123,9 @@ export const ActivityRow: FC<{
               <IconButton
                 size="small"
                 color="inherit"
-                // onClick={(event): void => {
-                //   handleOpenMenu(event, credential);
-                // }}
+              // onClick={(event): void => {
+              //   handleOpenMenu(event, credential);
+              // }}
               >
                 <MoreVertIcon />
               </IconButton>

@@ -105,7 +105,7 @@ export class KeyRingService {
         expectedChallenge: challenge.content,
         expectedOrigin: this.webautnOrigin,
         expectedRPID: this.webauthnRelyingParty,
-        requireUserVerification: true,
+        requireUserVerification: false,
       };
       result = await verifyRegistrationResponse(opts);
       return result;
@@ -131,7 +131,7 @@ export class KeyRingService {
           credentialID: Buffer.from(shadow.credentialId, "hex"),
           credentialPublicKey: Buffer.from(shadow.key, "hex")
         },
-        requireUserVerification: true,
+        requireUserVerification: false,
       };
       const result = await verifyAuthenticationResponse(opts);
       this.updateCounter(shadow.userId, shadow.keyId, result.authenticationInfo.newCounter);

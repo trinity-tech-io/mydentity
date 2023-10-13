@@ -10,11 +10,13 @@ import { AppService } from './app.service';
 import { AuthProvidersModule } from './auth-providers/auth-providers.module';
 import { AuthModule } from './auth/auth.module';
 import { BrowsersModule } from './browsers/browsers.module';
+import { ContactUsModule } from "./contact-us/contact-us.module";
 import { CredentialsModule } from './credentials/credentials.module';
 import { DIDPublishingModule } from './did-publishing/did-publishing.module';
 import { DIDModule } from './did/did.module';
 import { CommonEmailingModule } from "./emailing/emailing.module";
 import { AppExceptionGraphQLInterceptor } from './exceptions/app-exception-gql-interceptor';
+import { IdentityClaimModule } from './identity-claim/identity-claim.module';
 import { IdentityRootModule } from './identity-root/identity-root.module';
 import { IdentityModule } from './identity/identity.module';
 import { IntentsModule } from './intents/intents.module';
@@ -22,8 +24,6 @@ import { KeyRingModule } from './key-ring/key-ring.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { UserModule } from './user/user.module';
 import { CommonWsModule } from "./websockets/ws.module";
-import { IdentityClaimModule } from './identity-claim/identity-claim.module';
-import { ContactUsModule } from "./contact-us/contact-us.module";
 
 
 @Module({
@@ -35,7 +35,7 @@ import { ContactUsModule } from "./contact-us/contact-us.module";
       driver: ApolloDriver,
       autoSchemaFile: true, // Use true to work in serveless environments, to not get a FS read only error. join(__dirname, 'schema.gql'),
       sortSchema: true,
-      allowBatchedHttpRequests: true
+      allowBatchedHttpRequests: true,
     }),
     AuthModule,
     AuthProvidersModule,

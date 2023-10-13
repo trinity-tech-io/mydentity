@@ -257,8 +257,8 @@ function unlockPasskeyOptions(challengeInfo: ChallengeEntity): PublicKeyCredenti
       }
     ],
     rpId: rpId,
-    userVerification: "required",
-    timeout: 60000
+    userVerification: "preferred",
+    timeout: 30000
   };
 
   return publicKeyCredentialCreationOptions
