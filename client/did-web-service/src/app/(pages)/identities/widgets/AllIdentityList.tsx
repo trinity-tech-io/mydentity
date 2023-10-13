@@ -37,9 +37,17 @@ export const AllIdentityList: FC = (_) => {
       return dateB - dateA;
     });
 
+  const credentialData4check =
+    identities && identities?.length > 0
+      ? identities[0].credentials().credentials$
+      : null;
   useEffect(() => {
-    if (identities) setTimeout(() => setRunTour(true), 500);
-  }, [identities]);
+    credentialData4check?.subscribe({
+      next: (val) => {
+        if (val) setTimeout(() => setRunTour(true), 500);
+      },
+    });
+  }, [credentialData4check]);
 
   const handleCellClick = (identity: RegularIdentity): void => {
     if (identity !== activeIdentity) {

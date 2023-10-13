@@ -1,5 +1,5 @@
 "use client";
-import { FC, MouseEventHandler, useEffect, useState } from "react";
+import { FC, MouseEventHandler, useCallback, useEffect, useState } from "react";
 import { MoreVert as MoreVertIcon } from "@mui/icons-material";
 import {
   Box,
@@ -10,6 +10,7 @@ import {
   Paper,
   Popper,
   TableCell,
+  TableRow,
   Typography,
   styled,
 } from "@mui/material";
@@ -60,10 +61,21 @@ export const IdentityCard: FC<{
   //   }
   // }, [showSuccessToast, name, activeIdentity, identity]);
 
-  const handleClickChip: MouseEventHandler<HTMLButtonElement> = (e) => {
-    setMenuAnchorEl(e.currentTarget);
-    onClickChip();
-  };
+  const handleClickChip: MouseEventHandler<HTMLButtonElement> = useCallback(
+    (e) => {
+      identity?.credentials().credentials$?.subscribe({
+        next: (val) => {
+          if (val) {
+            setMenuAnchorEl(e.currentTarget);
+            onClickChip();
+          } else {
+            identity?.credentials().fetchCredentials();
+          }
+        },
+      });
+    },
+    [identity]
+  );
   return (
     <>
       <LandingCard
@@ -165,9 +177,19 @@ export const IdentityCard: FC<{
                         <TableCell>SHARED APPS</TableCell>
                       </>
                     }
-                    bodyRows={credentials.map((c, _id) => (
-                      <CredentialInfoRow credential={c} key={_id} />
-                    ))}
+                    bodyRows={
+                      !credentials && credentials.length > 0 ? (
+                        credentials?.map((c, _id) => (
+                          <CredentialInfoRow credential={c} key={_id} />
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell component="th" colSpan={3} align="center">
+                              No credential found
+                          </TableCell>
+                        </TableRow>
+                      )
+                    }
                   />
                 </Box>
               </Paper>
