@@ -27,6 +27,7 @@ import { IconAvatar } from "@components/feature/DetailLine";
 import { NormalButton } from "@components/button";
 import { DetailTable } from "@components/generic/DetailTable";
 import { CredentialInfoRow } from "@components/credential/CredentialInfoRow";
+import { useUnlockKeyPrompt } from "@components/security/unlock-key-prompt/UnlockKeyPrompt";
 
 const GradientTypography = styled(Typography)({
   backgroundImage: "linear-gradient(180deg, #FFFFFFAE, #FFFFFF)",
@@ -47,6 +48,7 @@ export const IdentityCard: FC<{
 }> = ({ identity, onClickChip = () => {} }) => {
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const { showSuccessToast } = useToast();
+  const { retryUnlock } = useUnlockKeyPrompt();
   const [name] = useBehaviorSubject(identity.profile().name$);
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
   const [credentials] = useBehaviorSubject(
@@ -69,7 +71,7 @@ export const IdentityCard: FC<{
             setMenuAnchorEl(e.currentTarget);
             onClickChip();
           } else {
-            identity?.credentials().fetchCredentials();
+            retryUnlock();
           }
         },
       });

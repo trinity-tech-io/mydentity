@@ -281,15 +281,8 @@ const IdentityCardGroup: FC = () => {
   return !identities ? (
     <LandingCard
       className="bg-black w-full"
-      footer={
-        <span className="text-[7pt] opacity-70">did:elastos:XXXXXXXXXX</span>
-      }
       waveIconVisible={false}
-    >
-      <Typography variant="body2" className="opacity-70 pb-2">
-        XXXXXXXXXX
-      </Typography>
-    </LandingCard>
+    />
   ) : (
     <Swiper
       effect={"cards"}

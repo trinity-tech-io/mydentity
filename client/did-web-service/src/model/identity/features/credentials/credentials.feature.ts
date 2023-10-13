@@ -47,7 +47,7 @@ export class CredentialsFeature implements IdentityFeature {
   /**
    * Fetches the credentials that belongs to this identity
    */
-  public async fetchCredentials(): Promise<Credential[]> {
+  private async fetchCredentials(): Promise<Credential[]> {
     logger.log("credentials", "Fetching credentials", this.identity.did);
     return callWithUnlock(() => this.identity.provider.credentials.listCredentials(this.identity.did));
   }
