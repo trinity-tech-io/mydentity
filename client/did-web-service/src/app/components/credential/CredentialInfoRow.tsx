@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { ListItemText, TableCell, Typography } from "@mui/material";
+import { ListItemText, MenuItem, Stack, TableCell, Typography } from "@mui/material";
 import { DetailTableRow } from "@components/generic/DetailTable";
 import { CredentialAvatar } from "./CredentialAvatar";
 import { Credential } from "@model/credential/credential";
@@ -14,46 +14,38 @@ export const CredentialInfoRow: FC<{ credential: Credential }> = ({
   const [requestingApplications] = useBehaviorSubject(credential?.requestingApplications$);
 
   return (
-    <DetailTableRow
-      className="h-[3.5rem]"
-      avatar={
-        <CredentialAvatar credential={credential} width={32} height={32} />
-      }
-      rowCells={
-        <>
-          <TableCell>
-            <ListItemText
-              className="flex-1"
-              primary={
-                <Typography variant="body2" fontWeight={600}>
-                  {credential.getDisplayableTitle()}
-                </Typography>
-              }
-              secondary={
-                <Typography variant="caption" sx={{ color: "#DDD" }}>
-                  {credential.getDisplayValue() && (
-                    <JsonViewer data={credential.getDisplayValue()} />
-                  )}
-                </Typography>
-              }
-              sx={{ my: 0 }}
-              primaryTypographyProps={{
-                sx: {
-                  lineHeight: 1.3,
-                },
-              }}
-              secondaryTypographyProps={{
-                sx: {
-                  lineHeight: 1,
-                },
-              }}
-            />
-          </TableCell>
-          <TableCell sx={{ padding: 0 }}>
-            <SharedCountLabel count={requestingApplications?.length || 0} isConform={isConform} />
-          </TableCell>
-        </>
-      }
-    />
+    <MenuItem disableRipple>
+      <div className="flex items-center w-full">
+        <Stack alignItems="center" flexGrow={1} spacing={1.5} direction="row">
+          <CredentialAvatar credential={credential} width={32} height={32} />
+          <ListItemText
+            primary={
+              <Typography variant="body2" fontWeight={600}>
+                {credential.getDisplayableTitle()}
+              </Typography>
+            }
+            secondary={
+              <Typography variant="caption" sx={{ color: "#DDD" }}>
+                {credential.getDisplayValue() && (
+                  <JsonViewer data={credential.getDisplayValue()} />
+                )}
+              </Typography>
+            }
+            sx={{ my: 0 }}
+            primaryTypographyProps={{
+              sx: {
+                lineHeight: 1.3,
+              },
+            }}
+            secondaryTypographyProps={{
+              sx: {
+                lineHeight: 1,
+              },
+            }}
+          />
+        </Stack>
+        <SharedCountLabel count={requestingApplications?.length || 0} isConform={isConform} />
+      </div>
+    </MenuItem>
   );
 };

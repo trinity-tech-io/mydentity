@@ -3,14 +3,12 @@ import { FC, MouseEventHandler, useCallback, useEffect, useState } from "react";
 import { MoreVert as MoreVertIcon } from "@mui/icons-material";
 import {
   Box,
-  Button,
   ClickAwayListener,
-  Fade,
+  Grow,
   IconButton,
   Paper,
   Popper,
   TableCell,
-  TableRow,
   Typography,
   styled,
 } from "@mui/material";
@@ -143,13 +141,19 @@ export const IdentityCard: FC<{
         placement="bottom-start"
         transition
       >
-        {({ TransitionProps }) => (
+        {({ TransitionProps, placement }) => (
           <ClickAwayListener
             onClickAway={() => {
               setMenuAnchorEl(null);
             }}
           >
-            <Fade {...TransitionProps} timeout={350}>
+            <Grow
+              {...TransitionProps}
+              style={{
+                transformOrigin:
+                  placement === "bottom-start" ? "left top" : "left bottom",
+              }}
+            >
               <Paper sx={{ padding: 2, minWidth: 300 }}>
                 <div className="inline-flex items-center gap-2 w-full">
                   <div className="flex flex-1 items-center">
@@ -179,25 +183,28 @@ export const IdentityCard: FC<{
                         <TableCell>SHARED APPS</TableCell>
                       </>
                     }
-                    bodyRows={
-                      credentials && credentials.length > 0 ? (
-                        credentials?.map((c, _id) => (
-                          <CredentialInfoRow credential={c} key={_id} />
-                        ))
-                      ) : (
-                        <TableRow>
-                          <TableCell component="th" colSpan={3} align="center">
-                            {!credentials
-                              ? "No credential found"
-                              : "No credential attached to this identity yet"}
-                          </TableCell>
-                        </TableRow>
-                      )
-                    }
+                    bodyRows={null}
                   />
+                  <div className="mx-[-16px] pt-2">
+                    {credentials && credentials.length > 0 ? (
+                      credentials?.map((c, _id) => (
+                        <CredentialInfoRow credential={c} key={_id} />
+                      ))
+                    ) : (
+                      <Typography
+                        variant="body2"
+                        sx={{ px: 2, py: 1 }}
+                        align="center"
+                      >
+                        {!credentials
+                          ? "No credential found"
+                          : "No credential attached to this identity yet"}
+                      </Typography>
+                    )}
+                  </div>
                 </Box>
               </Paper>
-            </Fade>
+            </Grow>
           </ClickAwayListener>
         )}
       </Popper>

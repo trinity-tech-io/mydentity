@@ -20,7 +20,7 @@ export const CredentialAvatar: FC<{
   );
 
   return (
-    <Avatar sx={{ width, height, padding: "22%", backgroundColor: "#7575754d" }} className={clsx(className)}>
+    <Avatar sx={{ width, height, padding: ".5rem", backgroundColor: "#7575754d" }} className={clsx(className)}>
       {typeof representativeIconPath === "string" ? (
         <Image
           src={representativeIconPath}
