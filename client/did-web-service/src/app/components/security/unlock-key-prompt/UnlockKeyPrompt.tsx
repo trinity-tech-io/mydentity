@@ -1,3 +1,19 @@
+import { CardCase } from "@components/card";
+import { IconAvatar } from "@components/feature/DetailLine";
+import SeparateLineText from "@components/separate-line";
+import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
+import { AppException } from "@model/exceptions/app-exception";
+import { ClientError } from "@model/exceptions/exception-codes";
+import { ShadowKeyType } from "@model/shadow-key/shadow-key-type";
+import SecurityIcon from "@mui/icons-material/Security";
+import { Dialog, Grow, Typography } from "@mui/material";
+import { styled } from "@mui/material/styles";
+import { TransitionProps } from "@mui/material/transitions";
+import { AuthKeyInput } from "@services/keyring/auth-key.input";
+import { unlockMasterKey } from "@services/keyring/keyring.service";
+import { logger } from "@services/logger";
+import { isUnlockException } from "@services/security/security.service";
+import { authUser$ } from "@services/user/user.events";
 import React, {
   Dispatch,
   FC,
@@ -6,20 +22,6 @@ import React, {
   useEffect,
   useState,
 } from "react";
-import { TransitionProps } from "@mui/material/transitions";
-import SecurityIcon from "@mui/icons-material/Security";
-import { styled } from "@mui/material/styles";
-import { Dialog, Grow, Typography } from "@mui/material";
-import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
-import { AppException } from "@model/exceptions/app-exception";
-import { ClientError } from "@model/exceptions/exception-codes";
-import { ShadowKeyType } from "@model/shadow-key/shadow-key-type";
-import { withCaughtAppException } from "@services/error.service";
-import { AuthKeyInput } from "@services/keyring/auth-key.input";
-import { unlockMasterKey } from "@services/keyring/keyring.service";
-import { logger } from "@services/logger";
-import { isUnlockException } from "@services/security/security.service";
-import { authUser$ } from "@services/user/user.events";
 import { PasskeyPrompt } from "./PasskeyPrompt";
 import { PasswordPrompt } from "./PasswordPrompt";
 import { callWithUnlock } from "./call-with-unlock";
@@ -29,9 +31,6 @@ import {
   callWithUnlockRequestEvent$,
   unlockPromptState$,
 } from "./unlock.events";
-import { IconAvatar } from "@components/feature/DetailLine";
-import { CardCase } from "@components/card";
-import SeparateLineText from "@components/separate-line";
 
 type OnUnlockKeyCallback = (authorization: AuthKeyInput) => void;
 
@@ -225,46 +224,49 @@ async function callWithUnlockHandler(
   promptMasterKeyUnlock: () => Promise<AuthKeyInput>
 ): Promise<void> {
   try {
-    const result = await withCaughtAppException(() => {
-      return request.method();
-    });
+    /*  const result = await withCaughtAppException(() => {
+       return request.method();
+     }); */
+    const result = await request.method();
     request.resolve(result);
   } catch (e) {
     // Exception during the API call. Check if this is a unlock key requirement app exception and if so,
     // trigger the master unlock callback to let the UI prompt the unlock method to the user
-    if (e instanceof AppException && isUnlockException(e)) {
-      logger.warn(
-        "security",
-        "This method call requires unlock authorization from the user. Prompting"
-      );
-      const auth = await promptMasterKeyUnlock();
-      if (auth) {
-        // Client side auth provided: try to unlock on the API side and call the original api again
-        await unlockMasterKey(auth);
-        const result = await callWithUnlock(
-          request.method,
-          request.silentCancellation,
-          request.defaultValue,
-          false
+    if (e instanceof AppException) {
+      if (isUnlockException(e)) {
+        logger.warn(
+          "security",
+          "This method call requires unlock authorization from the user. Prompting"
         );
-        request.resolve(result);
-      } else {
-        // Operation cancelled by user, this is a failure to bind password
-        unlockPromptState$.next(UnlockPromptState.UnlockCancelled);
-        logger.warn("security", "Unlock operation cancelled by user");
-        request.reject(
-          AppException.newClientError(
-            ClientError.UnlockKeyCancelled,
-            "CANCELLED"
-          )
-        );
+        const auth = await promptMasterKeyUnlock();
+        if (auth) {
+          // Client side auth provided: try to unlock on the API side and call the original api again
+          await unlockMasterKey(auth);
+          const result = await callWithUnlock(
+            request.method,
+            request.silentCancellation,
+            request.defaultValue,
+            false
+          );
+          request.resolve(result);
+        } else {
+          // Operation cancelled by user, this is a failure to bind password
+          unlockPromptState$.next(UnlockPromptState.UnlockCancelled);
+          logger.warn("security", "Unlock operation cancelled by user");
+          request.reject(
+            AppException.newClientError(
+              ClientError.UnlockKeyCancelled,
+              "CANCELLED"
+            )
+          );
+        }
+      }
+      else {
+        request.reject(e);
       }
     } else {
-      logger.error(
-        "security",
-        "Unhandled callWithUnlock() exception (will get stuck):",
-        e
-      );
+      // Not an app exception
+      logger.error("security", "Unhandled callWithUnlock() non app exception (will get stuck):", e);
     }
   }
 }

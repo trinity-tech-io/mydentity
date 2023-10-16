@@ -466,48 +466,41 @@ export class UserService {
 
   public async getUserEmail(user: User) {
     return this.prisma.userEmail.findFirst({
-      where: {userId: user.id}
+      where: { userId: user.id }
     });
   }
 
+  /**
+   * Transfer all existing content from a user to another, including:
+   * - all identities and their identity roots
+   * - all activities related to those identities
+   * - all credentials
+   */
   public async transfer(claimRequestId: string, from: User, fromMasterKey: string, to: User, toMasterKey: string) {
     await this.didService.transfer(from.id, fromMasterKey, to.id, toMasterKey);
 
     await this.prisma.$transaction<void>(async (tx) => {
+      // Transfer identity roots
       await tx.identityRoot.updateMany({
-        where: {
-          userId: from.id
-        },
-        data: {
-          userId: to.id
-        }
+        where: { userId: from.id },
+        data: { userId: to.id }
       });
 
+      // Transfer identities
       await tx.identity.updateMany({
-        where: {
-          userId: from.id
-        },
-        data: {
-          userId: to.id
-        }
+        where: { userId: from.id },
+        data: { userId: to.id }
       });
 
+      // Transfer activities
       await tx.activity.updateMany({
-        where: {
-          userId: from.id
-        },
-        data: {
-          userId: to.id
-        }
+        where: { userId: from.id },
+        data: { userId: to.id }
       });
 
       await tx.identityClaimRequest.update({
-        where: {
-          id: claimRequestId
-        },
-        data: {
-          claimCompletedAt: new Date()
-        }
+        where: { id: claimRequestId },
+        data: { claimCompletedAt: new Date() }
       });
     }, {
       isolationLevel: Prisma.TransactionIsolationLevel.Serializable

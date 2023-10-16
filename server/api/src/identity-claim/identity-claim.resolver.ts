@@ -21,7 +21,7 @@ export class IdentityClaimResolver {
   @UseGuards(IdentityAccessTokenGuard)
   @Mutation(() => IdentityClaimRequestEntity)
   async createIdentityClaimRequest(@IdentityAccess() identityAccess: IdentityAccessInfo): Promise<IdentityClaimRequestEntity> {
-    const {claimRequest, claimURL} = await this.identityClaimService.createClaimRequest(identityAccess);
+    const { claimRequest, claimURL } = await this.identityClaimService.createClaimRequest(identityAccess);
 
     return {
       ...claimRequest as any, // Cast as any to allow auto filed conversion by nest
@@ -34,7 +34,7 @@ export class IdentityClaimResolver {
   async verifyClaimRequest(@Args('id') claimRequestId: string, @Args('nonce') nonce: string): Promise<IdentityClaimRequestEntity> {
     const claimRequest = await this.identityClaimService.verifyClaimRequest(claimRequestId, nonce);
     return {
-      ...claimRequest as any, // Cast as any to allow auto filed conversion by nest
+      ...claimRequest as any, // Cast as any to allow auto fields conversion by nest
       identityInfo: this.identityClaimService.getClaimableIdentityInfo(claimRequest)
     }
   }
@@ -43,6 +43,6 @@ export class IdentityClaimResolver {
   @Mutation(() => IdentityEntity)
   async claimManagedIdentity(@Args("input") input: ClaimIdentityInput, @CurrentBrowser() browser: Browser, @CurrentUser() user: User): Promise<IdentityEntity> {
     const identity = this.identityClaimService.claimManagedIdentity(input.requestId, input.nonce, browser.id, user);
-    return identity as any;
+    return identity as any; // Cast as any to allow auto fields conversion by nest
   }
 }

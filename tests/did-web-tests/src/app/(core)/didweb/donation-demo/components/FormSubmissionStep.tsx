@@ -59,7 +59,7 @@ export const FormSubmissionStep: FC<{
       // Create credentials
       console.log("Creating and importing credentials");
       setCreatingCredentials(true);
-      const credentialProductionResult = await api_produceUserCredentials(identityDID, true);
+      const credentialProductionResult = await api_produceUserCredentials(identityDID, nameInput.current.value, true);
       console.log("credentialProductionResult", credentialProductionResult)
       setCreatingCredentials(false);
 

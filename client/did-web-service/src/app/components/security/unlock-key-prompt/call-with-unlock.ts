@@ -50,19 +50,22 @@ export async function callWithUnlockReal<T>(method: CallWithUnlockCallback<T>, s
 
   const p = new Promise<T>((resolve, reject) => {
     callWithUnlockRequestEvent$.next({ method, resolve, reject, handled: false, silentCancellation, defaultValue, deadlockCheckInterval });
-  }).catch(e => {
+  });
+
+  try {
+    const result = (await p) || defaultValue;
     clearInterval(deadlockCheckInterval);
-    if (silentCancellation && isUnlockPromptCancelledException(e)) {
+
+    return result;
+  }
+  catch (e) {
+    clearInterval(deadlockCheckInterval);
+    if (silentCancellation && e instanceof AppException && isUnlockPromptCancelledException(e)) {
       // Silent, catch the cancellation exception and let the promise return successfully with no value.
     }
     else {
       // For all other errors, rethrow the exception, the caller needs to handle that.
       throw e;
     }
-  });
-
-  const result = (await p) || defaultValue;
-  clearInterval(deadlockCheckInterval);
-
-  return result;
+  }
 }

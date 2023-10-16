@@ -33,6 +33,13 @@ export enum DIDExceptionCode {
   NetworkError = 10310
 }
 
+export enum IdentityClaimExceptionCode {
+  RequestNotExists = 10501,
+  RequestExpired = 10502,
+  InvalidNonce = 10503,
+  AlreadyClaimed = 10504
+}
+
 export enum ClientError {
   OtherApolloError = 10901, // Apollo client error except handled graphql errors
   OtherAxiosError = 10902,
@@ -40,4 +47,4 @@ export enum ClientError {
   InvalidParameter = 10904,
 }
 
-export type AppExceptionCode = AuthExceptionCode | KeyRingExceptionCode | DIDExceptionCode | ClientError;
+export type AppExceptionCode = AuthExceptionCode | KeyRingExceptionCode | DIDExceptionCode | IdentityClaimExceptionCode | ClientError;

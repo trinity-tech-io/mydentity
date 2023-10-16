@@ -7,31 +7,41 @@
 import { gql } from "@apollo/client";
 import { callWithUnlock } from "@components/security/unlock-key-prompt/call-with-unlock";
 import { gqlIdentityClaimRequestFields } from "@graphql/identity-claim-request.fields";
+import { IdentityClaimExceptionCode } from "@model/exceptions/exception-codes";
 import { IdentityClaimRequest } from "@model/identity-claim-request/identity-claim-request";
 import { IdentityClaimRequestDTO } from "@model/identity-claim-request/identity-claim-request.dto";
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 
 export async function fetchIdentityClaimRequest(claimRequestId: string, nonce: string): Promise<IdentityClaimRequest> {
-  const result = await callWithUnlock(() => withCaughtAppException(async () => {
-    return (await getApolloClient()).query<{ identityClaimRequest: IdentityClaimRequestDTO }>({
-      query: gql`
-        query IdentityClaimRequest($claimRequestId: String!, $nonce: String!) {
-          identityClaimRequest(id: $claimRequestId, nonce: $nonce) {
-            ${gqlIdentityClaimRequestFields}
-          }
+  return callWithUnlock(async () => {
+    const result = await withCaughtAppException(async () => {
+      return (await getApolloClient()).query<{ identityClaimRequest: IdentityClaimRequestDTO }>({
+        query: gql`
+            query IdentityClaimRequest($claimRequestId: String!, $nonce: String!) {
+              identityClaimRequest(id: $claimRequestId, nonce: $nonce) {
+                ${gqlIdentityClaimRequestFields}
+              }
+            }
+          `,
+        variables: {
+          claimRequestId,
+          nonce
         }
-      `,
-      variables: {
-        claimRequestId,
-        nonce
-      }
-    });
-  }));
+      });
+    }, null, [
+      // Exceptions we want to catch manually
+      IdentityClaimExceptionCode.RequestExpired,
+      IdentityClaimExceptionCode.AlreadyClaimed,
+      IdentityClaimExceptionCode.InvalidNonce,
+      IdentityClaimExceptionCode.RequestNotExists
+    ]);
 
-  if (result?.data?.identityClaimRequest) {
-    return IdentityClaimRequest.fromJson(result?.data?.identityClaimRequest);
-  }
-
-  return null;
+    if (result?.data?.identityClaimRequest) {
+      return IdentityClaimRequest.fromJson(result?.data?.identityClaimRequest);
+    }
+    else {
+      return null;
+    }
+  });
 }

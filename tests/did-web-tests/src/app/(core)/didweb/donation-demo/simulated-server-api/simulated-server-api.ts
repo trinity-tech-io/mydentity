@@ -15,6 +15,7 @@ configure({
  * into database to always be able to get access to a generated identity.
  */
 const identityAccessTokenMap: { [did: string]: string } = {
+  // TEMP FOR DEV WITHOUT CREATING IDENTITY EVERY TIME
   "did:elastos:iqoh6bPpKuMozeLRGLHjxMrtBNGRnsVpAk": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXNzd29yZCI6IjA0MmMxODA5LWUwOTgtNGJiYy1iZjQxLWIyYzNiYzZhZGQ5NSIsImlkZW50aXR5RElEIjoiZGlkOmVsYXN0b3M6aXFvaDZiUHBLdU1vemVMUkdMSGp4TXJ0Qk5HUm5zVnBBayIsImlhdCI6MTY5NTk2MTEwOSwiZXhwIjoxNjk4NTUzMTA5fQ.SSeJtzR2Nus6TUmry_BQS_EQvX8CjrimjdLWELoYAW0"
 }
 
@@ -28,7 +29,7 @@ export async function api_createManagedIdentity(): Promise<string> {
     did: Object.keys(identityAccessTokenMap)[0],
     identityAccessToken: Object.values(identityAccessTokenMap)[0]
   }; // TEMP DEV */
-  console.log(createdIdentity);
+  console.log("Created identity:", createdIdentity);
 
   identityAccessTokenMap[createdIdentity.did] = createdIdentity.identityAccessToken;
 
@@ -47,9 +48,9 @@ export async function api_createManagedIdentity(): Promise<string> {
  *
  * @param simulateManagedIdentity set to false to pretend this identity is not managed (while they all are in this demo) thus not import the credentials from the backend
  */
-export async function api_produceUserCredentials(userDidString: string, simulateManagedIdentity: boolean): Promise<ProducedCredentialsResponse> {
+export async function api_produceUserCredentials(userDidString: string, name: string, simulateManagedIdentity: boolean): Promise<ProducedCredentialsResponse> {
   // Generate the credentials
-  const credentials = await produceUserCredentials(userDidString);
+  const credentials = await produceUserCredentials(userDidString, name);
 
   // Check if the identity is a managed one. If it is, import the VCs using the DID Web SDK.
   let imported: boolean;

@@ -411,14 +411,14 @@ export class KeyRingService {
       throw new AppException(KeyRingExceptionCode.Unauthorized, "Missing user", HttpStatus.FORBIDDEN);
 
     if (!authKey.keyId)
-      throw new AppException(KeyRingExceptionCode.InvalidAuthKey, "Missing the key id", HttpStatus.BAD_REQUEST);
+      throw new AppException(KeyRingExceptionCode.InvalidAuthKey, "Missing key id", HttpStatus.BAD_REQUEST);
 
     if (authKey.type == UserShadowKeyType.WEBAUTHN) {
       if (!authKey.challengeId)
-        throw new AppException(KeyRingExceptionCode.InvalidAuthKey, "Missing the challenge id", HttpStatus.BAD_REQUEST);
+        throw new AppException(KeyRingExceptionCode.InvalidAuthKey, "Missinghe challenge id", HttpStatus.BAD_REQUEST);
 
       if (!authKey.key)
-        throw new AppException(KeyRingExceptionCode.InvalidAuthKey, "Missing the WebAuthn response", HttpStatus.BAD_REQUEST);
+        throw new AppException(KeyRingExceptionCode.InvalidAuthKey, "Missing WebAuthn response", HttpStatus.BAD_REQUEST);
     } else if (authKey.type == UserShadowKeyType.PASSWORD) {
       if (!authKey.key)
         throw new AppException(KeyRingExceptionCode.InvalidAuthKey, "Missing password", HttpStatus.BAD_REQUEST);
@@ -426,13 +426,13 @@ export class KeyRingService {
 
     const shadow = await this.getShadowKey(authKey.keyId, user.id);
     if (!shadow)
-      throw new AppException(KeyRingExceptionCode.KeyNotExists, "Authorization key not exists", HttpStatus.FORBIDDEN);
+      throw new AppException(KeyRingExceptionCode.KeyNotExists, "Authorization key doesn't exist", HttpStatus.FORBIDDEN);
 
     let key: string;
     if (authKey.type == UserShadowKeyType.WEBAUTHN) {
       const result = await this.verifyWebAuthnAuthenticatoin(authKey.key, authKey.challengeId, shadow);
       if (!result.verified)
-        throw new AppException(KeyRingExceptionCode.WebAuthnVerifyError, "WebAuthn verify failed", HttpStatus.FORBIDDEN);
+        throw new AppException(KeyRingExceptionCode.WebAuthnVerifyError, "WebAuthn verification failed", HttpStatus.FORBIDDEN);
 
       key = shadow.key;
     } else if (authKey.type == UserShadowKeyType.PASSWORD) {

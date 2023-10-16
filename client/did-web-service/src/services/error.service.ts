@@ -1,6 +1,6 @@
 import { ApolloError, ServerError, ServerParseError } from "@apollo/client";
 import { AppException } from "@model/exceptions/app-exception";
-import { ClientError } from "@model/exceptions/exception-codes";
+import { AppExceptionCode, ClientError } from "@model/exceptions/exception-codes";
 import { ExistingEmailException } from "@model/exceptions/existing-email-exception";
 import { InexistingEmailException } from "@model/exceptions/inexisting-email-exception";
 import { isEmailAlreadyExistsException, isEmailNotExistsException } from "@model/user/features/email/user-email.feature";
@@ -106,10 +106,10 @@ function handlAxiosError(e: AxiosError): AppException {
 /**
  * Method used to cleanly catch and convert AppExceptions received from our API.
  * - Sub-errors inside root errors (apollo) are handled and emited as global error for user feedback.
- * - Exception are all handled, not rethrown.
+ * - Exception are all handled, not rethrown, except for the optionnal codes given in uncaughtExceptionCodes. In this case, exceptions are rethrown.
  * - If errorReturnValue is given, errorReturnValue is returned in case of error. Otherwise, null is returned.
  */
-export async function withCaughtAppException<T>(call: () => Promise<T>, errorReturnValue?: T): Promise<T> {
+export async function withCaughtAppException<T>(call: () => Promise<T>, errorReturnValue?: T, uncaughtExceptionCodes: AppExceptionCode[] = null): Promise<T> {
   try {
     const response = await call();
     return response;
@@ -135,6 +135,14 @@ export async function withCaughtAppException<T>(call: () => Promise<T>, errorRet
     }
     else {
       logger.error("Unhandled error:", e);
+    }
+
+    if (uncaughtExceptionCodes) {
+      // There are special exception codes we want to pass to caller
+      // For simplifity, we assume we may only have one exception at a time and we only rethrow the first handled exception.
+      const exceptionToRethrow = caughtExceptions.find(e => uncaughtExceptionCodes.includes(e.appExceptionCode));
+      if (exceptionToRethrow)
+        throw exceptionToRethrow;
     }
 
     // Emit all exceptions at once to show on UI

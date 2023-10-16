@@ -1,12 +1,13 @@
 import { gql } from "@apollo/client";
+import { callWithUnlock } from "@components/security/unlock-key-prompt/call-with-unlock";
 import { gqlIdentityFields } from "@graphql/identity.fields";
 import { ApplicationIdentity } from "@model/application-identity/application-identity";
 import { IdentityClaimRequest } from "@model/identity-claim-request/identity-claim-request";
+import { IdentityRoot } from "@model/identity-root/identity-root";
 import { Identity } from "@model/identity/identity";
 import { IdentityType } from "@model/identity/identity-type";
 import { IdentityDTO } from "@model/identity/identity.dto";
 import { RegularIdentity } from "@model/regular-identity/regular-identity";
-import { IdentityRoot } from "@model/identity-root/identity-root";
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { getRandomQuickStartHiveNodeAddress } from "@services/hive/hive.service";
@@ -105,8 +106,8 @@ export class IdentityFeature implements UserFeature {
       nonce: claimRequestNonce
     };
 
-    const result = await withCaughtAppException(async () => {
-      return (await getApolloClient()).mutate<{ createIdentity: IdentityDTO }>({
+    const result = await callWithUnlock(() => withCaughtAppException(async () => {
+      return (await getApolloClient()).mutate<{ claimManagedIdentity: IdentityDTO }>({
         mutation: gql`
           mutation claimManagedIdentity($input: ClaimIdentityInput!) {
             claimManagedIdentity(input: $input) {
@@ -118,11 +119,11 @@ export class IdentityFeature implements UserFeature {
           input
         }
       });
-    });
+    }));
 
-    if (result?.data?.createIdentity) {
+    if (result?.data?.claimManagedIdentity) {
       const { identityFromJson } = await import("@model/identity/identity-builder");
-      const identity = await identityFromJson(result.data.createIdentity, custodialIdentityProvider);
+      const identity = await identityFromJson(result.data.claimManagedIdentity, custodialIdentityProvider);
       this.identities$.next([identity, ...this.identities$.value]);
 
       logger.log("identity", "Managed identity claimed successfully", identity);

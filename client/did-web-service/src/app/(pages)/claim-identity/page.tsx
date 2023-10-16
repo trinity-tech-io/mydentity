@@ -7,6 +7,8 @@ import { useMounted } from '@hooks/useMounted';
 import { AppInfoCredential } from '@model/credential/app-info-credential';
 import { credentialFromVerifiableCredential } from '@model/credential/credential-builder';
 import { Document } from '@model/document/document';
+import { AppException } from '@model/exceptions/app-exception';
+import { IdentityClaimExceptionCode } from '@model/exceptions/exception-codes';
 import { IdentityClaimRequest } from '@model/identity-claim-request/identity-claim-request';
 import { Typography } from '@mui/material';
 import { useToast } from '@services/feedback.service';
@@ -32,6 +34,7 @@ const ClaimIdentityPage: FC = () => {
   const [creatingAppDocument, setCreatingAppDocument] = useState<Document>(null);
   const [creatingAppInfoCredential, setCreatingAppInfoCredential] = useState<AppInfoCredential>(null);
   const [creatingAppName] = useBehaviorSubject(creatingAppInfoCredential?.name$);
+  const [fetchFailedReason, setFetchFailedReason] = useState(null);
   const router = useRouter();
   const [authUserReady] = useBehaviorSubject(authUserReady$);
   const [authUser] = useBehaviorSubject(authUser$);
@@ -46,8 +49,24 @@ const ClaimIdentityPage: FC = () => {
       logger.log(TAG, "Fetching claim request details");
       fetchIdentityClaimRequest(claimRequestId, claimRequestNonce).then(cr => {
         logger.log(TAG, "Got claim request", cr);
-        setClaimRequest(cr);
-        setCreatingAppDID(cr.identityInfo?.creatingAppDid);
+        if (cr) {
+          setClaimRequest(cr);
+          setCreatingAppDID(cr.identityInfo?.creatingAppDid);
+        }
+        else {
+          setFetchingRequestDetails(false);
+        }
+      }).catch(e => {
+        setFetchingRequestDetails(false);
+
+        if (e instanceof AppException) {
+          switch (e.appExceptionCode) {
+            case IdentityClaimExceptionCode.AlreadyClaimed: setFetchFailedReason("This identity is already claimed"); break;
+            case IdentityClaimExceptionCode.InvalidNonce: setFetchFailedReason("Security code is invalie"); break;
+            case IdentityClaimExceptionCode.RequestExpired: setFetchFailedReason("Request expired, please try again from your original application"); break;
+            case IdentityClaimExceptionCode.RequestNotExists: setFetchFailedReason("This identity transfer request doesn't exist"); break;
+          }
+        }
       });
     }
   }, [claimRequestId, claimRequestNonce, claimRequest]);
@@ -117,9 +136,10 @@ const ClaimIdentityPage: FC = () => {
 
       {/* Claim request not found */}
       {readyToDisplayDetails && !fetchingRequestDetails && <>
-        {!claimRequest &&
+        {!claimRequest && <>
           <Typography>Sorry, we could not find information about this identity at the moment.</Typography>
-        }
+          {fetchFailedReason && <Typography>{fetchFailedReason}</Typography>}
+        </>}
       </>}
 
       {/* Claim request details */}

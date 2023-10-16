@@ -6,6 +6,7 @@ import { Nonce, SecretBox } from 'src/crypto/secretbox';
 import { AppException } from 'src/exceptions/app-exception';
 import { IdentityClaimExceptionCode } from 'src/exceptions/exception-codes';
 import { IdentityAccessInfo } from 'src/identity/model/identity-access-info';
+import { AuthKeyInput } from 'src/key-ring/dto/auth-key-input';
 import { KeyRingService } from 'src/key-ring/key-ring.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserService } from 'src/user/user.service';
@@ -127,9 +128,9 @@ export class IdentityClaimService {
 
     const oldPassword = Buffer.from(SecretBox.decryptWithPassword(encryptedPassword, n._bytes())).toString("utf-8");
 
-    const authKey = {
+    const authKey: AuthKeyInput = {
       type: UserShadowKeyType.PASSWORD,
-      keyId: claimRequest.identity.user.temporaryEmail,
+      keyId: "unused-for-password", // BPI REMOVED claimRequest.identity.user.temporaryEmail,
       key: oldPassword
     }
 
@@ -138,13 +139,12 @@ export class IdentityClaimService {
       claimRequest.identity.user);
 
     const currentMasterKey = await this.keyRingService.getMasterKey(user.id, browserId, true);
-
     await this.userService.transfer(
-        claimRequest.id,
-        claimRequest.identity.user, managedMasterKey,
-        user, currentMasterKey);
+      claimRequest.id,
+      claimRequest.identity.user, managedMasterKey,
+      user, currentMasterKey);
 
-    const cliamedIdentity = await this.prisma.identity.findUnique({
+    const claimedIdentity = await this.prisma.identity.findUnique({
       where: {
         did: claimRequest.identity.did
       },
@@ -153,6 +153,6 @@ export class IdentityClaimService {
       }
     });
 
-    return cliamedIdentity;
+    return claimedIdentity;
   }
 }

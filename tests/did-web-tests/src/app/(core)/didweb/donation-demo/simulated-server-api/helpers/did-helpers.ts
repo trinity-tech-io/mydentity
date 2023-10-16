@@ -31,14 +31,17 @@ async function loadIssuerIdentity() {
   return issuer;
 }
 
-async function createNameCredential(issuer: Issuer, targetDID: DID) {
+async function createNameCredential(issuer: Issuer, targetDID: DID, name: string) {
   const { VerifiableCredential } = await import("@elastosfoundation/did-js-sdk");
 
   let vcb = new VerifiableCredential.Builder(issuer, targetDID);
   let credential = await vcb.id("#name" + Math.random())
     .properties({
-      name: "xxxx"
-    }).types().seal(storePass);
+      name
+    }).types(
+      "https://ns.elastos.org/credentials/profile/name/v1#NameCredential",
+      "https://ns.elastos.org/credentials/displayable/v1#DisplayableCredential"
+    ).seal(storePass);
   console.log("Generated credential:", credential);
 
   return credential;
@@ -48,7 +51,7 @@ async function createNameCredential(issuer: Issuer, targetDID: DID) {
  * Produces a name and address credentials for the user, signed by this demo app's
  * DID
  */
-export async function produceUserCredentials(userDidString: string): Promise<VerifiableCredential[]> {
+export async function produceUserCredentials(userDidString: string, name: string): Promise<VerifiableCredential[]> {
   console.log("Producing user credentials");
 
   const { DID } = await import("@elastosfoundation/did-js-sdk");
@@ -58,7 +61,7 @@ export async function produceUserCredentials(userDidString: string): Promise<Ver
   console.log("Target DID:", targetDID);
 
   // Create the credentials
-  const nameCredential = await createNameCredential(issuer, targetDID);
+  const nameCredential = await createNameCredential(issuer, targetDID, name);
   // TODO: other VCs
 
   return [nameCredential];
