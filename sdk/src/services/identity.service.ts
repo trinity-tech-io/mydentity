@@ -66,7 +66,7 @@ export async function generateClaimUrl(identityAccessToken: string) {
   const response = await gqlQuery<CreatedManagedIdentity>("createIdentityClaimRequest", `
     mutation CreateIdentityClaimRequest {
       createIdentityClaimRequest {
-        id identity { did createdAt } claimUrl
+        id identityInfo { did createdAt } claimUrl
       }
     }
   `, null, {

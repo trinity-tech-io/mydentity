@@ -36,14 +36,14 @@ export class PermanentCache<DataType extends IDBValidKey, CustomDataType> {
     this.db = new PromisifiedIndexedDB(storeName);
   }
 
-  public async get(key: string, customData?: CustomDataType): Promise<DataType> {
+  public async get(key: string, customData?: CustomDataType, forceUpdate = false): Promise<DataType> {
     return this.queue.add(async () => {
       const storageKey = this.getStorageKey(key);
       const cachedData = await this.db.get<StoredItem<DataType>>(storageKey);
 
       const isExpired = cachedData?.expirationDate && moment().isAfter(cachedData.expirationDate);
 
-      if ((!cachedData || isExpired) && this.cacheMissCallback) {
+      if ((forceUpdate || !cachedData || isExpired) && this.cacheMissCallback) {
         const value = await this.cacheMissCallback(key, customData);
         if (value)
           await this.put(key, value);

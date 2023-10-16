@@ -46,7 +46,7 @@ export class User {
       async create() {
         return new User();
       },
-      async fill(user: User) {
+      async update(user: User) {
         user.fillFromJson(json);
         user.createdAt = new Date(json.createdAt);
         user.nameInitials$.next(initialsString(json.name));

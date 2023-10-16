@@ -253,7 +253,6 @@ export class SecurityFeature implements UserFeature {
     return !!this.passkeyKeys$.value?.find(key => key.browser?.isCurrentBrowser());
   }
 
-
   /**
    * Calls an API that returns true is the master key is unlocked, or throws an
    * authorization exception otherwise. This api does nothing but helping us to unlock the master key

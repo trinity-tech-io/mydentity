@@ -19,6 +19,7 @@ export class PublicationFeature implements IdentityFeature {
    * of error.
    */
   public async publish(): Promise<boolean> {
+    this.publicationStatus$.next(IdentityPublicationState.PUBLISHING);
     await identityService.publishIdentity(this.identity.did);
 
     this.startCheckingPublicationStatus();

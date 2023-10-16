@@ -41,6 +41,7 @@ const ApplicationDetailsPage: FC<{
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   const fetchRemoteDIDDocument = useCallback((): void => {
+    console.log("applicationDid", applicationDid)
     setAppDIDDocumentStatusWasChecked(false);
     didDocumentService.resolveDIDDocument(applicationDid, true).then(async doc => {
       setPublishedDIDDocument(doc);

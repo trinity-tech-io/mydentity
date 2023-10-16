@@ -31,7 +31,7 @@ export class Browser {
       create: async function (): Promise<Browser> {
         return new Browser();
       },
-      fill: async function (browser: Browser): Promise<void> {
+      update: async function (browser: Browser): Promise<void> {
         Object.assign(browser, json);
 
         browser.createdAt = new Date(json.createdAt);

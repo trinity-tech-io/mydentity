@@ -10,8 +10,7 @@ import { lazyElastosDIDSDKImport } from "@utils/import-helper";
 import Queue from "promise-queue";
 
 class DIDDocumentsService {
-  private documentsPermanentCache = new PermanentCache<string, unknown>("did-documents", async (didString) => {
-    const forceRemote = false; // TODO
+  private documentsPermanentCache = new PermanentCache<string, { forceRemote: boolean }>("did-documents", async (didString, { forceRemote }) => {
     const resolvedDocument = await this.fetchDIDDocumentWithoutDIDStore(didString, forceRemote);
     return resolvedDocument?.toString();
   }, 30 * 60); // 30 minutes cache expiration
@@ -28,20 +27,16 @@ class DIDDocumentsService {
   public async resolveDIDDocument(didString: string, forceRemote = false): Promise<Document> {
     await lazyDIDInit();
 
-    if (forceRemote)
-      logger.warn("identity", "forceRemote not fully implemented for resolveDIDDocument()!")
-
     return this.documentsMemoryCache.get(didString, {
       create: async () => {
         // Try to get from the disk cache
-        const documentString = await this.documentsPermanentCache.get(didString);
+        const documentString = await this.documentsPermanentCache.get(didString, { forceRemote }, forceRemote);
         const didDocument = await DIDDocument.parseAsync(documentString);
         if (didDocument)
           return new Document(didDocument);
         else
           return null;
       },
-      // TODO: forceRemote not passed to permanent storage!
     }, !forceRemote);
   }
 

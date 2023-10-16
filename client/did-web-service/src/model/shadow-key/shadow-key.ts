@@ -16,7 +16,7 @@ export class ShadowKey {
       async create() {
         return new ShadowKey();
       },
-      async fill(shadowKey: ShadowKey) {
+      async update(shadowKey: ShadowKey) {
         Object.assign(shadowKey, json);
 
         shadowKey.createdAt = new Date(json.createdAt);

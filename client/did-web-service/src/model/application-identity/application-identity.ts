@@ -1,4 +1,5 @@
 import { Credential } from "@model/credential/credential";
+import { CredentialType } from "@model/credential/credential-type";
 import { IdentityDTO } from "@model/identity/identity.dto";
 import { IdentityProvider } from "@services/identity/did.provider";
 import { logger } from "@services/logger";
@@ -58,13 +59,17 @@ export class ApplicationIdentity extends Identity {
     await awaitSubjectNonNull(this.credentials().credentials$);
 
     // Find any existing application credential
-    const existingAppCredential = this.credentials().getCredentialByType(credentialType);
-    if (existingAppCredential) {
-      // Remove the app info VC from the DID document
-      await this.document().setCredentialVisibility(existingAppCredential.id, false);
-      // Remove the app info VC totally
-      await this.credentials().deleteCredential(existingAppCredential);
+    let existingAppCredential: Credential;
+    do {
+      existingAppCredential = this.credentials().getCredentialByType(new CredentialType(credentialType).getShortType());
+      if (existingAppCredential) {
+        // Remove the app info VC from the DID document
+        await this.document().setCredentialVisibility(existingAppCredential.id, false);
+        // Remove the app info VC totally
+        await this.credentials().deleteCredential(existingAppCredential);
+      }
     }
+    while (existingAppCredential); // Try more, in case the identity contains several app did credentials by error - we fix it by removing them all.
 
     logger.log("identity", "Creating application credential");
 

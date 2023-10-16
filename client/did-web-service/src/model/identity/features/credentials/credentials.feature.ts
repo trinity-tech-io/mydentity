@@ -15,6 +15,9 @@ export class CredentialsFeature implements IdentityFeature {
    * Returns the first Credential that matches a given type
    */
   public getCredentialByType(shortType: string): Credential {
+    if (!shortType || shortType.includes("#"))
+      throw new Error(`getCredentialByType(): ${shortType} is not a valid short type!`);
+
     const credentials = this.credentials$.value;
     return credentials?.find(c => !!c.getTypes().find(t => t === shortType));
   }
