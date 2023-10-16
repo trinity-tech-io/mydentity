@@ -1,7 +1,8 @@
 "use client";
 import { FC } from "react";
 import SecurityIcon from "@mui/icons-material/Security";
-import { Card, styled } from "@mui/material";
+import { styled } from "@mui/material/styles";
+import { Card } from "@mui/material";
 import PasskeyBind from "./components/PasskeyBind";
 import Headline from "@components/layout/Headline";
 import EllipseBg from "@components/layout/EllipseBg";

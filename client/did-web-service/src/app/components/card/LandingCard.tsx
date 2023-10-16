@@ -1,5 +1,6 @@
 import { FC, MouseEventHandler, ReactNode } from "react";
-import { Box, Divider, styled } from "@mui/material";
+import { Box, Divider } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import clsx from "clsx";
 import ChipIcon from "@assets/images/card/chip.svg";
 import WaveLogoIcon from "@assets/images/card/wave-logo.svg";

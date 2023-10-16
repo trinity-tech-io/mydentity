@@ -1,4 +1,4 @@
-import { styled } from "@mui/material";
+import { styled } from "@mui/material/styles";
 
 const EllipseBg = styled("div")(({ theme }) => ({
     bottom: 0,

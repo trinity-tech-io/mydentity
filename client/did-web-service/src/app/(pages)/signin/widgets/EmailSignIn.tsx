@@ -1,5 +1,6 @@
 import { FC, FormEvent, MutableRefObject, useRef, useState } from "react";
-import { FormControl, InputLabel, OutlinedInput, styled } from "@mui/material";
+import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import { DarkButton } from "@components/button";
 import { Icon as ReactIcon } from "@iconify/react";
 import { InexistingEmailException } from "@model/exceptions/inexisting-email-exception";

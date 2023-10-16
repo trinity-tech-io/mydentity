@@ -1,8 +1,8 @@
 "use client";
-import { Divider, styled } from "@mui/material";
-import Typography from "@mui/material/Typography";
-import clsx from "clsx";
 import { FC } from "react";
+import clsx from "clsx";
+import { Divider, Typography } from "@mui/material";
+import { styled } from "@mui/material/styles";
 
 const DividerStyled = styled(Divider)(({ theme }) => ({
   "&:before, &:after": {

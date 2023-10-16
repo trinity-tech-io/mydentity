@@ -1,6 +1,7 @@
 "use client";
 import { FC, MouseEventHandler, useCallback } from "react";
-import { useMediaQuery, useTheme } from "@mui/material";
+import { useMediaQuery } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 // import { useRouter } from "next/navigation";
 import { useRouter } from 'next13-progressbar';
 import { LandingCard } from "@components/card";

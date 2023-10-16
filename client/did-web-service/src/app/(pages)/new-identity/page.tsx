@@ -9,8 +9,8 @@ import {
   Input,
   LinearProgress,
   Zoom,
-  styled,
 } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useMounted } from "@hooks/useMounted";
@@ -431,7 +431,7 @@ const NewIdentityPage: FC = () => {
             <Button
               sx={{ color: "#9D3E3E", textDecoration: "underline" }}
               endIcon={<KeyboardArrowRightIcon />}
-               onClick={onSkip}
+              onClick={onSkip}
             >
               Not now. I'm just checking things out
             </Button>

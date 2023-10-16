@@ -1,4 +1,5 @@
-import { Box, Card, styled } from "@mui/material";
+import { Box, Card } from "@mui/material";
+import { styled } from "@mui/material/styles";
 
 export const CaseWrapper = styled(Box)(({ theme }) => ({
   minWidth: 180,

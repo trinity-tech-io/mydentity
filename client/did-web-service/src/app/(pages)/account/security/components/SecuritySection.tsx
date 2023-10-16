@@ -1,6 +1,7 @@
 import { FC, ReactNode } from "react";
 import clsx from "clsx";
-import { Box, Card, CardContent, Typography, styled } from "@mui/material";
+import { Box, Card, CardContent, Typography } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import { DarkButton } from "@components/button";
 import { IconAvatar } from "@components/feature/DetailLine";
 import { useMounted } from "@hooks/useMounted";

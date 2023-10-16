@@ -1,6 +1,7 @@
 "use client";
 import { FC, MouseEventHandler } from "react";
-import { useMediaQuery, useTheme } from "@mui/material";
+import { useMediaQuery } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import { PortraitCard } from "@components/card";
 import TextBarcode from "@components/text-barcode/TextBarcode";
 import { DarkButton } from "@components/button";

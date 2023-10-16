@@ -1,4 +1,5 @@
-import { FormControl, styled } from "@mui/material";
+import { styled } from "@mui/material/styles";
+import { FormControl } from "@mui/material";
 
 /**
  * Component to be used as password input form control in register and bind-password page

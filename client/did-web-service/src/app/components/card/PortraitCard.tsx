@@ -1,5 +1,6 @@
 import { FC, ReactNode } from "react";
-import { Card, styled } from "@mui/material";
+import { Card } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import ChipIcon from "@assets/images/card/chip.svg";
 
 const CardStyled = styled(Card)(({ theme }) => ({

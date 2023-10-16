@@ -1,4 +1,4 @@
-import { styled } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import { FC } from "react";
 import Barcode from "react-barcode";
 import clsx from "clsx";

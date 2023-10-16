@@ -3,13 +3,8 @@ import { Icon as ReactIcon } from "@iconify/react";
 import { Activity } from "@model/activity/activity";
 import { ActivityType } from "@model/activity/activity-type";
 import { MoreVert as MoreVertIcon } from "@mui/icons-material";
-import {
-  Avatar,
-  IconButton,
-  ListItemText,
-  TableCell,
-  styled,
-} from "@mui/material";
+import { Avatar, IconButton, ListItemText, TableCell } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import { logger } from "@services/logger";
 import { getDateDistance } from "@utils/date";
 import { FC, ReactNode } from "react";
@@ -123,9 +118,9 @@ export const ActivityRow: FC<{
               <IconButton
                 size="small"
                 color="inherit"
-              // onClick={(event): void => {
-              //   handleOpenMenu(event, credential);
-              // }}
+                // onClick={(event): void => {
+                //   handleOpenMenu(event, credential);
+                // }}
               >
                 <MoreVertIcon />
               </IconButton>

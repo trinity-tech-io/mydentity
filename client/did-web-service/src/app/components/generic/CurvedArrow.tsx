@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { styled } from "@mui/material";
+import { styled } from "@mui/material/styles";
 
 const CurvedArrowBox = styled("div")(({ theme }) => ({
   color: "white",

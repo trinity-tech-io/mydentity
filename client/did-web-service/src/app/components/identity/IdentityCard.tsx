@@ -1,4 +1,3 @@
-"use client";
 import { FC, MouseEventHandler, useCallback, useEffect, useState } from "react";
 import { MoreVert as MoreVertIcon } from "@mui/icons-material";
 import {
@@ -10,8 +9,8 @@ import {
   Popper,
   TableCell,
   Typography,
-  styled,
 } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import clsx from "clsx";
 import { NavigateNext as NavigateNextIcon } from "@mui/icons-material";
 import { useToast } from "@services/feedback.service";
@@ -42,8 +41,8 @@ const GradientTypography = styled(Typography)({
  */
 export const IdentityCard: FC<{
   identity: RegularIdentity;
-  onClickChip?: Function;
-}> = ({ identity, onClickChip = () => {} }) => {
+  onClickChip?: () => void;
+}> = ({ identity, onClickChip = (): void => {} }) => {
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const { showSuccessToast } = useToast();
   const { retryUnlock } = useUnlockKeyPrompt();
@@ -74,6 +73,7 @@ export const IdentityCard: FC<{
         },
       });
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [identity]
   );
   return (

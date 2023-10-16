@@ -1,5 +1,6 @@
 import { FC, ReactNode } from "react";
-import { Avatar, Typography, styled } from "@mui/material";
+import { Avatar, Typography } from "@mui/material";
+import { styled } from "@mui/material/styles";
 
 export const IconAvatar = styled(Avatar)(({ theme }) => ({
   backgroundColor: "#9D3E3E",
@@ -17,7 +18,7 @@ interface DetailLineType {
 }
 
 /**
- * Component to be used with curved arrow in Create identity page 
+ * Component to be used with curved arrow in Create identity page
  * This component is group template of object icon, object name and description of it.
  */
 const DetailLine: FC<DetailLineType> = ({

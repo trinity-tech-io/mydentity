@@ -8,7 +8,8 @@ import React, {
 } from "react";
 import { TransitionProps } from "@mui/material/transitions";
 import SecurityIcon from "@mui/icons-material/Security";
-import { Dialog, Grow, Typography, styled } from "@mui/material";
+import { styled } from "@mui/material/styles";
+import { Dialog, Grow, Typography } from "@mui/material";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { AppException } from "@model/exceptions/app-exception";
 import { ClientError } from "@model/exceptions/exception-codes";

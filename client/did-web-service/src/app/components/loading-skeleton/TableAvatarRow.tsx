@@ -1,5 +1,6 @@
 import { FC } from "react";
-import { Stack, TableCell, TableRow, useTheme } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+import { Stack, TableCell, TableRow } from "@mui/material";
 import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { DarkThemeProp } from "./prop";

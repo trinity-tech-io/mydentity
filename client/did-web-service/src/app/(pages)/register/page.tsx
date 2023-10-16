@@ -2,7 +2,8 @@
 import React, { FC, useRef, useState } from "react";
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
-import { useMediaQuery, useTheme, styled, Input, InputAdornment, Fade, InputLabel, FormHelperText } from "@mui/material";
+import { useMediaQuery, Input, InputAdornment, Fade, InputLabel, FormHelperText } from "@mui/material";
+import { useTheme, styled } from "@mui/material/styles";
 import { useToast } from "@services/feedback.service";
 import { signOut, signUp } from "@services/user/user.service";
 import TextBarcode from "@components/text-barcode/TextBarcode";

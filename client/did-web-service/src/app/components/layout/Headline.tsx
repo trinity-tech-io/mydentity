@@ -1,5 +1,5 @@
-import { styled } from "@mui/material";
 import { FC, ReactNode } from "react";
+import { styled } from "@mui/material/styles";
 
 const HeadlineBox = styled("div")((props: { showBg: boolean }) => {
   const { showBg } = props;

@@ -1,6 +1,7 @@
 import { FC, ReactNode } from "react";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import { Box, Card, CardContent, Typography, styled } from "@mui/material";
+import { Box, Card, CardContent, Typography } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import { NormalButton } from "@components/button";
 
 const CardStyled = styled(Card)(({ theme }) => ({

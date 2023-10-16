@@ -1,4 +1,5 @@
-import { PaletteMode, Theme, createTheme } from "@mui/material";
+import { Theme, createTheme } from "@mui/material/styles";
+import { PaletteMode } from "@mui/material";
 
 export const generateTheme = (mode: PaletteMode): Theme => createTheme({
   breakpoints: {

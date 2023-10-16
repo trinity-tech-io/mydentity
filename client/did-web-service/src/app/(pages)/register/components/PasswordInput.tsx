@@ -1,11 +1,11 @@
 import React, { FC } from "react";
+import { styled } from "@mui/material/styles";
 import {
   IconButton,
   Input,
   InputAdornment,
   InputBaseComponentProps,
   InputProps,
-  styled,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import clsx from "clsx";

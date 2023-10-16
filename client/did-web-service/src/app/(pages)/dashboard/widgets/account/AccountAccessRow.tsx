@@ -1,7 +1,8 @@
 import { FC, ReactNode } from "react";
 import { Icon as ReactIcon } from "@iconify/react";
 import { DetailTableRow } from "@components/generic/DetailTable";
-import { Avatar, Box, ListItemText, TableCell, styled } from "@mui/material";
+import { Avatar, Box, ListItemText, TableCell } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import SecurityStatusIcon from "@components/security/SecurityIcon";
 import clsx from "clsx";
 

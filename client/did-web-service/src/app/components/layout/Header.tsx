@@ -6,7 +6,7 @@ import { MainButton } from '@components/generic/MainButton';
 import { DropdownUserProfile } from '@components/layout/DropdownProfile';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { useMounted } from '@hooks/useMounted';
-import { styled } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import { authUser$ } from '@services/user/user.events';
 import { useRouter } from 'next/navigation';
 // import SearchModal from '../components/ModalSearch';

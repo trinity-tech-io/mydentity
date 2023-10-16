@@ -1,7 +1,8 @@
 "use client";
 import React, { FC, useEffect } from "react";
 import { signOut } from "@services/user/user.service";
-import { Box, Container, styled } from "@mui/material";
+import { Box, Container } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import { EmailSignIn } from './widgets/EmailSignIn';
 import { SignInHeader } from "./widgets/HeaderSignIn";
 import MicrosoftSignIn from './widgets/MicrosoftSignIn';
