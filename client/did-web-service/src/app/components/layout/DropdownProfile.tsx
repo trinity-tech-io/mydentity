@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 "use client";
 import { FC, useEffect, useRef, useState } from "react";
-import Link from "next/link";
+// import Link from "next/link";
+// import { Link } from "next13-progressbar";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next13-progressbar";
 import Transition from "@components/generic/Transition";
@@ -11,6 +12,7 @@ import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import {
   Box,
   Divider,
+  Link,
   ListItemButton,
   ListItemIcon,
   ListItemText,
@@ -31,7 +33,18 @@ export const DropdownUserProfile: FC<{
   const [activeUser] = useBehaviorSubject(authUser$);
   const isSignedIn = !!activeUser;
   const [userName] = useBehaviorSubject(activeUser?.name$);
-  const [userTypeDesc, setUserTypeDesc] = useState("UNKNOWN");
+  const [boundEmails] = useBehaviorSubject(
+    activeUser?.get("email").userEmails$
+  );
+  const [passkeys] = useBehaviorSubject(
+    activeUser?.get("security").passkeyKeys$
+  );
+  let userDesc = "Checking status...";
+  if (boundEmails && passkeys) {
+    if (boundEmails.length) userDesc = boundEmails[0].email;
+    else if (passkeys.length) userDesc = passkeys[0].browser.name;
+    else userDesc = "";
+  }
 
   // get access token from url params.
   const searchParams = useSearchParams();
@@ -39,6 +52,11 @@ export const DropdownUserProfile: FC<{
   const refreshToken = searchParams.get("refreshToken");
 
   const dropdown = useRef(null);
+
+  const openSecurityCenter = (): void => {
+    router.push("/account/security");
+    setDropdownOpen(!dropdownOpen);
+  };
 
   const onSignOut = () => {
     signOut();
@@ -54,20 +72,6 @@ export const DropdownUserProfile: FC<{
   ];
   // close on click outside
   useEffect(() => {
-    const updateUserDesc = (user: User) => {
-      if (user.type === "MICROSOFT") {
-        setUserTypeDesc("Microsoft");
-      } else if (user.type === "EMAIL") {
-        setUserTypeDesc("Email");
-      }
-      // setUserName(user.email);
-    };
-
-    const user = getActiveUser();
-    if (user) {
-      updateUserDesc(user);
-    }
-
     const clickHandler: (ev: MouseEvent) => void = ({ target }) => {
       if (
         !dropdown.current ||
@@ -117,8 +121,7 @@ export const DropdownUserProfile: FC<{
       </ListItemButton>
       {isSignedIn && (
         <Transition
-          // className={`origin-top-right z-10 absolute top-full min-w-44 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 py-1.5 rounded shadow-lg overflow-hidden mt-1 ${align === 'right' ? 'right-0' : 'left-0'}`}
-          className="origin-top-right z-10 absolute top-full min-w-44 right-0"
+          className="origin-top-right z-10 absolute top-full min-w-[12rem] right-0"
           show={dropdownOpen}
           enter="transition ease-out duration-200 transform"
           enterStart="opacity-0 -translate-y-2"
@@ -140,9 +143,29 @@ export const DropdownUserProfile: FC<{
                 <Typography variant="body1" fontWeight={600}>
                   You’re signed in!
                 </Typography>
-                <Typography variant="caption" className="opacity-80">
-                  {userTypeDesc} user
-                </Typography>
+                {!!userDesc ? (
+                  <Typography variant="caption" className="opacity-80" fontSize="9pt">
+                    {userDesc}
+                  </Typography>
+                ) : (
+                  <Link
+                    component="button"
+                    onClick={openSecurityCenter}
+                    underline="hover"
+                    lineHeight={1}
+                    textAlign="left"
+                    color="error"
+                  >
+                    <Typography
+                      variant="caption"
+                      className="text-[#EA4335]"
+                      lineHeight={1}
+                      fontSize="8.5pt"
+                    >
+                      Cannot sign in if signing out. Check security center
+                    </Typography>
+                  </Link>
+                )}
               </Box>
               <Divider sx={{ my: ".5rem" }} />
               {ProfileMenuItems.map((m, _id) => (
@@ -155,7 +178,7 @@ export const DropdownUserProfile: FC<{
                     m.action && m.action();
                   }}
                 >
-                  <Typography variant="body2">{m.name}</Typography>
+                  <Typography variant="body1" className="opacity-90">{m.name}</Typography>
                 </MenuItem>
               ))}
             </Paper>
