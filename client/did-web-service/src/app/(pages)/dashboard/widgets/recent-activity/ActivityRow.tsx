@@ -52,7 +52,7 @@ function getActivityRenderer(activity: Activity) {
       break;
     case ActivityType.CREDENTIALS_SHARED:
       renderer.icon = <ReactIcon icon="ic:round-share" />;
-      renderer.action_name = `${activity.credentialsCount} credential(s) shared`;
+      renderer.action_name = (activity.credentialsCount && activity.credentialsCount > 0) ? `${activity.credentialsCount} credential(s) shared with an app` : 'Identity ID shared with an app';
       break;
     case ActivityType.CREDENTIALS_IMPORTED:
       renderer.icon = <ReactIcon icon="mdi:integrated-circuit-chip" />;
