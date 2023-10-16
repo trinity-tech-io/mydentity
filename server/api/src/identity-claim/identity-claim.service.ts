@@ -1,15 +1,14 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Prisma } from '@prisma/client/did';
 import { Identity, IdentityClaimRequest, User, UserShadowKeyType } from '@prisma/client/main';
 import { CredentialsService } from 'src/credentials/credentials.service';
 import { Nonce, SecretBox } from 'src/crypto/secretbox';
-import { DidService } from 'src/did/did.service';
 import { AppException } from 'src/exceptions/app-exception';
 import { IdentityClaimExceptionCode } from 'src/exceptions/exception-codes';
 import { IdentityAccessInfo } from 'src/identity/model/identity-access-info';
 import { KeyRingService } from 'src/key-ring/key-ring.service';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { UserService } from 'src/user/user.service';
 import { ClaimableIdentity } from './model/claimable-identity';
 
 @Injectable()
@@ -19,7 +18,7 @@ export class IdentityClaimService {
     private config: ConfigService,
     private credentialsService: CredentialsService,
     private keyRingService: KeyRingService,
-    private didService: DidService
+    private userService: UserService
   ) { }
 
   /**
@@ -140,47 +139,10 @@ export class IdentityClaimService {
 
     const currentMasterKey = await this.keyRingService.getMasterKey(user.id, browserId, true);
 
-    await this.didService.transfer(claimRequest.identity.user.id, managedMasterKey, user.id, currentMasterKey);
-
-    await this.prisma.$transaction<void>(async (tx) => {
-      await tx.identityRoot.updateMany({
-        where: {
-          userId: claimRequest.identity.user.id
-        },
-        data: {
-          userId: user.id
-        }
-      });
-
-      await tx.identity.updateMany({
-        where: {
-          userId: claimRequest.identity.user.id
-        },
-        data: {
-          userId: user.id
-        }
-      });
-
-      await tx.activity.updateMany({
-        where: {
-          userId: claimRequest.identity.user.id
-        },
-        data: {
-          userId: user.id
-        }
-      });
-
-      await tx.identityClaimRequest.update({
-        where: {
-          id: claimRequest.id
-        },
-        data: {
-          claimCompletedAt: new Date()
-        }
-      });
-    }, {
-      isolationLevel: Prisma.TransactionIsolationLevel.Serializable
-    });
+    await this.userService.transfer(
+        claimRequest.id,
+        claimRequest.identity.user, managedMasterKey,
+        user, currentMasterKey);
 
     const cliamedIdentity = await this.prisma.identity.findUnique({
       where: {

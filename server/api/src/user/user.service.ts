@@ -1,10 +1,11 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { ActivityType, User, UserEmail, UserEmailProvider } from '@prisma/client/main';
+import { ActivityType, Prisma, User, UserEmail, UserEmailProvider } from '@prisma/client/main';
 import { createHash, randomBytes, randomUUID } from "crypto";
 import * as moment from "moment";
 import { encode } from "slugid";
 import { AuthService } from 'src/auth/auth.service';
 import { AuthTokens } from 'src/auth/model/auth-tokens';
+import { DidService } from 'src/did/did.service';
 import { AuthKeyInput } from 'src/key-ring/dto/auth-key-input';
 import { KeyRingService } from 'src/key-ring/key-ring.service';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -23,6 +24,7 @@ export class UserService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly authService: AuthService,
+    private readonly didService: DidService,
     private readonly keyRingService: KeyRingService,
     @Inject(forwardRef(() => EmailingService)) private readonly emailingService: EmailingService,
     private readonly browsersService: BrowsersService,
@@ -465,6 +467,50 @@ export class UserService {
   public async getUserEmail(user: User) {
     return this.prisma.userEmail.findFirst({
       where: {userId: user.id}
+    });
+  }
+
+  public async transfer(claimRequestId: string, from: User, fromMasterKey: string, to: User, toMasterKey: string) {
+    await this.didService.transfer(from.id, fromMasterKey, to.id, toMasterKey);
+
+    await this.prisma.$transaction<void>(async (tx) => {
+      await tx.identityRoot.updateMany({
+        where: {
+          userId: from.id
+        },
+        data: {
+          userId: to.id
+        }
+      });
+
+      await tx.identity.updateMany({
+        where: {
+          userId: from.id
+        },
+        data: {
+          userId: to.id
+        }
+      });
+
+      await tx.activity.updateMany({
+        where: {
+          userId: from.id
+        },
+        data: {
+          userId: to.id
+        }
+      });
+
+      await tx.identityClaimRequest.update({
+        where: {
+          id: claimRequestId
+        },
+        data: {
+          claimCompletedAt: new Date()
+        }
+      });
+    }, {
+      isolationLevel: Prisma.TransactionIsolationLevel.Serializable
     });
   }
 }
