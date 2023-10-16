@@ -3,34 +3,9 @@ import { User } from "@model/user/user";
 const TOUR_TOOLTIP_STATE = "tour-tooltip-flag";
 
 /**
- * Handling storage value for tour tooltips.
+ * Handling storage value of tour tooltip state to sandbox for active user.
  * Tour tooltips should be displayed for user only first time.
  */
-// function getTourState(): string[] {
-//   const tour_state = localStorage.getItem(TOUR_TOOLTIP_STATE);
-//   var state_arr: string[] = [];
-//   try {
-//     tour_state && (state_arr = JSON.parse(atob(tour_state)))
-//     return state_arr;
-//   } catch(e) {}
-//   return state_arr;
-// }
-
-// export function setTourState(state: string): void {
-//   const tour_state = localStorage.getItem(TOUR_TOOLTIP_STATE)
-//   var state_arr: string[] = []
-//   try {
-//     tour_state && (state_arr = JSON.parse(atob(tour_state)))
-//   } catch(e) {}
-//   state_arr.push(state)
-//   localStorage.setItem(TOUR_TOOLTIP_STATE, btoa(JSON.stringify(state_arr)));
-// }
-
-// export function checkTourState(state: string): boolean {
-//   const state_arr = getTourState()
-//   return state_arr.includes(state)
-// }
-
 export default class TourState {
   activeUser: User;
 
