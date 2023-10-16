@@ -1,12 +1,12 @@
-import { Identity } from "@model/identity/identity";
 import { storageService } from "@services/storage.service";
-import { IdentityFeature } from "../identity-feature";
+import { UserFeature } from "../user-feature";
+import { User } from "@model/user/user";
 
 /**
- * File system storage sandboxed for this identity, in order to not mix data with other identities
+ * File system storage sandboxed for this user, in order to not mix data with other users
  */
-export class StorageFeature implements IdentityFeature {
-  constructor(private identity: Identity) { }
+export class StorageFeature implements UserFeature {
+  constructor(private user: User) { }
 
   public async set(key: string, value: string): Promise<void> {
     return storageService.set(this.getObjectContext(), key, value);
@@ -17,6 +17,6 @@ export class StorageFeature implements IdentityFeature {
   }
 
   private getObjectContext(): string {
-    return `identity_${this.identity.did}`;
+    return `user_${this.user.id}`;
   }
 }

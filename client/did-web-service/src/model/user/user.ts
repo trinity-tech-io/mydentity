@@ -12,6 +12,7 @@ import { BrowserFeature } from "./features/browser/browser.feature";
 import { DevelopmentFeature } from "./features/development/development.feature";
 import { IdentityFeature } from "./features/identity/identity.feature";
 import { SecurityFeature } from "./features/security/security.feature";
+import { StorageFeature } from "./features/storage/storage.feature";
 import { UserFeature } from "./features/user-feature";
 import { usersCache } from "./user.cache";
 import { UserDTO } from "./user.dto";
@@ -19,12 +20,12 @@ import { UserDTO } from "./user.dto";
 export type FeatureExtensionRegistrationCb = (user: User) => UserFeature;
 
 export class User {
-  id: string;
-  type: string;
-  name$?= new BehaviorSubject<string>(null);
-  nameInitials$?= new BehaviorSubject<string>(null);
-  createdAt: Date;
-  defaultRootIdentityId: string;
+  public id: string;
+  public type: string;
+  public name$ = new BehaviorSubject<string>(null);
+  public nameInitials$ = new BehaviorSubject<string>(null);
+  public createdAt: Date;
+  public defaultRootIdentityId: string;
 
   // Features
   private features = new Map<string, UserFeature>();
@@ -37,6 +38,7 @@ export class User {
     this.addFeature("activity", new ActivityFeature(this));
     this.addFeature("applications", new ApplicationsFeature(this));
     this.addFeature("development", new DevelopmentFeature(this));
+    this.addFeature("storage", new StorageFeature(this));
   }
 
   public static async fromJson(json: UserDTO, useCache = true): Promise<User> {
@@ -71,7 +73,8 @@ export class User {
   public get(feature: "activity"): ActivityFeature;
   public get(feature: "applications"): ApplicationsFeature;
   public get(feature: "development"): DevelopmentFeature;
-  public get(feature: "email" | "identity" | "browser" | "security" | "activity" | "applications" | "development"): UserFeature {
+  public get(feature: "storage"): StorageFeature;
+  public get(feature: "email" | "identity" | "browser" | "security" | "activity" | "applications" | "development" | "storage"): UserFeature {
     if (!this.features.has(feature)) {
       throw new Error(`Unhandled user feature '${feature}'`);
     }
