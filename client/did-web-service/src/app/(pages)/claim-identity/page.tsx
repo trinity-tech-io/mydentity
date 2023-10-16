@@ -101,7 +101,7 @@ const ClaimIdentityPage: FC = () => {
 
   const signUp = (): void => {
     setPostSignInUrl(window.location.toString()); // Come back to claim page after sign up
-    router.push("/signup")
+    router.push("/register")
   }
 
   const signIn = (): void => {
