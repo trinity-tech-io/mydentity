@@ -1,6 +1,6 @@
 import { Aes256cbc, CredentialMetadata, DID, DIDDocument, DIDMetadata, DIDStorage, DIDStoreMetadata, DIDURL, ReEncryptor, RootIdentity } from '@elastosfoundation/did-js-sdk';
+import { Prisma } from '@prisma/client/did';
 import { DIDPrismaService } from '../prisma/did.prisma.service';
-import { Prisma } from '@prisma/client';
 
 export class PrismaDIDStorage implements DIDStorage {
   private prisma: DIDPrismaService;
@@ -653,9 +653,9 @@ export class PrismaDIDStorage implements DIDStorage {
   }
 
   private static reEncrypt(secret: string, oldpass: string, newpass: string): string {
-      const plain = Aes256cbc.decryptFromBase64(secret, oldpass);
-      const newSecret = Aes256cbc.encryptToBase64(plain, newpass);
-      return newSecret;
+    const plain = Aes256cbc.decryptFromBase64(secret, oldpass);
+    const newSecret = Aes256cbc.encryptToBase64(plain, newpass);
+    return newSecret;
   }
 
   public static async transfer(src: string, srcPassword: string, dest: string, destPassword): Promise<void> {
@@ -739,7 +739,7 @@ export class PrismaDIDStorage implements DIDStorage {
         }
       }
     }, {
-        isolationLevel: Prisma.TransactionIsolationLevel.Serializable
+      isolationLevel: Prisma.TransactionIsolationLevel.Serializable
     });
   }
 }

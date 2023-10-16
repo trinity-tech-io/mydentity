@@ -209,6 +209,7 @@ export class IdentityService {
       case AssistTransactionStatus.PENDING: return IdentityPublicationState.PUBLISHING;
       case AssistTransactionStatus.PROCESSING: return IdentityPublicationState.PUBLISHING;
       case AssistTransactionStatus.QUARANTINED: return IdentityPublicationState.FAILED_TO_PUBLISH;
+      default: return IdentityPublicationState.FAILED_TO_PUBLISH;
     }
   }
 

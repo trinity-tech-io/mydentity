@@ -1,16 +1,16 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Prisma } from '@prisma/client/did';
 import { Identity, IdentityClaimRequest, User, UserShadowKeyType } from '@prisma/client/main';
 import { CredentialsService } from 'src/credentials/credentials.service';
 import { Nonce, SecretBox } from 'src/crypto/secretbox';
+import { DidService } from 'src/did/did.service';
 import { AppException } from 'src/exceptions/app-exception';
 import { IdentityClaimExceptionCode } from 'src/exceptions/exception-codes';
 import { IdentityAccessInfo } from 'src/identity/model/identity-access-info';
-import { DidService } from 'src/did/did.service';
+import { KeyRingService } from 'src/key-ring/key-ring.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ClaimableIdentity } from './model/claimable-identity';
-import { KeyRingService } from 'src/key-ring/key-ring.service';
-import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class IdentityClaimService {
