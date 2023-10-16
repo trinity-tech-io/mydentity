@@ -48,6 +48,10 @@ export const generateTheme = (mode: PaletteMode): Theme => createTheme({
       styleOverrides: {
         root: {
           color: 'inherit'
+        },
+        fallback: {
+          width: '100%',
+          height: '100%',
         }
       }
     }

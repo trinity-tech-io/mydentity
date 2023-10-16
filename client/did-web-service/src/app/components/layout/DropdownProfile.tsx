@@ -147,6 +147,7 @@ export const DropdownUserProfile: FC<{
               <Divider sx={{ my: ".5rem" }} />
               {ProfileMenuItems.map((m, _id) => (
                 <MenuItem
+                  key={_id}
                   sx={{ px: "1.25rem" }}
                   onClick={() => {
                     m.link && router.push(m.link);
