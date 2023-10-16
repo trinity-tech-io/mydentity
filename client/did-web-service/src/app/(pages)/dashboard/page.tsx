@@ -1,11 +1,7 @@
 "use client";
 import { FC, useEffect } from "react";
 import { Grid } from "@mui/material";
-import { VerticalStackLoadingCard } from "@components/loading-cards/vertical-stack-loading-card/VerticalStackLoadingCard";
-import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
-import { useMounted } from "@hooks/useMounted";
 import { clearOnGoingFlowOperation } from "@services/flow.service";
-import { authUser$ } from "@services/user/user.events";
 import { WelcomeBanner } from "./WelcomeBanner";
 import { AccountAccess } from "./widgets/AccountAccess";
 import { AccountUnlock } from "./widgets/AccountUnlock";
@@ -13,8 +9,6 @@ import { IdentityListWidget } from "./widgets/IdentityList";
 import { RecentActivityWidget } from "./widgets/recent-activity/RecentActivity";
 
 const Dashboard: FC = () => {
-  const { mounted } = useMounted();
-
   useEffect(() => {
     clearOnGoingFlowOperation();
   }, []);

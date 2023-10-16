@@ -38,7 +38,7 @@ export const IdentityInfoCard: FC<{
       footer={<Typography variant="caption" fontSize="7pt">{shortenDID(identity.did, 8)}</Typography>}
     >
       <GradientTypography variant="body2" fontWeight={600} className="pb-2">
-        {name}
+        {name || "Unnamed identity"}
       </GradientTypography>
     </LandingCard>
   );

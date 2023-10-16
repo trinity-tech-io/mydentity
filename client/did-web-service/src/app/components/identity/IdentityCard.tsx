@@ -131,7 +131,7 @@ export const IdentityCard: FC<{
             IDENTITY NAME
           </label>
           <GradientTypography variant="h5" fontSize={26} fontWeight={600}>
-            {name}
+            {name || "Unnamed identity"}
           </GradientTypography>
         </div>
       </LandingCard>

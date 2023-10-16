@@ -409,7 +409,7 @@ const Profile: FC = () => {
                       ACTIVE IDENTITY
                     </Box>
                   </div>
-                  <Typography variant="h4">{name}</Typography>
+                  <Typography variant="h4">{name || "Unnamed identity"}</Typography>
                   <div className="inline-flex items-center">
                     <Typography variant="body2">
                       {activeIdentity?.did?.toString()}

@@ -41,7 +41,7 @@ export const IdentityRow: FC<{
           <TableCell>
             <ListItemText
               className="flex-1"
-              primary={<span className="font-medium">{name}</span>}
+              primary={<span className="font-medium">{name || "Unnamed identity"}</span>}
               secondary={
                 <span className="text-[8pt]">
                   {shortenDID(identity.did, 8)}
