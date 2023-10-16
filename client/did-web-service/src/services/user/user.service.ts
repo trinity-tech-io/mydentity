@@ -11,7 +11,7 @@ import { identityService } from "@services/identity/identity.service";
 import { getPasskeyChallenge } from "@services/keyring/keyring.service";
 import { logger } from "@services/logger";
 import { startAuthentication } from "@simplewebauthn/browser";
-import { PublicKeyCredentialRequestOptionsJSON } from "@simplewebauthn/typescript-types";
+import { PublicKeyCredentialRequestOptionsJSON, PublicKeyCredentialDescriptorJSON } from "@simplewebauthn/typescript-types";
 import Queue from "promise-queue";
 import { LoggedUserOutput } from "./logged-user.output";
 import { SignUpInput } from "./sign-up.input";
@@ -239,29 +239,30 @@ export function isSignedIn(): boolean {
 
 function unlockPasskeyOptions(challengeInfo: ChallengeEntity): PublicKeyCredentialRequestOptionsJSON {
   const rpId = process.env.NEXT_PUBLIC_RP_ID
-  const challengeEncoder = new TextEncoder()
-  const challengeUint8Array = challengeEncoder.encode(challengeInfo.content)
-  // TO UNLOCK PASSKEY
-  const credentialId = localStorage.getItem('passkey_credentialId')
-  // TODO: REMOVER
-  console.log("unlockPasskeyOptions: credentialId = ", credentialId)
+  const allowCredentials = getPasskeyAllowCredentials()
   const publicKeyCredentialCreationOptions: PublicKeyCredentialRequestOptionsJSON = {
-    // challenge: Buffer.from(challengeUint8Array).toString(),
-    // allowCredentials: [],
     challenge: challengeInfo.content,
-    allowCredentials: [
-      {
-        id: credentialId,
-        type: "public-key",
-        transports: ['internal'],
-      }
-    ],
+    allowCredentials: allowCredentials,
     rpId: rpId,
     userVerification: "preferred",
     timeout: 30000
   };
 
   return publicKeyCredentialCreationOptions
+}
+
+/**
+ * Get the credentialIds of the locally stored passkey
+*/
+function getPasskeyAllowCredentials(): PublicKeyCredentialDescriptorJSON[] {
+  const passkeyCredentialIdsString = localStorage.getItem('passkey_credentialIds');
+  const passkeyCredentialIds = passkeyCredentialIdsString ? JSON.parse(passkeyCredentialIdsString) : [];
+
+  return passkeyCredentialIds.map((credentialId: string) => ({
+    id: credentialId,
+    type: 'public-key',
+    transports: ['internal'],
+  }));
 }
 
 export async function authenticateWithPasskey(): Promise<boolean> {
@@ -271,9 +272,6 @@ export async function authenticateWithPasskey(): Promise<boolean> {
   const unlockOptions = unlockPasskeyOptions(challengeInfo)
   // true: Autofill account password will report an error
   const authenResponse = await startAuthentication(unlockOptions, false)
-  // TODO: REMOVER
-  console.log("authenticateWithPasskey: authenResponse = ", authenResponse)
-
   const authKey = {
     type: ShadowKeyType.WEBAUTHN,//-7
     keyId: authenResponse.id,

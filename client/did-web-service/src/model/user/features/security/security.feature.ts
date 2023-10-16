@@ -11,7 +11,7 @@ import { AuthKeyInput } from "@services/keyring/auth-key.input";
 import { bindKey, changePassword, getPasskeyChallenge } from "@services/keyring/keyring.service";
 import { logger } from "@services/logger";
 import { startAuthentication, startRegistration } from "@simplewebauthn/browser";
-import { PublicKeyCredentialCreationOptionsJSON, PublicKeyCredentialRequestOptionsJSON } from "@simplewebauthn/typescript-types";
+import { PublicKeyCredentialCreationOptionsJSON, PublicKeyCredentialRequestOptionsJSON, PublicKeyCredentialDescriptorJSON } from "@simplewebauthn/typescript-types";
 import { AdvancedBehaviorSubject } from "@utils/advanced-behavior-subject";
 import { map } from "rxjs";
 import { User } from "../../user";
@@ -109,13 +109,7 @@ export class SecurityFeature implements UserFeature {
   public async bindPasskey(): Promise<boolean> {
     const challengeInfo = await getPasskeyChallenge()
     const registerPasskeyOptions = await this.registerPasskeyOptions(challengeInfo, this.user.name$.value)
-    // TODO: REMOVER
-    console.log("bindPasskey: registerPasskeyOptions ==== ", registerPasskeyOptions)
     const registResponse = await startRegistration(registerPasskeyOptions)
-    // TODO: REMOVER
-    console.log("bindPasskey: registResponse ==== ", registResponse)
-
-    localStorage.setItem("passkey_credentialId", registResponse.id)
     const newKey = {
       type: ShadowKeyType.WEBAUTHN,
       keyId: registResponse.id,
@@ -126,6 +120,7 @@ export class SecurityFeature implements UserFeature {
 
     if (shadowKey) {
       this.upsertShadowKey(shadowKey);
+      this.updatePasskey(registResponse.id)
       return true;
     }
 
@@ -144,8 +139,6 @@ export class SecurityFeature implements UserFeature {
     // true: Autofill account password will report an error
     const authenResponse = await startAuthentication(unlockPasskeyOptions, false)
 
-    // TODO: REMOVER
-    console.log("unlockPasskeyOptions: authenResponse = ", authenResponse)
     const authKey = {
       type: ShadowKeyType.WEBAUTHN, //-7
       keyId: authenResponse.id,
@@ -159,20 +152,10 @@ export class SecurityFeature implements UserFeature {
   // TO UNLOCK PASSKEY
   private async unlockPasskeyOptions(challengeInfo: ChallengeEntity, userName?: string): Promise<PublicKeyCredentialRequestOptionsJSON> {
     const rpId = process.env.NEXT_PUBLIC_RP_ID
-    const challengeEncoder = new TextEncoder()
-    const challengeUint8Array = challengeEncoder.encode(challengeInfo.content)
-    const credentialId = localStorage.getItem('passkey_credentialId')
-
+    const allowCredentials = this.getPasskeyAllowCredentials()
     const publicKeyCredentialCreationOptions: PublicKeyCredentialRequestOptionsJSON = {
-      // challenge: Buffer.from(challengeUint8Array).toString(),
       challenge: challengeInfo.content,
-      // allowCredentials: [],
-      allowCredentials: [
-        {
-          id: credentialId,
-          type: "public-key"
-        }
-      ],
+      allowCredentials: allowCredentials,
       rpId: rpId,
       userVerification: "preferred",
       timeout: 30000
@@ -206,6 +189,39 @@ export class SecurityFeature implements UserFeature {
     }
 
     return pkCredentialCreationOptionsJSON
+  }
+
+  /**
+   * Get the credentialIds of the locally stored passkey
+  */
+  private getPasskeyAllowCredentials(): PublicKeyCredentialDescriptorJSON[] {
+    const passkeyCredentialIdsString = localStorage.getItem('passkey_credentialIds');
+    const passkeyCredentialIds = passkeyCredentialIdsString ? JSON.parse(passkeyCredentialIdsString) : [];
+
+    return passkeyCredentialIds.map((credentialId: string) => ({
+      id: credentialId,
+      type: 'public-key',
+      transports: ['internal'],
+    }));
+  }
+
+  /**
+   * Update the credentialIds of the locally stored passkey
+  */
+  private updatePasskey(credentialId: string): void {
+    const existingPasskeys = JSON.parse(localStorage.getItem('passkey_credentialIds')) || [];
+    // Check if credentialId exists in the array
+    const passkeyIndex = existingPasskeys.indexOf(credentialId);
+
+    // If credentialId exists, update it; otherwise, add it to the array
+    if (passkeyIndex !== -1) {
+      existingPasskeys[passkeyIndex] = credentialId;
+    } else {
+      existingPasskeys.push(credentialId);
+    }
+
+    // Store the updated passkeys array in localStorage
+    localStorage.setItem('passkey_credentialIds', JSON.stringify(existingPasskeys));
   }
 
   private upsertShadowKey(shadowKey: ShadowKey): void {
