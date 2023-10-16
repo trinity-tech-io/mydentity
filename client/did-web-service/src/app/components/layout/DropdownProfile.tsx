@@ -1,13 +1,10 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 "use client";
 import { FC, useEffect, useRef, useState } from "react";
-// import Link from "next/link";
-// import { Link } from "next13-progressbar";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next13-progressbar";
 import Transition from "@components/generic/Transition";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
-import { User } from "@model/user/user";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import {
   Box,
@@ -21,7 +18,7 @@ import {
   Typography,
 } from "@mui/material";
 import Avatar from "@mui/material/Avatar";
-import { authUser$, getActiveUser } from "@services/user/user.events";
+import { authUser$ } from "@services/user/user.events";
 import { signOut } from "@services/user/user.service";
 import IdentityCaseIcon from "@assets/images/identity-case.svg";
 
@@ -144,7 +141,11 @@ export const DropdownUserProfile: FC<{
                   You’re signed in!
                 </Typography>
                 {!!userDesc ? (
-                  <Typography variant="caption" className="opacity-80" fontSize="9pt">
+                  <Typography
+                    variant="caption"
+                    className="opacity-80"
+                    fontSize="9pt"
+                  >
                     {userDesc}
                   </Typography>
                 ) : (
@@ -178,7 +179,9 @@ export const DropdownUserProfile: FC<{
                     m.action && m.action();
                   }}
                 >
-                  <Typography variant="body1" className="opacity-90">{m.name}</Typography>
+                  <Typography variant="body1" className="opacity-90">
+                    {m.name}
+                  </Typography>
                 </MenuItem>
               ))}
             </Paper>

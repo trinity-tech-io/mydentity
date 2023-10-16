@@ -17,8 +17,10 @@ import { DarkButton } from "@components/button";
 import { IdentityCard } from "@components/identity/IdentityCard";
 import { LoadingCard } from "@components/loading-skeleton";
 import TourTooltip from "@components/tooltip/TourTooltip";
+import TourState from "@services/tour.service";
 
 const TAG = "IdentityListWidget";
+const TOUR_STATE_NAME = "identity-chip";
 
 export const AllIdentityList: FC = (_) => {
   const [authUser] = useBehaviorSubject(authUser$);
@@ -50,10 +52,25 @@ export const AllIdentityList: FC = (_) => {
     identities && identities?.length > 0
       ? identities[0].credentials().credentials$
       : null;
+
+  const tourState = new TourState(authUser);
+
   useEffect(() => {
     credentialData4check?.subscribe({
       next: (val) => {
-        if (val) setTimeout(() => setRunTour(true), 500);
+        if (val) {
+          tourState
+            .checkTourState(TOUR_STATE_NAME)
+            .then((isAlreadyViewed) => {
+              if (isAlreadyViewed) return;
+              setTimeout(() => setRunTour(true), 500);
+              tourState.setTourState(TOUR_STATE_NAME);
+            })
+            .catch((e) => {
+              setTimeout(() => setRunTour(true), 500);
+              tourState.setTourState(TOUR_STATE_NAME);
+            });
+        }
       },
     });
   }, [credentialData4check]);
