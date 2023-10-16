@@ -98,7 +98,7 @@ export class IdentityClaimService {
     return claimRequest;
   }
 
-  public async claimManagedIdentity(claimRequestId: string, nonce: string, newPassword: string, browserId: string, user: User) {
+  public async claimManagedIdentity(claimRequestId: string, nonce: string, browserId: string, user: User) {
     const claimRequest = await this.prisma.identityClaimRequest.findFirst({
       where: {
         id: claimRequestId

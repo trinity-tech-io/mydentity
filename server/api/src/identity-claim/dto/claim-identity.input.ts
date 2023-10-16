@@ -7,7 +7,4 @@ export class ClaimIdentityInput {
 
   @Field(() => String)
   nonce: string;
-
-  @Field(() => String)
-  newPassword: string;
 }
