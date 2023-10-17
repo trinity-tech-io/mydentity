@@ -1,14 +1,14 @@
 import { gql } from "@apollo/client";
+import { callWithUnlock } from "@components/security/unlock-key-prompt/call-with-unlock";
 import { gqlIdentityFields } from "@graphql/identity.fields";
-import { gqlIdentityRootFields } from "@graphql/root-identity.fields";
 import { gqlMnemonicFields } from "@graphql/mnemonic.fields";
+import { gqlIdentityRootFields } from "@graphql/root-identity.fields";
+import { IdentityRoot } from "@model/identity-root/identity-root";
+import { IdentityRootDTO } from "@model/identity-root/identity-root.dto";
 import type { Identity } from "@model/identity/identity";
 import { IdentityType } from "@model/identity/identity-type";
 import type { IdentityDTO } from "@model/identity/identity.dto";
-import { IdentityRoot } from "@model/identity-root/identity-root";
-import { IdentityRootDTO } from "@model/identity-root/identity-root.dto";
 import { MnemonicDTO } from "@model/identity/mnemonic.dto";
-import { callWithUnlock } from "@components/security/unlock-key-prompt/call-with-unlock";
 import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { IdentityProvider, IdentityProviderIdentity } from "@services/identity/did.provider";
@@ -68,7 +68,7 @@ export class IdentityModule implements IdentityProviderIdentity {
       return true;
     }
     else {
-      throw new Error("Failed to delete DID");
+      throw new Error("Failed to delete the identity");
     }
   }
 

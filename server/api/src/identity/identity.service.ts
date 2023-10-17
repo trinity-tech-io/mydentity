@@ -2,12 +2,14 @@ import { DIDDocument, RootIdentity } from '@elastosfoundation/did-js-sdk';
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ActivityType, Browser, Identity, IdentityType, User, UserShadowKeyType } from '@prisma/client/main';
+import { InteractingApplicationsService } from 'src/app-interaction/interacting-applications.service';
 import { AuthService } from 'src/auth/auth.service';
 import { CredentialsService } from 'src/credentials/credentials.service';
 import { AssistTransactionStatus, DIDPublishingService } from 'src/did-publishing/did-publishing.service';
 import { DidService } from 'src/did/did.service';
 import { AppException } from 'src/exceptions/app-exception';
 import { AuthExceptionCode, DIDExceptionCode } from 'src/exceptions/exception-codes';
+import { IdentityClaimService } from 'src/identity-claim/identity-claim.service';
 import { KeyRingService } from 'src/key-ring/key-ring.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserService } from 'src/user/user.service';
@@ -32,6 +34,8 @@ export class IdentityService {
   constructor(private prisma: PrismaService,
     private credentialsService: CredentialsService,
     private didPublishingService: DIDPublishingService,
+    private interactingApplicationsService: InteractingApplicationsService,
+    private identityClaimService: IdentityClaimService,
     private didService: DidService,
     private userService: UserService,
     private authService: AuthService,
@@ -123,21 +127,31 @@ export class IdentityService {
 
   async deleteIdentity(didString: string, user: User) {
     this.logger.log('deleteIdentity didString:' + didString);
-    const successfulDeletion = await this.didService.deleteIdentity(didString, user.id);
-    if (successfulDeletion) {
-      await this.credentialsService.deleteIdentityCredentials(didString, user);
 
-      await this.prisma.identity.delete({
-        where: {
-          did: didString
-        }
-      });
+    // Delete the DID store content
+    await this.didService.deleteIdentity(didString, user.id);
 
-      await this.activityService.createActivity(user, { type: ActivityType.IDENTITY_DELETED, identityDid: didString });
-    } else {
-      this.logger.warn('deleteIdentity error');
-    }
-    return successfulDeletion;
+    // Now delete the identity and all its dependency from the main database.
+    // NOTE: we do not check if the DID store deletion succeed, because we can't do this
+    // transactionally anyway, and we don't want the main DB identity deletion to be stuck forever
+    // in case the DID store failed to delete something.
+
+    // Delete related claim requests
+    await this.identityClaimService.deleteIdentityClaimRequests(didString);
+
+    // Delete all credentials
+    await this.credentialsService.deleteIdentityCredentials(didString, user);
+
+    // Delete interacting applications
+    await this.interactingApplicationsService.deleteIdentityInteractions(didString);
+
+    // Delete the identity itself
+    await this.prisma.identity.delete({ where: { did: didString } });
+
+    // Create a user activity to remember this activity was deleted
+    await this.activityService.createActivity(user, { type: ActivityType.IDENTITY_DELETED, identityDid: didString });
+
+    return true;
   }
 
   async createDIDPublishTransaction(didString: string, user: User, browser: Browser) {

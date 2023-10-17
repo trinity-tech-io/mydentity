@@ -15,7 +15,7 @@ import { CredentialsService } from './credentials.service';
   imports: [
     PrismaModule,
     DIDModule,
-    IdentityModule,
+    forwardRef(() => IdentityModule),
     KeyRingModule,
     forwardRef(() => AppInteractionModule),
   ],

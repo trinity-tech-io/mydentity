@@ -113,4 +113,16 @@ export class InteractingApplicationsService {
       }
     });
   }
+
+  /**
+   * Deletes all app interactions related to the given identity (we are probably deleting the
+   * identity).
+   */
+  public async deleteIdentityInteractions(identityDid: string): Promise<void> {
+    await this.prisma.identityInteractingApplication.deleteMany({
+      where: {
+        identityDid
+      }
+    });
+  }
 }

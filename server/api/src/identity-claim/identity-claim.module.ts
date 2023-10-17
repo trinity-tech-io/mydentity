@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { CredentialsModule } from 'src/credentials/credentials.module';
 import { IdentityModule } from 'src/identity/identity.module';
@@ -16,10 +16,13 @@ import { IdentityClaimService } from './identity-claim.service';
   imports: [
     ConfigModule,
     PrismaModule,
-    IdentityModule,
-    CredentialsModule,
+    forwardRef(() => IdentityModule),
+    forwardRef(() => CredentialsModule),
     KeyRingModule,
     UserModule
+  ],
+  exports: [
+    IdentityClaimService
   ]
 })
 export class IdentityClaimModule { }

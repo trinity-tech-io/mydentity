@@ -155,4 +155,12 @@ export class IdentityClaimService {
 
     return claimedIdentity;
   }
+
+  public async deleteIdentityClaimRequests(identityDid: string) {
+    await this.prisma.identityClaimRequest.deleteMany({
+      where: {
+        identityDid
+      }
+    });
+  }
 }
