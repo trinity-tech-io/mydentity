@@ -19,6 +19,7 @@ const NewApplicationPage: FC = () => {
   // Step states
   const [creatingIdentity, setCreatingIdentity] = useState(false); // From clicking on "create" until the very end
   const [callingCreationApi, setCallingCreationApi] = useState(false);
+  const [publishing, setPublishing] = useState(false);
 
   const createIdentity = async (e?: FormEvent): Promise<void> => {
     // Disable form submit
@@ -27,25 +28,23 @@ const NewApplicationPage: FC = () => {
     const name = nameInput.current.value;
     setCreatingIdentity(true);
 
-    // Create identity for real in the backend
+    // Create identity for real in the backend - this triggers a first publishing without app info credential inside
     setCallingCreationApi(true);
     const applicationIdentity = await callWithUnlock(async () => await authUser.get("identity").createApplicationIdentity(name));
-    // Create the application credential in this new identity
-    applicationIdentity.update(name, "");
     setCallingCreationApi(false);
-
     if (applicationIdentity) {
-      // First fetch the (empty list of) credentials, this is required to be able to create new credentials.
-      //identity.profile().profileCredentials$.pipe(first(v => !!v)).subscribe(async () => {
-      // Attach the name as credential, to this new identity
-      // await identity.profile().createInitialNameCredential(name);
+      setPublishing(true);
+      // Wait until the app did is published on chain
+      await applicationIdentity.publication().awaitIdentityPublished();
+      setPublishing(false);
 
-      /*  setPublishing(true);
-       await identity.publication().awaitIdentityPublished();
-       setPublishing(false); */
+      // Create a first empty application credential in this new identity. User is going to edit it
+      // and publish the app did again right after
+      applicationIdentity.update(name, "");
+
+      setCallingCreationApi(false);
 
       showSuccessToast("The application identity was created");
-      //});
 
       router.push("/developers/application?did=" + applicationIdentity.did);
     }
@@ -80,6 +79,7 @@ const NewApplicationPage: FC = () => {
 
     <div className='flex flex-col'>
       {callingCreationApi && "Creating the application identity"}
+      {publishing && "Publishing the application identity on the identity chain"}
     </div>
   </div>
   )

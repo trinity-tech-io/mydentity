@@ -31,11 +31,16 @@ class DIDDocumentsService {
       create: async () => {
         // Try to get from the disk cache
         const documentString = await this.documentsPermanentCache.get(didString, { forceRemote }, forceRemote);
-        const didDocument = await DIDDocument.parseAsync(documentString);
-        if (didDocument)
-          return new Document(didDocument);
-        else
+        if (documentString) {
+          const didDocument = await DIDDocument.parseAsync(documentString);
+          if (didDocument)
+            return new Document(didDocument);
+          else
+            return null;
+        }
+        else {
           return null;
+        }
       },
     }, !forceRemote);
   }
