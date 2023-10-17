@@ -9,22 +9,26 @@ usage() { echo "$0 usage:" && grep " .)\ #" $0; exit 0; }
 
 build_client=false
 build_tests=false
+do_deploy=false
 commit_push=false
 remote_executiion=false
 
-while getopts "ctprh" flag; do
+while getopts "ctdprh" flag; do
     case ${flag} in
         c) # Build the client
-          build_client=true 
+          build_client=true
           ;;
         t) # Build the tests
-          build_tests=true 
+          build_tests=true
+          ;;
+        d) # Deploy tars of app and tests to prod.
+          do_deploy=true
           ;;
         p) # Commit and push
-          commit_push=true 
+          commit_push=true
           ;;
         r) # Remote execution
-          remote_executiion=true 
+          remote_executiion=true
           ;;
         h | *) # Display this help
           usage
@@ -53,13 +57,38 @@ if [ $build_tests = true ]
 then
   echo "Building tests apps locally"
 
+  cd sdk
+  npm i
+  cd ..
+
   cd tests/did-web-tests
   npm i
-  npm i ../../sdk
   npm run build
   cd ../..
 else
   echo "Not building tests locally as requested"
+fi
+
+# Deploy app and tests tar files to prod.
+if [ $do_deploy = true ]
+then
+  echo "Deploy app and tests tar files to prod."
+
+  # rm -f app.tar.gz tests.tar.gz
+
+  cd client/did-web-service
+  tar zcvf ../../app.tar.gz out
+  cd ../..
+
+  cd tests/did-web-tests
+  tar zcvf ../../tests.tar.gz out
+  cd ../..
+
+  # scp app.tar.gz did-web-service:~/
+  # scp tests.tar.gz did-web-service:~/
+  # rm -f app.tar.gz tests.tar.gz
+else
+  echo "Not deploy app and tests tar files to prod. as requested."
 fi
 
 # Push git folder to git

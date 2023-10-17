@@ -140,7 +140,7 @@ export const DropdownUserProfile: FC<{
                 <Typography variant="body1" fontWeight={600}>
                   You’re signed in!
                 </Typography>
-                {!!userDesc ? (
+                {userDesc ? (
                   <Typography
                     variant="caption"
                     className="opacity-80"

@@ -17,11 +17,11 @@ export default class TourState {
     if(!this.activeUser)
       return [];
     const tour_state = await this.activeUser.get("storage").get(TOUR_TOOLTIP_STATE, null);
-    var state_arr: string[] = [];
+    let state_arr: string[] = [];
     try {
       tour_state && (state_arr = JSON.parse(atob(tour_state)))
       return state_arr;
-    } catch(e) {}
+    } catch(e) { console.error('Failed to getTourState().'); }
     return state_arr;
   }
 
@@ -29,10 +29,10 @@ export default class TourState {
     if(!this.activeUser)
       return;
     const tour_state = await this.activeUser.get("storage").get(TOUR_TOOLTIP_STATE, null)
-    var state_arr: string[] = []
+    let state_arr: string[] = []
     try {
       tour_state && (state_arr = JSON.parse(atob(tour_state)))
-    } catch(e) {}
+    } catch(e) { console.error('Failed to setTourState().'); }
     state_arr.push(state)
     this.activeUser.get("storage").set(TOUR_TOOLTIP_STATE, btoa(JSON.stringify(state_arr)));
   }

@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunk_N_E=self.webpackChunk_N_E||[]).push([[8426],{18426:function(e,t,n){n.d(t,{RequestedCredential:function(){return RequestedCredential}});var s=n(90726);let RequestedCredential=class RequestedCredential{static async fromJson(e){let t=new RequestedCredential;return Object.assign(t,e),t.credential=await (0,s.credentialFromJson)(e.credential),t}}}}]);
