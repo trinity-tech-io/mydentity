@@ -40,11 +40,11 @@ export const AllIdentityList: FC = (_) => {
       return dateB - dateA;
     });
   const filteredIdentites =
-    sortedIdentities && filterName.trim()
+    sortedIdentities && filterName
       ? sortedIdentities.filter(
           (i) =>
-            i.profile().name$.getValue()?.includes(filterName) ||
-            i.did?.includes(filterName)
+            i.profile().name$.getValue()?.toLowerCase()?.includes(filterName) ||
+            i.did?.toLowerCase()?.includes(filterName)
         )
       : sortedIdentities;
 
@@ -120,7 +120,7 @@ export const AllIdentityList: FC = (_) => {
   const handleFilterIdentities = (
     event: ChangeEvent<HTMLInputElement>
   ): void => {
-    setFilterName(event.target.value);
+    setFilterName(event.target.value.trim().toLowerCase());
   };
 
   return (
