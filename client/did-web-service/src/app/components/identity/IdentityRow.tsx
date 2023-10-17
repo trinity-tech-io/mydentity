@@ -17,6 +17,7 @@ export const IdentityRow: FC<{
 }> = ({ identity }) => {
   const [name] = useBehaviorSubject(identity.profile().name$);
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
+  const [lastUsedAt] = useBehaviorSubject(identity.lastUsedAt$);
   const { showSuccessToast } = useToast()
   const router = useRouter()
 
@@ -60,7 +61,7 @@ export const IdentityRow: FC<{
               }}
             />
           </TableCell>
-          <TableCell>{getDateDistance(identity.createdAt)}</TableCell>
+          <TableCell>{getDateDistance(lastUsedAt)}</TableCell>
         </>
       }
     />

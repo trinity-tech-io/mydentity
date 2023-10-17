@@ -1,5 +1,5 @@
 "use client";
-import { FC } from "react";
+import { FC, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import AddIcon from "@mui/icons-material/Add";
 import { TableCell, TableRow } from "@mui/material";
@@ -11,21 +11,29 @@ import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { authUser$ } from "@services/user/user.events";
 import { useMounted } from "@hooks/useMounted";
 import { LoadingTableAvatarRow } from "@components/loading-skeleton";
+import { activeIdentity$ } from "@services/identity/identity.events";
+import { RegularIdentity } from "@model/regular-identity/regular-identity";
 
 export const IdentityListWidget: FC = (_) => {
   const [authUser] = useBehaviorSubject(authUser$);
   const [identities] = useBehaviorSubject(
     authUser?.get("identity").regularIdentities$
   );
+  const [activeIdentity] = useBehaviorSubject(activeIdentity$);
+  const [myIdentities, setMyIdentites] = useState<RegularIdentity[]>([]);
   const { mounted } = useMounted();
   const router = useRouter();
-  const sortedIdentities =
-    identities &&
-    [...identities].sort((a, b) => {
-      const dateA = a.lastUsedAt$.getValue().getTime();
-      const dateB = b.lastUsedAt$.getValue().getTime();
-      return dateB - dateA;
-    });
+  useEffect(() => {
+    if (identities) {
+      setMyIdentites(
+        [...identities].sort((a, b) => {
+          const dateA = a.lastUsedAt$.getValue().getTime();
+          const dateB = b.lastUsedAt$.getValue().getTime();
+          return dateB - dateA;
+        })
+      );
+    }
+  }, [identities?.length, activeIdentity]);
 
   const openCreateIdentity = (): void => {
     router.push("/new-identity");
@@ -46,13 +54,13 @@ export const IdentityListWidget: FC = (_) => {
           headCells={
             <>
               <TableCell>IDENTITY</TableCell>
-              <TableCell>CREATED</TableCell>
+              <TableCell>LAST USED</TableCell>
             </>
           }
           bodyRows={
-            mounted && sortedIdentities ? (
+            mounted && myIdentities ? (
               <>
-                {!sortedIdentities.length ? (
+                {!myIdentities.length ? (
                   <>
                     <TableRow>
                       <TableCell component="th" colSpan={3} align="center">
@@ -61,7 +69,7 @@ export const IdentityListWidget: FC = (_) => {
                     </TableRow>
                   </>
                 ) : (
-                  sortedIdentities
+                  myIdentities
                     .slice(0, 4)
                     .map((identity, _i) => (
                       <IdentityRow key={_i} identity={identity} />

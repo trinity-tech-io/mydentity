@@ -36,7 +36,7 @@ export function JsonViewer({ data }: JsonViewerProps): React.ReactElement {
   };
 
   return (
-    <div className="json-viewer" style={{ textAlign: 'left' }}>
+    <div className="json-viewer truncate" style={{ textAlign: 'left' }}>
       {renderJson(data)}
       <style>
         {`
