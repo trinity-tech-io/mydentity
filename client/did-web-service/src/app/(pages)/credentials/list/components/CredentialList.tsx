@@ -1,6 +1,6 @@
 "use client";
 import { FC, useCallback, useEffect, useState } from "react";
-import { Box, Divider, List, Typography, ListItemButton } from "@mui/material";
+import { Box, Divider, List, ListItemButton } from "@mui/material";
 import { WidthProvider, Responsive, Layout } from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 
@@ -11,8 +11,7 @@ import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useMounted } from "@hooks/useMounted";
 import { Credential } from "@model/credential/credential";
 import { activeIdentity$ } from "@services/identity/identity.events";
-import { arraysAreEqual, filterCredentials } from "./FilterConditions";
-import { FiltersDropdown } from "./FiltersDropdown";
+import { filterCredentials } from "./FilterConditions";
 import CredentialBox from "./CredentialBox";
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
@@ -51,7 +50,7 @@ export const CredentialListWidget: FC<{
     if (credentials && !activeCredential) {
       identityProfileFeature.setActiveCredential(credentials[0]);
     }
-  }, [activeCredential, credentials])
+  }, [activeCredential, credentials]);
 
   useEffect(() => {
     // Refresh: When filter conditions change or credentials change
@@ -64,11 +63,7 @@ export const CredentialListWidget: FC<{
       identityProfileFeature.setActiveCredential(filtered[0] || null);
       setFilteredCredentials(filtered);
     }
-  }, [
-    credentials,
-    selectedFilter,
-    activeIdentity,
-  ]);
+  }, [credentials, selectedFilter, activeIdentity]);
 
   useEffect(() => {
     if (filteredCredentials.length)
@@ -81,22 +76,19 @@ export const CredentialListWidget: FC<{
       );
   }, [openedDetail, filteredCredentials]);
 
-  const generateLayouts = useCallback(
-    () => {
-      const layouts: { [key: string]: Layout[] } = {};
-      Object.keys(GRID_COLS).map((breakpoint) => {
-        layouts[breakpoint] = filteredCredentials.map((c, _id) => ({
-            i: c.id,
-            x: (_id * 2) % GRID_COLS[breakpoint],
-            y: Math.floor((_id * 2) / GRID_COLS[breakpoint]),
-            w: 2,
-            h: expandedIDs.includes(c.id) ? 3 : 1,
-          }));
-      });
-      return layouts;
-    },
-    [expandedIDs, filteredCredentials]
-  );
+  const generateLayouts = useCallback(() => {
+    const layouts: { [key: string]: Layout[] } = {};
+    Object.keys(GRID_COLS).map((breakpoint) => {
+      layouts[breakpoint] = filteredCredentials.map((c, _id) => ({
+        i: c.id,
+        x: (_id * 2) % GRID_COLS[breakpoint],
+        y: Math.floor((_id * 2) / GRID_COLS[breakpoint]),
+        w: 2,
+        h: expandedIDs.includes(c.id) ? 3 : 1,
+      }));
+    });
+    return layouts;
+  }, [expandedIDs, filteredCredentials]);
   return (
     <div className="col-span-full">
       <ResponsiveReactGridLayout
