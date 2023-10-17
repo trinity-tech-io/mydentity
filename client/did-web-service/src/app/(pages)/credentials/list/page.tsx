@@ -1,9 +1,15 @@
 "use client";
-import { FC, useState } from "react";
+import { ChangeEvent, FC, useState } from "react";
 import { Add as AddIcon, Search as SearchIcon } from "@mui/icons-material";
-import { FormControl, InputAdornment, MenuItem, Select, Stack, Typography } from "@mui/material";
+import {
+  FormControl,
+  InputAdornment,
+  MenuItem,
+  Select,
+  Stack,
+  Typography,
+} from "@mui/material";
 import { Breadcrumbs } from "@components/breadcrumbs/Breadcrumbs";
-import { Credential } from "@model/credential/credential";
 import { CredentialDetailWidget } from "./components/CredentialDetail";
 import { CredentialListWidget } from "./components/CredentialList";
 import Headline from "@components/layout/Headline";
@@ -12,6 +18,11 @@ import { DarkButton } from "@components/button";
 import SwitchUI from "@components/switch/Switch";
 
 const CredentialsList: FC = () => {
+  const [openedDetail, setOpenedDetail] = useState(false);
+  const handleDetailSwitch = (event: ChangeEvent, checked: boolean) => {
+    setOpenedDetail(checked);
+  };
+
   return (
     <>
       <div className="col-span-full">
@@ -26,11 +37,16 @@ const CredentialsList: FC = () => {
         <div className="bg-[#666666]/[.18] flex flex-col flex-1 gap-4 p-4 rounded-md">
           <div className="flex items-center gap-2">
             <div className="bg-[#34A853] w-4 h-4 rounded-[4px]" />
-            <Typography variant="body2" fontWeight={600} className="flex-1">This credential conforms to a format published by its issuer and can be easily reused by multiple apps.</Typography>
+            <Typography variant="body2" fontWeight={600} className="flex-1">
+              This credential conforms to a format published by its issuer and
+              can be easily reused by multiple apps.
+            </Typography>
           </div>
           <div className="flex items-center gap-2">
             <div className="bg-[#9291A5] w-4 h-4 rounded-[4px]" />
-            <Typography variant="body2" fontWeight={600} className="flex-1">Non-conform format</Typography>
+            <Typography variant="body2" fontWeight={600} className="flex-1">
+              Non-conform format
+            </Typography>
           </div>
         </div>
         <div className="flex flex-col items-end gap-1">
@@ -63,14 +79,16 @@ const CredentialsList: FC = () => {
           <div className="flex flex-col flex-1 justify-end">
             <div className="inline-flex gap-2">
               <Stack direction="row" spacing={1} alignItems="center">
-                <Typography variant="body2" className="text-[#C4C4C4]">Show Details</Typography>
-                <SwitchUI />
+                <Typography variant="body2" className="text-[#C4C4C4]">
+                  Show Details
+                </Typography>
+                <SwitchUI onChange={handleDetailSwitch} />
               </Stack>
               <FormControl>
                 <Select
                   defaultValue={0}
                   size="small"
-                  inputProps={{ 'aria-label': 'Without label' }}
+                  inputProps={{ "aria-label": "Without label" }}
                 >
                   <MenuItem value={0}>All</MenuItem>
                   <MenuItem value={1}>created by me</MenuItem>
@@ -83,7 +101,7 @@ const CredentialsList: FC = () => {
           </div>
         </div>
       </Stack>
-      <CredentialListWidget />
+      <CredentialListWidget openedDetail={openedDetail} />
       <CredentialDetailWidget />
     </>
   );

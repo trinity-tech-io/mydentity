@@ -28,6 +28,17 @@ const CredentialBox: FC<{
   const [isConform] = useBehaviorSubject(credential?.isConform$);
   const [issuerInfo] = useBehaviorSubject(credential?.issuerInfo$);
 
+  const handleExpanding = (): void => {
+    setExpanded((prevIDs: string) => {
+      var tempIDs = [...prevIDs];
+      const thisIndex = tempIDs.findIndex((_id) => _id === id);
+      if (thisIndex < 0) {
+        tempIDs.length != 1 ? tempIDs.push(id) : (tempIDs = [id]);
+      } else tempIDs.splice(thisIndex, 1);
+      return tempIDs;
+    });
+  };
+
   return (
     <div className="relative h-full">
       <CardStyled
@@ -67,13 +78,7 @@ const CredentialBox: FC<{
             </Stack>
           </Stack>
           <div>
-            <IconButton
-              size="small"
-              color="inherit"
-              onClick={(event): void => {
-                setExpanded((prevId: string) => (id == prevId ? "" : id));
-              }}
-            >
+            <IconButton size="small" color="inherit" onClick={handleExpanding}>
               <MoreVertIcon fontSize="small" />
             </IconButton>
           </div>

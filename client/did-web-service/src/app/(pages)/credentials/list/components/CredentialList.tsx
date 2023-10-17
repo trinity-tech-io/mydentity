@@ -1,17 +1,6 @@
 "use client";
 import { FC, useCallback, useEffect, useState } from "react";
-import {
-  Box,
-  Divider,
-  List,
-  Avatar,
-  IconButton,
-  Stack,
-  Typography,
-  ListItemButton,
-  Grid,
-} from "@mui/material";
-import { MoreVert as MoreVertIcon } from "@mui/icons-material";
+import { Box, Divider, List, Typography, ListItemButton } from "@mui/material";
 import { WidthProvider, Responsive, Layout } from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 
@@ -24,11 +13,12 @@ import { Credential } from "@model/credential/credential";
 import { activeIdentity$ } from "@services/identity/identity.events";
 import { arraysAreEqual, filterCredentials } from "./FilterConditions";
 import { FiltersDropdown } from "./FiltersDropdown";
-import { CardStyled } from "@/app/(pages)/account/security/components/SecuritySection";
 import CredentialBox from "./CredentialBox";
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
-export const CredentialListWidget: FC = () => {
+export const CredentialListWidget: FC<{ openedDetail: boolean }> = ({
+  openedDetail,
+}) => {
   const TAG = "CredentialList";
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const [credentials] = useBehaviorSubject(
@@ -42,7 +32,7 @@ export const CredentialListWidget: FC = () => {
   const [selectedFilter, setSelectedFilter] = useState<string>(""); // State to hold the selected filter
   const [filteredCredentials, setFilteredCredentials] =
     useState<Credential[]>(credentials);
-  const [expandedId, setExpandedId] = useState<string>("");
+  const [expandedIDs, setExpandedIDs] = useState<string[]>([]);
   const GRID_COLS: { [key: string]: number } = {
     lg: 12,
     md: 10,
@@ -90,6 +80,17 @@ export const CredentialListWidget: FC = () => {
     activeIdentity,
   ]);
 
+  useEffect(() => {
+    if (filteredCredentials.length)
+      setExpandedIDs((_) =>
+        openedDetail
+          ? Array(filteredCredentials.length)
+              .fill(0)
+              .map((_, _id) => _id.toString())
+          : []
+      );
+  }, [openedDetail, filteredCredentials]);
+
   const handleFilterChange = (filter: string): void => {
     setSelectedFilter(filter); // Update the selected filter when it changes
   };
@@ -105,12 +106,12 @@ export const CredentialListWidget: FC = () => {
             x: (_id * 2) % GRID_COLS[breakpoint],
             y: Math.floor((_id * 2) / GRID_COLS[breakpoint]),
             w: 2,
-            h: _id.toString() == expandedId ? 3 : 1,
+            h: expandedIDs.includes(_id.toString()) ? 3 : 1,
           }));
       });
       return layouts;
     },
-    [expandedId]
+    [expandedIDs]
   );
   return (
     <div className="col-span-full">
@@ -132,8 +133,8 @@ export const CredentialListWidget: FC = () => {
               <CredentialBox
                 id={_id.toString()}
                 credential={c}
-                expanded={expandedId == _id.toString()}
-                setExpanded={setExpandedId}
+                expanded={expandedIDs.includes(_id.toString())}
+                setExpanded={setExpandedIDs}
               />
             </Box>
           ))}
