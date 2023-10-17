@@ -109,7 +109,11 @@ export class SecurityFeature implements UserFeature {
   public async bindPasskey(): Promise<boolean> {
     const challengeInfo = await getPasskeyChallenge()
     const registerPasskeyOptions = await this.registerPasskeyOptions(challengeInfo, this.user.name$.value)
+    // TODO: REMOVE
+    console.log("bindPasskey>>>>>>>>>>>> registerPasskeyOptions: ", registerPasskeyOptions)
     const registResponse = await startRegistration(registerPasskeyOptions)
+    // TODO: REMOVE
+    console.log("bindPasskey>>>>>>>>>>>> registResponse: ", registResponse)
     const newKey = {
       type: ShadowKeyType.WEBAUTHN,
       keyId: registResponse.id,
@@ -117,7 +121,8 @@ export class SecurityFeature implements UserFeature {
       challengeId: challengeInfo.id,
     };
     const shadowKey = await bindKey(newKey)
-
+    // TODO: REMOVE
+    console.log("bindPasskey>>>>>>>>>>>> shadowKey: ", shadowKey)
     if (shadowKey) {
       this.upsertShadowKey(shadowKey);
       this.updatePasskey(registResponse.id)
@@ -136,9 +141,12 @@ export class SecurityFeature implements UserFeature {
     logger.log("Keyring", "start unlock passkey...")
     const challengeInfo = await getPasskeyChallenge()
     const unlockPasskeyOptions = await this.unlockPasskeyOptions(challengeInfo, null)
+    // TODO: REMOVE
+    console.log("unlockPasskeyLocally>>>>>>>>>>>> unlockPasskeyOptions: ", unlockPasskeyOptions)
     // true: Autofill account password will report an error
     const authenResponse = await startAuthentication(unlockPasskeyOptions, false)
-
+    // TODO: REMOVE
+    console.log("unlockPasskeyLocally>>>>>>>>>>>> authenResponse: ", authenResponse)
     const authKey = {
       type: ShadowKeyType.WEBAUTHN, //-7
       keyId: authenResponse.id,

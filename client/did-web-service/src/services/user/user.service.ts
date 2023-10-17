@@ -16,6 +16,7 @@ import Queue from "promise-queue";
 import { LoggedUserOutput } from "./logged-user.output";
 import { SignUpInput } from "./sign-up.input";
 import { authUser$, getActiveUser } from "./user.events";
+import { error } from "console";
 
 const fetchUserQueue = new Queue(1); // Execute user retrieval from the backend one by one to avoid duplicates
 
@@ -271,7 +272,11 @@ export async function authenticateWithPasskey(): Promise<boolean> {
   const challengeInfo = await getPasskeyChallenge()
   const unlockOptions = unlockPasskeyOptions(challengeInfo)
   // true: Autofill account password will report an error
+  // TODO: REMOVE
+  console.log("authenticateWithPasskey>>>>>>>>>>>> unlockOptions: ", unlockOptions)
   const authenResponse = await startAuthentication(unlockOptions, false)
+  // TODO: REMOVE
+  console.log("authenticateWithPasskey>>>>>>>>>>>> authenResponse: ", authenResponse)
   const authKey = {
     type: ShadowKeyType.WEBAUTHN,//-7
     keyId: authenResponse.id,
@@ -300,6 +305,8 @@ export async function authenticateWithPasskey(): Promise<boolean> {
     });
   });
 
+  // TODO: REMOVE
+  console.log("authenticateWithPasskey>>>>>>>>>>>> result: ", result)
   if (result?.data?.signInWithPasskey?.accessToken) {
     const accessToken = result?.data?.signInWithPasskey?.accessToken;
     const refreshToken = result?.data?.signInWithPasskey?.refreshToken;
