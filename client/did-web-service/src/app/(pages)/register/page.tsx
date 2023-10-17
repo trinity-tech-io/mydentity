@@ -207,6 +207,7 @@ const RegisterPage: FC = () => {
                               </label>
                               <Input
                                 id="holder-name"
+                                autoFocus
                                 inputProps={{
                                   maxLength: 30,
                                 }}

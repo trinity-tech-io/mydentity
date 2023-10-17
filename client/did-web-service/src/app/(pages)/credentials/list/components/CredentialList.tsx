@@ -1,5 +1,5 @@
 "use client";
-import { FC, useEffect, useState } from "react";
+import { FC, useCallback, useEffect, useState } from "react";
 import {
   Box,
   Divider,
@@ -42,6 +42,7 @@ export const CredentialListWidget: FC = () => {
   const [selectedFilter, setSelectedFilter] = useState<string>(""); // State to hold the selected filter
   const [filteredCredentials, setFilteredCredentials] =
     useState<Credential[]>(credentials);
+  const [expandedId, setExpandedId] = useState<string>("");
   const GRID_COLS: { [key: string]: number } = {
     lg: 12,
     md: 10,
@@ -93,26 +94,29 @@ export const CredentialListWidget: FC = () => {
     setSelectedFilter(filter); // Update the selected filter when it changes
   };
 
-  const generateLayouts = (itemCount: number) => {
-    const layouts: { [key: string]: Layout[] } = {};
-    Object.keys(GRID_COLS).map((breakpoint) => {
-      layouts[breakpoint] = Array(itemCount)
-        .fill(0)
-        .map((_, _id) => ({
-          i: _id.toString(),
-          x: (_id * 2) % GRID_COLS[breakpoint],
-          y: Math.floor((_id * 2) / GRID_COLS[breakpoint]),
-          w: 2,
-          h: 1,
-        }));
-    });
-    return layouts;
-  };
+  const generateLayouts = useCallback(
+    (itemCount: number) => {
+      const layouts: { [key: string]: Layout[] } = {};
+      Object.keys(GRID_COLS).map((breakpoint) => {
+        layouts[breakpoint] = Array(itemCount)
+          .fill(0)
+          .map((_, _id) => ({
+            i: _id.toString(),
+            x: (_id * 2) % GRID_COLS[breakpoint],
+            y: Math.floor((_id * 2) / GRID_COLS[breakpoint]),
+            w: 2,
+            h: _id.toString() == expandedId ? 3 : 1,
+          }));
+      });
+      return layouts;
+    },
+    [expandedId]
+  );
   return (
     <div className="col-span-full">
       <ResponsiveReactGridLayout
         containerPadding={[0, 0]}
-        margin={[16,16]}
+        margin={[16, 16]}
         className="layout"
         isDraggable={false}
         isResizable={false}
@@ -121,10 +125,16 @@ export const CredentialListWidget: FC = () => {
         rowHeight={62}
         breakpoint=""
       >
-        {mounted && filteredCredentials &&
+        {mounted &&
+          filteredCredentials &&
           filteredCredentials.map((c, _id) => (
             <Box key={_id.toString()}>
-              <CredentialBox credential={c}/>
+              <CredentialBox
+                id={_id.toString()}
+                credential={c}
+                expanded={expandedId == _id.toString()}
+                setExpanded={setExpandedId}
+              />
             </Box>
           ))}
       </ResponsiveReactGridLayout>

@@ -1,5 +1,13 @@
 import { FC } from "react";
-import { IconButton, Stack, Typography } from "@mui/material";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  IconButton,
+  List,
+  ListItem,
+  ListItemText,
+  Stack,
+  Typography,
+} from "@mui/material";
 import { MoreVert as MoreVertIcon } from "@mui/icons-material";
 import { CardStyled } from "@/app/(pages)/account/security/components/SecuritySection";
 import { Credential } from "@model/credential/credential";
@@ -8,11 +16,17 @@ import { JsonViewer } from "@components/credential/JsonViewer";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import SharedCountLabel from "@components/credential/SharedCountLabel";
 
-const CredentialBox: FC<{ credential: Credential }> = ({ credential }) => {
+const CredentialBox: FC<{
+  credential: Credential;
+  expanded: boolean;
+  setExpanded: Function;
+  id: string;
+}> = ({ credential, expanded, setExpanded, id }) => {
   const [requestingApplications] = useBehaviorSubject(
     credential?.requestingApplications$
   );
   const [isConform] = useBehaviorSubject(credential?.isConform$);
+  const [issuerInfo] = useBehaviorSubject(credential?.issuerInfo$);
 
   return (
     <div className="relative h-full">
@@ -27,7 +41,12 @@ const CredentialBox: FC<{ credential: Credential }> = ({ credential }) => {
           verticalAlign: "middle",
         }}
       >
-        <Stack direction="row" alignItems="center" overflow="hidden">
+        <Stack
+          direction="row"
+          alignItems="center"
+          overflow="hidden"
+          sx={{ height: 42 }}
+        >
           <Stack
             direction="row"
             spacing={1}
@@ -51,14 +70,56 @@ const CredentialBox: FC<{ credential: Credential }> = ({ credential }) => {
             <IconButton
               size="small"
               color="inherit"
-              // onClick={(event): void => {
-              //   handleOpenMenu(event, credential);
-              // }}
+              onClick={(event): void => {
+                setExpanded((prevId: string) => (id == prevId ? "" : id));
+              }}
             >
-              <MoreVertIcon fontSize="small"/>
+              <MoreVertIcon fontSize="small" />
             </IconButton>
           </div>
         </Stack>
+        <AnimatePresence initial={false}>
+          {expanded && (
+            <motion.section
+              key="content"
+              initial="collapsed"
+              animate="open"
+              exit="collapsed"
+              variants={{
+                open: { opacity: 1, height: "auto" },
+                collapsed: { opacity: 0, height: 0 },
+              }}
+              transition={{ duration: 0.8, ease: [0.04, 0.62, 0.23, 0.98] }}
+            >
+              <List dense sx={{ ".MuiListItemText-root": { margin: 0 } }}>
+                <ListItem>
+                  <ListItemText
+                    primary="ISSUANCE DATE"
+                    secondary={credential.verifiableCredential.issuanceDate.toLocaleString()}
+                    primaryTypographyProps={{ fontSize: 14, fontWeight: 600 }}
+                    secondaryTypographyProps={{ fontSize: 11 }}
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemText
+                    primary="EXPIRATION DATE"
+                    secondary={credential.verifiableCredential.expirationDate.toLocaleString()}
+                    primaryTypographyProps={{ fontSize: 14, fontWeight: 600 }}
+                    secondaryTypographyProps={{ fontSize: 11 }}
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemText
+                    primary="CREATED BY"
+                    secondary={issuerInfo?.name}
+                    primaryTypographyProps={{ fontSize: 14, fontWeight: 600 }}
+                    secondaryTypographyProps={{ fontSize: 11 }}
+                  />
+                </ListItem>
+              </List>
+            </motion.section>
+          )}
+        </AnimatePresence>
       </CardStyled>
       <div className="inline-flex absolute bottom-0 right-0 translate-x-1/3 translate-y-1/3">
         <SharedCountLabel
