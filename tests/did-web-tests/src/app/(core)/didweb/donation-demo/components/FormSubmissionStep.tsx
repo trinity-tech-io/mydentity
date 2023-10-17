@@ -17,6 +17,7 @@ export const FormSubmissionStep: FC<{
   const [createdIdentityDID, setCreatedIdentityDID] = useState<string>(null);
   const [producedCredentials, setProducedCredentials] = useState<string[]>(null); // Credential id
   const [claimUrl, setClaimUrl] = useState<string>(null);
+  const [identityCreationFailed, setIdentityCreationFailed] = useState(false);
 
   const importCredentialsFromClientSide = async (credentials: VerifiableCredential[]): Promise<void> => {
     console.log("Importing user credentials to his identity wallet, client side");
@@ -45,6 +46,7 @@ export const FormSubmissionStep: FC<{
     console.log("Creating a managed identity");
 
     setCreatingIdentity(true);
+    setIdentityCreationFailed(false);
     const identityDID = await api_createManagedIdentity();
     if (identityDID) {
       console.log("Managed identity creation ended", identityDID);
@@ -79,6 +81,9 @@ export const FormSubmissionStep: FC<{
         }
       }
     }
+    else {
+      setIdentityCreationFailed(true);
+    }
   }
 
   return (
@@ -111,6 +116,7 @@ export const FormSubmissionStep: FC<{
 
       {/* Identity status */}
       <div className="mt-4">
+        {identityCreationFailed && <div className="text-red-600">An unexpected error occured. Please check logs and report to developers.</div>}
         {!createdIdentityDID && <div>No identity created yet</div>}
         {createdIdentityDID && <>
           <div><b>Created user identity</b>: {createdIdentityDID}</div>

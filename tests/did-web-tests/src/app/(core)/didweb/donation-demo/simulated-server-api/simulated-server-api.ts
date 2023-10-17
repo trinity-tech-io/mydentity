@@ -24,16 +24,22 @@ const identityAccessTokenMap: { [did: string]: string } = {
  * That managed identity will belong to our app temporarily, until the user decides to claim it.
  */
 export async function api_createManagedIdentity(): Promise<string> {
-  const createdIdentity = await createManagedIdentity();
-  /* const createdIdentity = {
-    did: Object.keys(identityAccessTokenMap)[0],
-    identityAccessToken: Object.values(identityAccessTokenMap)[0]
-  }; // TEMP DEV */
-  console.log("Created identity:", createdIdentity);
+  try {
+    const createdIdentity = await createManagedIdentity();
+    /* const createdIdentity = {
+      did: Object.keys(identityAccessTokenMap)[0],
+      identityAccessToken: Object.values(identityAccessTokenMap)[0]
+    }; // TEMP DEV */
+    console.log("Created identity:", createdIdentity);
 
-  identityAccessTokenMap[createdIdentity.did] = createdIdentity.identityAccessToken;
+    identityAccessTokenMap[createdIdentity.did] = createdIdentity.identityAccessToken;
 
-  return createdIdentity.did;
+    return createdIdentity.did;
+  }
+  catch (e) {
+    console.error("Failed to create managed identity:", e);
+    return null;
+  }
 }
 
 /**
