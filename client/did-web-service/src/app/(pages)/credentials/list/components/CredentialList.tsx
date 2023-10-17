@@ -68,11 +68,7 @@ export const CredentialListWidget: FC<{
   useEffect(() => {
     if (filteredCredentials.length)
       setExpandedIDs((_) =>
-        openedDetail
-          ? Array(filteredCredentials.length)
-              .fill(0)
-              .map((_, _id) => _id.toString())
-          : []
+        openedDetail ? filteredCredentials.map((c) => c.id) : []
       );
   }, [openedDetail, filteredCredentials]);
 
