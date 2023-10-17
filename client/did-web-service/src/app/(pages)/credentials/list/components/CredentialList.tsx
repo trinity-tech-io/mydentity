@@ -16,9 +16,11 @@ import { FiltersDropdown } from "./FiltersDropdown";
 import CredentialBox from "./CredentialBox";
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
-export const CredentialListWidget: FC<{ openedDetail: boolean }> = ({
-  openedDetail,
-}) => {
+
+export const CredentialListWidget: FC<{
+  openedDetail: boolean;
+  selectedFilter: string;
+}> = ({ openedDetail, selectedFilter }) => {
   const TAG = "CredentialList";
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const [credentials] = useBehaviorSubject(
@@ -29,9 +31,9 @@ export const CredentialListWidget: FC<{ openedDetail: boolean }> = ({
   const [activeCredential] = useBehaviorSubject(
     identityProfileFeature?.activeCredential$
   );
-  const [selectedFilter, setSelectedFilter] = useState<string>(""); // State to hold the selected filter
-  const [filteredCredentials, setFilteredCredentials] =
-    useState<Credential[]>(credentials);
+  const [filteredCredentials, setFilteredCredentials] = useState<Credential[]>(
+    []
+  );
   const [expandedIDs, setExpandedIDs] = useState<string[]>([]);
   const GRID_COLS: { [key: string]: number } = {
     lg: 12,
@@ -91,12 +93,10 @@ export const CredentialListWidget: FC<{ openedDetail: boolean }> = ({
       );
   }, [openedDetail, filteredCredentials]);
 
-  const handleFilterChange = (filter: string): void => {
-    setSelectedFilter(filter); // Update the selected filter when it changes
-  };
-
   const generateLayouts = useCallback(
     (itemCount: number) => {
+      console.log(itemCount, 999)
+
       const layouts: { [key: string]: Layout[] } = {};
       Object.keys(GRID_COLS).map((breakpoint) => {
         layouts[breakpoint] = Array(itemCount)
@@ -139,18 +139,6 @@ export const CredentialListWidget: FC<{ openedDetail: boolean }> = ({
             </Box>
           ))}
       </ResponsiveReactGridLayout>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <Typography ml={2} my={3} variant="subtitle1">
-          Credentials
-        </Typography>
-        <FiltersDropdown onFilterChange={handleFilterChange} />
-      </div>
       <Divider />
       <Box sx={{ width: "100%", bgcolor: "background.paper" }}>
         {(!filteredCredentials || !mounted) && <VerticalStackLoadingCard />}

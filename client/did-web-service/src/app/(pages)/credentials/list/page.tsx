@@ -16,9 +16,15 @@ import Headline from "@components/layout/Headline";
 import OutlinedInputStyled from "@components/input/OutlinedInputStyled";
 import { DarkButton } from "@components/button";
 import SwitchUI from "@components/switch/Switch";
+import SelectBox from "@components/select/SelectBox";
 
 const CredentialsList: FC = () => {
   const [openedDetail, setOpenedDetail] = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState<string>(""); // State to hold the selected filter
+
+  const onFilterChange = (value: string) => {
+    setSelectedFilter(value)
+  }
   const handleDetailSwitch = (event: ChangeEvent, checked: boolean) => {
     setOpenedDetail(checked);
   };
@@ -85,23 +91,13 @@ const CredentialsList: FC = () => {
                 <SwitchUI onChange={handleDetailSwitch} />
               </Stack>
               <FormControl>
-                <Select
-                  defaultValue={0}
-                  size="small"
-                  inputProps={{ "aria-label": "Without label" }}
-                >
-                  <MenuItem value={0}>All</MenuItem>
-                  <MenuItem value={1}>created by me</MenuItem>
-                  <MenuItem value={2}>created by others</MenuItem>
-                  <MenuItem value={3}>conform</MenuItem>
-                  <MenuItem value={4}>not conform</MenuItem>
-                </Select>
+                <SelectBox valuePrefix="filter" list={[ "All", "created by me", "created by others", "conform", "not conform" ]} onChange={onFilterChange}/>
               </FormControl>
             </div>
           </div>
         </div>
       </Stack>
-      <CredentialListWidget openedDetail={openedDetail} />
+      <CredentialListWidget openedDetail={openedDetail} selectedFilter={selectedFilter} />
       <CredentialDetailWidget />
     </>
   );
