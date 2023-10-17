@@ -51,34 +51,22 @@ export const CredentialListWidget: FC<{
     if (credentials && !activeCredential) {
       identityProfileFeature.setActiveCredential(credentials[0]);
     }
+  }, [activeCredential, credentials])
+
+  useEffect(() => {
     // Refresh: When filter conditions change or credentials change
-    if (selectedFilter || credentials) {
+    if (credentials) {
       const filtered = filterCredentials(
         selectedFilter,
         credentials,
         activeIdentity
       );
-      // Refresh: when filtered changes
-      if (filtered && !arraysAreEqual(filtered, filteredCredentials)) {
-        setFilteredCredentials(filtered);
-        identityProfileFeature.setActiveCredential(filtered[0] || null);
-      }
-      // Refresh: When filtered is empty, activeCredential is null
-      else if (filtered.length === 0 || !filtered) {
-        identityProfileFeature.setActiveCredential(null);
-      }
-    } else {
-      // When the page refreshes, setFilteredCredentials
-      if (!filteredCredentials) {
-        setFilteredCredentials(credentials);
-      }
+      identityProfileFeature.setActiveCredential(filtered[0] || null);
+      setFilteredCredentials(filtered);
     }
   }, [
-    activeCredential,
     credentials,
-    identityProfileFeature,
     selectedFilter,
-    filteredCredentials,
     activeIdentity,
   ]);
 
@@ -94,24 +82,20 @@ export const CredentialListWidget: FC<{
   }, [openedDetail, filteredCredentials]);
 
   const generateLayouts = useCallback(
-    (itemCount: number) => {
-      console.log(itemCount, 999)
-
+    () => {
       const layouts: { [key: string]: Layout[] } = {};
       Object.keys(GRID_COLS).map((breakpoint) => {
-        layouts[breakpoint] = Array(itemCount)
-          .fill(0)
-          .map((_, _id) => ({
-            i: _id.toString(),
+        layouts[breakpoint] = filteredCredentials.map((c, _id) => ({
+            i: c.id,
             x: (_id * 2) % GRID_COLS[breakpoint],
             y: Math.floor((_id * 2) / GRID_COLS[breakpoint]),
             w: 2,
-            h: expandedIDs.includes(_id.toString()) ? 3 : 1,
+            h: expandedIDs.includes(c.id) ? 3 : 1,
           }));
       });
       return layouts;
     },
-    [expandedIDs]
+    [expandedIDs, filteredCredentials]
   );
   return (
     <div className="col-span-full">
@@ -121,19 +105,19 @@ export const CredentialListWidget: FC<{
         className="layout"
         isDraggable={false}
         isResizable={false}
-        layouts={generateLayouts(filteredCredentials?.length || 0)}
+        layouts={generateLayouts()}
         cols={GRID_COLS}
         rowHeight={62}
         breakpoint=""
       >
         {mounted &&
           filteredCredentials &&
-          filteredCredentials.map((c, _id) => (
-            <Box key={_id.toString()}>
+          filteredCredentials.map((c) => (
+            <Box key={c.id}>
               <CredentialBox
-                id={_id.toString()}
+                id={c.id}
                 credential={c}
-                expanded={expandedIDs.includes(_id.toString())}
+                expanded={expandedIDs.includes(c.id)}
                 setExpanded={setExpandedIDs}
               />
             </Box>
