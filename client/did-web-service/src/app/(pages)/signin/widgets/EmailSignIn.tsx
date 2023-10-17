@@ -1,11 +1,11 @@
-import { FC, FormEvent, MutableRefObject, useRef, useState } from "react";
-import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
-import { styled } from "@mui/material/styles";
 import { DarkButton } from "@components/button";
 import { Icon as ReactIcon } from "@iconify/react";
 import { InexistingEmailException } from "@model/exceptions/inexisting-email-exception";
+import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import { FlowOperation, setOnGoingFlowOperation } from "@services/flow.service";
 import { authenticateWithEmailAddress } from "@services/user/user.service";
+import { FC, FormEvent, MutableRefObject, useRef, useState } from "react";
 
 const FormControlStyled = styled(FormControl)(({ theme }) => ({
   paddingTop: "1.2rem",
@@ -64,7 +64,7 @@ interface EmailFormType {
   errorMsg?: any;
 }
 export const EmailFormBox: FC<EmailFormType> = (props) => {
-  const { emailInputRef, reqState, doEmailAuth, actionName="Send magic key to email", errorMsg = null } = props
+  const { emailInputRef, reqState, doEmailAuth, actionName = "Send magic link to email", errorMsg = null } = props
   const emailForm = useRef(null);
 
   async function onEmailSubmit(ev?: FormEvent): Promise<void> {

@@ -1,17 +1,17 @@
 "use client";
-import React, { FC, useEffect } from "react";
-import { signOut } from "@services/user/user.service";
+import GoogleSignIn from "@/app/(pages)/signin/widgets/GoogleSignIn";
+import LinkedinSignIn from "@/app/(pages)/signin/widgets/LinkedinSignIn";
+import SeparateLineText from "@components/separate-line";
 import { Box, Container } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { signOut } from "@services/user/user.service";
+import React, { FC, useEffect } from "react";
 import { EmailSignIn } from './widgets/EmailSignIn';
 import { SignInHeader } from "./widgets/HeaderSignIn";
 import MicrosoftSignIn from './widgets/MicrosoftSignIn';
 import PasskeySignIn from './widgets/PasskeySignIn';
-import SeparateLineText from "@components/separate-line";
-import GoogleSignIn from "@/app/(pages)/signin/widgets/GoogleSignIn";
-import LinkedinSignIn from "@/app/(pages)/signin/widgets/LinkedinSignIn";
 
-const CardStyled = styled(Box)(({theme})=>({
+const CardStyled = styled(Box)(({ theme }) => ({
   borderRadius: "1rem",
   overflow: 'hidden',
   "&:before": {
@@ -29,7 +29,7 @@ const CardStyled = styled(Box)(({theme})=>({
   }
 }))
 
-const ContainerBox:FC<{children: React.ReactNode}> = ({children}) => {
+const ContainerBox: FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <Container className="relative w-full flex flex-col py-4">
       {children}
@@ -60,7 +60,7 @@ const SignIn: FC = () => {
                 <LinkedinSignIn />
               </ContainerBox>
               <div className="py-4">
-                <SeparateLineText text="or sign in with your email" />
+                <SeparateLineText text="or receive a magic link by email" />
               </div>
               {/* Sign in with magic key by email */}
               <ContainerBox>
