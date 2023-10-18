@@ -1,14 +1,7 @@
 "use client";
 import { ChangeEvent, FC, useState } from "react";
 import { Add as AddIcon, Search as SearchIcon } from "@mui/icons-material";
-import {
-  FormControl,
-  InputAdornment,
-  MenuItem,
-  Select,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { FormControl, InputAdornment, Stack, Typography } from "@mui/material";
 import { Breadcrumbs } from "@components/breadcrumbs/Breadcrumbs";
 import { CredentialDetailWidget } from "./components/CredentialDetail";
 import { CredentialListWidget } from "./components/CredentialList";
@@ -23,8 +16,8 @@ const CredentialsList: FC = () => {
   const [selectedFilter, setSelectedFilter] = useState<string>(""); // State to hold the selected filter
 
   const onFilterChange = (value: string) => {
-    setSelectedFilter(value)
-  }
+    setSelectedFilter(value);
+  };
   const handleDetailSwitch = (event: ChangeEvent, checked: boolean) => {
     setOpenedDetail(checked);
   };
@@ -91,13 +84,26 @@ const CredentialsList: FC = () => {
                 <SwitchUI onChange={handleDetailSwitch} />
               </Stack>
               <FormControl>
-                <SelectBox valuePrefix="filter" list={[ "All", "created by me", "created by others", "conform", "not conform" ]} onChange={onFilterChange}/>
+                <SelectBox
+                  valuePrefix="filter"
+                  list={[
+                    "All",
+                    "created by me",
+                    "created by others",
+                    "conform",
+                    "not conform",
+                  ]}
+                  onChange={onFilterChange}
+                />
               </FormControl>
             </div>
           </div>
         </div>
       </Stack>
-      <CredentialListWidget openedDetail={openedDetail} selectedFilter={selectedFilter} />
+      <CredentialListWidget
+        openedDetail={openedDetail}
+        selectedFilter={selectedFilter}
+      />
       {/* <CredentialDetailWidget /> */}
     </>
   );

@@ -14,6 +14,7 @@ import { activeIdentity$ } from "@services/identity/identity.events";
 import { filterCredentials } from "./FilterConditions";
 import CredentialBox from "./CredentialBox";
 import CredentialModal from "./CredentialModal";
+import { LoadingCredentialBox } from "@components/loading-skeleton";
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
@@ -31,9 +32,8 @@ export const CredentialListWidget: FC<{
   const [activeCredential] = useBehaviorSubject(
     identityProfileFeature?.activeCredential$
   );
-  const [filteredCredentials, setFilteredCredentials] = useState<Credential[]>(
-    []
-  );
+  const [filteredCredentials, setFilteredCredentials] =
+    useState<Credential[]>(credentials);
   const [expandedIDs, setExpandedIDs] = useState<string[]>([]);
   const [openCredentialModal, setOpenCredentialModal] = useState(false);
   const GRID_COLS: { [key: string]: number } = {
@@ -69,7 +69,7 @@ export const CredentialListWidget: FC<{
   }, [credentials, selectedFilter, activeIdentity]);
 
   useEffect(() => {
-    if (filteredCredentials.length)
+    if (filteredCredentials?.length)
       setExpandedIDs((_) =>
         openedDetail ? filteredCredentials.map((c) => c.id) : []
       );
@@ -77,8 +77,14 @@ export const CredentialListWidget: FC<{
 
   const generateLayouts = useCallback(() => {
     const layouts: { [key: string]: Layout[] } = {};
-    Object.keys(GRID_COLS).map((breakpoint) => {
-      layouts[breakpoint] = filteredCredentials.map((c, _id) => ({
+    Object.keys(GRID_COLS).forEach((breakpoint) => {
+      const arrayData =
+        mounted && filteredCredentials
+          ? filteredCredentials
+          : Array(3)
+              .fill(0)
+              .map((_, _id) => ({ id: _id.toString() }));
+      layouts[breakpoint] = arrayData.map((c, _id) => ({
         i: c.id,
         x: (_id * 2) % GRID_COLS[breakpoint],
         y: Math.floor((_id * 2) / GRID_COLS[breakpoint]),
@@ -87,7 +93,7 @@ export const CredentialListWidget: FC<{
       }));
     });
     return layouts;
-  }, [expandedIDs, filteredCredentials]);
+  }, [expandedIDs, filteredCredentials, mounted]);
   return (
     <div className="col-span-full">
       <ResponsiveReactGridLayout
@@ -101,19 +107,25 @@ export const CredentialListWidget: FC<{
         rowHeight={62}
         breakpoint=""
       >
-        {mounted &&
-          filteredCredentials &&
-          filteredCredentials.map((c) => (
-            <Box key={c.id}>
-              <CredentialBox
-                id={c.id}
-                credential={c}
-                expanded={expandedIDs.includes(c.id)}
-                setExpanded={setExpandedIDs}
-                onClick={handleListItemClick}
-              />
-            </Box>
-          ))}
+        {mounted && filteredCredentials
+          ? filteredCredentials.map((c) => (
+              <Box key={c.id}>
+                <CredentialBox
+                  id={c.id}
+                  credential={c}
+                  expanded={expandedIDs.includes(c.id)}
+                  setExpanded={setExpandedIDs}
+                  onClick={handleListItemClick}
+                />
+              </Box>
+            ))
+          : Array(3)
+              .fill(0)
+              .map((_, _id) => (
+                <Box key={_id}>
+                  <LoadingCredentialBox key={_id} />
+                </Box>
+              ))}
       </ResponsiveReactGridLayout>
       <CredentialModal
         open={openCredentialModal}
