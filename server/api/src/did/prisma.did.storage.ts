@@ -667,6 +667,7 @@ export class PrismaDIDStorage implements DIDStorage {
         select: {
           id: true,
           mnemonic: true,
+          privateKey: true,
         }
       });
 
@@ -679,6 +680,7 @@ export class PrismaDIDStorage implements DIDStorage {
           data: {
             path: dest,
             mnemonic: PrismaDIDStorage.reEncrypt(identityRoot.mnemonic, srcPassword, destPassword),
+            privateKey:  PrismaDIDStorage.reEncrypt(identityRoot.privateKey, srcPassword, destPassword),
           }
         });
       }
