@@ -284,6 +284,7 @@ const CredentialModal: FC<CredentialModalType> = (props) => {
             }}
             onTransitionEnd={handleTransitionEnd}
             onSwiper={setSwiper}
+            style={{ overflowY: "visible" }}
           >
             {credentials?.map((c) => (
               <SwiperSlide key={c.id} className="box-border">
