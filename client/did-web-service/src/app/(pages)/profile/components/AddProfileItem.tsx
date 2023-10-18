@@ -26,7 +26,6 @@ const AddProfileItem: FC<AddProfileItemType> = ({ identity }) => {
     useState<ProfileCredentialInfo>(null);
   const [preEditCredentialValue, setPreEditCredentialValue] =
     useState<string>("");
-  const [editType, setEditType] = useState(EditionMode.NEW);
   const [originCredential, setOriginCredential] =
     useState<ProfileCredential>(null);
   const [availableItemsForAddition, setAvailableItemsForAddition] = useState<
@@ -73,7 +72,6 @@ const AddProfileItem: FC<AddProfileItemType> = ({ identity }) => {
       setOpenEditCredentialDialog(true);
       setPreEditCredentialInfo(selectedItem);
       setPreEditCredentialValue("");
-      setEditType(EditionMode.NEW);
       setOriginCredential(null);
     }
   };
@@ -88,26 +86,6 @@ const AddProfileItem: FC<AddProfileItemType> = ({ identity }) => {
     if (!editCredentialValue) return;
 
     if (!editCredentialValue.value) return;
-
-    if (
-      editCredentialValue.type == EditionMode.EDIT &&
-      editCredentialValue.originCredential
-    ) {
-      let isSuccess = false;
-      try {
-        isSuccess = !!(await identityProfileFeature.updateProfileCredential(
-          editCredentialValue.originCredential,
-          editCredentialValue.value
-        ));
-      } catch (error) {
-        logger.error(TAG, "Update credential error", error);
-      }
-      showFeedbackToast(
-        isSuccess,
-        "Entry has been updated!",
-        "Failed to update the entry..."
-      );
-    }
 
     if (editCredentialValue.type == EditionMode.NEW && !originCredential) {
       let isSuccess = false;
@@ -163,7 +141,7 @@ const AddProfileItem: FC<AddProfileItemType> = ({ identity }) => {
       <EditCredentialDialog
         credentialInfo={preEditCredentialInfo}
         defaultValue={preEditCredentialValue}
-        type={editType}
+        type={EditionMode.NEW}
         open={openEditCredentialDialog}
         originCredential={originCredential}
         onClose={handleEditCredentialDialogClose}

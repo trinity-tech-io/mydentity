@@ -83,7 +83,6 @@ const Profile: FC = () => {
     useState<ProfileCredentialInfo>(null);
   const [preEditCredentialValue, setPreEditCredentialValue] =
     useState<string>("");
-  const [editType, setEditType] = useState(EditionMode.NEW);
 
   const { showSuccessToast, showErrorToast } = useToast();
   const [isOpenPopupMenu, setOpenPopupMenu] = useState(null);
@@ -145,26 +144,6 @@ const Profile: FC = () => {
         isSuccess,
         "Entry has been updated!",
         "Failed to update the entry..."
-      );
-    }
-
-    if (editCredentialValue.type == EditionMode.NEW && !originCredential) {
-      let isSuccess = false;
-      try {
-        // Call the API with auto-retry if user unlock method is required.
-        isSuccess = !!(await identityProfileFeature.createProfileCredential(
-          "",
-          editCredentialValue.info.typesForCreation(),
-          editCredentialValue.info.key,
-          editCredentialValue.value
-        ));
-      } catch (error) {
-        logger.error(TAG, "Create credential error", error);
-      }
-      showFeedbackToast(
-        isSuccess,
-        "Entry has been created!",
-        "Failed to create the entry..."
       );
     }
   };
@@ -286,7 +265,6 @@ const Profile: FC = () => {
     setPreEditCredentialValue(
       originCredential.verifiableCredential.getSubject().getProperty(entry.key)
     );
-    setEditType(EditionMode.EDIT);
   };
 
   const handleCloseDialog = async (isAgree: boolean): Promise<void> => {
@@ -547,7 +525,7 @@ const Profile: FC = () => {
       <EditCredentialDialog
         credentialInfo={preEditCredentialInfo}
         defaultValue={preEditCredentialValue}
-        type={editType}
+        type={EditionMode.EDIT}
         open={openEditCredentialDialog}
         originCredential={originCredential}
         onClose={handleEditCredentialDialogClose}
