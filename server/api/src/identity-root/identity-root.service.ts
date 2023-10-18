@@ -23,7 +23,11 @@ export class IdentityRootService {
           userId
       },
       include: {
-        Identity: true
+        Identity: {
+          include: {
+            creatingAppIdentity: true
+          }
+        }
       }
     });
     return identityRoots;

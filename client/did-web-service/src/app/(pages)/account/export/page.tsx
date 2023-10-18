@@ -23,18 +23,17 @@ const ExportMnemonicPage: FC = () => {
   const [identities] = useBehaviorSubject(activeUser?.get("identity").regularIdentities$);//TODO: Replace with Identities under the Identity root id
   const [showMnemonic, setShowMnemonic] = useState(false);
 
-  const handleExportMnemonic: (identityRoot: IdentityRoot) => Promise<string> = async (identityRoot) => {
+  const handleExportMnemonic: (identityRoot: IdentityRoot) => void = async (identityRoot) => {
     const identityRootId = identityRoot.id;
     const mnemonic = await activeUser.get("identity").exportMnemonic(identityRootId);
+
+    // Update clickedMnemonics and setShowMnemonic for the corresponding identityRootId
     setClickedMnemonics((prevMnemonics) => ({
       ...prevMnemonics,
       [identityRoot.id]: mnemonic,
     }));
-    if (mnemonic) {
-      setShowMnemonic(true);
-    }
 
-    return Promise.resolve(mnemonic);
+    setShowMnemonic(true);
   };
 
   if (!mounted) return null;
@@ -47,21 +46,46 @@ const ExportMnemonicPage: FC = () => {
     return filteredRootIdentities
   }
 
+  /**
+   * regular type + null creatingAppIdentity = normal identity created by the user in the app
+   * regular type + non null creatingAppIdentity = ideitnty created through the SDK and claimed
+   * application type = developers page app did
+   */
+  const groupIdentitys = (identityRoot: IdentityRoot): string => {
+    let groupLabel = '';
+  
+    for (const identity of identityRoot.Identity) {
+      if (identity.type === 'REGULAR') {
+        groupLabel = identity.creatingAppIdentity !== null
+          ? 'Claimed identity'
+          : 'Main identity group';
+        break;  // Stop iterating once a regular identity is found
+      } 
+      // else if (identity.type === 'APPLICATION') {
+      //   groupLabel = 'Application';
+      //   break;  // Stop iterating once an application identity is found
+      // }
+    }
+  
+    return groupLabel || ''; // Return an empty string if no matching condition is found
+  };
+
   return (
     <div className="flex flex-wrap mt-12">
       {identityRoots?.map((identityRoot, groupIndex) => {
         // 1. Get the identities for the corresponding rootIdentityId
         const correspondingIdentities = getRegularIdentitiesById(identities, identityRoot.id);
+        const showGroupName = groupIdentitys(identityRoot);
 
         return (
           <div key={groupIndex} className="m-4 mt-11 p-6 border rounded-lg relative w-[800px]">
             <div className="absolute top-0 left-0 font-bold -mt-12 ml-2">
-              Identity Group {groupIndex + 1}
+              {showGroupName}
             </div>
             <div className="absolute top-0 right-0 -mt-11">
               {/* Get Mnemonic */}
               <button
-                className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded ${showMnemonic ? 'hidden' : ''}`}
+                className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded ${showMnemonic && clickedMnemonics[identityRoot.id] ? 'hidden' : ''}`}
                 onClick={() => {
                   handleExportMnemonic(identityRoot);
                 }}

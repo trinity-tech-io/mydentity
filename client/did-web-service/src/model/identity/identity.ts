@@ -23,6 +23,7 @@ export abstract class Identity {
   lastUsedAt$ = new BehaviorSubject<Date>(null);
   type: IdentityType;
   identityRootId: string;
+  creatingAppIdentity?: Identity;
 
   // Local bindings
   public provider: IdentityProvider;

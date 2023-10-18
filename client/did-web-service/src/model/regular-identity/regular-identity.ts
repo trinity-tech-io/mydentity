@@ -9,7 +9,6 @@ import { ProfileFeature } from "./features/profile/profile.feature";
  * Identity representing a user ("standard" identity).
  */
 export class RegularIdentity extends Identity {
-  creatingAppIdentity?: ApplicationIdentity;
 
   constructor() {
     super();
