@@ -24,6 +24,7 @@ import { CredentialAvatar } from "@components/credential/CredentialAvatar";
 import { ProfileFeature } from "@model/regular-identity/features/profile/profile.feature";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { Credential } from "@model/credential/credential";
+import SharedCountLabel from "@components/credential/SharedCountLabel";
 
 const style = {
   position: "absolute",
@@ -57,6 +58,14 @@ const style = {
     opacity: 0.5,
     pointerEvents: "none",
   },
+  ".swiper-pagination": {
+    bottom: 0,
+    transform: "translateX(-50%) translateY(50%)",
+    width: "auto",
+    left: "50%",
+    backdropFilter: "blur(5px)",
+    fontWeight: 600,
+  },
 };
 
 const ListItemTextStyled: FC<{ primary: string; secondary: string }> = ({
@@ -75,11 +84,15 @@ const ListItemTextStyled: FC<{ primary: string; secondary: string }> = ({
 
 const CredentialSliderContent: FC<{ credential: Credential }> = memo(
   ({ credential }) => {
+    const [requestingApplications] = useBehaviorSubject(
+      credential?.requestingApplications$
+    );
+    const [isConform] = useBehaviorSubject(credential?.isConform$);
     const [issuerInfo] = useBehaviorSubject(credential?.issuerInfo$);
     const contentTree = credential?.getContentTree();
     const valueItems = credential?.getValueItems();
     return (
-      <Box className="p-1">
+      <Box className="p-1 relative">
         <Stack
           direction="row"
           spacing={1}
@@ -133,6 +146,12 @@ const CredentialSliderContent: FC<{ credential: Credential }> = memo(
             />
           </ListItem>
         </List>
+        <div className="inline-flex absolute bottom-0 right-0">
+          <SharedCountLabel
+            count={requestingApplications?.length || 0}
+            isConform={isConform}
+          />
+        </div>
       </Box>
     );
   }
@@ -239,8 +258,10 @@ const CredentialModal: FC<CredentialModalType> = (props) => {
             initialSlide={activeIndex}
             effect={"creative"}
             grabCursor={true}
+            autoHeight={true}
             modules={[Keyboard, Pagination, Navigation]}
             className="mySwiper w-full"
+            spaceBetween={20}
             creativeEffect={{
               prev: {
                 shadow: true,
