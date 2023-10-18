@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, memo, useMemo } from "react";
 import {
   Fade,
   Modal,
@@ -9,12 +9,16 @@ import {
   ListItemText,
   List,
   ListItem,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Keyboard, Pagination, Navigation } from "swiper/modules";
 import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
+// import "swiper/css/navigation";
+// import "swiper/css/pagination";
 import { Icon as ReactIcon } from "@iconify/react";
 import ChipIcon from "@assets/images/chip.svg";
 import { CardStyled } from "@/app/(pages)/account/security/components/SecuritySection";
@@ -22,6 +26,7 @@ import { IconAvatar } from "@components/feature/DetailLine";
 import { CredentialAvatar } from "@components/credential/CredentialAvatar";
 import { ProfileFeature } from "@model/regular-identity/features/profile/profile.feature";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
+import { Credential } from "@model/credential/credential";
 
 const style = {
   position: "absolute",
@@ -57,11 +62,6 @@ const style = {
   },
 };
 
-interface CredentialModalType {
-  identityProfile: ProfileFeature;
-  open: boolean;
-  onClose: () => void;
-}
 const ListItemTextStyled: FC<{ primary: string; secondary: string }> = ({
   primary,
   secondary,
@@ -75,14 +75,54 @@ const ListItemTextStyled: FC<{ primary: string; secondary: string }> = ({
     />
   );
 };
+
+const SubAccordion: FC<{ subfield: { [key: string]: string } }> = memo(
+  ({ subfield }) => {
+    return (
+      <Accordion className="w-full" sx={{ boxShadow: "unset" }} defaultExpanded>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          sx={{
+            p: 0,
+            minHeight: "auto !important",
+            ".MuiAccordionSummary-content, .MuiAccordionSummary-content.Mui-expanded": { my: 0.5 },
+          }}
+        >
+          <Typography variant="body2" fontWeight={600}>
+            SUBFIELD
+          </Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <List dense sx={{ p: 0, ".MuiListItemText-root": { margin: 0 } }}>
+            {Object.keys(subfield).map((key) => (
+              <ListItem>
+                <ListItemTextStyled
+                  primary={key.toUpperCase()}
+                  secondary={subfield[key]}
+                />
+              </ListItem>
+            ))}
+          </List>
+        </AccordionDetails>
+      </Accordion>
+    );
+  }
+);
+interface CredentialModalType {
+  credentials?: Array<Credential>;
+  identityProfile: ProfileFeature;
+  open: boolean;
+  onClose: () => void;
+}
 const CredentialModal: FC<CredentialModalType> = (props) => {
   const { open, identityProfile, onClose } = props;
   const [activeCredential] = useBehaviorSubject(
     identityProfile?.activeCredential$
   );
+  const contentTree = activeCredential?.getContentTree();
   const [issuerInfo] = useBehaviorSubject(activeCredential?.issuerInfo$);
   const valueItems = activeCredential?.getValueItems();
-
+  console.log(activeCredential?.getContentTree(), 999);
   return (
     <Modal
       open={open}
@@ -170,14 +210,22 @@ const CredentialModal: FC<CredentialModalType> = (props) => {
                   dense
                   sx={{ pl: 2, ".MuiListItemText-root": { margin: 0 } }}
                 >
-                  {valueItems?.map((item) => (
-                    <ListItem>
-                      <ListItemTextStyled
-                        primary={item.name.toUpperCase()}
-                        secondary={item.value}
-                      />
-                    </ListItem>
-                  ))}
+                  {valueItems?.map((item) =>
+                    item.name.toLowerCase() === "subfield" ? (
+                      contentTree["subField"] && (
+                        <ListItem>
+                          <SubAccordion subfield={contentTree["subField"]} />
+                        </ListItem>
+                      )
+                    ) : (
+                      <ListItem>
+                        <ListItemTextStyled
+                          primary={item.name.toUpperCase()}
+                          secondary={item.value}
+                        />
+                      </ListItem>
+                    )
+                  )}
                   <ListItem>
                     <ListItemTextStyled
                       primary="ISSUANCE DATE"
@@ -205,4 +253,4 @@ const CredentialModal: FC<CredentialModalType> = (props) => {
     </Modal>
   );
 };
-export default CredentialModal;
+export default memo(CredentialModal);

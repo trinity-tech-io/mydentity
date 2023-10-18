@@ -120,24 +120,6 @@ export const CredentialListWidget: FC<{
         identityProfile={identityProfileFeature}
         onClose={() => setOpenCredentialModal(false)}
       />
-      {/* <Modal
-        open={openCredentialModal}
-        onClose={() => setOpenCredentialModal(false)}
-        closeAfterTransition
-        aria-labelledby="credentials"
-        aria-describedby="credential-slider"
-        slots={{ backdrop: Backdrop }}
-        slotProps={{
-          backdrop: {
-            timeout: 300,
-          },
-        }}
-      >
-        <Fade in={open}></Fade>
-        <Box>
-          <span>aaa</span>
-        </Box>
-      </Modal> */}
       {/* <Box sx={{ width: "100%", bgcolor: "background.paper" }}>
         {(!filteredCredentials || !mounted) && <VerticalStackLoadingCard />}
         {mounted && filteredCredentials && (
