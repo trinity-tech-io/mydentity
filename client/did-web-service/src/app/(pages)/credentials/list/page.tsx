@@ -1,5 +1,5 @@
 "use client";
-import { ChangeEvent, FC, useState } from "react";
+import { ChangeEvent, ChangeEventHandler, FC, useState } from "react";
 import { Add as AddIcon, Search as SearchIcon } from "@mui/icons-material";
 import { FormControl, InputAdornment, Stack, Typography } from "@mui/material";
 import { Breadcrumbs } from "@components/breadcrumbs/Breadcrumbs";
@@ -14,10 +14,14 @@ import SelectBox from "@components/select/SelectBox";
 const CredentialsList: FC = () => {
   const [openedDetail, setOpenedDetail] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState<string>(""); // State to hold the selected filter
+  const [stringFilter, setStringFilter] = useState<string>("");
 
   const onFilterChange = (value: string) => {
     setSelectedFilter(value);
   };
+  const handleFilterString:ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> = (e) => {
+    setStringFilter(e.target.value.trim())
+  }
   const handleDetailSwitch = (event: ChangeEvent, checked: boolean) => {
     setOpenedDetail(checked);
   };
@@ -55,8 +59,7 @@ const CredentialsList: FC = () => {
               size="small"
               placeholder="Search"
               className="mr-4 rounded"
-              // onChange={handleFilterByName}
-              // inputProps={{ ref: emailInputRef }}
+              onChange={handleFilterString}
               startAdornment={
                 <InputAdornment position="start">
                   <SearchIcon />
@@ -103,6 +106,7 @@ const CredentialsList: FC = () => {
       <CredentialListWidget
         openedDetail={openedDetail}
         selectedFilter={selectedFilter}
+        stringFilter={stringFilter}
       />
       {/* <CredentialDetailWidget /> */}
     </>

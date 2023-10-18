@@ -1,12 +1,9 @@
 "use client";
 import { FC, useCallback, useEffect, useState } from "react";
-import { Box, List, ListItemButton, Modal, Backdrop } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { WidthProvider, Responsive, Layout } from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 
-import { CredentialAvatar } from "@components/credential/CredentialAvatar";
-import CredentialBasicInfo from "@components/credential/CredentialBasicInfo";
-import { VerticalStackLoadingCard } from "@components/loading-cards/vertical-stack-loading-card/VerticalStackLoadingCard";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useMounted } from "@hooks/useMounted";
 import { Credential } from "@model/credential/credential";
@@ -21,7 +18,8 @@ const ResponsiveReactGridLayout = WidthProvider(Responsive);
 export const CredentialListWidget: FC<{
   openedDetail: boolean;
   selectedFilter: string;
-}> = ({ openedDetail, selectedFilter }) => {
+  stringFilter: string;
+}> = ({ openedDetail, selectedFilter, stringFilter }) => {
   const TAG = "CredentialList";
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const [credentials] = useBehaviorSubject(
@@ -62,11 +60,16 @@ export const CredentialListWidget: FC<{
         selectedFilter,
         credentials,
         activeIdentity
+      ).filter((c) =>
+        c
+          .getDisplayableTitle()
+          .toLowerCase()
+          .includes(stringFilter.toLowerCase())
       );
       identityProfileFeature.setActiveCredential(filtered[0] || null);
       setFilteredCredentials(filtered);
     }
-  }, [credentials, selectedFilter, activeIdentity]);
+  }, [credentials, selectedFilter, stringFilter, activeIdentity]);
 
   useEffect(() => {
     if (filteredCredentials?.length)
@@ -96,6 +99,19 @@ export const CredentialListWidget: FC<{
   }, [expandedIDs, filteredCredentials, mounted]);
   return (
     <div className="col-span-full">
+      {mounted && filteredCredentials && !filteredCredentials.length && (
+        <Typography variant="body1" align="center" lineHeight={3}>
+          {!stringFilter ? (
+            "No credential found."
+          ) : (
+            <>
+              No results found for &nbsp;
+              <strong>&quot;{stringFilter}&quot;</strong>.
+              <br /> Try checking for typos or using complete words.
+            </>
+          )}
+        </Typography>
+      )}
       <ResponsiveReactGridLayout
         containerPadding={[0, 0]}
         margin={[16, 16]}
@@ -106,6 +122,11 @@ export const CredentialListWidget: FC<{
         cols={GRID_COLS}
         rowHeight={62}
         breakpoint=""
+        style={
+          filteredCredentials && !filteredCredentials.length
+            ? { height: 0 }
+            : {}
+        }
       >
         {mounted && filteredCredentials
           ? filteredCredentials.map((c) => (
@@ -133,27 +154,6 @@ export const CredentialListWidget: FC<{
         identityProfile={identityProfileFeature}
         onClose={() => setOpenCredentialModal(false)}
       />
-      {/* <Box sx={{ width: "100%", bgcolor: "background.paper" }}>
-        {(!filteredCredentials || !mounted) && <VerticalStackLoadingCard />}
-        {mounted && filteredCredentials && (
-          <List component="nav" aria-label="main mailbox folders">
-            {filteredCredentials.map((c) => (
-              <div key={c.id}>
-                <ListItemButton
-                  selected={activeCredential && activeCredential.id === c.id}
-                  onClick={(): void => handleListItemClick(c)}
-                  style={{ display: "flex", alignItems: "center" }}
-                >
-                  <div style={{ marginRight: 10 }}>
-                    <CredentialAvatar credential={c} width={60} height={60} />
-                  </div>
-                  <CredentialBasicInfo credential={c} />
-                </ListItemButton>
-              </div>
-            ))}
-          </List>
-        )}
-      </Box> */}
     </div>
   );
 };
