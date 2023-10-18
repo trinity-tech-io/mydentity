@@ -10,8 +10,12 @@ import OutlinedInputStyled from "@components/input/OutlinedInputStyled";
 import { DarkButton } from "@components/button";
 import SwitchUI from "@components/switch/Switch";
 import SelectBox from "@components/select/SelectBox";
+import { activeIdentity$ } from "@services/identity/identity.events";
+import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
+import AddProfileItem from "../../profile/components/AddProfileItem";
 
 const CredentialsList: FC = () => {
+  const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const [openedDetail, setOpenedDetail] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState<string>(""); // State to hold the selected filter
   const [stringFilter, setStringFilter] = useState<string>("");
@@ -66,17 +70,7 @@ const CredentialsList: FC = () => {
                 </InputAdornment>
               }
             />
-            <DarkButton
-              className="rounded"
-              size="small"
-              startIcon={<AddIcon />}
-              // disabled={!credentials} // Don't allow edition until credentials are fetched
-              // onClick={(): void => {
-              //   setOpenCreateCredential(true);
-              // }}
-            >
-              ADD PROFILE ITEM
-            </DarkButton>
+            <AddProfileItem identity={activeIdentity}/>
           </div>
           <div className="flex flex-col flex-1 justify-end">
             <div className="inline-flex gap-2">
@@ -107,6 +101,7 @@ const CredentialsList: FC = () => {
         openedDetail={openedDetail}
         selectedFilter={selectedFilter}
         stringFilter={stringFilter}
+        identity={activeIdentity}
       />
       {/* <CredentialDetailWidget /> */}
     </>

@@ -123,6 +123,7 @@ const AddProfileItem: FC<AddProfileItemType> = ({ identity }) => {
     <>
       <DarkButton
         className="rounded"
+        size="small"
         startIcon={<AddIcon />}
         disabled={!credentials} // Don't allow edition until credentials are fetched
         onClick={(): void => {
