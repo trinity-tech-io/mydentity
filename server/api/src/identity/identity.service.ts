@@ -10,6 +10,7 @@ import { DidService } from 'src/did/did.service';
 import { AppException } from 'src/exceptions/app-exception';
 import { AuthExceptionCode, DIDExceptionCode } from 'src/exceptions/exception-codes';
 import { IdentityClaimService } from 'src/identity-claim/identity-claim.service';
+import { AuthKeyInput } from 'src/key-ring/dto/auth-key-input';
 import { KeyRingService } from 'src/key-ring/key-ring.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserService } from 'src/user/user.service';
@@ -312,19 +313,23 @@ export class IdentityService {
     // Create a temporary user
     const unmanagedUser = await this.userService.createUnmanagedUser();
 
-    const storePassword = uuid(); // random password that will be stored in the identity token returned to the calling app
-    const context = uuid(); // Unique, used for the DID store storage
+    const identityPassword = uuid(); // random password that will be stored in the identity token returned to the calling app
+    const context = unmanagedUser.id;
 
     // Create a master key and a password based shadow key. This is used when called by the third party app later to encrypt/decrypt DID stored content such as credentials.
-    await this.keyRingService.bindKey({
+    const authKeyInput: AuthKeyInput = {
       type: UserShadowKeyType.PASSWORD,
       keyId: "unused-for-password",
-      key: storePassword
-    }, null, unmanagedUser);
+      key: identityPassword
+    };
+    await this.keyRingService.bindKey(authKeyInput, null, unmanagedUser);
 
-    const identity = await this.createIdentityInternal(context, storePassword, IdentityType.REGULAR, null, unmanagedUser, null, appDid);
+    await this.keyRingService.unlockMasterKey(authKeyInput, null, unmanagedUser);
+    const masterKey = this.keyRingService.getMasterKey(unmanagedUser.id, null, true);
 
-    const identityAccessToken = await this.generateIdentityAccessToken(storePassword, identity.did);
+    const identity = await this.createIdentityInternal(context, masterKey, IdentityType.REGULAR, null, unmanagedUser, null, appDid);
+
+    const identityAccessToken = await this.generateIdentityAccessToken(identityPassword, identity.did);
 
     return {
       identity,

@@ -53,3 +53,9 @@ Every time you modify the prisma schema file, you must create a migration locall
 ## Test graphql queries
 
 - Open http://localhost:3000/graphql
+
+## Test emails
+
+- Locally we use SMTP4DEV as a fake smtp server with local web interface to check email features.
+- Emails are never really sent, they are just stored locally and a web dashboard offers a virtual inbox.
+- Open `http://localhost:980/` to browse received emails.

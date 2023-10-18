@@ -20,7 +20,7 @@ import { SignUpInput } from './dto/sign-up.input';
 import { UserPropertyInput } from "./dto/user-property.input";
 import { CreatedAccessKeyEntity } from './entities/created-access-token';
 import { DeveloperAccessKeyEntity } from './entities/developer-access-token';
-import { RequestEmailAuthenticationResult } from "./entities/request-email-authentication-result.entity";
+import { RequestEmailAuthenticationResult } from './entities/request-email-authentication-result.entity';
 import { UserEmailEntity } from "./entities/user-email.entity";
 import { UserEntity } from './entities/user.entity';
 import { UserService } from './user.service';
@@ -57,38 +57,6 @@ export class UserResolver {
     return user;
   }
 
-  /**
-   * Send email with auth key to user's email box.
-   * @param emailAddress
-   */
-  @Mutation(() => RequestEmailAuthenticationResult, { nullable: true })
-  async requestEmailAuthentication(@Args('emailAddress') emailAddress: string) {
-    return this.userService.requestEmailAuthentication(null, emailAddress);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Mutation(() => RequestEmailAuthenticationResult, { nullable: true })
-  async bindWithEmailAddress(@CurrentUser() user: User, @Args('emailAddress') emailAddress: string) {
-    return this.userService.requestEmailAuthentication(user, emailAddress);
-  }
-
-  /**
-   * verify email auth key to sign-in.
-   */
-  @Mutation(() => LoggedUserOutput, { nullable: true })
-  async checkEmailAuthentication(@Args('authKey') authKey: string, @HeaderBrowserKey() browserKey: string, @UserAgent() userAgent: string) {
-    return await this.userService.checkEmailAuthentication(null, authKey, browserKey, userAgent);
-  }
-
-  /**
-   * Only for raw email address.
-   */
-  @UseGuards(JwtAuthGuard)
-  @Mutation(() => LoggedUserOutput, { nullable: true })
-  async checkEmailBind(@CurrentUser() user: User, @Args('authKey') authKey: string, @CurrentBrowser() browser: Browser, @UserAgent() userAgent: string) {
-    return this.userService.checkEmailAuthentication(user, authKey, browser?.key, userAgent);
-  }
-
   @Mutation(() => RefreshTokenOutput)
   async refreshToken(@Args('refreshTokenInput') refreshTokenInput: RefreshTokenInput, @HeaderBrowserKey() browserKey: string, @UserAgent() userAgent: string): Promise<RefreshTokenOutput> {
     try {
@@ -101,6 +69,51 @@ export class UserResolver {
         },
       });
     }
+  }
+
+  /**
+   * Initiate a request to receive a magic link by email to bind that email to the currently signed in user.
+   */
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => RequestEmailAuthenticationResult, { nullable: true })
+  async bindWithEmailAddress(@CurrentUser() user: User, @Args('emailAddress') emailAddress: string): Promise<RequestEmailAuthenticationResult> {
+    const result = await this.userService.requestRegularEmailBinding(user, emailAddress);
+    if (!result)
+      return { success: false };
+    else
+      return { success: true, pinCode: result.pinCode };
+  }
+
+  /**
+   * Send email with auth key to user's email box, in order to sign in.
+   * @param emailAddress
+   */
+  @Mutation(() => RequestEmailAuthenticationResult, { nullable: true })
+  async requestEmailAuthentication(@Args('emailAddress') emailAddress: string): Promise<RequestEmailAuthenticationResult> {
+    const result = await this.userService.requestRegularEmailAuthentication(emailAddress);
+
+    if (!result)
+      return { success: false };
+    else
+      return { success: true, pinCode: result.pinCode };
+  }
+
+  /**
+   * Verify email auth key to sign-in.
+   */
+  @Mutation(() => LoggedUserOutput, { nullable: true })
+  async checkEmailAuthentication(@Args('authKey') authKey: string, @HeaderBrowserKey() browserKey: string, @UserAgent() userAgent: string) {
+    return this.userService.checkEmailAuthentication(authKey, browserKey, userAgent);
+  }
+
+  /**
+   * Bind a new email address (after magic link temporary auth verification) to an existing user account.
+   * Only for raw email address (not for oauth).
+   */
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => LoggedUserOutput, { nullable: true })
+  async checkEmailBind(@CurrentUser() user: User, @Args('authKey') authKey: string, @CurrentBrowser() browser: Browser, @UserAgent() userAgent: string) {
+    return this.userService.checkEmailBinding(authKey, browser?.key, userAgent, user);
   }
 
   /**

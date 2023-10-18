@@ -20,7 +20,7 @@ export class IdentityRootService {
   async findAll(userId: string): Promise<IdentityRoot[]> {
     const identityRoots = await this.prisma.identityRoot.findMany({
       where: {
-          userId
+        userId
       },
       include: {
         Identity: {

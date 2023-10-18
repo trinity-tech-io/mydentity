@@ -1,14 +1,14 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { ActivityType, Prisma, User, UserEmail, UserEmailProvider } from '@prisma/client/main';
-import { createHash, randomBytes, randomUUID } from "crypto";
-import * as moment from "moment";
-import { encode } from "slugid";
+import { createHash, randomBytes } from "crypto";
+import { encode } from 'slugid';
 import { AuthService } from 'src/auth/auth.service';
 import { AuthTokens } from 'src/auth/model/auth-tokens';
 import { DidService } from 'src/did/did.service';
 import { AuthKeyInput } from 'src/key-ring/dto/auth-key-input';
 import { KeyRingService } from 'src/key-ring/key-ring.service';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { TemporaryAuthService } from 'src/temporary-auth/temporary-auth.service';
 import { ActivityService } from "../activity/activity.service";
 import { BrowsersService } from "../browsers/browsers.service";
 import { EmailTemplateType } from "../emailing/email-template-type";
@@ -29,6 +29,7 @@ export class UserService {
     @Inject(forwardRef(() => EmailingService)) private readonly emailingService: EmailingService,
     private readonly browsersService: BrowsersService,
     private readonly activityService: ActivityService,
+    private temporaryAuthService: TemporaryAuthService
   ) { }
 
   /**
@@ -42,7 +43,7 @@ export class UserService {
       }
     });
 
-    logger.log('user', 'sign up with new user', user);
+    logger.log('user', 'New user signed up', user);
 
     return this.authService.generateUserCredentials(user, existingBrowserKey, userAgent);
   }
@@ -52,8 +53,6 @@ export class UserService {
    * by the SDK, from third party apps.
    */
   public async createUnmanagedUser(): Promise<User> {
-    // TODO: store creating app DID and access token ? (to identity the user account)
-
     const user = await this.prisma.user.create({
       data: {
         createdAt: new Date()
@@ -65,53 +64,10 @@ export class UserService {
     return user;
   }
 
-  /**
-   * Bind email or sign-in by the microsoft/google/linkedin user, etc.
-   * 1. generate access/refresh token if email relating user exists.
-   *
-   * @param thirdPartyUser
-   */
-  /* async signInByThirdPartyAuth(thirdPartyUser: ThirdPartyUser) {
-    const retValue: AuthTokens & { email: string } = {
-      email: thirdPartyUser.email,
-      accessToken: null,
-      refreshToken: null,
-    }
-
-    // if there is a user with email.
-    const userEmail = await this.prisma.userEmail.findFirst({
-      where: {
-        email: thirdPartyUser.email
-      },
-      include: {
-        user: true
-      }
-    });
-
-    if (userEmail) {
-      const result = await this.authService.generateUserCredentials(userEmail.user, null, "TODO USER AGENT");
-      retValue.accessToken = result.accessToken;
-      retValue.refreshToken = result.refreshToken;
-    }
-
-    // await this.microsoftProfileService.retrieveAvatarPicture(
-    //     thirdPartyUser,
-    //     user,
-    // );
-
-    logger.log('user', 'return value for sign-in or bind email', retValue);
-
-    return retValue;
-  } */
-
   private getUserEmailByEmail(email: string): Promise<UserEmail & { user: User }> {
     return this.prisma.userEmail.findFirst({
-      where: {
-        email
-      },
-      include: {
-        user: true
-      }
+      where: { email },
+      include: { user: true }
     });
   }
 
@@ -120,72 +76,135 @@ export class UserService {
    */
   async signInByOauthEmail(email: string, emailProvider: UserEmailProvider, browserKey: string, userAgent: string) {
     const userEmail: UserEmail & { user: User } = await this.getUserEmailByEmail(email);
-    if (!userEmail) {
+    if (!userEmail)
       return null;
-    }
 
-    {
-      const browser = await this.browsersService.findOne(browserKey);
-      await this.activityService.createActivity(userEmail.user, {
-        type: ActivityType.USER_SIGN_IN,
-        userEmailId: userEmail.id,
-        userEmailProvider: emailProvider,
-        userEmailAddress: userEmail.email,
-        browserId: browser.id,
-        browserName: browser.name,
-      });
-    }
+    // Create a sign in activity
+    await this.createSignInActivity(userEmail.user, browserKey, userEmail, emailProvider);
 
+    // Authenticate user
     return await this.authService.generateUserCredentials(userEmail.user, browserKey, userAgent);
   }
 
   /**
    * Initiates a new authentication by email, using a magic link.
    */
-  public async requestEmailAuthentication(curUser: User, emailAddress: string) {
-    const userEmail = await this.prisma.userEmail.findFirst({
+  public async requestRegularEmailAuthentication(emailAddress: string): Promise<{ pinCode: string }> {
+    // Ensure this email exists before being able to send a temporary auth request to it.
+    const userEmail = await this.findUserEmail(emailAddress);
+    if (!userEmail)
+      throw new AppException(AuthExceptionCode.InexistingEmail, 'This email address is unknown.', 404);
+
+    // Generate a temporary authentication
+    const { auth, pinCode } = await this.temporaryAuthService.createTemporaryAuthenticationRequest(userEmail.user, emailAddress);
+
+    // Send the magic link by email
+    const magicLink = `${process.env.FRONTEND_URL}/checkauthkey?key=${encode(auth.authKey)}`;
+    const emailSent = await this.sendMagicLinkEmail(emailAddress, EmailTemplateType.EMAIL_AUTHENTICATION, "Sign in with your magic link", magicLink);
+    if (!emailSent)
+      return null;
+
+    return { pinCode };
+  }
+
+  public async requestRegularEmailBinding(currentUser: User, emailAddress: string): Promise<{ pinCode: string }> {
+    // Ensure this email doest NOT exist before trying to bind it (duplicate).
+    const userEmail = await this.findUserEmail(emailAddress);
+    if (userEmail)
+      throw new AppException(AuthExceptionCode.EmailAlreadyExists, 'Email already exists.', 409);
+
+    // Generate a temporary authentication
+    const { auth, pinCode } = await this.temporaryAuthService.createTemporaryAuthenticationRequest(currentUser, emailAddress);
+
+    // Send the magic link by email
+    const magicLink = `${process.env.FRONTEND_URL}/checkauthkey?key=${encode(auth.authKey)}`;
+    const emailSent = await this.sendMagicLinkEmail(emailAddress, EmailTemplateType.EMAIL_BIND, "Bind email with your magic link", magicLink);
+    if (!emailSent)
+      return null;
+
+    return { pinCode };
+  }
+
+  private async sendMagicLinkEmail(emailAddress: string, template: EmailTemplateType, subject: string, magicLink: string): Promise<boolean> {
+    return this.emailingService.sendEmail(
+      template,
+      "DID Service <email-auth@didservice.io>",
+      emailAddress,
+      subject,
+      {
+        magicLink
+      });
+  }
+
+  /**
+   * From a temporary authentication key, checks validity and signs the related user in,
+   * then returns access credentials.
+   */
+  public async checkEmailAuthentication(tempAuthKey: string, existingBrowserKey: string, userAgent: string): Promise<AuthTokens> {
+    const temporaryAuthentication = await this.temporaryAuthService.checkAuthentication(tempAuthKey);
+    // Note: app exception thrown if auth key is invalid
+    const user = temporaryAuthentication.user;
+
+    // Send a welcome email if this is the first sign in operation
+    await this.maybeSendWelcomeEmail(user, temporaryAuthentication.temporaryEmail);
+
+    const userEmail = await this.findUserEmail(temporaryAuthentication.temporaryEmail);
+    if (!userEmail)
+      throw new AppException(AuthExceptionCode.InexistingEmail, "Email address related to this authentication request does not exist.", 401);
+
+    await this.createSignInActivity(user, existingBrowserKey, userEmail, UserEmailProvider.RAW);
+
+    // Authenticate
+    return this.authService.generateUserCredentials(user, existingBrowserKey, userAgent);
+  }
+
+  /**
+   * From a temporary authentication key, checks validity and adds that email to already signed in user's
+   * email addresses, then returns access credentials.
+   */
+  public async checkEmailBinding(tempAuthKey: string, existingBrowserKey: string, userAgent: string, signedInUser: User): Promise<AuthTokens> {
+    const temporaryAuthentication = await this.temporaryAuthService.checkAuthentication(tempAuthKey);
+    // Note: app exception thrown if auth key is invalid
+
+    const user = temporaryAuthentication.user;
+    const userEmail = await this.findUserEmail(temporaryAuthentication.temporaryEmail);
+    if (!userEmail)
+      throw new AppException(AuthExceptionCode.InexistingEmail, "No email address with auth key existing.", 401);
+
+    // Add the new email to user's emails
+    await this.prisma.userEmail.upsert({
+      where: {
+        email: temporaryAuthentication.temporaryEmail
+      },
+      create: {
+        email: temporaryAuthentication.temporaryEmail,
+        provider: UserEmailProvider.RAW,
+        user: { connect: { id: signedInUser.id } },
+        createdAt: new Date()
+      },
+      update: {
+        // do nothing.
+      }
+    })
+
+    await this.createBindEmailActivity(user, UserEmailProvider.RAW, userEmail);
+
+    // Authenticate
+    return this.authService.generateUserCredentials(user, existingBrowserKey, userAgent);
+  }
+
+  /**
+   * Retrieve a user email DB entry from a given email address.
+   */
+  public findUserEmail(emailAddress: string): Promise<UserEmail & { user: User }> {
+    return this.prisma.userEmail.findFirst({
       where: {
         email: emailAddress,
       },
       include: {
-        user: true,
+        user: true
       }
-    })
-
-    if (!curUser && !userEmail) { // login
-      throw new AppException(AuthExceptionCode.InexistingEmail, 'This email address is unknown.', 404);
-    } else if (curUser && userEmail) { // bind
-      throw new AppException(AuthExceptionCode.EmailAlreadyExists, 'Email already exists.', 409);
-    }
-
-    let template = EmailTemplateType.EMAIL_AUTHENTICATION;
-    let subject = "Sign in with your magic link";
-    let user = null;
-    if (curUser) {
-      user = curUser;
-      template = EmailTemplateType.EMAIL_BIND;
-      subject = "Bind email with your magic link";
-    } else {
-      user = userEmail.user;
-    }
-
-    // Generate a temporary auth token with short expiration date into the user object
-    const temporaryEmailAuthKey = randomUUID();
-    const temporaryEmailAuthExpiresAt = moment().add(10, 'minutes').toDate();
-    const temporaryEmail = emailAddress;
-
-    await this.prisma.user.update({
-      where: { id: user.id },
-      data: { temporaryEmailAuthKey, temporaryEmailAuthExpiresAt, temporaryEmail }
     });
-
-    // Send the authentication link by email.
-    const magicLink = `${process.env.FRONTEND_URL}/checkauthkey?key=${encode(temporaryEmailAuthKey)}`;
-    await this.emailingService.sendEmail(template, "DID Service <email-auth@didservice.io>", emailAddress, subject, {
-      magicLink
-    });
-
-    return null;
   }
 
   /**
@@ -218,67 +237,6 @@ export class UserService {
     });
 
     return true;
-  }
-
-  /**
-   * Checks if there is a pending auth key that matches the given key.
-   * This auth key comes from a magic link received by users by email, after requesting
-   * to receive a magic link by email.
-   */
-  public async checkEmailAuthentication(curUser: User, temporaryEmailAuthKey: string, existingBrowserKey: string, userAgent: string): Promise<AuthTokens> {
-    const user = await this.prisma.user.findFirst({
-      where: {
-        temporaryEmailAuthExpiresAt: { gt: new Date() },
-        temporaryEmailAuthKey
-      }
-    });
-    if (!user) {
-      throw new AppException(AuthExceptionCode.InexistingAuthKey, "This temporary authentication key is expired or invalid.", 401);
-      // } else if (user.id !== curUser.id) {
-      //   throw new AppException(AuthExceptionCode.EmailNotExists, "This temporary authentication key is expired or invalid..", 401);
-    }
-
-    if (!curUser) { // login
-      await this.maybeSendWelcomeEmail(user, user.temporaryEmail);
-    } else { // bind email
-      await this.prisma.userEmail.upsert({
-        where: {
-          email: user.temporaryEmail
-        },
-        create: {
-          email: user.temporaryEmail,
-          provider: UserEmailProvider.RAW,
-          user: { connect: { id: curUser.id } },
-          createdAt: new Date()
-        },
-        update: {
-          // do nothing.
-        }
-      })
-    }
-
-    {
-      const userEmail = await this.prisma.userEmail.findFirst({
-        where: {
-          email: user.temporaryEmail,
-        }
-      });
-      if (!userEmail) {
-        throw new AppException(AuthExceptionCode.InexistingEmail, "No email address with auth key existing.", 401);
-      }
-
-      const browser = await this.browsersService.findOne(existingBrowserKey);
-      await this.activityService.createActivity(user, {
-        type: !curUser ? ActivityType.USER_SIGN_IN : ActivityType.BIND_EMAIL,
-        userEmailId: userEmail.id,
-        userEmailProvider: UserEmailProvider.RAW,
-        userEmailAddress: userEmail.email,
-        browserId: !curUser ? browser.id : undefined,
-        browserName: !curUser ? browser.name : undefined,
-      });
-    }
-
-    return this.authService.generateUserCredentials(user, existingBrowserKey, userAgent);
   }
 
   public async signInWithPasskey(passkeyAuthKey: AuthKeyInput, headerBrowserKey: string, userAgent: string): Promise<AuthTokens> {
@@ -343,12 +301,7 @@ export class UserService {
       })
     }
 
-    await this.activityService.createActivity(user, {
-      type: ActivityType.BIND_EMAIL,
-      userEmailId: userEmail.id,
-      userEmailProvider: emailProvider,
-      userEmailAddress: userEmail.email,
-    });
+    await this.createBindEmailActivity(user, emailProvider, userEmail);
 
     logger.log('user', 'bind user with email successfully', user, email);
 
@@ -504,6 +457,27 @@ export class UserService {
       });
     }, {
       isolationLevel: Prisma.TransactionIsolationLevel.Serializable
+    });
+  }
+
+  private async createSignInActivity(user: User, browserKey: string, userEmail?: UserEmail & { user: User }, emailProvider?: UserEmailProvider) {
+    const browser = await this.browsersService.findOne(browserKey);
+    await this.activityService.createActivity(user, {
+      type: ActivityType.USER_SIGN_IN,
+      ...(userEmail && { userEmailId: userEmail.id }),
+      ...(userEmail && { userEmailProvider: emailProvider }),
+      ...(userEmail && { userEmailAddress: userEmail.email }),
+      browserId: browser.id,
+      browserName: browser.name,
+    });
+  }
+
+  private async createBindEmailActivity(user: User, emailProvider: UserEmailProvider, userEmail: UserEmail) {
+    return this.activityService.createActivity(user, {
+      type: ActivityType.BIND_EMAIL,
+      userEmailId: userEmail.id,
+      userEmailProvider: emailProvider,
+      userEmailAddress: userEmail.email,
     });
   }
 }

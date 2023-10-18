@@ -660,7 +660,7 @@ export class PrismaDIDStorage implements DIDStorage {
 
   public static async transfer(src: string, srcPassword: string, dest: string, destPassword): Promise<void> {
     const prisma = DIDPrismaService.getInstance(); // Dirty way to access the singleton. It must have been initialized by someone else first.
-
+    console.log("DID TRANSFER", src, dest);
     await prisma.$transaction<void>(async (tx) => {
       const identityRoots = await tx.rootIdentity.findMany({
         where: { path: src, },
@@ -672,6 +672,7 @@ export class PrismaDIDStorage implements DIDStorage {
       });
 
       for (const identityRoot of identityRoots) {
+        console.log("UPDATE ID ROOT", identityRoot.id);
         await tx.rootIdentity.update({
           where: {
             path: src,
@@ -680,7 +681,7 @@ export class PrismaDIDStorage implements DIDStorage {
           data: {
             path: dest,
             mnemonic: PrismaDIDStorage.reEncrypt(identityRoot.mnemonic, srcPassword, destPassword),
-            privateKey:  PrismaDIDStorage.reEncrypt(identityRoot.privateKey, srcPassword, destPassword),
+            privateKey: PrismaDIDStorage.reEncrypt(identityRoot.privateKey, srcPassword, destPassword),
           }
         });
       }

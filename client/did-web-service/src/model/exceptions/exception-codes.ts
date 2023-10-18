@@ -1,9 +1,14 @@
 export enum AuthExceptionCode {
-  SomethingTodo = 10101,
   AuthError = 10102,
   EmailAlreadyExists = 10103,
-  EmailNotExists = 10104,
-  AuthKeyNotExists = 10105,
+  InexistingEmail = 10104,
+  InexistingAuthKey = 10105,
+  WrongAccessToken = 10106,
+  InexistingUser = 10107,
+  IdentityNotOwned = 10108, // User doesn't own an identity we are trying to use
+  CredenialNotOwned = 10109, // User doesn't own a credential we are trying to use
+  IdentityRootNotOwned = 10110, // User doesn't own a root identity we are trying to use
+  InvalidPINCode = 10111,
   Unspecific = 10199,
 }
 

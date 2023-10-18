@@ -11,12 +11,11 @@ import { identityService } from "@services/identity/identity.service";
 import { getPasskeyChallenge } from "@services/keyring/keyring.service";
 import { logger } from "@services/logger";
 import { startAuthentication } from "@simplewebauthn/browser";
-import { PublicKeyCredentialRequestOptionsJSON, PublicKeyCredentialDescriptorJSON } from "@simplewebauthn/typescript-types";
+import { PublicKeyCredentialDescriptorJSON, PublicKeyCredentialRequestOptionsJSON } from "@simplewebauthn/typescript-types";
 import Queue from "promise-queue";
 import { LoggedUserOutput } from "./logged-user.output";
 import { SignUpInput } from "./sign-up.input";
 import { authUser$, getActiveUser } from "./user.events";
-import { error } from "console";
 
 const fetchUserQueue = new Queue(1); // Execute user retrieval from the backend one by one to avoid duplicates
 
@@ -98,19 +97,27 @@ export async function fetchSelfUser(): Promise<User> {
  * Initiates a user authentication by email address. This sends a magic auth link by email
  * and user needs to click that link to finalize the authentication.
  */
-export async function authenticateWithEmailAddress(emailAddress: string): Promise<void> {
+export async function authenticateWithEmailAddress(emailAddress: string): Promise<{ pinCode: string }> {
   logger.log("user", "Sending request to authentication by email");
 
-  await withCaughtAppException(async () => {
-    return (await getApolloClient()).mutate<unknown>({
+  const result = await withCaughtAppException(async () => {
+    return (await getApolloClient()).mutate<{ requestEmailAuthentication: { success: boolean; pinCode?: string; } }>({
       mutation: gql`
       mutation RequestEmailAuthentication($emailAddress: String!) {
-        requestEmailAuthentication(emailAddress: $emailAddress) { success }
+        requestEmailAuthentication(emailAddress: $emailAddress) {
+          success pinCode
+        }
       }
     `,
       variables: { emailAddress }
     });
   });
+
+  if (result?.data?.requestEmailAuthentication?.success) {
+    return {
+      pinCode: result.data.requestEmailAuthentication.pinCode
+    }
+  }
 }
 
 /**

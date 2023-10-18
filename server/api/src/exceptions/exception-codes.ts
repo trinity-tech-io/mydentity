@@ -8,6 +8,7 @@ export enum AuthExceptionCode {
   IdentityNotOwned = 10108, // User doesn't own an identity we are trying to use
   CredenialNotOwned = 10109, // User doesn't own a credential we are trying to use
   IdentityRootNotOwned = 10110, // User doesn't own a root identity we are trying to use
+  InvalidPINCode = 10111,
   Unspecific = 10199,
 }
 

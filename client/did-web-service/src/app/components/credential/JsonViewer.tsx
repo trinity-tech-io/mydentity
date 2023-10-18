@@ -1,5 +1,5 @@
-import React from 'react';
 import { JSONObject, JSONValue } from "@model/json";
+import React from 'react';
 
 interface JsonViewerProps {
   data: JSONObject;

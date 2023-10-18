@@ -4,6 +4,7 @@ import { InexistingEmailException } from "@model/exceptions/inexisting-email-exc
 import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { FlowOperation, setOnGoingFlowOperation } from "@services/flow.service";
+import { logger } from "@services/logger";
 import { authenticateWithEmailAddress } from "@services/user/user.service";
 import { FC, FormEvent, MutableRefObject, useRef, useState } from "react";
 
@@ -62,9 +63,10 @@ interface EmailFormType {
   reqState: RequestActionState;
   doEmailAuth: () => Promise<void>;
   errorMsg?: any;
+  pinCode?: string;
 }
 export const EmailFormBox: FC<EmailFormType> = (props) => {
-  const { emailInputRef, reqState, doEmailAuth, actionName = "Send magic link to email", errorMsg = null } = props
+  const { emailInputRef, reqState, doEmailAuth, actionName = "Send magic link to email", errorMsg = null, pinCode } = props
   const emailForm = useRef(null);
 
   async function onEmailSubmit(ev?: FormEvent): Promise<void> {
@@ -107,7 +109,7 @@ export const EmailFormBox: FC<EmailFormType> = (props) => {
         </form>
       ) : (
         <div className="text-sm text-center text-white">
-          Magic link sent, please check your mailbox.
+          Magic link sent, please check your mailbox and use the following PIN code when asked: {pinCode}.
         </div>
       )}
       {errorMsg && (
@@ -124,9 +126,12 @@ export const EmailSignIn: FC = () => {
     RequestActionState.INIT
   );
   const [errorMsg, setErrorMsg] = useState(null);
+  const [pinCode, setPinCode] = useState<string>(null);
 
   const doEmailAuth = async (): Promise<void> => {
     setErrorMsg("");
+    setPinCode(null);
+    setReqState(RequestActionState.INIT);
     const emailAddress = emailInputRef.current.value;
 
     if (emailAddress !== "") {
@@ -135,12 +140,14 @@ export const EmailSignIn: FC = () => {
       setOnGoingFlowOperation(FlowOperation.EmailSignIn);
 
       try {
-        void (await authenticateWithEmailAddress(emailAddress));
+        const result = (await authenticateWithEmailAddress(emailAddress));
+        setPinCode(result.pinCode);
         setReqState(RequestActionState.RESULT);
       } catch (error) {
         if (error instanceof InexistingEmailException) {
           setErrorMsg("This email address is unknown.");
         } else {
+          logger.error("Authentication request error:", error);
           setErrorMsg("Unknown error, please try again.");
         }
         setReqState(RequestActionState.INIT);
@@ -150,7 +157,7 @@ export const EmailSignIn: FC = () => {
 
   const formBoxProps = { emailInputRef, reqState, doEmailAuth, errorMsg }
   return (
-    <EmailFormBox {...formBoxProps} />
+    <EmailFormBox {...formBoxProps} pinCode={pinCode} />
   );
 };
 

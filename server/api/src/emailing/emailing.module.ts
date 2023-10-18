@@ -19,4 +19,4 @@ import { Smtp4devService } from './smtp-services/smtp4dev.service';
     EmailingDevController
   ]
 })
-export class CommonEmailingModule { }
+export class EmailingModule { }

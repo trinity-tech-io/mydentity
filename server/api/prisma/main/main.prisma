@@ -18,20 +18,31 @@ model User {
   lastSeenAt         DateTime  @default(now()) // Updated every time the user uses the app
   welcomeEmailSentAt DateTime? // Date at which the welcome email was sent, if any
 
-  // Auth process
-  temporaryEmailAuthKey       String? // Temporary authentication key generated for authentication by email address + magic "link"
-  temporaryEmailAuthExpiresAt DateTime? // Date at which temporaryEmailAuthKey becomes invalid and cannot be used to confirm email sign in by magic link.
-  temporaryEmail              String? // Temporary email address used to bind to user.
-
-  IdentityRoot       IdentityRoot[]
-  Identity           Identity[]
-  UserShadowKey      UserShadowKey[]
-  Device             Browser[]
-  Activities         Activity[]
-  UserEmails         UserEmail[]
-  DeveloperAccessKey DeveloperAccessKey[]
-
   defaultRootIdentityId String?
+
+  IdentityRoot            IdentityRoot[]
+  Identity                Identity[]
+  UserShadowKey           UserShadowKey[]
+  Device                  Browser[]
+  Activities              Activity[]
+  UserEmails              UserEmail[]
+  DeveloperAccessKey      DeveloperAccessKey[]
+  TemporaryAuthentication TemporaryAuthentication[]
+}
+
+// Temporary sign in link/pin code to access a user account by email magic link, or directly by sharing
+// urls to another device. PIN code is visually displayed and needs to be confirmed by user to validate.
+model TemporaryAuthentication {
+  id String @id @unique @default(uuid())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Restrict) // Initiating user
+  authKey   String // Temporary authentication key generated for authentication by email address/sign in url
+  expiresAt DateTime // Date at which temporaryEmailAuthKey becomes invalid and cannot be used to sign in
+  pinHash   String // One way PIN code hash to verify user's typed PIN on the signing device.
+
+  temporaryEmail String? // Temporary email address used to bind to user, if any.
+
+  userId String
 }
 
 enum UserEmailProvider {
@@ -299,8 +310,8 @@ model IdentityClaimRequest {
   expiresAt        DateTime? // Date at which temporaryEmailAuthKey becomes invalid and cannot be used to confirm email sign in by magic link.
   claimCompletedAt DateTime?
 
-  identity Identity @relation(fields: [identityDid], references: [did], onDelete: Restrict)
-  identityDid      String
+  identity    Identity @relation(fields: [identityDid], references: [did], onDelete: Restrict)
+  identityDid String
 
-  password         String   // encrypted password with nonce
+  password String // encrypted password with nonce
 }

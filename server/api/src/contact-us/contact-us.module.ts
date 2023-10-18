@@ -1,8 +1,8 @@
 import { Module, forwardRef } from '@nestjs/common';
+import { EmailingModule } from '../emailing/emailing.module';
 import { UserModule } from '../user/user.module';
-import { CommonEmailingModule } from '../emailing/emailing.module';
-import { ContactUsService } from "./contact-us.service";
 import { ContactUsResolver } from "./contact-us.resolver";
+import { ContactUsService } from "./contact-us.service";
 
 @Module({
   providers: [
@@ -10,7 +10,7 @@ import { ContactUsResolver } from "./contact-us.resolver";
     ContactUsResolver,
   ],
   imports: [
-    forwardRef(() => CommonEmailingModule),
+    forwardRef(() => EmailingModule),
     forwardRef(() => UserModule)
   ],
   exports: [
