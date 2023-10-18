@@ -1,10 +1,9 @@
 "use client";
-import { ChangeEvent, FC, MouseEvent, useEffect, useState } from "react";
+import { ChangeEvent, FC, MouseEvent, useState } from "react";
 import { useRouter } from "next13-progressbar";
 import Link from "next/link";
 import { filter } from "lodash";
 import {
-  Add as AddIcon,
   NavigateNext as NavigateNextIcon,
   Search as SearchIcon,
 } from "@mui/icons-material";
@@ -20,12 +19,11 @@ import {
   Box,
 } from "@mui/material";
 import ChipIcon from "@assets/images/chip.svg";
-import { CopyButton, DarkButton, NormalButton } from "@components/button";
+import { CopyButton, NormalButton } from "@components/button";
 import { IconAvatar } from "@components/feature/DetailLine";
 import ComfirmDialog from "@components/generic/ComfirmDialog";
 import DetailContainer from "@components/generic/DetailContainer";
 import { DetailTable } from "@components/generic/DetailTable";
-import CreateCredentialDialog from "@components/identity-profile/CreateCredentialDialog";
 import EditCredentialDialog, {
   EditionMode,
 } from "@components/identity-profile/EditCredentialDialog";
@@ -42,10 +40,7 @@ import { useMounted } from "@hooks/useMounted";
 import { Credential } from "@model/credential/credential";
 import { ProfileCredential } from "@model/credential/profile-credential";
 import { useToast } from "@services/feedback.service";
-import {
-  findProfileInfoByTypes,
-  getAvailableProfileEntries,
-} from "@services/identity-profile-info/identity-profile-info.service";
+import { findProfileInfoByTypes } from "@services/identity-profile-info/identity-profile-info.service";
 import { ProfileCredentialInfo } from "@services/identity-profile-info/profile-credential-info";
 import { activeIdentity$ } from "@services/identity/identity.events";
 import { logger } from "@services/logger";
@@ -53,6 +48,7 @@ import { EditableCredentialAvatar } from "@components/credential/EditableCredent
 import { OrderBy } from "./order-by";
 import CredentialTableRow from "@components/credential/CredentialTableRow";
 import UserListHead from "@components/generic/ListHead";
+import AddProfileItem from "./components/AddProfileItem";
 
 const CREDENTIAL_LIST_HEAD = [
   { id: "name", label: "Profile item", alignRight: false },
@@ -80,10 +76,6 @@ const Profile: FC = () => {
 
   const [originCredential, setOriginCredential] =
     useState<ProfileCredential>(null);
-  const [availableItemsForAddition, setAvailableItemsForAddition] = useState<
-    ProfileCredentialInfo[]
-  >([]);
-  const [openCreateCredential, setOpenCreateCredential] = useState(false);
 
   const [openEditCredentialDialog, setOpenEditCredentialDialog] =
     useState(false);
@@ -92,8 +84,6 @@ const Profile: FC = () => {
   const [preEditCredentialValue, setPreEditCredentialValue] =
     useState<string>("");
   const [editType, setEditType] = useState(EditionMode.NEW);
-
-  // const { callWithUnlock } = useCallWithUnlock<boolean>();
 
   const { showSuccessToast, showErrorToast } = useToast();
   const [isOpenPopupMenu, setOpenPopupMenu] = useState(null);
@@ -104,39 +94,12 @@ const Profile: FC = () => {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
-  const availableProfileEntries = getAvailableProfileEntries(); // List of addable profile items (that can produce credentials)
 
   const explorerDIDLink =
     activeIdentity &&
     `https://eid.elastos.io/did?did=${encodeURIComponent(
       activeIdentity.did
     )}&is_did=true`;
-
-  /**
-   * Computes the list of available items a user can add to his profile.
-   * This list is based on the global list of available profile items, minus the profile items that are
-   * already added and that can't be added more than once.
-   */
-  const computeAvailableItems = (): void => {
-    const availableEntries = availableProfileEntries?.filter((entry) => {
-      // Condition to keep the entry available for addition?
-      // - Be of kind "multipleInstancesAllowed"
-      // - Or not be used by user's credentials yet
-      return (
-        entry.options.multipleInstancesAllowed ||
-        !credentials?.find((c) =>
-          c.verifiableCredential.type.includes(entry.type?.getShortType())
-        )
-      );
-    });
-
-    setAvailableItemsForAddition(availableEntries);
-  };
-
-  useEffect(() => {
-    computeAvailableItems();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [credentials]);
 
   const showFeedbackToast = (
     isSuccess: boolean,
@@ -153,19 +116,6 @@ const Profile: FC = () => {
   /*  const getCredentialsKeys = (credentials: Credential[]): string[] => {
      return credentials.map(c => (c.verifiableCredential.getId().getFragment()));
    }; */
-
-  const handleCreateCredentialDialogClose = (
-    selectedItem: ProfileCredentialInfo
-  ): void => {
-    setOpenCreateCredential(false);
-    if (selectedItem) {
-      setOpenEditCredentialDialog(true);
-      setPreEditCredentialInfo(selectedItem);
-      setPreEditCredentialValue("");
-      setEditType(EditionMode.NEW);
-      setOriginCredential(null);
-    }
-  };
 
   const handleEditCredentialDialogClose = async (editCredentialValue: {
     info: ProfileCredentialInfo;
@@ -409,7 +359,9 @@ const Profile: FC = () => {
                       ACTIVE IDENTITY
                     </Box>
                   </div>
-                  <Typography variant="h4">{name || "Unnamed identity"}</Typography>
+                  <Typography variant="h4">
+                    {name || "Unnamed identity"}
+                  </Typography>
                   <div className="inline-flex items-center">
                     <Typography variant="body2">
                       {activeIdentity?.did?.toString()}
@@ -437,16 +389,7 @@ const Profile: FC = () => {
                   </InputAdornment>
                 }
               />
-              <DarkButton
-                className="rounded"
-                startIcon={<AddIcon />}
-                disabled={!credentials} // Don't allow edition until credentials are fetched
-                onClick={(): void => {
-                  setOpenCreateCredential(true);
-                }}
-              >
-                ADD PROFILE ITEM
-              </DarkButton>
+              <AddProfileItem identity={activeIdentity} />
             </div>
             <div className="flex flex-1 gap-1 items-end">
               <div className="inline-flex">
@@ -599,12 +542,6 @@ const Profile: FC = () => {
         content="Do you want to delete this Credential?"
         open={openConfirmDialog}
         onClose={handleCloseDialog}
-      />
-
-      <CreateCredentialDialog
-        open={openCreateCredential}
-        onClose={handleCreateCredentialDialogClose}
-        availableItemsForAddition={availableItemsForAddition}
       />
 
       <EditCredentialDialog
