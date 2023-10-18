@@ -1,4 +1,4 @@
-import { FC, memo, useMemo } from "react";
+import { FC, memo, useCallback, useEffect, useRef, useState } from "react";
 import {
   Fade,
   Modal,
@@ -14,11 +14,8 @@ import {
   AccordionDetails,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { Swiper, SwiperSlide } from "swiper/react";
+import { Swiper, SwiperClass, SwiperSlide } from "swiper/react";
 import { Keyboard, Pagination, Navigation } from "swiper/modules";
-import "swiper/css";
-// import "swiper/css/navigation";
-// import "swiper/css/pagination";
 import { Icon as ReactIcon } from "@iconify/react";
 import ChipIcon from "@assets/images/chip.svg";
 import { CardStyled } from "@/app/(pages)/account/security/components/SecuritySection";
@@ -76,6 +73,71 @@ const ListItemTextStyled: FC<{ primary: string; secondary: string }> = ({
   );
 };
 
+const CredentialSliderContent: FC<{ credential: Credential }> = memo(
+  ({ credential }) => {
+    const [issuerInfo] = useBehaviorSubject(credential?.issuerInfo$);
+    const contentTree = credential?.getContentTree();
+    const valueItems = credential?.getValueItems();
+    return (
+      <Box className="p-1">
+        <Stack
+          direction="row"
+          spacing={1}
+          flexGrow={1}
+          alignItems="center"
+          overflow="hidden"
+        >
+          <CredentialAvatar credential={credential} width={24} height={24} />
+          <Typography
+            flexGrow={1}
+            variant="body2"
+            fontWeight={600}
+            noWrap={true}
+          >
+            {credential?.getDisplayableTitle()}
+          </Typography>
+        </Stack>
+        <List dense sx={{ pl: 2, ".MuiListItemText-root": { margin: 0 } }}>
+          {valueItems?.map((item, _id) =>
+            item.name.toLowerCase() === "subfield" ? (
+              contentTree["subField"] && (
+                <ListItem key={_id}>
+                  <SubAccordion subfield={contentTree["subField"]} />
+                </ListItem>
+              )
+            ) : (
+              <ListItem key={_id}>
+                <ListItemTextStyled
+                  primary={item.name.toUpperCase()}
+                  secondary={item.value}
+                />
+              </ListItem>
+            )
+          )}
+          <ListItem>
+            <ListItemTextStyled
+              primary="ISSUANCE DATE"
+              secondary={credential?.verifiableCredential.issuanceDate.toLocaleString()}
+            />
+          </ListItem>
+          <ListItem>
+            <ListItemTextStyled
+              primary="EXPIRATION DATE"
+              secondary={credential?.verifiableCredential.expirationDate.toLocaleString()}
+            />
+          </ListItem>
+          <ListItem>
+            <ListItemTextStyled
+              primary="CREATED BY"
+              secondary={issuerInfo?.name}
+            />
+          </ListItem>
+        </List>
+      </Box>
+    );
+  }
+);
+
 const SubAccordion: FC<{ subfield: { [key: string]: string } }> = memo(
   ({ subfield }) => {
     return (
@@ -85,7 +147,8 @@ const SubAccordion: FC<{ subfield: { [key: string]: string } }> = memo(
           sx={{
             p: 0,
             minHeight: "auto !important",
-            ".MuiAccordionSummary-content, .MuiAccordionSummary-content.Mui-expanded": { my: 0.5 },
+            ".MuiAccordionSummary-content, .MuiAccordionSummary-content.Mui-expanded":
+              { my: 0.5 },
           }}
         >
           <Typography variant="body2" fontWeight={600}>
@@ -109,20 +172,37 @@ const SubAccordion: FC<{ subfield: { [key: string]: string } }> = memo(
   }
 );
 interface CredentialModalType {
-  credentials?: Array<Credential>;
+  credentials: Array<Credential>;
   identityProfile: ProfileFeature;
   open: boolean;
   onClose: () => void;
 }
 const CredentialModal: FC<CredentialModalType> = (props) => {
-  const { open, identityProfile, onClose } = props;
+  const { open, identityProfile, credentials, onClose } = props;
+  const [swiper, setSwiper] = useState<SwiperClass>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
   const [activeCredential] = useBehaviorSubject(
     identityProfile?.activeCredential$
   );
-  const contentTree = activeCredential?.getContentTree();
-  const [issuerInfo] = useBehaviorSubject(activeCredential?.issuerInfo$);
-  const valueItems = activeCredential?.getValueItems();
-  console.log(activeCredential?.getContentTree(), 999);
+  const slideTo = (index: number) => {
+    swiper?.slideTo(index, 100);
+  };
+
+  useEffect(() => {
+    if (credentials && activeCredential && !swiper?.destroyed) {
+      var activeCredentialIndex = credentials?.findIndex(
+        (c) => c.id == activeCredential.id
+      );
+      if (activeCredentialIndex < 0) activeCredentialIndex = activeIndex;
+
+      if (activeIndex != activeCredentialIndex) slideTo(activeCredentialIndex);
+    }
+  }, [credentials, activeCredential, swiper]);
+
+  const handleTransitionEnd = (sw: SwiperClass) => {
+    setActiveIndex(sw.activeIndex);
+  };
+
   return (
     <Modal
       open={open}
@@ -156,6 +236,7 @@ const CredentialModal: FC<CredentialModalType> = (props) => {
             <ReactIcon icon="icon-park-outline:right-c" />
           </div>
           <Swiper
+            initialSlide={activeIndex}
             effect={"creative"}
             grabCursor={true}
             modules={[Keyboard, Pagination, Navigation]}
@@ -180,73 +261,14 @@ const CredentialModal: FC<CredentialModalType> = (props) => {
               prevEl: ".image-swiper-button-prev",
               disabledClass: "swiper-button-disabled",
             }}
-            // onTransitionEnd={handleTransitionEnd}
-            // onSwiper={setSwiper}
+            onTransitionEnd={handleTransitionEnd}
+            onSwiper={setSwiper}
           >
-            <SwiperSlide className="box-border">
-              <Box className="p-1">
-                <Stack
-                  direction="row"
-                  spacing={1}
-                  flexGrow={1}
-                  alignItems="center"
-                  overflow="hidden"
-                >
-                  <CredentialAvatar
-                    credential={activeCredential}
-                    width={24}
-                    height={24}
-                  />
-                  <Typography
-                    flexGrow={1}
-                    variant="body2"
-                    fontWeight={600}
-                    noWrap={true}
-                  >
-                    {activeCredential?.getDisplayableTitle()}
-                  </Typography>
-                </Stack>
-                <List
-                  dense
-                  sx={{ pl: 2, ".MuiListItemText-root": { margin: 0 } }}
-                >
-                  {valueItems?.map((item) =>
-                    item.name.toLowerCase() === "subfield" ? (
-                      contentTree["subField"] && (
-                        <ListItem>
-                          <SubAccordion subfield={contentTree["subField"]} />
-                        </ListItem>
-                      )
-                    ) : (
-                      <ListItem>
-                        <ListItemTextStyled
-                          primary={item.name.toUpperCase()}
-                          secondary={item.value}
-                        />
-                      </ListItem>
-                    )
-                  )}
-                  <ListItem>
-                    <ListItemTextStyled
-                      primary="ISSUANCE DATE"
-                      secondary={activeCredential?.verifiableCredential.issuanceDate.toLocaleString()}
-                    />
-                  </ListItem>
-                  <ListItem>
-                    <ListItemTextStyled
-                      primary="EXPIRATION DATE"
-                      secondary={activeCredential?.verifiableCredential.expirationDate.toLocaleString()}
-                    />
-                  </ListItem>
-                  <ListItem>
-                    <ListItemTextStyled
-                      primary="CREATED BY"
-                      secondary={issuerInfo?.name}
-                    />
-                  </ListItem>
-                </List>
-              </Box>
-            </SwiperSlide>
+            {credentials?.map((c) => (
+              <SwiperSlide key={c.id} className="box-border">
+                <CredentialSliderContent credential={c} />
+              </SwiperSlide>
+            ))}
           </Swiper>
         </CardStyled>
       </Fade>

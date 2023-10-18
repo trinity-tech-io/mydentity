@@ -117,6 +117,7 @@ export const CredentialListWidget: FC<{
       </ResponsiveReactGridLayout>
       <CredentialModal
         open={openCredentialModal}
+        credentials={filteredCredentials}
         identityProfile={identityProfileFeature}
         onClose={() => setOpenCredentialModal(false)}
       />

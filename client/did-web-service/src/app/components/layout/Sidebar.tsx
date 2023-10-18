@@ -273,8 +273,10 @@ const IdentityCardGroup: FC = () => {
     }
 
     if (identities?.length === myIdentities.length && activeIdentity) {
-      const activeIdentityIndex =
-        myIdentities?.findIndex((i) => i == activeIdentity) || activeIndex;
+      var activeIdentityIndex = myIdentities?.findIndex(
+        (i) => i == activeIdentity
+      );
+      if (activeIdentityIndex < 0) activeIdentityIndex = activeIndex;
       if (activeIndex != activeIdentityIndex) slideTo(activeIdentityIndex);
     }
   }, [identities?.length, activeIdentity]);
