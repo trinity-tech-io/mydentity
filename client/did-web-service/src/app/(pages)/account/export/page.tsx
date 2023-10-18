@@ -51,7 +51,7 @@ const ExportMnemonicPage: FC = () => {
    * regular type + non null creatingAppIdentity = ideitnty created through the SDK and claimed
    * application type = developers page app did
    */
-  const groupIdentitys = (identityRoot: IdentityRoot): string => {
+  const groupIdentityName = (identityRoot: IdentityRoot): string => {
     let groupLabel = '';
   
     for (const identity of identityRoot.Identity) {
@@ -75,7 +75,7 @@ const ExportMnemonicPage: FC = () => {
       {identityRoots?.map((identityRoot, groupIndex) => {
         // 1. Get the identities for the corresponding rootIdentityId
         const correspondingIdentities = getRegularIdentitiesById(identities, identityRoot.id);
-        const showGroupName = groupIdentitys(identityRoot);
+        const showGroupName = groupIdentityName(identityRoot);
 
         return (
           <div key={groupIndex} className="m-4 mt-11 p-6 border rounded-lg relative w-[800px]">
