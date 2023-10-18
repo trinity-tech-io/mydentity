@@ -37,10 +37,10 @@ export const generateTheme = (mode: PaletteMode): Theme => createTheme({
       styleOverrides: {
         root: {
           backgroundColor: mode === "dark" ? "rgba(32, 32, 32, 0.5)" : "rgba(224, 224, 224, 0.5)",
-          backdropFilter: 'blur(2px)',
+          backdropFilter: 'blur(7px) saturate(0.2)',
           '&.MuiBackdrop-invisible': {
             backgroundColor: 'transparent',
-            backdropFilter: 'blur(3px)'
+            backdropFilter: 'blur(7px) saturate(0.2)'
           }
         }
       }

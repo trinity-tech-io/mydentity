@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, MouseEventHandler } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   IconButton,
@@ -17,18 +17,20 @@ import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import SharedCountLabel from "@components/credential/SharedCountLabel";
 
 const CredentialBox: FC<{
+  id: string;
   credential: Credential;
   expanded: boolean;
   setExpanded: Function;
-  id: string;
-}> = ({ credential, expanded, setExpanded, id }) => {
+  onClick: (c: Credential) => void;
+}> = ({ id, credential, expanded, setExpanded, onClick }) => {
   const [requestingApplications] = useBehaviorSubject(
     credential?.requestingApplications$
   );
   const [isConform] = useBehaviorSubject(credential?.isConform$);
   const [issuerInfo] = useBehaviorSubject(credential?.issuerInfo$);
 
-  const handleExpanding = (): void => {
+  const handleExpanding: MouseEventHandler<HTMLButtonElement> = (e): void => {
+    e.stopPropagation();
     setExpanded((prevIDs: string) => {
       var tempIDs = [...prevIDs];
       const thisIndex = tempIDs.findIndex((_id) => _id === id);
@@ -39,8 +41,12 @@ const CredentialBox: FC<{
     });
   };
 
+  const handleClick = () => {
+    onClick(credential);
+  }
+
   return (
-    <div className="relative h-full">
+    <div className="relative h-full cursor-pointer" onClick={handleClick}>
       <CardStyled
         className="h-full"
         elevation={0}

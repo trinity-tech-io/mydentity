@@ -38,7 +38,7 @@ const SelectBox: FC<{
         className="opacity-80"
         endIcon={openPopper ? <ExpandLess /> : <ExpandMore />}
         color="inherit"
-        sx={{ transition: "opacity .1s ease-out", "&:hover": { opacity: 1 } }}
+        sx={{ transition: "opacity .1s ease-out", "&:hover": { opacity: 1 }, borderRadius: 2 }}
         onClick={() => setOpenPopper(!openPopper)}
       >
         {list[currentIndex]}

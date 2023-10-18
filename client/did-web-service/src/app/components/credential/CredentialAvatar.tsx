@@ -24,7 +24,10 @@ export const CredentialAvatar: FC<{
       sx={{
         width,
         height,
-        padding: typeof representativeIconPath === "string" ? 0 : ".5rem",
+        padding:
+          typeof representativeIconPath === "string"
+            ? 0
+            : `${Math.floor(width / 8) * 0.125}rem`,
         backgroundColor: "#7575754d",
       }}
       className={clsx(className)}

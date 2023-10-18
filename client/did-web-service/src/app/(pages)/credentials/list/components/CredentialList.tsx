@@ -1,6 +1,6 @@
 "use client";
 import { FC, useCallback, useEffect, useState } from "react";
-import { Box, Divider, List, ListItemButton } from "@mui/material";
+import { Box, List, ListItemButton, Modal, Backdrop } from "@mui/material";
 import { WidthProvider, Responsive, Layout } from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 
@@ -13,6 +13,7 @@ import { Credential } from "@model/credential/credential";
 import { activeIdentity$ } from "@services/identity/identity.events";
 import { filterCredentials } from "./FilterConditions";
 import CredentialBox from "./CredentialBox";
+import CredentialModal from "./CredentialModal";
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
@@ -34,6 +35,7 @@ export const CredentialListWidget: FC<{
     []
   );
   const [expandedIDs, setExpandedIDs] = useState<string[]>([]);
+  const [openCredentialModal, setOpenCredentialModal] = useState(false);
   const GRID_COLS: { [key: string]: number } = {
     lg: 12,
     md: 10,
@@ -44,6 +46,7 @@ export const CredentialListWidget: FC<{
 
   const handleListItemClick = (credential: Credential): void => {
     identityProfileFeature.setActiveCredential(credential);
+    setOpenCredentialModal(true);
   };
 
   useEffect(() => {
@@ -90,7 +93,7 @@ export const CredentialListWidget: FC<{
       <ResponsiveReactGridLayout
         containerPadding={[0, 0]}
         margin={[16, 16]}
-        className="layout"
+        className="layout mb-2"
         isDraggable={false}
         isResizable={false}
         layouts={generateLayouts()}
@@ -107,12 +110,35 @@ export const CredentialListWidget: FC<{
                 credential={c}
                 expanded={expandedIDs.includes(c.id)}
                 setExpanded={setExpandedIDs}
+                onClick={handleListItemClick}
               />
             </Box>
           ))}
       </ResponsiveReactGridLayout>
-      <Divider />
-      <Box sx={{ width: "100%", bgcolor: "background.paper" }}>
+      <CredentialModal
+        open={openCredentialModal}
+        identityProfile={identityProfileFeature}
+        onClose={() => setOpenCredentialModal(false)}
+      />
+      {/* <Modal
+        open={openCredentialModal}
+        onClose={() => setOpenCredentialModal(false)}
+        closeAfterTransition
+        aria-labelledby="credentials"
+        aria-describedby="credential-slider"
+        slots={{ backdrop: Backdrop }}
+        slotProps={{
+          backdrop: {
+            timeout: 300,
+          },
+        }}
+      >
+        <Fade in={open}></Fade>
+        <Box>
+          <span>aaa</span>
+        </Box>
+      </Modal> */}
+      {/* <Box sx={{ width: "100%", bgcolor: "background.paper" }}>
         {(!filteredCredentials || !mounted) && <VerticalStackLoadingCard />}
         {mounted && filteredCredentials && (
           <List component="nav" aria-label="main mailbox folders">
@@ -128,12 +154,11 @@ export const CredentialListWidget: FC<{
                   </div>
                   <CredentialBasicInfo credential={c} />
                 </ListItemButton>
-                <Divider />
               </div>
             ))}
           </List>
         )}
-      </Box>
+      </Box> */}
     </div>
   );
 };

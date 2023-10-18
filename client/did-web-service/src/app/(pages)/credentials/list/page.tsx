@@ -98,7 +98,7 @@ const CredentialsList: FC = () => {
         </div>
       </Stack>
       <CredentialListWidget openedDetail={openedDetail} selectedFilter={selectedFilter} />
-      <CredentialDetailWidget />
+      {/* <CredentialDetailWidget /> */}
     </>
   );
 };
