@@ -12,6 +12,7 @@ import { filterCredentials } from "./FilterConditions";
 import CredentialBox from "./CredentialBox";
 import CredentialModal from "./CredentialModal";
 import { LoadingCredentialBox } from "@components/loading-skeleton";
+import { RegularIdentity } from "@model/regular-identity/regular-identity";
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
@@ -19,14 +20,15 @@ export const CredentialListWidget: FC<{
   openedDetail: boolean;
   selectedFilter: string;
   stringFilter: string;
-}> = ({ openedDetail, selectedFilter, stringFilter }) => {
+  identity: RegularIdentity;
+}> = ({ openedDetail, selectedFilter, stringFilter, identity }) => {
   const TAG = "CredentialList";
-  const [activeIdentity] = useBehaviorSubject(activeIdentity$);
+
   const [credentials] = useBehaviorSubject(
-    activeIdentity?.credentials().credentials$
+    identity?.credentials().credentials$
   );
   const mounted = useMounted();
-  const identityProfileFeature = activeIdentity?.profile();
+  const identityProfileFeature = identity?.profile();
   const [activeCredential] = useBehaviorSubject(
     identityProfileFeature?.activeCredential$
   );
@@ -59,7 +61,7 @@ export const CredentialListWidget: FC<{
       const filtered = filterCredentials(
         selectedFilter,
         credentials,
-        activeIdentity
+        identity
       ).filter((c) =>
         c
           .getDisplayableTitle()
@@ -69,7 +71,7 @@ export const CredentialListWidget: FC<{
       identityProfileFeature.setActiveCredential(filtered[0] || null);
       setFilteredCredentials(filtered);
     }
-  }, [credentials, selectedFilter, stringFilter, activeIdentity]);
+  }, [credentials, selectedFilter, stringFilter, identity]);
 
   useEffect(() => {
     if (filteredCredentials?.length)
