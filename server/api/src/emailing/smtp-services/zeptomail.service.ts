@@ -22,8 +22,8 @@ export class ZeptoMailService implements ISmtpService {
         user,
         pass
       },
-      //logger: true,
-      //debug: true
+      logger: true,
+      debug: true
     });
   }
 

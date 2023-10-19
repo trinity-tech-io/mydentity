@@ -130,6 +130,7 @@ export class EmailingService {
 
   private getSmtpService(): ISmtpService {
     const service = process.env.SMTP_SERVICE;
+    console.log('EmailingService.getSmtpService()', service);
     switch (service) {
       case SmtpService.SMTP4DEV:
         return this.smtp4devService;
