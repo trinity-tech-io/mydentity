@@ -20,7 +20,7 @@ const CredentialBox: FC<{
   id: string;
   credential: Credential;
   expanded: boolean;
-  setExpanded: (string) => string[];
+  setExpanded: any;
   onClick: (c: Credential) => void;
 }> = ({ id, credential, expanded, setExpanded, onClick }) => {
   const [requestingApplications] = useBehaviorSubject(
@@ -31,7 +31,7 @@ const CredentialBox: FC<{
 
   const handleExpanding: MouseEventHandler<HTMLButtonElement> = (e): void => {
     e.stopPropagation();
-    setExpanded((prevIDs: string) => {
+    setExpanded((prevIDs: string[]) => {
       let tempIDs = [...prevIDs];
       const thisIndex = tempIDs.findIndex((_id) => _id === id);
       if (thisIndex < 0) {
