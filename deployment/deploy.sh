@@ -11,12 +11,12 @@ cd ~/$APP_ROOT
 
 echo '>>>>>> start deploy & update ...'
 
-[ ! -d "$APP_NAME" ] && git clone git@github.com:trinity-tech-io/did-web-service.git $APP_NAME
+[ ! -d "$APP_NAME" ] && git clone git@github.com:trinity-tech-io/mydentity.git $APP_NAME
 
 cd $APP_NAME
 git pull --rebase
 
-echo '>>>>>> Did web service source updated from git'
+echo '>>>>>> Mydentity source updated from git'
 
 cd server/api
 npm i --legacy-peer-deps

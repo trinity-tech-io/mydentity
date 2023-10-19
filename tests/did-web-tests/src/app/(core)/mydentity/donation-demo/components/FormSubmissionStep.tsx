@@ -1,7 +1,7 @@
 import { MainButton } from "@components/MainButton";
 import type { VerifiableCredential } from "@elastosfoundation/did-js-sdk";
 import { Checkbox, FormControlLabel, FormGroup, Link, TextField } from "@mui/material";
-import type { CreatedManagedIdentity } from "@trinitytech/did-web-service-sdk";
+import type { CreatedManagedIdentity } from "@trinitytech/mydentity-sdk";
 import { FC, useEffect, useRef, useState } from "react";
 import { api_createManagedIdentity, api_generateClaimUrl, api_produceUserCredentials } from "../simulated-server-api/simulated-server-api";
 
@@ -22,7 +22,7 @@ export const FormSubmissionStep: FC<{
   const importCredentialsFromClientSide = async (credentials: VerifiableCredential[]): Promise<void> => {
     console.log("Importing user credentials to his identity wallet, client side");
 
-    // Send the credential to the identity wallet (essentials, or DID Web service (claimed identities))
+    // Send the credential to the identity wallet (Essentials, or Mydentity (claimed identities))
     const { didAccessV2 } = await import("@elastosfoundation/elastos-connectivity-sdk-js");
     await didAccessV2.importCredentials(credentials);
   }

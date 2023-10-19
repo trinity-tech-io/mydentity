@@ -22,13 +22,13 @@ function getRidFromUrl(): string | null {
 export async function tryToGrabPostRedirectResponse() {
   const intentId = getRidFromUrl();
   if (intentId) {
-    console.log("The DID web connector found an intent ID in the url - now processing the result");
+    console.log("The Mydentity connector found an intent ID in the url - now processing the result");
 
     const intent = await fetchIntentResponse(intentId);
     console.log("response intent", intent);
 
     if (!intent) {
-      logger.warn("The DID web service has no info about the intent we've tried to process from the url. Skipping");
+      logger.warn("Mydentity has no info about the intent we've tried to process from the url. Skipping");
       return;
     }
 

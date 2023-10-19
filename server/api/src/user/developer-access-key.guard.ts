@@ -17,7 +17,7 @@ export class DeveloperAccessKeyGuard {
     // Retrieve user (developer) related to this access key
     const developer = await this.userService.validateDeveloperAccessKey(developerAccessKey);
     if (!developer)
-      throw new HttpException("Access key not bound to any existing user. Please generate a developer access key from the DID web service app", 401);
+      throw new HttpException("Access key not bound to any existing user. Please generate a developer access key from the Mydentity web app", 401);
 
     request.developer = developer;
 

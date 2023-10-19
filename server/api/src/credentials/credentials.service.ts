@@ -155,7 +155,7 @@ export class CredentialsService {
 
   /**
    * Import credentials that target the identity provided in the identity access token, directly
-   * into that identity, without user confirmation. This is called from the DID Web SDK to let
+   * into that identity, without user confirmation. This is called from the Mydentity SDK to let
    * applications that remotely create managed identities, to invisibly import credentials until
    * the identity gets claimed by his user owner.
    */

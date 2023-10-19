@@ -8,8 +8,7 @@ const storePass = "store-password";
  * Simulate the issuer identity (this demo app).
  * The issuer is the entity who generates and signs credentials, for others.
  *
- * TODO: USE APP DID CREATED ON THE DID WEB SERVICE, NOT A FAKE ISSUER
- *
+ * TODO: USE APP DID CREATED ON MYDENTITY, NOT A FAKE ISSUER
  */
 async function loadIssuerIdentity() {
   const { Features, DefaultDIDAdapter, DIDBackend, DIDStore, RootIdentity, Mnemonic, Issuer, VerifiableCredential, DID } = await import("@elastosfoundation/did-js-sdk");

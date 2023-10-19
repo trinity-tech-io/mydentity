@@ -17,7 +17,7 @@ type FetchIntentResultResponse = {
 }
 
 /**
- * Calls the DID web API to create an intent request, and returns the intent ID.
+ * Calls the Mydentity API to create an intent request, and returns the intent ID.
  */
 export async function createIntentRequest(type: IntentType, requestPayload: any): Promise<string> {
   const endpoint = `${runtimeOptions.webServiceAPIEndpoint}/graphql`;

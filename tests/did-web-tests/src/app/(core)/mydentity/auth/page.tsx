@@ -5,7 +5,7 @@ import { FC } from "react";
 import { ImportCredentials } from "./ImportCredentials";
 import { RequestCredentials } from "./RequestCredentials";
 
-const DIDWebAuthTests: FC = () => {
+const MydentityAuthTests: FC = () => {
   const [authUserDID] = useBehaviorSubject(authUserDID$);
 
   return (
@@ -19,4 +19,4 @@ const DIDWebAuthTests: FC = () => {
   )
 }
 
-export default DIDWebAuthTests;
+export default MydentityAuthTests;

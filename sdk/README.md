@@ -1,6 +1,6 @@
 ## Introduction
 
-This SDK provides features for third party apps to use remote features specific to this DID Web Service.
+This SDK provides features for third party apps to use remote features specific to Mydentity.
 Features generic to all identity wallets remain in the connectivity SDK every time we can.
 
 ## Build for production

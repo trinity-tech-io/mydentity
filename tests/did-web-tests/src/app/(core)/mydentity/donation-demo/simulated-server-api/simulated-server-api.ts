@@ -1,4 +1,4 @@
-import { configure, createManagedIdentity, generateClaimUrl, getManagedIdentityStatus, importManagedIdentityCredentials } from "@trinitytech/did-web-service-sdk";
+import { configure, createManagedIdentity, generateClaimUrl, getManagedIdentityStatus, importManagedIdentityCredentials } from "@trinitytech/mydentity-sdk";
 import { produceUserCredentials } from "./helpers/did-helpers";
 import { ProducedCredentialsResponse } from "./model/produced-credentials";
 
@@ -20,7 +20,7 @@ const identityAccessTokenMap: { [did: string]: string } = {
 }
 
 /**
- * From the app backend, requests the DID Web service to create a managed identity.
+ * From the app backend, requests Mydentity to create a managed identity.
  * That managed identity will belong to our app temporarily, until the user decides to claim it.
  */
 export async function api_createManagedIdentity(): Promise<string> {
@@ -45,8 +45,8 @@ export async function api_createManagedIdentity(): Promise<string> {
 /**
  * Generates and imports credentials to the given user (did).
  *
- * If the identity is a managed one (by this backend), we use the DID Web SDK to directly
- * import the credentials into the DID web service after creation.
+ * If the identity is a managed one (by this backend), we use the Mydentity SDK to directly
+ * import the credentials into Mydentity after creation.
  *
  * If the identity is a user one (external identity wallet we don't have access to), then we return the
  * credentials after creation and they must be imported into the identity wallet by the user himself,
@@ -58,7 +58,7 @@ export async function api_produceUserCredentials(userDidString: string, name: st
   // Generate the credentials
   const credentials = await produceUserCredentials(userDidString, name);
 
-  // Check if the identity is a managed one. If it is, import the VCs using the DID Web SDK.
+  // Check if the identity is a managed one. If it is, import the VCs using the Mydentity SDK.
   let imported: boolean;
   if (simulateManagedIdentity) {
     // Make sure our "database" contains the access token for this target user DID

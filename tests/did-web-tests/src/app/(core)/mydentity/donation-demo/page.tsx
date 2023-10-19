@@ -1,6 +1,6 @@
 "use client"
 import { Typography } from "@mui/material";
-import { CreatedManagedIdentity } from "@trinitytech/did-web-service-sdk";
+import { CreatedManagedIdentity } from "@trinitytech/mydentity-sdk";
 import { FC, useState } from "react";
 import { FormSubmissionStep } from "./components/FormSubmissionStep";
 import { IntroStep } from "./components/IntroStep";

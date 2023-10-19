@@ -9,7 +9,7 @@ import { logger } from "./logger";
 /**
  * Try to retrieve an intent from the backend, from its ID.
  * This normally happens when we are on an intent screen.
- * The intent must first have been created using a API call, from the DID web connector.
+ * The intent must first have been created using a API call, from the Mydentity connector.
  */
 export async function fetchIntent<IntentRequestPayloadType>(intentId: string): Promise<Intent<IntentRequestPayloadType>> {
   const result = await withCaughtAppException(async () => {

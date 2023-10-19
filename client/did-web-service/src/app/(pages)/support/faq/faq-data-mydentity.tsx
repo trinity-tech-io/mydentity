@@ -1,7 +1,7 @@
 import { FAQGroup } from "./faq-types";
 
-export const FAQDataDIDWebService: FAQGroup = {
-  title: "The DID Web Service",
+export const FAQDataMydentity: FAQGroup = {
+  title: "Mydentity",
   items: [
     { title: "Do I need to save cryptographic keys when I use this service?", content: "" },
     { title: "So you mean, you are like Google in the end?", content: "" },

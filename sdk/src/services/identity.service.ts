@@ -35,7 +35,7 @@ export async function getManagedIdentityStatus(identityAccessToken: string): Pro
 }
 
 /**
- * Directly imports credentials to a managed and unclaimed identity into the DID Web service.
+ * Directly imports credentials to a managed and unclaimed identity into Mydentity.
  */
 export async function importManagedIdentityCredentials(identityAccessToken: string, credentials: VerifiableCredential): Promise<CreatedManagedIdentity> {
   const response = await gqlQuery<CreatedManagedIdentity>("importManagedIdentityCredentials", `
@@ -57,7 +57,7 @@ export async function importManagedIdentityCredentials(identityAccessToken: stri
 
 /**
  * Generates a claim request for a managed identity.
- * This claim request is short lived, the user must complete the the request on the DID Web app
+ * This claim request is short lived, the user must complete the the request on the Mydentity app
  * within a few minutes, after what a new claim request must be requested.
  *
  * The returned claimUrl should be shared with the user.

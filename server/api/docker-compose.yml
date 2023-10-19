@@ -1,5 +1,5 @@
 version: "3.8"
-name: didservice
+name: mydentity
 services:
   db:
     image: postgres:latest
@@ -8,15 +8,15 @@ services:
     environment:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=123
-      - POSTGRES_DB=didwebservice
+      - POSTGRES_DB=mydentity
     networks:
-      - did-web-service
+      - mydentity
 
   smtp4dev:
     image: rnwood/smtp4dev:v3
     restart: always
     networks:
-      - did-web-service
+      - mydentity
     ports:
       # Change the number before : to the port the web interface should be accessible on
       - '980:80'
@@ -81,4 +81,4 @@ volumes:
   redis:
 
 networks:
-  did-web-service:
+  mydentity:

@@ -99,7 +99,7 @@ export class DIDPublishingService {
       const requestBody = {
         "did": didString,
         "memo": memo || "",
-        "requestFrom": "did-web-service",
+        "requestFrom": "mydentity",
         "didRequest": didRequest
       };
 

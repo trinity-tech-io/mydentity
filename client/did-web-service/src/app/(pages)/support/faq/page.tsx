@@ -3,12 +3,12 @@ import { Typography } from "@mui/material";
 import { FC } from "react";
 import { FAQ } from "./FAQ";
 import { FAQDataDID } from "./faq-data-did";
-import { FAQDataDIDWebService } from "./faq-data-did-web-service";
+import { FAQDataMydentity } from "./faq-data-mydentity";
 import { FAQGroup } from "./faq-types";
 
 const faqEntries: FAQGroup[] = [
   FAQDataDID,
-  FAQDataDIDWebService
+  FAQDataMydentity
 ]
 
 const FAQPage: FC = () => {

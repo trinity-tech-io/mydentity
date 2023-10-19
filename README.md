@@ -1,16 +1,16 @@
 # Introduction
 
-This repo contains the front end web app and the related API backend for the **DID web service**.
+This repo contains the front end web app and the related API backend for the **Mydentity**.
 
 This web app aims at helping users easily get a W3C DID and manage it. The app allows custodial DID creation, credentials imports and delivery, discovery of DID related services and more.
 
 # Contents
 
-- The DID Web app front end (client/ folder)
-- The DID Web app back end (server/ folder)
+- The Mydentity web front end (client/ folder)
+- The Mydentity api / back end (server/ folder)
 - The external test app to test web interactions (tests/ folder)
 - The Elastos connectivity SDK connector (connector/ folder)
-- The DID Web App SDK (sdk/ folder)
+- The Mydentity SDK (sdk/ folder)
 # Tech stack
 
 - Front-end

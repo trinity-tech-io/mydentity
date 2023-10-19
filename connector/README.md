@@ -1,6 +1,6 @@
 ## Introduction
 
-This connector connects the Elastos Connectivity SDK with the DID Web Service provided by Trinity Tech.
+This connector connects the Elastos Connectivity SDK with the Mydentity web app provided by Trinity Tech.
 
 ## Build for production
 

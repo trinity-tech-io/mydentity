@@ -21,7 +21,7 @@ export class DID {
         // Call the API method to create an intent and pass the request (without graphql client lib)
         const intentId = await createIntentRequest(IntentType.REQUEST_CREDENTIALS, request);
 
-        // Redirect current web page to the DID web service, with the intent id
+        // Redirect current web page to Mydentity, with the intent id
         const serviceEndpoint = createFrontEndIntentEndpoint(IntentType.REQUEST_CREDENTIALS, intentId);
         window.location.href = serviceEndpoint;
     }
@@ -44,7 +44,7 @@ export class DID {
         // Call the API method to create an intent and pass the request (without graphql client lib)
         const intentId = await createIntentRequest(IntentType.IMPORT_CREDENTIALS, request);
 
-        // Redirect current web page to the DID web service, with the intent id
+        // Redirect current web page to Mydentity, with the intent id
         const serviceEndpoint = createFrontEndIntentEndpoint(IntentType.IMPORT_CREDENTIALS, intentId);
         window.location.href = serviceEndpoint;
     }
@@ -69,7 +69,7 @@ export class DID {
         const response = <IntentResponsePayload<string>>event.data;
         // Make sure we get a response for the right intent ID
         if (response.intentId === intentId) {
-            console.log("The DID web connector got a response from the DID web service:", response);
+            console.log("The Mydentity connector got a response from Mydentity:", response);
 
             if (!response || !response.responsePayload) {
                 console.warn("Missing presentation. The operation was maybe cancelled.", response);

@@ -79,7 +79,7 @@ class _Logger {
 
 export const logger = new _Logger();
 
-export class DIDWebConnectivityLogger implements Interfaces.ILogger {
+export class MydentityConnectivityLogger implements Interfaces.ILogger {
     log(...args: any): void {
         logger.log.apply(logger, ["connectivity", ...args]);
     }

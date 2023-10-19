@@ -1,7 +1,7 @@
 {
-  "name": "@trinitytech/did-web-service-sdk",
-  "version": "1.0.0",
-  "description": "SDK to remotely access features from the DID Web Service app",
+  "name": "@trinitytech/mydentity-sdk",
+  "version": "1.0.1",
+  "description": "SDK to remotely access features from the Mydentity app",
   "main": "dist/index.js",
   "module": "dist.esm/index.js",
   "scripts": {
@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/trinity-tech-io/did-web-service.git"
+    "url": "git+https://github.com/trinity-tech-io/mydentity.git"
   },
   "files": [
     "dist",
@@ -26,9 +26,9 @@
   "author": "Trinity Tech",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/trinity-tech-io/did-web-service/issues"
+    "url": "https://github.com/trinity-tech-io/mydentity/issues"
   },
-  "homepage": "https://github.com/trinity-tech-io/did-web-service",
+  "homepage": "https://github.com/trinity-tech-io/mydentity",
   "dependencies": {
     "@elastosfoundation/did-js-sdk": "^2.3.1"
   },

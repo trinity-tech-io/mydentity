@@ -1,8 +1,8 @@
 import { ConnectorOptions } from "./config/connector-options";
-import { DIDWebConnector } from "./connector";
+import { MydentityConnector } from "./connector";
 
 export {
-    DIDWebConnector as DIDWebConnector
+    MydentityConnector
 };
 export type {
     ConnectorOptions

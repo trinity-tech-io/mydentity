@@ -5,13 +5,13 @@ import { RuntimeOptions, setRuntimeOptions } from "./config/runtime-options";
 import { DID as ConnDID } from "./did/did";
 import { setResponseHandler, tryToGrabPostRedirectResponse } from "./response-processor";
 
-export class DIDWebConnector implements Interfaces.Connectors.IConnector {
-    public name: string = "didweb";
+export class MydentityConnector implements Interfaces.Connectors.IConnector {
+    public name: string = "mydentity";
 
     constructor(options?: ConnectorOptions) {
         const defaultOptions: RuntimeOptions = {
-            webServiceEndpoint: "https://didweb.com", // TODO
-            webServiceAPIEndpoint: "https://api.didweb.com", // TODO
+            webServiceEndpoint: "https://ownmydentity.com",
+            webServiceAPIEndpoint: "https://api.ownmydentity.com",
         }
         const runtimeOptions = Object.assign({}, defaultOptions, options);
         setRuntimeOptions(runtimeOptions);
@@ -24,7 +24,7 @@ export class DIDWebConnector implements Interfaces.Connectors.IConnector {
     }
 
     async getDisplayName(): Promise<string> {
-        return "DID Web Service";
+        return "Mydentity";
     }
 
     private registerResponseProcessors() {

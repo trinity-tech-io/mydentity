@@ -21,10 +21,10 @@ type GroupConfig = {
 const groups: GroupConfig[] = [
   {
     icon: AccountIcon,
-    title: "DID Web service",
+    title: "Mydentity",
     links: [
-      { title: "DID auth", url: "/didweb/auth" },
-      { title: "Donation demo", url: "/didweb/donation-demo" },
+      { title: "DID auth", url: "/mydentity/auth" },
+      { title: "Donation demo", url: "/mydentity/donation-demo" },
     ]
   },
   {

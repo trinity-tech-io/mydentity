@@ -6,11 +6,11 @@ import type { Interfaces, Wallet } from "@elastosfoundation/elastos-connectivity
  * authenticate this app as a hive app allowed to use a user's hive vault.
  */
 export class InternalElastosConnector implements Interfaces.Connectors.IConnector {
-    public name = "did-web-internal";
+    public name = "mydentity-internal";
 
     // eslint-disable-next-line require-await
     async getDisplayName(): Promise<string> {
-        return "DID Web service internal connector";
+        return "Mydentity internal connector";
     }
 
     generateAppIdCredential(appInstanceDID: string): Promise<VerifiableCredential> {

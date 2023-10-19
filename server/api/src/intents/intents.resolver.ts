@@ -10,7 +10,7 @@ export class IntentsResolver {
   constructor(private readonly intentsService: IntentsService) { }
 
   /**
-   * API called by the DID Web connector to initiate a DID method flow.
+   * API called by the Mydentity connector to initiate a DID method flow.
    */
   @Mutation(() => IntentCreationEntity)
   async createIntent(@Args('input') input: CreateIntentInput): Promise<IntentCreationEntity> {
@@ -32,7 +32,7 @@ export class IntentsResolver {
   }
 
   /**
-   * API called from the DID web connector after the browser returns from our web service.
+   * API called from the Mydentity connector after the browser returns from our web service.
    *
    * This returns the intent, filled with a response. For example, in case
    * of "request credentials" request type, a VP containing some VCs is returned.
