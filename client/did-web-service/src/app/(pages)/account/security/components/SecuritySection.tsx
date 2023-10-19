@@ -23,6 +23,7 @@ const SecuritySection: FC<{
   actionTitle: string;
   handleAction?: () => void;
   actionInProgress?: boolean; // whether the related button action is already in progress, so we can disable the button
+  disabledAction?: boolean; // whether the related button is disabled or not
 }> = ({
   title,
   icon,
@@ -32,7 +33,8 @@ const SecuritySection: FC<{
   statusTitle,
   actionTitle,
   handleAction = (): void => { },
-  actionInProgress = false
+  actionInProgress = false,
+  disabledAction = false
 }) => {
     const { mounted } = useMounted();
     return (
@@ -58,7 +60,7 @@ const SecuritySection: FC<{
           {mounted ? (
             <>
               <div className="flex-1 pb-[5%]">{children}</div>
-              <DarkButton onClick={handleAction} loading={actionInProgress}>{actionTitle}</DarkButton>
+              <DarkButton onClick={handleAction} loading={actionInProgress} disabled={disabledAction}>{actionTitle}</DarkButton>
             </>
           ) : (
             <LoadingSecurityContent />

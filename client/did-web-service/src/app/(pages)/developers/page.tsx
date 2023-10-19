@@ -17,8 +17,10 @@ const ElastosPage: FC = () => {
         <Grid item xs={12} md={6}>
           <AccessKeys />
         </Grid>
+        <Grid item xs={12} md={6}>
+          <AppsList />
+        </Grid>
       </Grid>
-      <AppsList />
     </div>
   );
 };

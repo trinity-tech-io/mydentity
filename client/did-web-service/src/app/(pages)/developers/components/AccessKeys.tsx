@@ -44,7 +44,7 @@ export const AccessKeys: FC = () => {
       className="h-full"
       icon={<ReactIcon icon="ic:baseline-key" />}
       title="Access Keys"
-      statusTitle={`${!!accessKeys?.length ? "" : "NOT "}GENERATED`}
+      statusTitle={`${accessKeys?.length > 0 ? "" : "NOT "}GENERATED`}
       isSet={!!accessKeys?.length}
       actionTitle="GENERATE ACCESS KEYS"
       actionInProgress={creatingKey}

@@ -43,7 +43,7 @@ const AccountForm = styled(FormControl)(({ theme }) => ({
     marginLeft: 0,
     display: "none",
   },
-  ".MuiFormHelperText-root.Mui-error": {
+  ".MuiFormHelperText-root.Mui-error, .MuiFormHelperText-root.visible": {
     display: "block",
   },
 }));

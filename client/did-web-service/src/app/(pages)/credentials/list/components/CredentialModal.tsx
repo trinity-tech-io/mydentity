@@ -205,7 +205,7 @@ const CredentialModal: FC<CredentialModalType> = (props) => {
   const [activeCredential] = useBehaviorSubject(
     identityProfile?.activeCredential$
   );
-  const slideTo = (index: number) => {
+  const slideTo = (index: number): void => {
     swiper?.slideTo(index, 100);
   };
 
@@ -221,7 +221,7 @@ const CredentialModal: FC<CredentialModalType> = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [credentials, activeCredential, swiper]);
 
-  const handleTransitionEnd = (sw: SwiperClass) => {
+  const handleTransitionEnd = (sw: SwiperClass): void => {
     setActiveIndex(sw.activeIndex);
   };
 
