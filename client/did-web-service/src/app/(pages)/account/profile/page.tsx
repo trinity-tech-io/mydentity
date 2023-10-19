@@ -1,7 +1,7 @@
 "use client";
 
 import { FC, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next13-progressbar";
 import { Button, Grow, Input, InputAdornment } from "@mui/material";
 import { Breadcrumbs } from "@components/breadcrumbs/Breadcrumbs";
 import { DarkButton } from "@components/button";
@@ -22,6 +22,8 @@ const AccountProfile: FC = () => {
   const [authUser] = useBehaviorSubject(authUser$);
   const [userName] = useBehaviorSubject(authUser?.name$);
   const { showErrorToast, showSuccessToast } = useToast();
+  const { mounted } = useMounted();
+  const router = useRouter();
   const enableUpdate = accountName && accountName !== userName;
 
   useEffect(() => {
@@ -29,10 +31,6 @@ const AccountProfile: FC = () => {
       setAccountName(userName);
     }
   }, [userName]);
-
-  const { mounted } = useMounted();
-
-  const router = useRouter();
 
   const handleInputName: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     setAccountName(e.target.value);
@@ -59,6 +57,9 @@ const AccountProfile: FC = () => {
     setIsUpdating(false);
   };
 
+  const onUpdateEmail = () => {
+    router.push("/account/security/bind-email");
+  }
   return (
     <div className="col-span-full">
       {/* <Breadcrumbs entries={["account-profile"]} /> */}
@@ -130,7 +131,7 @@ const AccountProfile: FC = () => {
             <Button
               sx={{ color: "#9D3E3E", textDecoration: "underline" }}
               endIcon={<KeyboardArrowRightIcon />}
-              // onClick={onSkip}
+              onClick={onUpdateEmail}
             >
               Do you wish to update your email address instead?
             </Button>
