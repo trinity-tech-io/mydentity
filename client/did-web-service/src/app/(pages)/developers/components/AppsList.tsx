@@ -6,7 +6,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next13-progressbar";
 import { Icon as ReactIcon } from "@iconify/react";
 import { FormHelperText, Input, Stack, Typography } from "@mui/material";
 import { NavigateNext as NavigateNextIcon } from "@mui/icons-material";
@@ -30,12 +30,18 @@ const ApplicationBox: FC<{ appIdentity: ApplicationIdentity }> = ({
     appIdentity?.credentials().credentials$
   );
   const [appCredential, setAppCredential] = useState<Credential>(null);
+  const router = useRouter();
 
   useEffect(() => {
     setAppCredential(
       appIdentity?.credentials().getCredentialByType("ApplicationCredential")
     );
   }, [appIdentity, localAppIdentityCredentials]);
+
+  const showAllAction = (): void => {
+    router.push("/applications");
+  };
+
   return (
     <Stack spacing={1}>
       <Stack direction="row" alignItems="center" spacing={1.5}>
@@ -61,7 +67,7 @@ const ApplicationBox: FC<{ appIdentity: ApplicationIdentity }> = ({
         <NormalButton
           size="small"
           endIcon={<NavigateNextIcon />}
-          // onClick={showAllAction}
+          onClick={showAllAction}
         >
           Show all
         </NormalButton>

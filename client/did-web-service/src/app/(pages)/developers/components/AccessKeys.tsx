@@ -56,7 +56,7 @@ export const AccessKeys: FC = () => {
           <KeyTextfield
             value={createdKey.clearKey}
             outerProps={{ readOnly: true }}
-            inputProps={{ className: "opacity-80" }}
+            inputProps={{ className: "opacity-80", style: { fontSize: 12 } }}
           />
           <SecurityStatus
             state={SecurityState.Good}
@@ -64,15 +64,16 @@ export const AccessKeys: FC = () => {
           />
         </Stack>
       ) : (
-        <Stack spacing={2}>
-          <Typography variant="body2">
+        <Stack className="h-full" spacing={2}>
+          <Typography variant="body2" className="flex-1">
             Developers can create access keys for remote interactions with this
             service, facilitating seamless integration and functionality for
             their applications.
           </Typography>
           {accessKeys?.length > 0 && (
             <Typography variant="caption" fontStyle="italic">
-              {"Last generated : "}{accessKeys[accessKeys.length - 1].createdAt.toLocaleString()}
+              {"Last generated : "}
+              {accessKeys[accessKeys.length - 1].createdAt.toLocaleString()}
             </Typography>
           )}
         </Stack>
