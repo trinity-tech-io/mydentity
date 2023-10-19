@@ -1,5 +1,6 @@
 import { gql } from "@apollo/client";
 import { graphQLPublicUserFields } from "@graphql/user.fields";
+import { AuthExceptionCode } from "@model/exceptions/exception-codes";
 import { ChallengeEntity } from "@model/shadow-key/challenge-entity";
 import { ShadowKeyType } from "@model/shadow-key/shadow-key-type";
 import { User } from "@model/user/user";
@@ -157,39 +158,35 @@ export function signOut(): void {
 /**
  * Checks the given temporary authentication key and signs the user in if successful
  */
-export async function checkRawEmailAuthenticationKey(authKey: string): Promise<boolean> {
+export async function checkRawEmailAuthenticationKey(authKey: string, pinCode: string): Promise<boolean> {
   logger.log("user", "Checking temporary authentication key");
 
-  try {
-    const result = await withCaughtAppException(async () => {
-      return (await getApolloClient()).mutate<{
-        checkEmailAuthentication: {
-          accessToken: string;
-          refreshToken: string;
-        }
-      }>({
-        mutation: gql`
-        mutation CheckEmailAuthentication($authKey: String!) {
-          checkEmailAuthentication(authKey: $authKey) { accessToken refreshToken }
-        }
-      `,
-        variables: { authKey }
-      });
+  const result = await withCaughtAppException(async () => {
+    return (await getApolloClient()).mutate<{
+      checkEmailAuthentication: {
+        accessToken: string;
+        refreshToken: string;
+      }
+    }>({
+      mutation: gql`
+          mutation CheckEmailAuthentication($authKey: String!, $pinCode: String!) {
+            checkEmailAuthentication(authKey: $authKey, pinCode: $pinCode) { accessToken refreshToken }
+          }
+        `,
+      variables: { authKey, pinCode }
     });
+  }, null, [
+    AuthExceptionCode.InvalidPINCode,
+    AuthExceptionCode.InexistingAuthKey
+  ]);
 
-    if (result?.data?.checkEmailAuthentication) {
-      const { accessToken, refreshToken } = result.data.checkEmailAuthentication;
-      await updateUserByToken(accessToken, refreshToken);
-      return true;
-    }
-    else {
-      return false;
-    }
+  if (result?.data?.checkEmailAuthentication) {
+    const { accessToken, refreshToken } = result.data.checkEmailAuthentication;
+    await updateUserByToken(accessToken, refreshToken);
+    return true;
   }
-  catch (e) {
-    // Probably a 401 error
-    logger.warn("user", "Exception while checking temporary auth key. Key expired?");
-    return null;
+  else {
+    return false;
   }
 }
 

@@ -102,8 +102,8 @@ export class UserResolver {
    * Verify email auth key to sign-in.
    */
   @Mutation(() => LoggedUserOutput, { nullable: true })
-  async checkEmailAuthentication(@Args('authKey') authKey: string, @HeaderBrowserKey() browserKey: string, @UserAgent() userAgent: string) {
-    return this.userService.checkEmailAuthentication(authKey, browserKey, userAgent);
+  async checkEmailAuthentication(@Args('authKey') authKey: string, @Args('pinCode') pinCode: string, @HeaderBrowserKey() browserKey: string, @UserAgent() userAgent: string) {
+    return this.userService.checkEmailAuthentication(authKey, pinCode, browserKey, userAgent);
   }
 
   /**
@@ -112,8 +112,8 @@ export class UserResolver {
    */
   @UseGuards(JwtAuthGuard)
   @Mutation(() => LoggedUserOutput, { nullable: true })
-  async checkEmailBind(@CurrentUser() user: User, @Args('authKey') authKey: string, @CurrentBrowser() browser: Browser, @UserAgent() userAgent: string) {
-    return this.userService.checkEmailBinding(authKey, browser?.key, userAgent, user);
+  async checkEmailBind(@CurrentUser() user: User, @Args('authKey') authKey: string, @Args('pinCode') pinCode: string, @CurrentBrowser() browser: Browser, @UserAgent() userAgent: string) {
+    return this.userService.checkEmailBinding(authKey, pinCode, browser?.key, userAgent, user);
   }
 
   /**

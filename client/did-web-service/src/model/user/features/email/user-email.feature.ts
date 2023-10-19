@@ -16,7 +16,7 @@ export function isEmailAlreadyExistsException(e: AppException): boolean {
 }
 
 export function isEmailNotExistsException(e: AppException): boolean {
-    return e.appExceptionCode === AuthExceptionCode.EmailNotExists;
+    return e.appExceptionCode === AuthExceptionCode.InexistingEmail;
 }
 
 export class UserEmailFeature implements UserFeature {
@@ -76,7 +76,7 @@ export class UserEmailFeature implements UserFeature {
      * Checks the given temporary authentication key and signs the user in if successful
      * static function is for login/bind.
      */
-    public static async checkRawEmailBind(authKey: string): Promise<boolean> {
+    public async checkRawEmailBind(authKey: string, pinCode: string): Promise<boolean> {
         logger.log("user", "Checking temporary authentication key for email bind.");
 
         const result = await withCaughtAppException(async () => {
@@ -87,13 +87,16 @@ export class UserEmailFeature implements UserFeature {
                 }
             }>({
                 mutation: gql`
-                    mutation CheckEmailBind($authKey: String!) {
-                        checkEmailBind(authKey: $authKey) { accessToken refreshToken }
+                    mutation CheckEmailBind($authKey: String!, $pinCode: String!) {
+                        checkEmailBind(authKey: $authKey, pinCode: $pinCode) { accessToken refreshToken }
                     }
                 `,
-                variables: { authKey }
+                variables: { authKey, pinCode }
             });
-        });
+        }, null, [
+            AuthExceptionCode.InvalidPINCode,
+            AuthExceptionCode.InexistingAuthKey
+        ]);
 
         if (!result?.data?.checkEmailBind) {
             logger.error('Failed to check email bind');

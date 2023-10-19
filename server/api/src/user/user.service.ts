@@ -140,8 +140,8 @@ export class UserService {
    * From a temporary authentication key, checks validity and signs the related user in,
    * then returns access credentials.
    */
-  public async checkEmailAuthentication(tempAuthKey: string, existingBrowserKey: string, userAgent: string): Promise<AuthTokens> {
-    const temporaryAuthentication = await this.temporaryAuthService.checkAuthentication(tempAuthKey);
+  public async checkEmailAuthentication(tempAuthKey: string, pinCode: string, existingBrowserKey: string, userAgent: string): Promise<AuthTokens> {
+    const temporaryAuthentication = await this.temporaryAuthService.checkAuthentication(tempAuthKey, pinCode);
     // Note: app exception thrown if auth key is invalid
     const user = temporaryAuthentication.user;
 
@@ -162,8 +162,8 @@ export class UserService {
    * From a temporary authentication key, checks validity and adds that email to already signed in user's
    * email addresses, then returns access credentials.
    */
-  public async checkEmailBinding(tempAuthKey: string, existingBrowserKey: string, userAgent: string, signedInUser: User): Promise<AuthTokens> {
-    const temporaryAuthentication = await this.temporaryAuthService.checkAuthentication(tempAuthKey);
+  public async checkEmailBinding(tempAuthKey: string, pinCode: string, existingBrowserKey: string, userAgent: string, signedInUser: User): Promise<AuthTokens> {
+    const temporaryAuthentication = await this.temporaryAuthService.checkAuthentication(tempAuthKey, pinCode);
     // Note: app exception thrown if auth key is invalid
 
     const user = temporaryAuthentication.user;

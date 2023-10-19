@@ -42,9 +42,7 @@ export class TemporaryAuthService {
    * Checks if there is a pending auth key that matches the given key.
    * This auth key comes from a magic link received by users by email or from a directly shared url.
    */
-  public async checkAuthentication(authKey: string): Promise<TemporaryAuthentication & { user: User }> {
-    const pinCode = "000000"; // TOOD, from input
-
+  public async checkAuthentication(authKey: string, pinCode: string): Promise<TemporaryAuthentication & { user: User }> {
     const temporaryAuthentication = await this.prisma.temporaryAuthentication.findFirst({
       where: {
         expiresAt: { gt: new Date() },
