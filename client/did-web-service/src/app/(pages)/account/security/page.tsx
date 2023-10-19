@@ -3,13 +3,14 @@ import Headline from "@components/layout/Headline";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useMounted } from "@hooks/useMounted";
 import { Icon as ReactIcon } from "@iconify/react";
-import { Grid, Typography } from "@mui/material";
+import { Grid, Stack, Typography } from "@mui/material";
 import { authUser$ } from "@services/user/user.events";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next13-progressbar";
 import { FC, useEffect, useState } from "react";
 import { BrowserRow } from "./components/BrowserRow";
 import SecuritySection from "./components/SecuritySection";
+import { CopyButton } from "@components/button";
 
 const Security: FC = () => {
   const { mounted } = useMounted();
@@ -200,9 +201,14 @@ const Security: FC = () => {
                   Send the following url to your another browser to sign in from
                   there. Use PIN code {externalAuthPinCode} when asked.
                 </Typography>
-                <Typography variant="body2" style={{ marginTop: 8 }}>
-                  {externalAuthUrl}
-                </Typography>
+                <Stack direction="row" alignItems="center" className="mt-2" spacing={1}>
+                  <Typography variant="body2" className="break-all">
+                    {externalAuthUrl}
+                  </Typography>
+                  <div className="inline">
+                    <CopyButton text={externalAuthUrl}/>
+                  </div>
+                </Stack>
               </>
             )}
           </SecuritySection>
