@@ -24,6 +24,8 @@ const SecuritySection: FC<{
   handleAction?: () => void;
   actionInProgress?: boolean; // whether the related button action is already in progress, so we can disable the button
   disabledAction?: boolean; // whether the related button is disabled or not
+  disabledSkel?: boolean; // whether the loading skeleton is visible or not
+  loaded?: boolean | null; // if null, initial loading state is depending on 'mounted'
 }> = ({
   title,
   icon,
@@ -32,42 +34,73 @@ const SecuritySection: FC<{
   isSet = null,
   statusTitle,
   actionTitle,
-  handleAction = (): void => { },
+  handleAction = (): void => {},
   actionInProgress = false,
-  disabledAction = false
+  disabledAction = false,
+  disabledSkel = false,
+  loaded = null,
 }) => {
-    const { mounted } = useMounted();
-    return (
-      <CardStyled className={className} elevation={0}>
-        <CardContent
-          className="relative z-10 flex flex-col h-full"
-          sx={{ px: 3, pt: 1 }}
-        >
-          <Box className="pb-4 pt-2 flex items-center">
-            <IconAvatar>{icon}</IconAvatar>
-            <Typography className="flex-1" variant="h6" fontWeight={600} sx={{ ml: 1 }}>{title}</Typography>
-            {mounted && isSet !== null && (
-              <Box
-                className={clsx(
-                  "rounded-md text-[7pt] px-3 py-0.5 inline-block text-white whitespace-nowrap",
-                  isSet ? "bg-[#34A853]" : "bg-[#EA4335]"
-                )}
-              >
-                {statusTitle}
-              </Box>
-            )}
-          </Box>
-          {mounted ? (
-            <>
-              <div className="flex-1 pb-[5%]">{children}</div>
-              <DarkButton onClick={handleAction} loading={actionInProgress} disabled={disabledAction}>{actionTitle}</DarkButton>
-            </>
-          ) : (
-            <LoadingSecurityContent />
+  const { mounted } = useMounted();
+  const initialLoaded = loaded !== null ? loaded : mounted;
+  return (
+    <CardStyled className={className} elevation={0}>
+      <CardContent
+        className="relative z-10 flex flex-col h-full"
+        sx={{ px: 3, pt: 1 }}
+      >
+        <Box className="pb-4 pt-2 flex items-center">
+          <IconAvatar>{icon}</IconAvatar>
+          <Typography
+            className="flex-1"
+            variant="h6"
+            fontWeight={600}
+            sx={{ ml: 1 }}
+          >
+            {title}
+          </Typography>
+          {mounted && isSet !== null && (
+            <Box
+              className={clsx(
+                "rounded-md text-[7pt] px-3 py-0.5 inline-block text-white whitespace-nowrap",
+                isSet ? "bg-[#34A853]" : "bg-[#EA4335]"
+              )}
+            >
+              {statusTitle}
+            </Box>
           )}
-        </CardContent>
-      </CardStyled>
-    );
-  };
+        </Box>
+        {disabledSkel ? (
+          <>
+            <div className="flex-1 pb-[5%]">{children}</div>
+            <DarkButton
+              onClick={handleAction}
+              loading={!initialLoaded || actionInProgress}
+              disabled={disabledAction}
+            >
+              {initialLoaded ? actionTitle : "LOADING ..."}
+            </DarkButton>
+          </>
+        ) : (
+          <>
+            {initialLoaded ? (
+              <>
+                <div className="flex-1 pb-[5%]">{children}</div>
+                <DarkButton
+                  onClick={handleAction}
+                  loading={actionInProgress}
+                  disabled={disabledAction}
+                >
+                  {actionTitle}
+                </DarkButton>
+              </>
+            ) : (
+              <LoadingSecurityContent />
+            )}
+          </>
+        )}
+      </CardContent>
+    </CardStyled>
+  );
+};
 
 export default SecuritySection;

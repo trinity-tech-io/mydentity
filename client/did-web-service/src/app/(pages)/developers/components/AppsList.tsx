@@ -2,8 +2,6 @@ import { ChangeEventHandler, FC, FormEvent, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Icon as ReactIcon } from "@iconify/react";
 import { FormHelperText, Input, Typography } from "@mui/material";
-import { MainButton } from "@components/generic/MainButton";
-import { VerticalStackLoadingCard } from "@components/loading-cards/vertical-stack-loading-card/VerticalStackLoadingCard";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useMounted } from "@hooks/useMounted";
 import { authUser$ } from "@services/user/user.events";
@@ -24,7 +22,6 @@ export const AppsList: FC = () => {
   const [ready2generate, setReady2generate] = useState(false);
   const [activeUser] = useBehaviorSubject(authUser$);
   const identityFeature = activeUser?.get("identity");
-  const developmentFeature = activeUser?.get("development");
   const [appIdentities] = useBehaviorSubject(
     identityFeature?.applicationIdentities$
   );
@@ -82,13 +79,15 @@ export const AppsList: FC = () => {
       icon={<ReactIcon icon="material-symbols:apps" />}
       title="Applications"
       statusTitle={`${appIdentities?.length ? "" : "NO "}APPS AVAILABLE`}
-      isSet={!!appIdentities?.length}
+      isSet={appIdentities && appIdentities?.length > 0}
       actionTitle={
         !ready2generate ? "CREATE APPLICATION" : "GENERATE APPLICATION IDENTITY"
       }
       actionInProgress={creatingApp}
       disabledAction={ready2generate && !appName.trim().length}
       handleAction={!ready2generate ? handleCreateButton : onCreateApp}
+      disabledSkel={true}
+      loaded={mounted && !!appIdentities}
     >
       <Typography variant="body2">
         You can create a new application identity called a DID, which will
@@ -127,19 +126,5 @@ export const AppsList: FC = () => {
         </form>
       )}
     </SecuritySection>
-    // <div className="mt-8">
-    //   <Typography variant="h6">Applications</Typography>
-    //   {(!mounted || !appIdentities) && <VerticalStackLoadingCard />}
-    //   {mounted && appIdentities && <>
-    //     {appIdentities?.length === 0 && <div>No application yet</div>}
-    //     {appIdentities?.length > 0 && <div>
-    //       {
-    //         appIdentities.map((app, i) => <AppRow key={i} application={app} />)
-    //       }
-    //     </div>}
-
-    //     <MainButton onClick={newApp} className="mt-2">New application</MainButton>
-    //   </>}
-    // </div >
   );
 };
