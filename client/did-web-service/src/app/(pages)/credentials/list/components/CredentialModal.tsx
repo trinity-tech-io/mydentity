@@ -156,6 +156,7 @@ const CredentialSliderContent: FC<{ credential: Credential }> = memo(
     );
   }
 );
+CredentialSliderContent.displayName = "CredentialSliderContent";
 
 const SubAccordion: FC<{ subfield: { [key: string]: string } }> = memo(
   ({ subfield }) => {
@@ -176,8 +177,8 @@ const SubAccordion: FC<{ subfield: { [key: string]: string } }> = memo(
         </AccordionSummary>
         <AccordionDetails>
           <List dense sx={{ p: 0, ".MuiListItemText-root": { margin: 0 } }}>
-            {Object.keys(subfield).map((key) => (
-              <ListItem>
+            {Object.keys(subfield).map((key, _id) => (
+              <ListItem key={_id}>
                 <ListItemTextStyled
                   primary={key.toUpperCase()}
                   secondary={subfield[key]}
@@ -190,6 +191,7 @@ const SubAccordion: FC<{ subfield: { [key: string]: string } }> = memo(
     );
   }
 );
+SubAccordion.displayName = "SubDetailAccordion";
 interface CredentialModalType {
   credentials: Array<Credential>;
   identityProfile: ProfileFeature;
@@ -209,13 +211,14 @@ const CredentialModal: FC<CredentialModalType> = (props) => {
 
   useEffect(() => {
     if (credentials && activeCredential && !swiper?.destroyed) {
-      var activeCredentialIndex = credentials?.findIndex(
+      let activeCredentialIndex = credentials?.findIndex(
         (c) => c.id == activeCredential.id
       );
       if (activeCredentialIndex < 0) activeCredentialIndex = activeIndex;
 
       if (activeIndex != activeCredentialIndex) slideTo(activeCredentialIndex);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [credentials, activeCredential, swiper]);
 
   const handleTransitionEnd = (sw: SwiperClass) => {
