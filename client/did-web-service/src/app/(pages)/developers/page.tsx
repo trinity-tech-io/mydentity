@@ -1,18 +1,26 @@
 "use client";
-import { Typography } from "@mui/material";
 import { FC } from "react";
+import { Grid } from "@mui/material";
 import { AccessKeys } from "./components/AccessKeys";
 import { AppsList } from "./components/AppsList";
+import Headline from "@components/layout/Headline";
 
 const ElastosPage: FC = () => {
-  return (<div className="col-span-full">
-    <Typography variant="h6">Developers zone</Typography>
-    <Typography>This section is for application and service developers.</Typography>
-    <Typography>As a Web3 identity developer you can configure application DIDs and get access keys to interact with this service remotely.</Typography>
-
-    <AccessKeys />
-    <AppsList />
-  </div>)
-}
+  return (
+    <div className="col-span-full">
+      <Headline
+        title="Developer Zone"
+        description="This section is dedicated to application and service developers. As a Web3 identity developer, you have the capability to configure application DIDs and obtain access keys, enabling remote interaction with this service."
+        showBg={true}
+      />
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={6}>
+          <AccessKeys />
+        </Grid>
+      </Grid>
+      <AppsList />
+    </div>
+  );
+};
 
 export default ElastosPage;

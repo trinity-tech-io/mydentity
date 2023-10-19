@@ -58,7 +58,7 @@ const SecuritySection: FC<{
           {mounted ? (
             <>
               <div className="flex-1 pb-[5%]">{children}</div>
-              <DarkButton onClick={handleAction} disabled={actionInProgress}>{actionTitle}</DarkButton>
+              <DarkButton onClick={handleAction} loading={actionInProgress}>{actionTitle}</DarkButton>
             </>
           ) : (
             <LoadingSecurityContent />

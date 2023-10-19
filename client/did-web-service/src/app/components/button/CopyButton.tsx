@@ -6,9 +6,10 @@ import { useToast } from "@services/feedback.service";
 
 interface CopyButtonTypes {
   text: string;
+  iconWidth?: number | string;
 }
 
-const CopyButton: FC<CopyButtonTypes> = ({ text }) => {
+const CopyButton: FC<CopyButtonTypes> = ({ text, iconWidth = "17px" }) => {
   const { showSuccessToast } = useToast();
   const onCopy = (): void => {
     showSuccessToast("Copied to clipboard");
@@ -24,7 +25,7 @@ const CopyButton: FC<CopyButtonTypes> = ({ text }) => {
           e.stopPropagation();
         }}
       >
-        <Icon icon="material-symbols:content-copy-rounded" width="17px" />
+        <Icon icon="material-symbols:content-copy-rounded" width={iconWidth} />
       </IconButton>
     </CopyToClipboard>
   );
