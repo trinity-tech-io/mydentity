@@ -1,15 +1,79 @@
-import { ChangeEventHandler, FC, FormEvent, useRef, useState } from "react";
+import {
+  ChangeEventHandler,
+  FC,
+  FormEvent,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useRouter } from "next/navigation";
 import { Icon as ReactIcon } from "@iconify/react";
-import { FormHelperText, Input, Typography } from "@mui/material";
+import { FormHelperText, Input, Stack, Typography } from "@mui/material";
+import { NavigateNext as NavigateNextIcon } from "@mui/icons-material";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useMounted } from "@hooks/useMounted";
 import { authUser$ } from "@services/user/user.events";
-import { AppRow } from "./AppRow";
 import SecuritySection from "../../account/security/components/SecuritySection";
 import AccountForm from "@components/form/AccountForm";
 import { callWithUnlock } from "@components/security/unlock-key-prompt/call-with-unlock";
 import { useToast } from "@services/feedback.service";
+import { ApplicationIdentity } from "@model/application-identity/application-identity";
+import { CredentialAvatar } from "@components/credential/CredentialAvatar";
+import { Credential } from "@model/credential/credential";
+import { NormalButton } from "@components/button";
+import DidTextfield from "./DidTextfield";
+
+const ApplicationBox: FC<{ appIdentity: ApplicationIdentity }> = ({
+  appIdentity,
+}) => {
+  const [localAppIdentityCredentials] = useBehaviorSubject(
+    appIdentity?.credentials().credentials$
+  );
+  const [appCredential, setAppCredential] = useState<Credential>(null);
+
+  useEffect(() => {
+    setAppCredential(
+      appIdentity?.credentials().getCredentialByType("ApplicationCredential")
+    );
+  }, [appIdentity, localAppIdentityCredentials]);
+  return (
+    <Stack spacing={1}>
+      <Stack direction="row" alignItems="center" spacing={1.5}>
+        <CredentialAvatar credential={appCredential} width={32} height={32} />
+        <Stack flexGrow={1}>
+          <Typography
+            variant="body2"
+            fontWeight={600}
+            fontSize={15}
+            lineHeight={1.3}
+          >
+            {appCredential?.getSubject().getProperty("name")}
+          </Typography>
+          <Typography
+            variant="caption"
+            fontStyle="italic"
+            fontSize={10}
+            lineHeight={1.3}
+          >
+            {appCredential?.createdAt.toLocaleString()}
+          </Typography>
+        </Stack>
+        <NormalButton
+          size="small"
+          endIcon={<NavigateNextIcon />}
+          // onClick={showAllAction}
+        >
+          Show all
+        </NormalButton>
+      </Stack>
+      <DidTextfield
+        value={appIdentity.did}
+        outerProps={{ readOnly: true }}
+        inputProps={{ className: "opacity-80", style: { fontSize: 12 } }}
+      />
+    </Stack>
+  );
+};
 
 const CreatingSteps = [
   "Creating the application identity",
@@ -95,7 +159,7 @@ export const AppsList: FC = () => {
         issues credentials, users will see your app's logo and icon as the
         'issuer'.
       </Typography>
-      {ready2generate && (
+      {ready2generate ? (
         <form className="mt-8" onSubmit={onCreateApp}>
           <AccountForm fullWidth>
             <Typography
@@ -124,6 +188,16 @@ export const AppsList: FC = () => {
             )}
           </AccountForm>
         </form>
+      ) : (
+        <>
+          {appIdentities?.length > 0 && (
+            <div className="mt-4">
+              <ApplicationBox
+                appIdentity={appIdentities[appIdentities.length - 1]}
+              />
+            </div>
+          )}
+        </>
       )}
     </SecuritySection>
   );

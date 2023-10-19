@@ -200,7 +200,7 @@ const NewIdentityPage: FC = () => {
     showProfile();
   };
 
-  const onSkip = () => {
+  const onSkip = (): void => {
     navigateToPostSignInLandingPage();
   };
 

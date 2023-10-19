@@ -64,11 +64,18 @@ export const AccessKeys: FC = () => {
           />
         </Stack>
       ) : (
-        <Typography variant="body2">
-          Developers can create access keys for remote interactions with this
-          service, facilitating seamless integration and functionality for their
-          applications.
-        </Typography>
+        <Stack spacing={2}>
+          <Typography variant="body2">
+            Developers can create access keys for remote interactions with this
+            service, facilitating seamless integration and functionality for
+            their applications.
+          </Typography>
+          {accessKeys?.length > 0 && (
+            <Typography variant="caption" fontStyle="italic">
+              {"Last generated : "}{accessKeys[accessKeys.length - 1].createdAt.toLocaleString()}
+            </Typography>
+          )}
+        </Stack>
       )}
     </SecuritySection>
   );
