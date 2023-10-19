@@ -11,7 +11,7 @@ import { AuthKeyInput } from "@services/keyring/auth-key.input";
 import { bindKey, changePassword, getPasskeyChallenge } from "@services/keyring/keyring.service";
 import { logger } from "@services/logger";
 import { startAuthentication, startRegistration } from "@simplewebauthn/browser";
-import { PublicKeyCredentialCreationOptionsJSON, PublicKeyCredentialRequestOptionsJSON, PublicKeyCredentialDescriptorJSON } from "@simplewebauthn/typescript-types";
+import { PublicKeyCredentialCreationOptionsJSON, PublicKeyCredentialDescriptorJSON, PublicKeyCredentialRequestOptionsJSON } from "@simplewebauthn/typescript-types";
 import { AdvancedBehaviorSubject } from "@utils/advanced-behavior-subject";
 import { map } from "rxjs";
 import { User } from "../../user";
@@ -291,5 +291,31 @@ export class SecurityFeature implements UserFeature {
       await this.checkRemoteUnlockStatus();
       return true;
     }, true, false);
+  }
+
+  /**
+   * Requests a temporary authentication url and pin code to use to sign in from another device.
+   */
+  public async requestTemporaryAuthenticationUrl(): Promise<{ url: string; pinCode: string }> {
+    logger.log("user", "Requesting a temporary authentication url");
+
+    const result = await withCaughtAppException(async () => {
+      return (await getApolloClient()).mutate<{ requestTemporaryAuthentication: { url?: string; pinCode?: string; } }>({
+        mutation: gql`
+          mutation RequestTemporaryAuthentication {
+            requestTemporaryAuthentication {
+              url pinCode
+            }
+          }
+        `
+      });
+    });
+
+    if (result?.data?.requestTemporaryAuthentication?.url) {
+      return {
+        url: result?.data?.requestTemporaryAuthentication.url,
+        pinCode: result?.data?.requestTemporaryAuthentication.pinCode
+      };
+    }
   }
 }

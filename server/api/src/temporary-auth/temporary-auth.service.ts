@@ -31,7 +31,7 @@ export class TemporaryAuthService {
         authKey: randomUUID(),
         pinHash,
         expiresAt: moment().add(10, 'minutes').toDate(),
-        temporaryEmail: emailAddress
+        ...(emailAddress && { temporaryEmail: emailAddress })
       }
     });
 

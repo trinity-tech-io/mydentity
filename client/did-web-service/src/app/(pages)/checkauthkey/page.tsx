@@ -6,7 +6,7 @@ import { AuthExceptionCode } from "@model/exceptions/exception-codes";
 import { CircularProgress, TextField, Typography } from "@mui/material";
 import { usePostSignInFlow } from "@services/flow.service";
 import { authUser$ } from "@services/user/user.events";
-import { checkRawEmailAuthenticationKey } from "@services/user/user.service";
+import { checkTemporaryAuthenticationKey } from "@services/user/user.service";
 import { decode } from '@utils/slugid';
 import { useRouter, useSearchParams } from "next/navigation";
 import { ChangeEvent, FC, useState } from 'react';
@@ -43,7 +43,7 @@ const CheckAuthKey: FC = () => {
     setAuthenticating(true);
 
     if (!activeUser) { // sign in operation
-      checkRawEmailAuthenticationKey(authKey, userPin).then(authenticated => {
+      checkTemporaryAuthenticationKey(authKey, userPin).then(authenticated => {
         if (authenticated) {
           navigateToPostSignInLandingPage();
         } else {

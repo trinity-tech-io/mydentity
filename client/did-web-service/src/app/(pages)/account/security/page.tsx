@@ -1,15 +1,14 @@
 "use client";
-import { FC, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { useRouter } from "next13-progressbar";
-import { Grid, Typography } from "@mui/material";
-import { Icon as ReactIcon } from "@iconify/react";
-import { Breadcrumbs } from "@components/breadcrumbs/Breadcrumbs";
+import Headline from "@components/layout/Headline";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useMounted } from "@hooks/useMounted";
+import { Icon as ReactIcon } from "@iconify/react";
+import { Grid, Typography } from "@mui/material";
 import { authUser$ } from "@services/user/user.events";
+import { useSearchParams } from "next/navigation";
+import { useRouter } from "next13-progressbar";
+import { FC, useEffect, useState } from "react";
 import { BrowserRow } from "./components/BrowserRow";
-import Headline from "@components/layout/Headline";
 import SecuritySection from "./components/SecuritySection";
 
 const Security: FC = () => {
@@ -29,6 +28,11 @@ const Security: FC = () => {
   const searchParams = useSearchParams();
   const error = searchParams.get("error");
   const [errorMsg, setErrorMsg] = useState(null);
+
+  // Connect external browser box
+  const [creatingSignInLink, setCreatingSignInLink] = useState(false);
+  const [externalAuthUrl, setExternalAuthUrl] = useState<string>(null);
+  const [externalAuthPinCode, setExternalAuthPinCode] = useState<string>(null);
 
   useEffect(() => {
     if (error && error !== "") {
@@ -59,6 +63,16 @@ const Security: FC = () => {
     router.push("/account/security/bind-email");
   };
 
+  const createSignInLink = (): void => {
+    setCreatingSignInLink(true);
+    authUser.get("security").requestTemporaryAuthenticationUrl().then(result => {
+      if (result) {
+        setExternalAuthUrl(result.url);
+        setExternalAuthPinCode(result.pinCode);
+      }
+    });
+  }
+
   return (
     <div className="col-span-full">
       {/* <Breadcrumbs entries={["security-center"]} /> */}
@@ -69,6 +83,7 @@ const Security: FC = () => {
         showBg={true}
       />
       <Grid container spacing={3}>
+        {/* Connect email address box */}
         <Grid item xs={12} md={6}>
           <SecuritySection
             className="h-full"
@@ -102,6 +117,8 @@ const Security: FC = () => {
             {errorMsg && <div className="text-red-500">{errorMsg}</div>}
           </SecuritySection>
         </Grid>
+
+        {/* Master password box */}
         <Grid item xs={12} md={6}>
           <SecuritySection
             className="h-full"
@@ -129,6 +146,8 @@ const Security: FC = () => {
             )}
           </SecuritySection>
         </Grid>
+
+        {/* Passkey box */}
         <Grid item xs={12} md={6}>
           <SecuritySection
             icon={<ReactIcon icon="fluent-mdl2:website" />}
@@ -154,6 +173,35 @@ const Security: FC = () => {
             )}
           </SecuritySection>
         </Grid>
+
+        {/* Connect other browser box */}
+        <Grid item xs={12} md={6}>
+          <SecuritySection
+            icon={<ReactIcon icon="fluent-mdl2:website" />}
+            title="Sign in from another browser"
+            actionTitle={"CREATE A SIGN IN LINK"}
+            handleAction={createSignInLink}
+            actionInProgress={creatingSignInLink}
+          >
+            {
+              !externalAuthUrl &&
+              <Typography variant="body2">
+                Your browser is bound to your account.
+              </Typography>
+            }
+            {
+              externalAuthUrl && <>
+                <Typography variant="body2">
+                  Send the following url to your another browser to sign in from there. Use PIN code {externalAuthPinCode} when asked.
+                </Typography>
+                <Typography variant="body2" style={{ marginTop: 8 }}>
+                  {externalAuthUrl}
+                </Typography>
+              </>
+            }
+          </SecuritySection>
+        </Grid>
+
       </Grid>
       <div className="">
         <Typography variant="h6" fontWeight={600} className="py-3">My Browsers</Typography>

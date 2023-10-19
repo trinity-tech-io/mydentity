@@ -107,6 +107,15 @@ export class UserService {
     return { pinCode };
   }
 
+  public async requestTemporaryAuthentication(user: User): Promise<{ url: string; pinCode: string }> {
+    // Generate a temporary authentication
+    const { auth, pinCode } = await this.temporaryAuthService.createTemporaryAuthenticationRequest(user);
+
+    const url = `${process.env.FRONTEND_URL}/checkauthkey?key=${encode(auth.authKey)}`;
+
+    return { url, pinCode };
+  }
+
   public async requestRegularEmailBinding(currentUser: User, emailAddress: string): Promise<{ pinCode: string }> {
     // Ensure this email doest NOT exist before trying to bind it (duplicate).
     const userEmail = await this.findUserEmail(emailAddress);
@@ -140,19 +149,23 @@ export class UserService {
    * From a temporary authentication key, checks validity and signs the related user in,
    * then returns access credentials.
    */
-  public async checkEmailAuthentication(tempAuthKey: string, pinCode: string, existingBrowserKey: string, userAgent: string): Promise<AuthTokens> {
+  public async checkTemporaryAuthentication(tempAuthKey: string, pinCode: string, existingBrowserKey: string, userAgent: string): Promise<AuthTokens> {
     const temporaryAuthentication = await this.temporaryAuthService.checkAuthentication(tempAuthKey, pinCode);
     // Note: app exception thrown if auth key is invalid
     const user = temporaryAuthentication.user;
 
-    // Send a welcome email if this is the first sign in operation
-    await this.maybeSendWelcomeEmail(user, temporaryAuthentication.temporaryEmail);
+    // Do additional specific operations if the temporary auth is attached to an email address (magic link by email).
+    // Note that its 'possible to have temporary auth keys generated without emails, to sign in from other devices by url.
+    if (temporaryAuthentication.temporaryEmail) {
+      // Send a welcome email if this is the first sign in operation
+      await this.maybeSendWelcomeEmail(user, temporaryAuthentication.temporaryEmail);
 
-    const userEmail = await this.findUserEmail(temporaryAuthentication.temporaryEmail);
-    if (!userEmail)
-      throw new AppException(AuthExceptionCode.InexistingEmail, "Email address related to this authentication request does not exist.", 401);
+      const userEmail = await this.findUserEmail(temporaryAuthentication.temporaryEmail);
+      if (!userEmail)
+        throw new AppException(AuthExceptionCode.InexistingEmail, "Email address related to this authentication request does not exist.", 401);
 
-    await this.createSignInActivity(user, existingBrowserKey, userEmail, UserEmailProvider.RAW);
+      await this.createSignInActivity(user, existingBrowserKey, userEmail, UserEmailProvider.RAW);
+    }
 
     // Authenticate
     return this.authService.generateUserCredentials(user, existingBrowserKey, userAgent);

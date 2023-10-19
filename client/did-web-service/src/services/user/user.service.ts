@@ -158,19 +158,19 @@ export function signOut(): void {
 /**
  * Checks the given temporary authentication key and signs the user in if successful
  */
-export async function checkRawEmailAuthenticationKey(authKey: string, pinCode: string): Promise<boolean> {
+export async function checkTemporaryAuthenticationKey(authKey: string, pinCode: string): Promise<boolean> {
   logger.log("user", "Checking temporary authentication key");
 
   const result = await withCaughtAppException(async () => {
     return (await getApolloClient()).mutate<{
-      checkEmailAuthentication: {
+      checkTemporaryAuthentication: {
         accessToken: string;
         refreshToken: string;
       }
     }>({
       mutation: gql`
-          mutation CheckEmailAuthentication($authKey: String!, $pinCode: String!) {
-            checkEmailAuthentication(authKey: $authKey, pinCode: $pinCode) { accessToken refreshToken }
+          mutation CheckTemporaryAuthentication($authKey: String!, $pinCode: String!) {
+            checkTemporaryAuthentication(authKey: $authKey, pinCode: $pinCode) { accessToken refreshToken }
           }
         `,
       variables: { authKey, pinCode }
@@ -180,8 +180,8 @@ export async function checkRawEmailAuthenticationKey(authKey: string, pinCode: s
     AuthExceptionCode.InexistingAuthKey
   ]);
 
-  if (result?.data?.checkEmailAuthentication) {
-    const { accessToken, refreshToken } = result.data.checkEmailAuthentication;
+  if (result?.data?.checkTemporaryAuthentication) {
+    const { accessToken, refreshToken } = result.data.checkTemporaryAuthentication;
     await updateUserByToken(accessToken, refreshToken);
     return true;
   }

@@ -21,6 +21,7 @@ import { UserPropertyInput } from "./dto/user-property.input";
 import { CreatedAccessKeyEntity } from './entities/created-access-token';
 import { DeveloperAccessKeyEntity } from './entities/developer-access-token';
 import { RequestEmailAuthenticationResult } from './entities/request-email-authentication-result.entity';
+import { RequestTemporaryAuthenticationResult } from './entities/request-temporary-authentication-result.entity';
 import { UserEmailEntity } from "./entities/user-email.entity";
 import { UserEntity } from './entities/user.entity';
 import { UserService } from './user.service';
@@ -99,11 +100,20 @@ export class UserResolver {
   }
 
   /**
-   * Verify email auth key to sign-in.
+   * Request a temporary sign in url and pin code, to sign in from a new browser without email for instance.
+   */
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => RequestTemporaryAuthenticationResult, { nullable: true })
+  async requestTemporaryAuthentication(@CurrentUser() user: User): Promise<RequestTemporaryAuthenticationResult> {
+    return this.userService.requestTemporaryAuthentication(user);
+  }
+
+  /**
+   * Verify a temporary authentication key to sign-in.
    */
   @Mutation(() => LoggedUserOutput, { nullable: true })
-  async checkEmailAuthentication(@Args('authKey') authKey: string, @Args('pinCode') pinCode: string, @HeaderBrowserKey() browserKey: string, @UserAgent() userAgent: string) {
-    return this.userService.checkEmailAuthentication(authKey, pinCode, browserKey, userAgent);
+  async checkTemporaryAuthentication(@Args('authKey') authKey: string, @Args('pinCode') pinCode: string, @HeaderBrowserKey() browserKey: string, @UserAgent() userAgent: string) {
+    return this.userService.checkTemporaryAuthentication(authKey, pinCode, browserKey, userAgent);
   }
 
   /**
