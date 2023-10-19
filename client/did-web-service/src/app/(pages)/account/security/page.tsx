@@ -65,13 +65,17 @@ const Security: FC = () => {
 
   const createSignInLink = (): void => {
     setCreatingSignInLink(true);
-    authUser.get("security").requestTemporaryAuthenticationUrl().then(result => {
-      if (result) {
-        setExternalAuthUrl(result.url);
-        setExternalAuthPinCode(result.pinCode);
-      }
-    });
-  }
+    authUser
+      .get("security")
+      .requestTemporaryAuthenticationUrl()
+      .then((result) => {
+        if (result) {
+          setExternalAuthUrl(result.url);
+          setExternalAuthPinCode(result.pinCode);
+        }
+        setCreatingSignInLink(false);
+      });
+  };
 
   return (
     <div className="col-span-full">
@@ -150,6 +154,7 @@ const Security: FC = () => {
         {/* Passkey box */}
         <Grid item xs={12} md={6}>
           <SecuritySection
+            className="h-full"
             icon={<ReactIcon icon="fluent-mdl2:website" />}
             title="Link browser via biometric passkey"
             statusTitle={`BROWSER ${isThisBrowserBound ? "" : "NOT "}BOUND`}
@@ -177,41 +182,50 @@ const Security: FC = () => {
         {/* Connect other browser box */}
         <Grid item xs={12} md={6}>
           <SecuritySection
+            className="h-full"
             icon={<ReactIcon icon="fluent-mdl2:website" />}
             title="Sign in from another browser"
             actionTitle={"CREATE A SIGN IN LINK"}
             handleAction={createSignInLink}
             actionInProgress={creatingSignInLink}
           >
-            {
-              !externalAuthUrl &&
+            {!externalAuthUrl && (
               <Typography variant="body2">
                 Your browser is bound to your account.
               </Typography>
-            }
-            {
-              externalAuthUrl && <>
+            )}
+            {externalAuthUrl && (
+              <>
                 <Typography variant="body2">
-                  Send the following url to your another browser to sign in from there. Use PIN code {externalAuthPinCode} when asked.
+                  Send the following url to your another browser to sign in from
+                  there. Use PIN code {externalAuthPinCode} when asked.
                 </Typography>
                 <Typography variant="body2" style={{ marginTop: 8 }}>
                   {externalAuthUrl}
                 </Typography>
               </>
-            }
+            )}
           </SecuritySection>
         </Grid>
-
       </Grid>
       <div className="">
-        <Typography variant="h6" fontWeight={600} className="py-3">My Browsers</Typography>
+        <Typography variant="h6" fontWeight={600} className="py-3">
+          My Browsers
+        </Typography>
         {mounted && (
           <>
-            {browsers?.length == 0 && <Typography variant="body2">No browser used so far.</Typography>}
-            {browsers &&
-              browsers.map((browser, i) => (
-                <BrowserRow key={i} browser={browser} />
-              ))}
+            {browsers?.length == 0 && (
+              <Typography variant="body2">No browser used so far.</Typography>
+            )}
+            {browsers && (
+              <Grid container spacing={2}>
+                {browsers.map((browser, i) => (
+                  <Grid item key={i}>
+                    <BrowserRow browser={browser} />
+                  </Grid>
+                ))}
+              </Grid>
+            )}
           </>
         )}
       </div>

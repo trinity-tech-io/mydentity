@@ -148,7 +148,9 @@ export const AppsList: FC = () => {
       className="h-full"
       icon={<ReactIcon icon="material-symbols:apps" />}
       title="Applications"
-      statusTitle={`${appIdentities?.length ? "" : "NO "}APPS AVAILABLE`}
+      statusTitle={`${
+        appIdentities?.length > 0 ? "CREATED" : "NO APPS AVAILABLE"
+      }`}
       isSet={appIdentities && appIdentities?.length > 0}
       actionTitle={
         !ready2generate ? "CREATE APPLICATION" : "GENERATE APPLICATION IDENTITY"
