@@ -137,7 +137,7 @@ export class UserService {
   private async sendMagicLinkEmail(emailAddress: string, template: EmailTemplateType, subject: string, magicLink: string): Promise<boolean> {
     return this.emailingService.sendEmail(
       template,
-      "DID Service <email-auth@didservice.io>",
+      "Mydentity <contact@ownmydentity.com>",
       emailAddress,
       subject,
       {
@@ -231,9 +231,9 @@ export class UserService {
     const loungeUrl = `${process.env.FRONTEND_URL}/dashboard`;
     this.emailingService.sendEmail(
       EmailTemplateType.WELCOME,
-      "welcome@didservice.io",
+      "contact@ownmydentity.com",
       emailAddress,
-      "Welcome to DidService.io",
+      "Welcome to Mydentity",
       {
         user: {
           // Use the name only if that's not a temporary name (real user signed in)

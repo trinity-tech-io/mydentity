@@ -11,9 +11,11 @@ import { logger } from "../logger";
 import { EmailTemplateType } from './email-template-type';
 import { ISmtpService } from './ismtp.service';
 import { Smtp4devService } from './smtp-services/smtp4dev.service';
+import { ZeptoMailService } from './smtp-services/zeptomail.service';
 
 enum SmtpService {
   SMTP4DEV = "smtp4dev", // local smtp4dev docker smtp to simply debug emails without really sending them
+  ZEPTOMAIL = "zeptomail" // transactionnal email service from zoho
 }
 
 export type EmailContentReplacements = {
@@ -25,7 +27,8 @@ export class EmailingService {
   private templates: { [templateName: string]: HandlebarsTemplateDelegate } = {};
 
   constructor(
-    private readonly smtp4devService: Smtp4devService,
+    private smtp4devService: Smtp4devService,
+    private zeptoMailService: ZeptoMailService
   ) {
     Handlebars.registerHelper('breaklines', function (text) {
       text = Handlebars.Utils.escapeExpression(text);
@@ -130,6 +133,8 @@ export class EmailingService {
     switch (service) {
       case SmtpService.SMTP4DEV:
         return this.smtp4devService;
+      case SmtpService.ZEPTOMAIL:
+        return this.zeptoMailService;
       default:
         throw new Error(`Unknown STMP service ${service}`)
     }

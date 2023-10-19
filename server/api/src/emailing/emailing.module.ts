@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { EmailingDevController } from './emailing-dev.controller';
 import { EmailingService } from './emailing.service';
 import { Smtp4devService } from './smtp-services/smtp4dev.service';
+import { ZeptoMailService } from './smtp-services/zeptomail.service';
 
 @Module({
   exports: [
@@ -11,6 +12,7 @@ import { Smtp4devService } from './smtp-services/smtp4dev.service';
   providers: [
     EmailingService,
     Smtp4devService,
+    ZeptoMailService
   ],
   imports: [
     ConfigModule

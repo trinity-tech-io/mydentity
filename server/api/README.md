@@ -59,3 +59,15 @@ Every time you modify the prisma schema file, you must create a migration locall
 - Locally we use SMTP4DEV as a fake smtp server with local web interface to check email features.
 - Emails are never really sent, they are just stored locally and a web dashboard offers a virtual inbox.
 - Open `http://localhost:980/` to browse received emails.
+
+# Email service
+
+- contact@ownmydentity.com
+  - provided by: [Zoho](https://mail.zoho.com/)
+  - ownership: benjaminpiette@trinity-tech.io
+  - cost: free, 1 domain
+- SMTP for the api:
+  - [Zeptomail](https://zeptomail.zoho.com/)
+  - SMTP setup: https://www.zoho.com/zeptomail/help/smtp-home.html
+  - Get smtp private key here: https://zeptomail.zoho.com/zem/833227672#dashboard/setupDetail
+  - cost: 2.5 usd for 1 credit - 1 credit = 10000 emails - 1 credit is valid 6 months
