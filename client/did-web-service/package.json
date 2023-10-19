@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 4000",
+    "build:staging": "rm -rf ./out ./next && NODE_ENV=test next build --debug",
     "build": "rm -rf ./out ./next && next build --debug",
     "check-build-errors": "tsc --noEmit",
     "start": "next start -p 4000",

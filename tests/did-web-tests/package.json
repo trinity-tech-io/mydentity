@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 4050",
+    "build:staging": "rm -rf ./out ./next && NODE_ENV=test next build --debug",
     "build": "rm -rf ./out ./next && next build --debug",
     "start": "next start -p 4050",
     "lint": "next lint"
