@@ -402,7 +402,7 @@ const Profile: FC = () => {
             <span className="pl-2">Credentials</span>
           </div>
         }
-        showAllAction={() => {}}
+        showAllAction={handleShowAllIdentities}
       >
         <div className="mb-1">
           <DetailTable
