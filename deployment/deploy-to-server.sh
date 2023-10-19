@@ -7,6 +7,7 @@ usage() { echo "$0 usage:" && grep " .)\ #" $0; exit 0; }
 # If no args print usage
 [ $# -eq 0 ] && usage
 
+log_tag='[deploy-to-server.sh] '
 build_client=false
 build_tests=false
 do_deploy=false
@@ -42,20 +43,20 @@ done
 # Build the client dist locally
 if [ $build_client = true ]
 then
-  echo "Building client apps locally"
+  echo "${log_tag} Building client apps locally"
 
   cd client/did-web-service
   npm i --legacy-peer-deps
   npm run build
   cd ../..
 else
-  echo "Not building client locally as requested"
+  echo "${log_tag} Not building client locally as requested"
 fi
 
 # Build the tests dist locally
 if [ $build_tests = true ]
 then
-  echo "Building tests apps locally"
+  echo "${log_tag} Building tests apps locally"
 
   cd sdk
   npm i
@@ -66,13 +67,13 @@ then
   npm run build
   cd ../..
 else
-  echo "Not building tests locally as requested"
+  echo "${log_tag} Not building tests locally as requested"
 fi
 
 # Deploy app and tests tar files to prod.
 if [ $do_deploy = true ]
 then
-  echo "Deploy app and tests tar files to prod."
+  echo "${log_tag} Deploy app and tests tar files to prod."
 
   # rm -f app.tar.gz tests.tar.gz
 
@@ -88,18 +89,18 @@ then
   # scp tests.tar.gz did-web-service:~/
   # rm -f app.tar.gz tests.tar.gz
 else
-  echo "Not deploy app and tests tar files to prod. as requested."
+  echo "${log_tag} Not deploy app and tests tar files to prod. as requested."
 fi
 
 # Push git folder to git
 if [ $commit_push = true ]
 then
-  echo "Pushing built clients and tests to git"
+  echo "${log_tag} Pushing built clients and tests to git"
   git add .
   git commit -m "Production build"
   git push
 else
-  echo "Not commit and push to git"
+  echo "${log_tag} Not commit and push to git"
 fi
 
 # Execute remote deployment
@@ -107,5 +108,5 @@ if [ $remote_executiion = true ]
 then
   ssh -t did-web-service 'sudo -s && bash -s' < deployment/deploy.sh
 else
-  echo "Not execute remote deployment"
+  echo "${log_tag} Not execute remote deployment"
 fi
