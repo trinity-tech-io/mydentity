@@ -10,7 +10,6 @@ import { FC, ReactNode } from "react";
 export const CardStyled = styled(Card)(({ theme }) => ({
   border: "1px solid #FFFFFF55",
   borderRadius: "0.5rem",
-  background: "#1D1D1D",
   position: "relative",
 }));
 const SecuritySection: FC<{

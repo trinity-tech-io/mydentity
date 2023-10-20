@@ -1,5 +1,6 @@
 import { Theme, createTheme } from "@mui/material/styles";
 import { PaletteMode } from "@mui/material";
+import palette from "./palette";
 
 function pxToRem(value: number): string {
   return `${value / 16}rem`;
@@ -34,7 +35,7 @@ export const generateTheme = (mode: PaletteMode): Theme => createTheme({
       styleOverrides: {
         root: {
           textTransform: 'inherit'
-        }
+        },
       }
     },
     MuiBackdrop: {
@@ -57,6 +58,13 @@ export const generateTheme = (mode: PaletteMode): Theme => createTheme({
         fallback: {
           width: '100%',
           height: '100%',
+        }
+      }
+    },
+    MuiAccordion: {
+      styleOverrides: {
+        root: {
+          backgroundImage: 'unset',
         }
       }
     }
@@ -121,8 +129,7 @@ export const generateTheme = (mode: PaletteMode): Theme => createTheme({
   },
   palette: {
     mode,
-    primary: {
-      500: 'rgb(99,102,241)'
-    },
+    contrastThreshold: 4.5,
+    ... palette[mode]
   }
 });

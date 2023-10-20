@@ -278,9 +278,11 @@ export const IdentityCard: FC<{
             >
               <Paper>
                 <MenuList>
-                  <MenuItem value="active" onClick={handleMenuItem}>
-                    Set as active identity
-                  </MenuItem>
+                  {identity != activeIdentity && (
+                    <MenuItem value="active" onClick={handleMenuItem}>
+                      Set as active identity
+                    </MenuItem>
+                  )}
                   <MenuItem value="delete" onClick={handleMenuItem}>
                     Delete identity
                   </MenuItem>

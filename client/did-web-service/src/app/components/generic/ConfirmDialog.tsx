@@ -48,8 +48,8 @@ const ConfirmDialog: FC<ConfirmDialogProps> = (props) => {
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <NormalButton variant="outlined" onClick={handleDisAgree}>Disagree</NormalButton>
-        <LoadingButton variant="outlined" loading={actionInProgress} onClick={handleAgree} autoFocus>
+        <Button variant="outlined" onClick={handleDisAgree}>Disagree</Button>
+        <LoadingButton color="info" variant="contained" loading={actionInProgress} onClick={handleAgree} autoFocus>
           Agree
         </LoadingButton>
       </DialogActions>
