@@ -248,7 +248,7 @@ const CredentialModal: FC<CredentialModalType> = (props) => {
               </div>
             </IconAvatar>
             <Typography variant="body1" fontWeight={600} className="pl-2">
-              Credentials
+              {`Credential${credentials?.length > 1 ? "s" : ""}`}
             </Typography>
           </div>
           <div className="swiper-button image-swiper-button-prev">

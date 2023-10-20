@@ -150,7 +150,7 @@ const UnlockKeyPrompt: FC = () => {
                     disabled={passwordKeys?.length == 0}
                   />
                   <div className="p-2 pt-0 text-center">
-                    <Box className="py-4" sx={{ py: { xs: 1, sm: 2 } }}>
+                    <Box sx={{ py: { xs: 1, sm: 2 } }}>
                       <SeparateLineText text="or browser authentication" />
                     </Box>
                     <PasskeyPrompt

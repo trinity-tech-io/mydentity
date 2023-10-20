@@ -96,7 +96,7 @@ const Security: FC = () => {
             title="Connect email address"
             statusTitle={`EMAIL ${isEmailBound ? "" : "NOT "}LINKED`}
             isSet={isEmailBound}
-            actionTitle={isEmailBound ? "Bind more" : "VERIFY EMAIL"}
+            actionTitle={isEmailBound ? "BIND MORE" : "VERIFY EMAIL"}
             handleAction={bindEmail}
           >
             {isEmailBound ? (

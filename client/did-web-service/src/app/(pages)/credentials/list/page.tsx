@@ -85,10 +85,10 @@ const CredentialsList: FC = () => {
                   valuePrefix="filter"
                   list={[
                     "All",
-                    "created by me",
-                    "created by others",
-                    "conform",
-                    "not conform",
+                    "Created by me",
+                    "Created by others",
+                    "Conform",
+                    "Not conform",
                   ]}
                   onChange={onFilterChange}
                 />

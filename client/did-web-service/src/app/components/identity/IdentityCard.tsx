@@ -25,6 +25,7 @@ import { NormalButton } from "@components/button";
 import { DetailTable } from "@components/generic/DetailTable";
 import { CredentialInfoRow } from "@components/credential/CredentialInfoRow";
 import { useUnlockKeyPrompt } from "@components/security/unlock-key-prompt/UnlockKeyPrompt";
+import { useRouter } from "next13-progressbar";
 
 const GradientTypography = styled(Typography)({
   backgroundImage: "linear-gradient(180deg, #FFFFFFAE, #FFFFFF)",
@@ -51,6 +52,7 @@ export const IdentityCard: FC<{
   const [credentials] = useBehaviorSubject(
     identity?.credentials().credentials$
   );
+  const router = useRouter();
 
   // useEffect(() => {
   //   if (activeIdentity == identity) {
@@ -76,6 +78,11 @@ export const IdentityCard: FC<{
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [identity]
   );
+
+  const showAllAction = (): void => {
+    router.push("/credentials/list");
+  };
+
   return (
     <>
       <LandingCard
@@ -167,7 +174,7 @@ export const IdentityCard: FC<{
                   <NormalButton
                     size="small"
                     endIcon={<NavigateNextIcon />}
-                    // onClick={showAllAction}
+                    onClick={showAllAction}
                   >
                     Show all
                   </NormalButton>

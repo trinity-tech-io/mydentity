@@ -53,6 +53,7 @@ export const CredentialListWidget: FC<{
     if (credentials && !activeCredential) {
       identityProfileFeature.setActiveCredential(credentials[0]);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeCredential, credentials]);
 
   useEffect(() => {
@@ -71,6 +72,7 @@ export const CredentialListWidget: FC<{
       identityProfileFeature.setActiveCredential(filtered[0] || null);
       setFilteredCredentials(filtered);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [credentials, selectedFilter, stringFilter, identity]);
 
   useEffect(() => {
@@ -98,6 +100,7 @@ export const CredentialListWidget: FC<{
       }));
     });
     return layouts;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [expandedIDs, filteredCredentials, mounted]);
   return (
     <div className="col-span-full">
@@ -154,7 +157,9 @@ export const CredentialListWidget: FC<{
         open={openCredentialModal}
         credentials={filteredCredentials}
         identityProfile={identityProfileFeature}
-        onClose={() => setOpenCredentialModal(false)}
+        onClose={(): void => {
+          setOpenCredentialModal(false);
+        }}
       />
     </div>
   );
