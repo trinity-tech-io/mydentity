@@ -1,10 +1,12 @@
+import { DarkButton, NormalButton } from '@components/button';
+import LoadingButton from '@mui/lab/LoadingButton/LoadingButton';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import { FC } from 'react';
+import { FC, useEffect, useState } from 'react';
 
 interface ConfirmDialogProps {
   title: string,
@@ -15,12 +17,18 @@ interface ConfirmDialogProps {
 
 const ConfirmDialog: FC<ConfirmDialogProps> = (props) => {
   const { title, content, open, onClose } = props;
+  const [actionInProgress, setActionInProgress] = useState(false)
+
+  useEffect(() => {
+    setActionInProgress(false)
+  }, [open])
 
   const handleDisAgree = (): void => {
     onClose(false);
   }
 
   const handleAgree = (): void => {
+    setActionInProgress(true)
     onClose(true);
   };
 
@@ -40,10 +48,10 @@ const ConfirmDialog: FC<ConfirmDialogProps> = (props) => {
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleDisAgree}>Disagree</Button>
-        <Button onClick={handleAgree} autoFocus>
+        <NormalButton variant="outlined" onClick={handleDisAgree}>Disagree</NormalButton>
+        <LoadingButton variant="outlined" loading={actionInProgress} onClick={handleAgree} autoFocus>
           Agree
-        </Button>
+        </LoadingButton>
       </DialogActions>
     </Dialog>
   );

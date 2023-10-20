@@ -1,4 +1,4 @@
-import ComfirmDialog from "@components/generic/ComfirmDialog";
+import ConfirmDialog from "@components/generic/ConfirmDialog";
 import EditCredentialDialog, { EditionMode } from "@components/identity-profile/EditCredentialDialog";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { Credential } from "@model/credential/credential";
@@ -129,7 +129,7 @@ const IdentityMenu: FC<{
         <MenuItem sx={{ color: 'error.main' }} onClick={handleDelete}> Delete </MenuItem>
       </Popover>
 
-      <ComfirmDialog
+      <ConfirmDialog
         title='Delete this Credential?'
         content='Do you want to delete this Credential?'
         open={openConfirmDialog}

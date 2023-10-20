@@ -1,5 +1,5 @@
 import FingerprintIcon from "@assets/images/fingerprint.svg";
-import ComfirmDialog from "@components/generic/ComfirmDialog";
+import ComfirmDialog from "@components/generic/ConfirmDialog";
 import { logger } from "@elastosfoundation/elastos-connectivity-sdk-js";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { Browser } from "@model/browser/browser";

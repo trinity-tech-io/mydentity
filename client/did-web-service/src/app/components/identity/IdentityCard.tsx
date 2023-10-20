@@ -1,10 +1,19 @@
-import { FC, MouseEventHandler, ReactNode, useCallback, useState } from "react";
+import {
+  FC,
+  MouseEventHandler,
+  ReactNode,
+  useCallback,
+  useRef,
+  useState,
+} from "react";
 import { MoreVert as MoreVertIcon } from "@mui/icons-material";
 import {
   Box,
   ClickAwayListener,
   Grow,
   IconButton,
+  MenuItem,
+  MenuList,
   Paper,
   Popper,
   TableCell,
@@ -13,6 +22,7 @@ import {
 import { styled } from "@mui/material/styles";
 import clsx from "clsx";
 import { NavigateNext as NavigateNextIcon } from "@mui/icons-material";
+import { useRouter } from "next13-progressbar";
 import { useToast } from "@services/feedback.service";
 import { LandingCard } from "@components/card";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
@@ -25,8 +35,10 @@ import { NormalButton } from "@components/button";
 import { DetailTable } from "@components/generic/DetailTable";
 import { CredentialInfoRow } from "@components/credential/CredentialInfoRow";
 import { useUnlockKeyPrompt } from "@components/security/unlock-key-prompt/UnlockKeyPrompt";
-import { useRouter } from "next13-progressbar";
 import { identityService } from "@services/identity/identity.service";
+import ConfirmDialog from "@components/generic/ConfirmDialog";
+import { authUser$ } from "@services/user/user.events";
+import { logger } from "@services/logger";
 
 const GradientTypography = styled(Typography)({
   backgroundImage: "linear-gradient(180deg, #FFFFFFAE, #FFFFFF)",
@@ -44,16 +56,22 @@ const GradientTypography = styled(Typography)({
 export const IdentityCard: FC<{
   identity: RegularIdentity;
   onClickChip?: () => void;
-}> = ({ identity, onClickChip = (): void => {} }) => {
+  onDelete: () => Promise<boolean>;
+}> = ({ identity, onClickChip = (): void => {}, onDelete }) => {
+  const TAG = "IdentityCard";
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
+  const [activeUser] = useBehaviorSubject(authUser$);
   const { showSuccessToast } = useToast();
   const { retryUnlock } = useUnlockKeyPrompt();
   const [name] = useBehaviorSubject(identity.profile().name$);
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
+  const [openMoreMenu, setOpenMoreMenu] = useState(false);
+  const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [credentials] = useBehaviorSubject(
     identity?.credentials().credentials$
   );
   const router = useRouter();
+  const moreButtonRef = useRef(null);
 
   const handleClickChip: MouseEventHandler<HTMLButtonElement> = useCallback(
     (e) => {
@@ -81,6 +99,33 @@ export const IdentityCard: FC<{
     }
     identityService.setActiveIdentity(identity);
     router.push("/credentials/list");
+  };
+
+  const closeMoreMenu = (): void => {
+    setOpenMoreMenu(false);
+  };
+
+  const handleMenuItem: MouseEventHandler<HTMLLIElement> = (e): void => {
+    const type = e.currentTarget?.getAttribute("value");
+    if (type == "active") identityService.setActiveIdentity(identity);
+    else if (type == "delete") setOpenConfirmDialog(true);
+    setOpenMoreMenu(false);
+  };
+
+  const handleCloseDialog = async (isAgree: boolean): Promise<void> => {
+    if (!isAgree) {
+      setOpenConfirmDialog(false);
+      return;
+    }
+
+    let isSuccess = false;
+    try {
+      // Deletion
+      isSuccess = await onDelete();
+      setOpenConfirmDialog(false);
+    } catch (error) {
+      logger.error(TAG, error);
+    }
   };
 
   return (
@@ -119,12 +164,13 @@ export const IdentityCard: FC<{
             </div>
             <div className="flex flex-col">
               <IconButton
+                ref={moreButtonRef}
                 size="small"
                 color="inherit"
                 sx={{ p: 0.5 }}
-                // onClick={(event): void => {
-                //   handleOpenMenu(event, credential);
-                // }}
+                onClick={(): void => {
+                  setOpenMoreMenu(true);
+                }}
               >
                 <MoreVertIcon sx={{ fontSize: 16 }} />
               </IconButton>
@@ -215,6 +261,42 @@ export const IdentityCard: FC<{
           </ClickAwayListener>
         )}
       </Popper>
+      <Popper
+        open={openMoreMenu}
+        anchorEl={moreButtonRef.current}
+        placement="bottom-end"
+        transition
+      >
+        {({ TransitionProps, placement }): ReactNode => (
+          <ClickAwayListener onClickAway={closeMoreMenu}>
+            <Grow
+              {...TransitionProps}
+              style={{
+                transformOrigin:
+                  placement === "bottom-end" ? "right top" : "right bottom",
+              }}
+            >
+              <Paper>
+                <MenuList>
+                  <MenuItem value="active" onClick={handleMenuItem}>
+                    Set as active identity
+                  </MenuItem>
+                  <MenuItem value="delete" onClick={handleMenuItem}>
+                    Delete identity
+                  </MenuItem>
+                </MenuList>
+              </Paper>
+            </Grow>
+          </ClickAwayListener>
+        )}
+      </Popper>
+
+      <ConfirmDialog
+        title="Delete this identity?"
+        content="Do you want to delete this identity?"
+        open={openConfirmDialog}
+        onClose={handleCloseDialog}
+      />
     </>
   );
 };

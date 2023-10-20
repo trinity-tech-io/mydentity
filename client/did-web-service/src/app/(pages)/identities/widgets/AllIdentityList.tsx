@@ -1,5 +1,5 @@
 "use client";
-import { ChangeEvent, FC, useEffect, useState } from "react";
+import { ChangeEvent, FC, useCallback, useEffect, useState } from "react";
 import { Icon as ReactIcon } from "@iconify/react";
 import { useRouter } from "next13-progressbar";
 import { Box, Grid, InputAdornment, Typography } from "@mui/material";
@@ -53,9 +53,8 @@ export const AllIdentityList: FC = (_) => {
       ? identities[0].credentials().credentials$
       : null;
 
-  const tourState = new TourState(authUser);
-
   useEffect(() => {
+    const tourState = new TourState(authUser);
     credentialData4check?.subscribe({
       next: (val) => {
         if (val) {
@@ -73,17 +72,7 @@ export const AllIdentityList: FC = (_) => {
         }
       },
     });
-  }, [credentialData4check]);
-
-  const handleCellClick = (identity: RegularIdentity): void => {
-    if (identity !== activeIdentity) {
-      setShowToast(true);
-    } else {
-      setShowToast(false);
-    }
-    identityService.setActiveIdentity(identity);
-    router.push("/profile");
-  };
+  }, [credentialData4check, authUser]);
 
   const openCreateIdentity = (): void => {
     router.push("/new-identity");
@@ -113,7 +102,7 @@ export const AllIdentityList: FC = (_) => {
     },
   ];
   const tourStepIndex = 0;
-  const handleTourCallback = (data: CallBackProps) => {
+  const handleTourCallback = (data: CallBackProps): void => {
     const { action, index, status, type } = data;
   };
 
@@ -122,6 +111,15 @@ export const AllIdentityList: FC = (_) => {
   ): void => {
     setFilterName(event.target.value.trim().toLowerCase());
   };
+
+  const onDeleteIdentity = useCallback(
+    async (identity: RegularIdentity): Promise<boolean> => {
+      if (!authUser) return false;
+      if (activeIdentity == identity) identityService.setActiveIdentity(null);
+      return await authUser.get("identity").deleteIdentity(identity.did);
+    },
+    [activeIdentity, authUser]
+  );
 
   return (
     <div className="col-span-full">
@@ -191,8 +189,11 @@ export const AllIdentityList: FC = (_) => {
                   <Grid item key={_id}>
                     <IdentityCard
                       identity={identity}
-                      onClickChip={() => {
+                      onClickChip={(): void => {
                         setRunTour(false);
+                      }}
+                      onDelete={async (): Promise<boolean> => {
+                        return await onDeleteIdentity(identity);
                       }}
                     />
                   </Grid>

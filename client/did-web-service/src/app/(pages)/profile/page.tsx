@@ -21,7 +21,7 @@ import {
 import ChipIcon from "@assets/images/chip.svg";
 import { CopyButton, NormalButton } from "@components/button";
 import { IconAvatar } from "@components/feature/DetailLine";
-import ComfirmDialog from "@components/generic/ComfirmDialog";
+import ConfirmDialog from "@components/generic/ConfirmDialog";
 import DetailContainer from "@components/generic/DetailContainer";
 import { DetailTable } from "@components/generic/DetailTable";
 import EditCredentialDialog, {
@@ -519,7 +519,7 @@ const Profile: FC = () => {
         </MenuItem>
       </Popover>
 
-      <ComfirmDialog
+      <ConfirmDialog
         title="Delete this Credential?"
         content="Do you want to delete this Credential?"
         open={openConfirmDialog}
