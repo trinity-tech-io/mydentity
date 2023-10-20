@@ -26,7 +26,7 @@ class IssuerService {
    */
   private async fetchDocument(didString: string, forceRemote = false): Promise<Document> {
     // for test
-    didString = "did:elastos:iqjN3CLRjd7a4jGCZe6B3isXyeLy7KKDuK"; // Kyc
+    //didString = "did:elastos:iqjN3CLRjd7a4jGCZe6B3isXyeLy7KKDuK"; // Kyc
     return didDocumentService.resolveDIDDocument(didString, forceRemote);
   }
 }
