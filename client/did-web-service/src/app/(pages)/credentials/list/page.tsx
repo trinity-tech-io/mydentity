@@ -20,13 +20,13 @@ const CredentialsList: FC = () => {
   const [selectedFilter, setSelectedFilter] = useState<string>(""); // State to hold the selected filter
   const [stringFilter, setStringFilter] = useState<string>("");
 
-  const onFilterChange = (value: string) => {
+  const onFilterChange = (value: string): void => {
     setSelectedFilter(value);
   };
   const handleFilterString:ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> = (e) => {
     setStringFilter(e.target.value.trim())
   }
-  const handleDetailSwitch = (event: ChangeEvent, checked: boolean) => {
+  const handleDetailSwitch = (event: ChangeEvent, checked: boolean): void => {
     setOpenedDetail(checked);
   };
 

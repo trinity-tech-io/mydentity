@@ -1,4 +1,4 @@
-import { FC, MouseEventHandler, useCallback, useEffect, useState } from "react";
+import { FC, MouseEventHandler, ReactNode, useCallback, useState } from "react";
 import { MoreVert as MoreVertIcon } from "@mui/icons-material";
 import {
   Box,
@@ -26,6 +26,7 @@ import { DetailTable } from "@components/generic/DetailTable";
 import { CredentialInfoRow } from "@components/credential/CredentialInfoRow";
 import { useUnlockKeyPrompt } from "@components/security/unlock-key-prompt/UnlockKeyPrompt";
 import { useRouter } from "next13-progressbar";
+import { identityService } from "@services/identity/identity.service";
 
 const GradientTypography = styled(Typography)({
   backgroundImage: "linear-gradient(180deg, #FFFFFFAE, #FFFFFF)",
@@ -54,14 +55,6 @@ export const IdentityCard: FC<{
   );
   const router = useRouter();
 
-  // useEffect(() => {
-  //   if (activeIdentity == identity) {
-  //     const shortDid = shortenDID(identity.did, 8)
-  //     const text = 'Your current active identity is: ' + name + '(' + shortDid + ')'
-  //     showSuccessToast(text);
-  //   }
-  // }, [showSuccessToast, name, activeIdentity, identity]);
-
   const handleClickChip: MouseEventHandler<HTMLButtonElement> = useCallback(
     (e) => {
       identity?.credentials().credentials$?.subscribe({
@@ -80,6 +73,13 @@ export const IdentityCard: FC<{
   );
 
   const showAllAction = (): void => {
+    if (identity !== activeIdentity) {
+      const shortDid = shortenDID(identity.did, 8);
+      const text =
+        "Your current active identity is: " + name + "(" + shortDid + ")";
+      showSuccessToast(text);
+    }
+    identityService.setActiveIdentity(identity);
     router.push("/credentials/list");
   };
 
@@ -148,9 +148,9 @@ export const IdentityCard: FC<{
         placement="bottom-start"
         transition
       >
-        {({ TransitionProps, placement }) => (
+        {({ TransitionProps, placement }): ReactNode => (
           <ClickAwayListener
-            onClickAway={() => {
+            onClickAway={(): void => {
               setMenuAnchorEl(null);
             }}
           >
