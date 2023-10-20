@@ -13,7 +13,13 @@ import clsx from "clsx";
 const InputStyled = styled(Input)(({ theme }) => ({
   input: {
     color: "white",
-    marginTop: 20,
+    marginTop: { xs: 16, sm: 20 },
+    [theme.breakpoints.down("sm")]: {
+      marginTop: 16,
+    },
+    [theme.breakpoints.up("sm")]: {
+      marginTop: 20,
+    },
   },
 }));
 
@@ -46,11 +52,16 @@ const PasswordInput: FC<{
       endAdornment={
         <InputAdornment position="end">
           <IconButtonStyled
+            size="small"
             aria-label="toggle password visibility"
             onClick={handleClickShowPassword}
             onMouseDown={handleMouseDownPassword}
           >
-            {showPassword ? <VisibilityOff /> : <Visibility />}
+            {showPassword ? (
+              <VisibilityOff sx={{ fontSize: { xs: 20, sm: 24 } }} />
+            ) : (
+              <Visibility />
+            )}
           </IconButtonStyled>
         </InputAdornment>
       }
@@ -58,4 +69,4 @@ const PasswordInput: FC<{
   );
 };
 
-export default PasswordInput
+export default PasswordInput;

@@ -39,10 +39,10 @@ export const PasswordPrompt: FC<{
           />
         </AccountForm>
       </form>
-      <div className="p-2 pb-0 text-center">
+      <div className="p-2 pt-3 sm:pt-4 pb-0 text-center">
         <DarkButton
           id="bind-ms"
-          className="w-4/5"
+          className="w-11/12 sm:w-4/5"
           disabled={disabled || !password.length}
           onClick={submitPassword}
         >

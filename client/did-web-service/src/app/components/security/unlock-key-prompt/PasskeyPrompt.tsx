@@ -20,7 +20,7 @@ export const PasskeyPrompt: FC<{
   return (
     <DarkButton
       id="bind-ms"
-      className="w-4/5"
+      className="w-11/12 sm:w-4/5"
       startIcon={<ReactIcon icon="material-symbols:passkey" />}
       disabled={disabled}
       onClick={onSubmit}

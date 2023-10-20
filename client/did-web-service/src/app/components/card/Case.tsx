@@ -47,6 +47,9 @@ export const CardCase = styled(Card)(({ theme }) => ({
   },
   ".dashed-body": {
     border: "2px dashed rgb(50 38 38)",
+    [theme.breakpoints.down("sm")]: {
+      borderWidth: 1,
+    },
   },
   ".compartment, .compartment-top": {
     backgroundImage: "url('/dark-leather.png')",

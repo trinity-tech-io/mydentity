@@ -6,7 +6,7 @@ import { AppException } from "@model/exceptions/app-exception";
 import { ClientError } from "@model/exceptions/exception-codes";
 import { ShadowKeyType } from "@model/shadow-key/shadow-key-type";
 import SecurityIcon from "@mui/icons-material/Security";
-import { Dialog, Grow, Typography } from "@mui/material";
+import { Box, Dialog, Grow, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { TransitionProps } from "@mui/material/transitions";
 import { AuthKeyInput } from "@services/keyring/auth-key.input";
@@ -125,12 +125,12 @@ const UnlockKeyPrompt: FC = () => {
       TransitionComponent={Transition}
       PaperProps={{ sx: { backgroundImage: "none" } }}
     >
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <TitleBox className="flex items-center gap-x-2 px-4 py-2">
           <IconAvatar>
             <SecurityIcon fontSize="small" />
           </IconAvatar>
-          <Typography variant="h6" fontWeight={600} className="ml-4">
+          <Typography variant="h6" className="ml-4">
             Screen content is locked!
           </Typography>
         </TitleBox>
@@ -140,23 +140,26 @@ const UnlockKeyPrompt: FC = () => {
         <CardCase className="relative w-full mt-4 md:pb-2">
           <div className="absolute inset-0 p-2">
             <div className="dashed-body w-full h-full rounded-2xl p-1.5 flex items-center">
-              <div className="px-6 py-8 w-full">
-                <div className="flex flex-col gap-2">
+              <Box
+                className="w-full"
+                sx={{ px: { xs: 1.5, sm: 3 }, py: { xs: 0, sm: 4 } }}
+              >
+                <div className="flex flex-col">
                   <PasswordPrompt
                     onConfirm={onPasswordConfirmation}
                     disabled={passwordKeys?.length == 0}
                   />
                   <div className="p-2 pt-0 text-center">
-                    <div className="py-4">
+                    <Box className="py-4" sx={{ py: { xs: 1, sm: 2 } }}>
                       <SeparateLineText text="or browser authentication" />
-                    </div>
+                    </Box>
                     <PasskeyPrompt
                       onConfirm={onPasskeyConfirmation}
                       disabled={passkeyKeys?.length == 0}
                     />
                   </div>
                 </div>
-              </div>
+              </Box>
             </div>
           </div>
         </CardCase>
@@ -260,13 +263,16 @@ async function callWithUnlockHandler(
             )
           );
         }
-      }
-      else {
+      } else {
         request.reject(e);
       }
     } else {
       // Not an app exception
-      logger.error("security", "Unhandled callWithUnlock() non app exception (will get stuck):", e);
+      logger.error(
+        "security",
+        "Unhandled callWithUnlock() non app exception (will get stuck):",
+        e
+      );
     }
   }
 }
