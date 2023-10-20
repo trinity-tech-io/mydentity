@@ -120,7 +120,8 @@ const groups: GroupConfig[] = [
 const LinkElement: FC<{
   link: LinkConfig;
   sidebarExpanded: boolean;
-}> = ({ link, sidebarExpanded }) => {
+  closeSidebar: () => void;
+}> = ({ link, sidebarExpanded, closeSidebar }) => {
   const pathname = usePathname();
   const isActive = link.url === pathname;
 
@@ -132,6 +133,9 @@ const LinkElement: FC<{
           "block transition duration-150 truncate",
           isActive ? "text-indigo-500" : "text-slate-400 hover:text-slate-200"
         )}
+        onClick={() => {
+          closeSidebar();
+        }}
       >
         <span
           className={clsx(
@@ -149,8 +153,9 @@ const LinkElement: FC<{
 const GroupElement: FC<{
   group: GroupConfig;
   sidebarExpanded: boolean;
+  closeSidebar: () => void;
   onGroupHeaderClicked: () => void;
-}> = ({ group, sidebarExpanded, onGroupHeaderClicked }) => {
+}> = ({ group, closeSidebar, sidebarExpanded, onGroupHeaderClicked }) => {
   const {
     icon,
     title,
@@ -188,7 +193,7 @@ const GroupElement: FC<{
             }`}
             onClick={(e) => {
               if (!group.url) e.preventDefault();
-
+              else closeSidebar();
               setOpen(!open);
               onGroupHeaderClicked();
             }}
@@ -232,6 +237,7 @@ const GroupElement: FC<{
                   <LinkElement
                     key={link.title}
                     link={link}
+                    closeSidebar={closeSidebar}
                     sidebarExpanded={sidebarExpanded}
                   />
                 ))}
@@ -273,12 +279,13 @@ const IdentityCardGroup: FC = () => {
     }
 
     if (identities?.length === myIdentities.length && activeIdentity) {
-      var activeIdentityIndex = myIdentities?.findIndex(
+      let activeIdentityIndex = myIdentities?.findIndex(
         (i) => i == activeIdentity
       );
       if (activeIdentityIndex < 0) activeIdentityIndex = activeIndex;
       if (activeIndex != activeIdentityIndex) slideTo(activeIdentityIndex);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [identities?.length, activeIdentity]);
 
   // const sortedIdentities =
@@ -350,7 +357,7 @@ const Sidebar: FC<{
         trigger.current.contains(e.target)
       )
         return;
-      setSidebarOpen(false);
+      closeSidebar();
     };
     document.addEventListener("click", clickHandler);
     return () => document.removeEventListener("click", clickHandler);
@@ -360,11 +367,15 @@ const Sidebar: FC<{
   useEffect(() => {
     const keyHandler = (e: KeyboardEvent) => {
       if (!sidebarOpen || e.keyCode !== 27) return;
-      setSidebarOpen(false);
+      closeSidebar();
     };
     document.addEventListener("keydown", keyHandler);
     return () => document.removeEventListener("keydown", keyHandler);
   });
+
+  const closeSidebar = (): void => {
+    setSidebarOpen(false);
+  };
 
   return (
     <div>
@@ -420,6 +431,7 @@ const Sidebar: FC<{
               key={group.title}
               group={group}
               sidebarExpanded={sidebarExpanded}
+              closeSidebar={closeSidebar}
               onGroupHeaderClicked={() => {
                 if (!sidebarExpanded) setSidebarExpanded(true);
               }}
