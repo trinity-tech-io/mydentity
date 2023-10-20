@@ -5,6 +5,7 @@ import { Avatar, Box, ListItemText, TableCell } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import SecurityStatusIcon from "@components/security/SecurityIcon";
 import clsx from "clsx";
+import { useRouter } from "next13-progressbar";
 
 const IconAvatar = styled(Avatar)(({ theme }) => ({
   backgroundColor: "#3A3A3A",
@@ -31,9 +32,17 @@ export const AccountAccessRow: FC<{
   secondaryDetail: string | ReactNode;
   isSet: boolean;
 }> = ({ method, secondaryDetail, isSet }) => {
+  const router = useRouter();
+  const handleRowClick = (): void => {
+    router.push("/account/security");
+  };
   return (
     <DetailTableRow
-      className="h-[3.5rem]"
+      props={{ hover: true }}
+      onClick={(): void => {
+        handleRowClick();
+      }}
+      className="h-[3.5rem] cursor-pointer"
       avatar={
         <IconAvatar>
           <ReactIcon icon={TitleByMethod[method].icon} />
