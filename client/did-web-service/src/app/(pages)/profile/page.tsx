@@ -301,6 +301,10 @@ const Profile: FC = () => {
     router.push("/identities");
   };
 
+  const handleShowAllCredentials= (): void => {
+    router.push("/credentials/list");
+  };
+
   return (
     <div className="col-span-full">
       <Headline
@@ -402,7 +406,7 @@ const Profile: FC = () => {
             <span className="pl-2">Credentials</span>
           </div>
         }
-        showAllAction={handleShowAllIdentities}
+        showAllAction={handleShowAllCredentials}
       >
         <div className="mb-1">
           <DetailTable
