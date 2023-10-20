@@ -156,7 +156,7 @@ const Security: FC = () => {
         <Grid item xs={12} md={6}>
           <SecuritySection
             className="h-full"
-            icon={<ReactIcon icon="fluent-mdl2:website" />}
+            icon={<ReactIcon icon="fluent:fingerprint-48-filled" />}
             title="Link browser via biometric passkey"
             statusTitle={`BROWSER ${isThisBrowserBound ? "" : "NOT "}BOUND`}
             isSet={isThisBrowserBound}
@@ -187,6 +187,8 @@ const Security: FC = () => {
             icon={<ReactIcon icon="fluent-mdl2:website" />}
             title="Sign in from another browser"
             actionTitle={"CREATE A SIGN IN LINK"}
+            statusTitle={`BROWSER ${isThisBrowserBound ? "" : "NOT "}BOUND`}
+            isSet={isThisBrowserBound}
             handleAction={createSignInLink}
             actionInProgress={creatingSignInLink}
           >
