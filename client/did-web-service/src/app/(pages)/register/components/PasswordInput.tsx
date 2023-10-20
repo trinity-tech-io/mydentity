@@ -60,7 +60,7 @@ const PasswordInput: FC<{
             {showPassword ? (
               <VisibilityOff sx={{ fontSize: { xs: 20, sm: 24 } }} />
             ) : (
-              <Visibility />
+              <Visibility sx={{ fontSize: { xs: 20, sm: 24 } }} />
             )}
           </IconButtonStyled>
         </InputAdornment>

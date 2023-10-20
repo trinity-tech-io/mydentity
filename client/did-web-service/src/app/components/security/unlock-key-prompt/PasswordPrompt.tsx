@@ -11,11 +11,11 @@ export const PasswordPrompt: FC<{
   const [password, setPassword] = useState<string>("");
   const pwInputRef = useRef(null);
 
-  const handlePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePassword = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setPassword(e.target.value);
   };
 
-  const submitPassword = (event: FormEvent | MouseEvent) => {
+  const submitPassword = (event: FormEvent | MouseEvent): void => {
     event.preventDefault();
     if(!pwInputRef.current.value) {
       pwInputRef.current.focus()
