@@ -18,6 +18,7 @@ import { AuthExceptionCode } from "../exceptions/exception-codes";
 import { logger } from "../logger";
 import { SignUpInput } from './dto/sign-up.input';
 import { UserPropertyInput } from "./dto/user-property.input";
+import { UserEmailWsGateway } from "./user-email.ws.gateway";
 
 @Injectable()
 export class UserService {
@@ -29,7 +30,8 @@ export class UserService {
     @Inject(forwardRef(() => EmailingService)) private readonly emailingService: EmailingService,
     private readonly browsersService: BrowsersService,
     private readonly activityService: ActivityService,
-    private temporaryAuthService: TemporaryAuthService
+    private temporaryAuthService: TemporaryAuthService,
+    private userEmailWsGateway: UserEmailWsGateway
   ) { }
 
   /**
@@ -198,7 +200,9 @@ export class UserService {
       update: {
         // do nothing.
       }
-    })
+    });
+
+    await this.userEmailWsGateway.notifyEmailCreated(user, userEmail);
 
     await this.createBindEmailActivity(user, UserEmailProvider.RAW, userEmail);
 
@@ -311,22 +315,27 @@ export class UserService {
         include: {
           user: true
         }
-      })
+      });
+
+      await this.userEmailWsGateway.notifyEmailCreated(user, userEmail);
     }
 
     await this.createBindEmailActivity(user, emailProvider, userEmail);
 
-    logger.log('user', 'bind user with email successfully', user, email);
+    logger.log(`user, bind user with email successfully`, user, email);
 
     return user;
   }
 
   async listUserEmails(user: User) {
-    return await this.prisma.userEmail.findMany({
+    const emails = await this.prisma.userEmail.findMany({
       where: {
         userId: user.id
       }
-    })
+    });
+
+    logger.log(`user, listUserEmails`, emails);
+    return emails;
   }
 
   async deleteUserEmail(user: User, email: string) {

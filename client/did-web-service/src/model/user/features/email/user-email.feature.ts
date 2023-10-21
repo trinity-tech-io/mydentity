@@ -10,6 +10,8 @@ import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { logger } from "@services/logger";
 import { AdvancedBehaviorSubject } from "@utils/advanced-behavior-subject";
+import { onMessage } from "@services/websockets/websocket.events";
+import { WebSocketEventType } from "@services/websockets/websocket.types";
 
 export function isEmailAlreadyExistsException(e: AppException): boolean {
     return e.appExceptionCode === AuthExceptionCode.EmailAlreadyExists;
@@ -22,7 +24,23 @@ export function isEmailNotExistsException(e: AppException): boolean {
 export class UserEmailFeature implements UserFeature {
     public userEmails$ = new AdvancedBehaviorSubject<UserEmail[]>([], () => this.fetchUserEmails());
 
-    constructor(protected user: User) { }
+    constructor(protected user: User) {
+        this.connectSocketEvents();
+    }
+
+    private connectSocketEvents(): void {
+        onMessage.subscribe(async e => {
+            if (e.event === WebSocketEventType.USER_EMAIL_CREATED) {
+                logger.log("userEmail", 'USER_EMAIL_CREATED:', e.data);
+                const userEmail = await UserEmail.fromJson(e.data);
+                const email = this.userEmails$.value.find(e => e.id === userEmail.id);
+                if (!email) {
+                    logger.log("userEmail", 'USER_EMAIL_CREATED, append a new one,', userEmail);
+                    this.userEmails$.next([...this.userEmails$.value, userEmail]);
+                }
+            }
+        });
+    }
 
     private async fetchUserEmails(): Promise<UserEmail[]> {
         logger.log("user", "Fetching user emails.");
@@ -42,7 +60,10 @@ export class UserEmailFeature implements UserFeature {
         });
 
         if (result?.data?.fetchUserEmails) {
-            return result.data.fetchUserEmails.map(e => UserEmail.fromJson(e, this.user));
+            // console.log(`>>>>> UserEmailFeature.fetchUserEmails`, result?.data?.fetchUserEmails);
+            const emails = result.data.fetchUserEmails.map(e => UserEmail.fromJson(e, this.user));
+            // INFO: Maybe websocket USER_EMAIL_CREATED events arrived first.
+            return [...emails, ...this.userEmails$.value];
         }
 
         console.error('user', 'can not fetch user emails.');

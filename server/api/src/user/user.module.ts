@@ -9,11 +9,14 @@ import { BrowsersModule } from "../browsers/browsers.module";
 import { EmailingModule } from "../emailing/emailing.module";
 import { UserResolver } from './user.resolver';
 import { UserService } from './user.service';
+import { UserEmailWsGateway } from "./user-email.ws.gateway";
+import { CommonWsModule } from "../websockets/ws.module";
 
 @Module({
   providers: [
     UserResolver,
     UserService,
+    UserEmailWsGateway
   ],
   imports: [
     PrismaModule,
@@ -24,6 +27,7 @@ import { UserService } from './user.service';
     forwardRef(() => ActivityModule),
     forwardRef(() => BrowsersModule),
     forwardRef(() => TemporaryAuthModule),
+    forwardRef(() => CommonWsModule),
   ],
   exports: [
     UserResolver,

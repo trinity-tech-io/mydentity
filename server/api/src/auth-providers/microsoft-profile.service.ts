@@ -36,7 +36,7 @@ export class MicrosoftProfileService {
           const tokenData = JSON.parse(body);
           resolve(tokenData.access_token);
         } else {
-          console.error('microsoft', 'Error exchanging authorization code for access token:', error, response, body);
+          logger.error(`microsoft, Error exchanging authorization code for access token, ${error}, ${response.statusCode}, ${body}`);
           reject(new Error('Can not get token by Microsoft code.'));
         }
       });

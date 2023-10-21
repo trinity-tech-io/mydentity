@@ -23,7 +23,6 @@ const Security: FC = () => {
   const [shadowKeys] = useBehaviorSubject(securityFeature?.shadowKeys$);
   const isPasswordBound = securityFeature?.isPasswordBound();
   const isThisBrowserBound = securityFeature?.isThisBrowserBound();
-  const isEmailBound = userEmails?.length > 0;
   const router = useRouter();
 
   const searchParams = useSearchParams();
@@ -94,12 +93,12 @@ const Security: FC = () => {
             className="h-full"
             icon={<ReactIcon icon="entypo:email" />}
             title="Connect email address"
-            statusTitle={`EMAIL ${isEmailBound ? "" : "NOT "}LINKED`}
-            isSet={isEmailBound}
-            actionTitle={isEmailBound ? "BIND MORE" : "VERIFY EMAIL"}
+            statusTitle={`EMAIL ${userEmails?.length ? "" : "NOT "}LINKED`}
+            isSet={userEmails?.length && userEmails?.length > 0}
+            actionTitle={userEmails?.length ? "BIND MORE" : "VERIFY EMAIL"}
             handleAction={bindEmail}
           >
-            {isEmailBound ? (
+            {userEmails?.length ? (
               <>
                 <Typography variant="body2">
                   Email addresses already bound

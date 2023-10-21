@@ -32,7 +32,7 @@ export class SimpleWebsocketAdapter implements WebsocketAdapter {
     logger.log("Creating simple - WS server");
 
     this.wss.on('connection', (ws, request) => {
-      logger.log("Incoming WS connection", ws);
+      logger.log("Incoming WS connection");
       this.onConnect({ ws: <ExtendedWebSocket>ws, request });
     });
 
