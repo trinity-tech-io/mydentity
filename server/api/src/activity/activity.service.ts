@@ -4,6 +4,7 @@ import { PrismaService } from "../prisma/prisma.service";
 import { ActivityWsGateway } from "./activity.ws.gateway";
 import { UserEntity } from "../user/entities/user.entity";
 import { CreateActivityInput } from "./dto/create-activity.input";
+import { DeleteActivitiesInput } from "./dto/delete-activities.input";
 
 @Injectable()
 export class ActivityService {
@@ -69,5 +70,37 @@ export class ActivityService {
         await this.activityWsGateway.notifyActivityCreated(user, activity);
 
         return activity;
+    }
+
+    /**
+     * Check all activity ids belong to user.
+     * @param user
+     * @param ids at least contain one.
+     */
+    public async isOwnActivities(user: User, ids: string[]) {
+        const activities = await this.prisma.activity.findMany({
+            where: {
+                id: { in: ids },
+                userId: user.id,
+            }
+        });
+        if (!activities)
+            return false;
+
+        const resultIds = activities.map(a => a.id);
+        return ids.every(id => resultIds.includes(id));
+    }
+
+    /**
+     * Delete activities by id array.
+     * @param user
+     * @param input
+     */
+    public async deleteActivities(user: User, input: DeleteActivitiesInput): Promise<void> {
+        await this.prisma.activity.deleteMany({
+            where: {
+                id: { in: input.ids }
+            }
+        });
     }
 }

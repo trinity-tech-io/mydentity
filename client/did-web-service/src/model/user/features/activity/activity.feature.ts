@@ -11,6 +11,7 @@ import { logger } from "@services/logger";
 import { onMessage } from "@services/websockets/websocket.events";
 import { WebSocketEventType } from "@services/websockets/websocket.types";
 import { AdvancedBehaviorSubject } from "@utils/advanced-behavior-subject";
+import { DeleteActivitiesInput } from "@model/activity/delete-activities.input";
 
 export class ActivityFeature implements UserFeature {
     public activities$ = new AdvancedBehaviorSubject<Activity[]>([], () => this.fetchActivities());
@@ -64,11 +65,11 @@ export class ActivityFeature implements UserFeature {
         const result = await withCaughtAppException(async () => {
             return await (await getApolloClient()).mutate<{ createActivity: ActivityDto }>({
                 mutation: gql`
-            mutation CreateActivity($input: CreateActivityInput!) {
-                createActivity(input: $input) {
-                    ${graphQLActivityFields}
-                }
-            } `,
+                mutation CreateActivity($input: CreateActivityInput!) {
+                    createActivity(input: $input) {
+                        ${graphQLActivityFields}
+                    }
+                } `,
                 variables: { input }
             });
         });
@@ -81,6 +82,27 @@ export class ActivityFeature implements UserFeature {
             logger.error('activity', 'Failed to create activity.');
             return null;
             // throw new Error('Failed to create activity.');
+        }
+    }
+
+    public async deleteActivities(input: DeleteActivitiesInput): Promise<boolean> {
+        logger.log("activity", "Delete activities");
+
+        const result = await withCaughtAppException(async () => {
+            return await (await getApolloClient()).mutate<{ deleteActivities: ActivityDto }>({
+                mutation: gql`
+                mutation DeleteActivities($input: DeleteActivitiesInput!) {
+                    deleteActivities(input: $input)
+                } `,
+                variables: { input }
+            });
+        });
+
+        if (result?.data?.deleteActivities) {
+            return true;
+        } else {
+            logger.error('activity', 'Failed to delete activities.');
+            return false;
         }
     }
 }
