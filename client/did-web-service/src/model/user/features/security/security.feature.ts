@@ -201,8 +201,7 @@ export class SecurityFeature implements UserFeature {
 
   private getPasskeyPublicKeyCredentialWithUserName(userName: string): PublicKeyCredentialDescriptorJSON[] {
     // Get existing passkey data.
-    const passkey = process.env.NEXT_PUBLIC_PASSKEY_USERS;
-    const existingPasskeys: { name: string, credentialId: string }[] = JSON.parse(localStorage.getItem(passkey)) || [];
+    const existingPasskeys: { name: string, credentialId: string }[] = JSON.parse(localStorage.getItem("passkey_users_list")) || [];
 
     // Iterate through the array and search for matching users
     const user = existingPasskeys.find((user) => user.name === userName);
@@ -218,8 +217,7 @@ export class SecurityFeature implements UserFeature {
   */
   private updatePasskey(userName: string, credentialId: string): void {
     // Get existing passkey data from localStorage
-    const passkey = process.env.NEXT_PUBLIC_PASSKEY_USERS;
-    const existingPasskeys: { name: string, credentialId: string }[] = JSON.parse(localStorage.getItem(passkey)) || [];
+    const existingPasskeys: { name: string, credentialId: string }[] = JSON.parse(localStorage.getItem("passkey_users_list")) || [];
 
     // Check if the userName already exists in the passkey data
     const userIndex = existingPasskeys.findIndex((user) => user.name === userName);

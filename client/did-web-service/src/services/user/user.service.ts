@@ -271,8 +271,7 @@ function getPasskeyPublicKeyCredentialWithUserName(credentialId: string): Public
  * Get all local passkey users.
 */
 export function getPasskeyAllUsers(): { name: string, credentialId: string }[] {
-  const passkey = process.env.NEXT_PUBLIC_PASSKEY_USERS
-  const passkeyUsersString = localStorage.getItem(passkey);
+  const passkeyUsersString = localStorage.getItem("passkey_users_list");
   const passkeyUsers: { name: string, credentialId: string }[] = passkeyUsersString ? JSON.parse(passkeyUsersString) : [];
   console.log("TODO: REMOVE: passkeyUsers: ", passkeyUsers)
   return passkeyUsers
