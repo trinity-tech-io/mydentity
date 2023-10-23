@@ -9,6 +9,7 @@ import { authUser$ } from "@services/user/user.events";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next13-progressbar";
 import { FC, useEffect, useState } from "react";
+import QRCode from "react-qr-code";
 import { BrowserRow } from "./components/BrowserRow";
 import SecuritySection from "./components/SecuritySection";
 
@@ -186,21 +187,20 @@ const Security: FC = () => {
             icon={<ReactIcon icon="fluent-mdl2:website" />}
             title="Sign in from another browser"
             actionTitle={"CREATE A SIGN IN LINK"}
-            statusTitle={`BROWSER ${isThisBrowserBound ? "" : "NOT "}BOUND`}
-            isSet={isThisBrowserBound}
+            statusTitle={null}
             handleAction={createSignInLink}
             actionInProgress={creatingSignInLink}
           >
             {!externalAuthUrl && (
               <Typography variant="body2">
-                Your browser is bound to your account.
+                You can create a temporary url to sign in from another browser on your computer or mobile phone.
               </Typography>
             )}
             {externalAuthUrl && (
               <>
                 <Typography variant="body2">
                   Send the following url to your another browser to sign in from
-                  there. Use PIN code {externalAuthPinCode} when asked. This link is valid for 10 minutes.
+                  there. Use PIN code <b>{externalAuthPinCode}</b> when asked. This link is valid for 10 minutes.
                 </Typography>
                 <Stack direction="row" alignItems="center" className="mt-2" spacing={1}>
                   <Typography variant="body2" className="break-all">
@@ -210,6 +210,9 @@ const Security: FC = () => {
                     <CopyButton text={externalAuthUrl} />
                   </div>
                 </Stack>
+                <div className="p-8 mt-4 bg-white flex items-center justify-center">
+                  <QRCode value={externalAuthUrl} />
+                </div>
               </>
             )}
           </SecuritySection>
