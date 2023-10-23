@@ -6,10 +6,12 @@ const ReaderBox = styled(Box)((theme) => ({
   width: 320,
   height: 300,
   display: "flex",
+  "--sz": "14px",
+  "--lg": "#5dff05",
   ".surface": {
     perspective: "1000px",
     fontSize: "5rem",
-    borderRadius: 24,
+    borderRadius: 20,
     padding: "1.3rem",
     backgroundColor: "#0A0A0A",
     "&.top": {
@@ -65,7 +67,7 @@ const ReaderBox = styled(Box)((theme) => ({
       left: -2,
       width: "calc(100% + 4px)",
       height: "calc(100% + 4px)",
-      borderRadius: 24,
+      borderRadius: 20,
       boxShadow: "0 0 20px black",
       zIndex: -1,
       background:
@@ -90,8 +92,29 @@ const ReaderBox = styled(Box)((theme) => ({
       height: "100%",
       animation: "colorChange 5s linear infinite",
       transform: "scaleY(1.4) scaleX(2.0) translateY(100%)",
-      transition: "all 1s ease-in"
-    }
+      transition: "all 1s ease-in",
+    },
+  },
+  "span.light": {
+    width: "calc(var(--sz) / 1.75)",
+    height: "calc(var(--sz) / 1.75)",
+    borderRadius: "50%",
+    boxShadow:
+      "0 0 calc(var(--sz) / 50) calc(var(--sz) / 50) #0008, 0 calc(var(--sz) / -20) calc(var(--sz) / 10) calc(var(--sz) / 500) #000, 0 calc(var(--sz) / 20) calc(var(--sz) / 10) calc(var(--sz) / 500) #fff8, 0 0 calc(var(--sz) / 20) calc(var(--sz) / 25) #000",
+    "&:after": {
+      content: "''",
+      width: "calc(100% - calc(var(--sz) / 15))",
+      height: "calc(100% - calc(var(--sz) / 15))",
+      position: "absolute",
+      borderRadius: "50%",
+      boxShadow:
+        "0 0 calc(var(--sz) / 3) 0 #00f56d20, 0 0 calc(var(--sz) / 3) calc(var(--sz) / 20) #00f56d20 inset; background: radial-gradient(circle at 50% 32%, #fff5 0 calc(var(--sz) / 20), #000 calc(var(--sz) / 3) calc(var(--sz) / 3))",
+      transition: "all 0.5s ease-out",
+    },
+    "&.on:after": {
+      boxShadow:
+        "0 0 calc(var(--sz) / 2.5) 0 var(--lg), 0 0 calc(var(--sz) / 3) calc(var(--sz) / 20) var(--lg) inset, 0 calc(var(--sz) / -20) calc(var(--sz) / 10) calc(var(--sz) / 10) #000 inset; background: radial-gradient(circle at 50% 32%, #fff 0 calc(var(--sz) / 20), #fff2 calc(var(--sz) / 3) calc(var(--sz) / 3))",
+    },
   },
   "@keyframes bloc-reval": {
     "0%": {
@@ -153,7 +176,7 @@ const CardReader: FC = () => {
         <span className="entry" />
       </div>
       <div className="surface absolute w-full h-full overflow-hidden flex top flex-col">
-        <span className="light" />
+        <span className="light relative" />
         <div className="entry-left" />
         <span className="entry" />
       </div>
