@@ -125,7 +125,7 @@ export class SecurityFeature implements UserFeature {
     console.log("bindPasskey>>>>>>>>>>>> shadowKey: ", shadowKey)
     if (shadowKey) {
       this.upsertShadowKey(shadowKey);
-      this.updatePasskey(registResponse.id)
+      this.updatePasskey(this.user.name$.value, registResponse.id)
       return true;
     }
 
@@ -160,7 +160,7 @@ export class SecurityFeature implements UserFeature {
   // TO UNLOCK PASSKEY
   private async unlockPasskeyOptions(challengeInfo: ChallengeEntity, userName?: string): Promise<PublicKeyCredentialRequestOptionsJSON> {
     const rpId = process.env.NEXT_PUBLIC_RP_ID
-    const allowCredentials = this.getPasskeyAllowCredentials()
+    const allowCredentials = this.getPasskeyPublicKeyCredentialWithUserName(this.user.name$.value)
     const publicKeyCredentialCreationOptions: PublicKeyCredentialRequestOptionsJSON = {
       challenge: challengeInfo.content,
       allowCredentials: allowCredentials,
@@ -199,38 +199,43 @@ export class SecurityFeature implements UserFeature {
     return pkCredentialCreationOptionsJSON
   }
 
-  /**
-   * Get the credentialIds of the locally stored passkey
-  */
-  private getPasskeyAllowCredentials(): PublicKeyCredentialDescriptorJSON[] {
-    const passkeyCredentialIdsString = localStorage.getItem('passkey_credentialIds');
-    const passkeyCredentialIds = passkeyCredentialIdsString ? JSON.parse(passkeyCredentialIdsString) : [];
+  private getPasskeyPublicKeyCredentialWithUserName(userName: string): PublicKeyCredentialDescriptorJSON[] {
+    // Get existing passkey data.
+    const passkey = process.env.NEXT_PUBLIC_PASSKEY_USERS;
+    const existingPasskeys: { name: string, credentialId: string }[] = JSON.parse(localStorage.getItem(passkey)) || [];
 
-    return passkeyCredentialIds.map((credentialId: string) => ({
-      id: credentialId,
+    // Iterate through the array and search for matching users
+    const user = existingPasskeys.find((user) => user.name === userName);
+    return [{
+      id: user.credentialId,
       type: 'public-key',
       transports: ['internal'],
-    }));
+    }]
   }
 
   /**
    * Update the credentialIds of the locally stored passkey
   */
-  private updatePasskey(credentialId: string): void {
-    const existingPasskeys = JSON.parse(localStorage.getItem('passkey_credentialIds')) || [];
-    // Check if credentialId exists in the array
-    const passkeyIndex = existingPasskeys.indexOf(credentialId);
+  private updatePasskey(userName: string, credentialId: string): void {
+    // Get existing passkey data from localStorage
+    const passkey = process.env.NEXT_PUBLIC_PASSKEY_USERS;
+    const existingPasskeys: { name: string, credentialId: string }[] = JSON.parse(localStorage.getItem(passkey)) || [];
 
-    // If credentialId exists, update it; otherwise, add it to the array
-    if (passkeyIndex !== -1) {
-      existingPasskeys[passkeyIndex] = credentialId;
+    // Check if the userName already exists in the passkey data
+    const userIndex = existingPasskeys.findIndex((user) => user.name === userName);
+
+    if (userIndex !== -1) {
+      // If it exists, update the credentialId
+      existingPasskeys[userIndex].credentialId = credentialId;
     } else {
-      existingPasskeys.push(credentialId);
+      // If it doesn't exist, create a new entry as an object
+      const newUser = { name: userName, credentialId };
+      existingPasskeys.push(newUser);
     }
 
-    // Store the updated passkeys array in localStorage
-    localStorage.setItem('passkey_credentialIds', JSON.stringify(existingPasskeys));
-  }
+    // Save the updated passkey data back to localStorage
+    localStorage.setItem(passkey, JSON.stringify(existingPasskeys));
+  }  
 
   private upsertShadowKey(shadowKey: ShadowKey): void {
     const keys = this.shadowKeys$.value;

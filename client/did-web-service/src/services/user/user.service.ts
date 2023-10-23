@@ -242,9 +242,9 @@ export function isSignedIn(): boolean {
   return accessToken && accessToken !== '';
 }
 
-function unlockPasskeyOptions(challengeInfo: ChallengeEntity): PublicKeyCredentialRequestOptionsJSON {
+function unlockPasskeyOptions(credentialId: string, challengeInfo: ChallengeEntity): PublicKeyCredentialRequestOptionsJSON {
   const rpId = process.env.NEXT_PUBLIC_RP_ID
-  const allowCredentials = getPasskeyAllowCredentials()
+  const allowCredentials = getPasskeyPublicKeyCredentialWithUserName(credentialId)
   const publicKeyCredentialCreationOptions: PublicKeyCredentialRequestOptionsJSON = {
     challenge: challengeInfo.content,
     allowCredentials: allowCredentials,
@@ -257,24 +257,32 @@ function unlockPasskeyOptions(challengeInfo: ChallengeEntity): PublicKeyCredenti
 }
 
 /**
- * Get the credentialIds of the locally stored passkey
+ * Get the PublicKeyCredentialDescriptorJSON
 */
-function getPasskeyAllowCredentials(): PublicKeyCredentialDescriptorJSON[] {
-  const passkeyCredentialIdsString = localStorage.getItem('passkey_credentialIds');
-  const passkeyCredentialIds = passkeyCredentialIdsString ? JSON.parse(passkeyCredentialIdsString) : [];
-
-  return passkeyCredentialIds.map((credentialId: string) => ({
+function getPasskeyPublicKeyCredentialWithUserName(credentialId: string): PublicKeyCredentialDescriptorJSON[] {
+  return [{
     id: credentialId,
     type: 'public-key',
     transports: ['internal'],
-  }));
+  }]
 }
 
-export async function authenticateWithPasskey(): Promise<boolean> {
+/**
+ * Get all local passkey users.
+*/
+export function getPasskeyAllUsers(): { name: string, credentialId: string }[] {
+  const passkey = process.env.NEXT_PUBLIC_PASSKEY_USERS
+  const passkeyUsersString = localStorage.getItem(passkey);
+  const passkeyUsers: { name: string, credentialId: string }[] = passkeyUsersString ? JSON.parse(passkeyUsersString) : [];
+  console.log("TODO: REMOVE: passkeyUsers: ", passkeyUsers)
+  return passkeyUsers
+}
+
+export async function authenticateWithPasskey(credentialId: string): Promise<boolean> {
   logger.log("user", "Authenticating with passkey");
 
   const challengeInfo = await getPasskeyChallenge()
-  const unlockOptions = unlockPasskeyOptions(challengeInfo)
+  const unlockOptions = unlockPasskeyOptions(credentialId, challengeInfo)
   // true: Autofill account password will report an error
   // TODO: REMOVE
   console.log("authenticateWithPasskey>>>>>>>>>>>> unlockOptions: ", unlockOptions)
