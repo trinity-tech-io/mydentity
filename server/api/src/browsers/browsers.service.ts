@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Browser, User } from '@prisma/client/main';
+import { KeyRingService } from 'src/key-ring/key-ring.service';
 import { logger } from 'src/logger';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as userAgentParser from 'ua-parser-js';
@@ -7,7 +8,10 @@ import { v4 } from 'uuid';
 
 @Injectable()
 export class BrowsersService {
-  constructor(private prisma: PrismaService) { }
+  constructor(
+    private prisma: PrismaService,
+    private keyRingService: KeyRingService,
+  ) { }
 
   /**
    * Creates a new user bound browser and give it a default name.
@@ -38,7 +42,7 @@ export class BrowsersService {
   /**
    * - If a browser key is given, makes sure it exists in database for this user. If not, create a new one.
    * - If no browser key is given, create a new one too
-   * 
+   *
    * Returns the browser key to use.
    */
   public async validateOrCreateBrowserKey(user: User, userAgent: string, existingBrowserKey?: string): Promise<string> {
@@ -78,16 +82,34 @@ export class BrowsersService {
     });
   }
 
-  public async deleteBrowser(browserId: string, user?: User) {
-    logger.log('deleteBrowser ' + browserId)
+  public async deleteBrowser(browserId: string, user: User) {
+    logger.log('Deleting browser with ' + browserId);
 
-    // TODO: delete potential dependencies.
-    // remove shadowKey
+    // Remove browser shadow keys
+    const shadowKeys = await this.prisma.userShadowKey.findMany({
+      where: {
+        browserId,
+        userId: user.id
+      }
+    });
 
-    await this.prisma.browser.delete({
+    for (const shadowKey of shadowKeys) {
+      await this.keyRingService.removeKey(shadowKey.keyId, user);
+    }
+
+    // Remove activities
+    await this.prisma.activity.deleteMany({
+      where: {
+        browserId: browserId,
+        userId: user.id
+      }
+    });
+
+    // Remove the browser itself
+    await this.prisma.browser.deleteMany({
       where: {
         id: browserId,
-        ...(user && { userId: user.id })
+        userId: user.id
       }
     });
   }

@@ -32,18 +32,14 @@
 
 ## LinkedIn auth
 
-- https://developer.linkedin.com/
-- Account:
-  - tech-accounts@mingler.io
-  - ben's france phone number
-  - https://www.linkedin.com/in/mingler-mingler-b82a88276/
-- Fill fake profile
-- Create linkedin company page
-  - Could not create a page with an empty new user account. User Ben's main linkedin instead for now.
-  - Could not add the new mingler account as administrator
+- https://developer.linkedin.com/ -> https://www.linkedin.com/developers/apps/new
 - Create app
-  - Add Sign in with linkedin feature
+  - Created with Ben's linkedin account
+  - Use company page:
+    - https://www.linkedin.com/company/trinity-tech-io/
+    - (Admin: Ben)
   - Get auth client and secret from the auth tab
-  - Add redirect urls:
+  - Add "Authorized redirect URLs for your app":
     - http://localhost:4000/oauth/linkedin/redirect
-- NOTE: APP is created by the ttech accounts user, but COMPANY PAGE is managed by Ben for now
+    - https://staging.ownmydentity.com/oauth/linkedin/redirect
+    - https://ownmydentity.com/oauth/linkedin/redirect

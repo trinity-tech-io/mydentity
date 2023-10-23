@@ -1,9 +1,9 @@
 import { forwardRef, Module } from '@nestjs/common';
+import { AuthModule } from 'src/auth/auth.module';
+import { PrismaModule } from 'src/prisma/prisma.module';
+import { ActivityModule } from "../activity/activity.module";
 import { KeyRingResolver } from './key-ring.resolver';
 import { KeyRingService } from './key-ring.service';
-import { PrismaModule } from 'src/prisma/prisma.module';
-import { AuthModule } from 'src/auth/auth.module';
-import { ActivityModule } from "../activity/activity.module";
 
 @Module({
   providers: [
@@ -12,7 +12,7 @@ import { ActivityModule } from "../activity/activity.module";
   ],
   imports: [
     PrismaModule,
-    AuthModule,
+    forwardRef(() => AuthModule),
     forwardRef(() => ActivityModule)
   ],
   exports: [
