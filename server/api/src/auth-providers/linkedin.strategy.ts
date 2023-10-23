@@ -12,7 +12,7 @@ export class LinkedinStrategy extends PassportStrategy(Strategy, 'linkedin') {
       clientID: configService.getOrThrow<string>('LINKEDIN_CLIENT_ID'),
       clientSecret: configService.getOrThrow<string>('LINKEDIN_CLIENT_SECRET'),
       callbackURL: configService.getOrThrow<string>('LINKEDIN_CALLBACK_URL'),
-      scope: ['r_emailaddress', 'r_liteprofile'],
+      scope: ['openid', 'profile', 'email'],
     });
 
     // proxy to get token from google apis server.

@@ -58,7 +58,7 @@ export class LinkedinProfileService {
           const tokenData = JSON.parse(body);
           resolve(tokenData.access_token);
         } else {
-          logger.error('linkedin', 'Error exchanging Linkedin authorization code for access token:', error, response, body);
+          logger.error('linkedin', 'Error exchanging Linkedin authorization code for access token:', error, response?.statusCode, body);
           reject(new Error('Can not get token by Linkedin code.'));
         }
       });
@@ -72,7 +72,7 @@ export class LinkedinProfileService {
       };
 
       const options = {
-        url: 'https://api.linkedin.com/v2/emailAddress?q=members&projection=(elements*(handle~))',
+        url: 'https://api.linkedin.com/v2/userinfo',
         headers: headers,
       };
 
@@ -94,7 +94,7 @@ export class LinkedinProfileService {
         let email = null;
         try {
           const data = JSON.parse(body);
-          email = data?.elements[0]['handle~']['emailAddress'];
+          email = data.email;
           console.log('linkedin', `user email: ${email}`);
         } catch (e) {
           logger.error('linkedin', 'Exception fetching user email:', e);

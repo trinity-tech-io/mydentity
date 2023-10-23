@@ -13,8 +13,15 @@ const MicrosoftRedirect: FC = () => {
   const searchParams = useSearchParams();
   const code = searchParams.get('code');
   const { navigateToPostSignInLandingPage } = usePostSignInFlow();
+  let init = false;
 
   useEffect(() => {
+    // INFO: Another way is set reactStrictMode to false on next.config.js to avoid call userEffect twice.
+    if (init) {
+      return;
+    }
+    init = true;
+
     if (!code) {
       alert('GoogleRedirect: No code from Google authentication callback.');
       return;
