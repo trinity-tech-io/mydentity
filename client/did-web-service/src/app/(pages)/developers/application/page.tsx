@@ -220,14 +220,18 @@ const ApplicationDetailsPage: FC<{
         description="Fill in the details below to register your app, which will enable seamless communication with the identity framework, enhancing services, and customizing user experiences."
         showBg={true}
       />
-      <CardReader
-        identityCard={
-          <ApplicationCard
-            identity={appIdentity}
-            wrapperClassName="w-full h-full"
-          />
-        }
-      />
+      <div className="sm:ml-[10vw]">
+        <CardReader
+          identityCard={
+            appIdentity && (
+              <ApplicationCard
+                identity={appIdentity}
+                wrapperClassName="w-full h-full"
+              />
+            )
+          }
+        />
+      </div>
       <div>
         <Typography variant="h6">Application details</Typography>
 

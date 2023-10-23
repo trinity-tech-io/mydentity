@@ -1,6 +1,8 @@
-import { FC, ReactNode } from "react";
+import { FC, ReactNode, useState } from "react";
 import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { useMounted } from "@hooks/useMounted";
+import clsx from "clsx";
 
 const ReaderBox = styled(Box)((theme) => ({
   width: 360,
@@ -168,6 +170,14 @@ const ReaderBox = styled(Box)((theme) => ({
   },
 }));
 const CardReader: FC<{ identityCard: ReactNode }> = ({ identityCard }) => {
+  const { mounted } = useMounted();
+  const [isInserted, setIsInserted] = useState(false);
+  if (mounted && identityCard) {
+    setTimeout(() => {
+      setIsInserted(true);
+    }, 1000);
+  }
+
   return (
     <ReaderBox className="relative flex items-center justify-center">
       <div className="surface-back-light absolute w-1/4 h-1/4" />
@@ -176,13 +186,19 @@ const CardReader: FC<{ identityCard: ReactNode }> = ({ identityCard }) => {
         <span className="entry" />
       </div>
       <div className="surface absolute w-full h-full overflow-hidden flex top flex-col">
-        <span className="light relative" />
+        <span className={clsx("light relative", isInserted && "on")} />
         <div className="entry-left" />
         <span className="entry" />
       </div>
       <Box
-        className="absolute top-[11%] bottom-[11%] left-[100%]"
-        sx={{ width: "calc((80%*5/6)*100/63.29)" }}
+        className={clsx(
+          "absolute top-[11%] bottom-[11%] left-[100%]",
+          mounted && !!identityCard && "left-[50%]"
+        )}
+        sx={{
+          width: "calc((80%*5/6)*100/63.29)",
+          transition: "left 1s ease-out",
+        }}
       >
         {identityCard}
       </Box>
