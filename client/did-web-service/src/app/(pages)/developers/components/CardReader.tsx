@@ -1,9 +1,9 @@
-import { FC } from "react";
+import { FC, ReactNode } from "react";
 import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 const ReaderBox = styled(Box)((theme) => ({
-  width: 320,
+  width: 360,
   height: 300,
   display: "flex",
   "--sz": "14px",
@@ -167,7 +167,7 @@ const ReaderBox = styled(Box)((theme) => ({
     },
   },
 }));
-const CardReader: FC = () => {
+const CardReader: FC<{ identityCard: ReactNode }> = ({ identityCard }) => {
   return (
     <ReaderBox className="relative flex items-center justify-center">
       <div className="surface-back-light absolute w-1/4 h-1/4" />
@@ -180,6 +180,12 @@ const CardReader: FC = () => {
         <div className="entry-left" />
         <span className="entry" />
       </div>
+      <Box
+        className="absolute top-[11%] bottom-[11%] left-[100%]"
+        sx={{ width: "calc((80%*5/6)*100/63.29)" }}
+      >
+        {identityCard}
+      </Box>
     </ReaderBox>
   );
 };

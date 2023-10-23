@@ -15,6 +15,7 @@ import { authUser$ } from "@services/user/user.events";
 import { useSearchParams } from "next/navigation";
 import { ChangeEvent, FC, useCallback, useEffect, useState } from "react";
 import CardReader from "../components/CardReader";
+import ApplicationCard from "@components/applications/ApplicationCard";
 
 const ApplicationDetailsPage: FC<{
   params: {
@@ -178,8 +179,8 @@ const ApplicationDetailsPage: FC<{
   const updateAppIdentityNeedsToBePublished = (): void => {
     setAppIdentityNeedsToBePublished(
       !isAppIdentityPublished() ||
-      !chainAppNameMatchesLocalAppName() ||
-      !chainAppIconMatchesLocalAppIcon()
+        !chainAppNameMatchesLocalAppName() ||
+        !chainAppIconMatchesLocalAppIcon()
     );
   };
 
@@ -219,7 +220,14 @@ const ApplicationDetailsPage: FC<{
         description="Fill in the details below to register your app, which will enable seamless communication with the identity framework, enhancing services, and customizing user experiences."
         showBg={true}
       />
-      <CardReader />
+      <CardReader
+        identityCard={
+          <ApplicationCard
+            identity={appIdentity}
+            wrapperClassName="w-full h-full"
+          />
+        }
+      />
       <div>
         <Typography variant="h6">Application details</Typography>
 
@@ -314,9 +322,7 @@ const ApplicationDetailsPage: FC<{
             localAppCredential &&
             appIdentityNeedsToBePublished && (
               <div>
-                <div>
-                  Please update your application on chain.
-                </div>
+                <div>Please update your application on chain.</div>
                 <MainButton
                   onClick={publishAppIdentity}
                   busy={publishingIdentity}
