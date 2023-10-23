@@ -3,6 +3,7 @@ import { Breadcrumbs } from "@components/breadcrumbs/Breadcrumbs";
 import { CopyButton } from "@components/button";
 import { EditableCredentialAvatar } from "@components/credential/EditableCredentialAvatar";
 import { MainButton } from "@components/generic/MainButton";
+import Headline from "@components/layout/Headline";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { Credential } from "@model/credential/credential";
 import { Document } from "@model/document/document";
@@ -14,26 +15,35 @@ import { logger } from "@services/logger";
 import { authUser$ } from "@services/user/user.events";
 import { useSearchParams } from "next/navigation";
 import { ChangeEvent, FC, useCallback, useEffect, useState } from "react";
+import CardReader from "../components/CardReader";
 
 const ApplicationDetailsPage: FC<{
   params: {
     applicationdid: string;
-  }
+  };
 }> = ({ params }) => {
   const searchParams = useSearchParams();
-  const appDidParam = searchParams?.get('did');
+  const appDidParam = searchParams?.get("did");
   const applicationDid = appDidParam && decodeURIComponent(appDidParam); // From the url, app we are trying to manage
   const [activeUser] = useBehaviorSubject(authUser$);
   const identityFeature = activeUser?.get("identity");
-  const [appIdentities] = useBehaviorSubject(identityFeature?.applicationIdentities$);
-  const appIdentity = appIdentities?.find(a => a.did === applicationDid); // Real app identity object from the user, if found
-  const [localAppIdentityCredentials] = useBehaviorSubject(appIdentity?.credentials().credentials$); // Credentials of the app identity, local (maybe not published) - KEEP it unused to load the credentials
-  const [localAppCredential, setLocalAppCredential] = useState<Credential>(null);
+  const [appIdentities] = useBehaviorSubject(
+    identityFeature?.applicationIdentities$
+  );
+  const appIdentity = appIdentities?.find((a) => a.did === applicationDid); // Real app identity object from the user, if found
+  const [localAppIdentityCredentials] = useBehaviorSubject(
+    appIdentity?.credentials().credentials$
+  ); // Credentials of the app identity, local (maybe not published) - KEEP it unused to load the credentials
+  const [localAppCredential, setLocalAppCredential] =
+    useState<Credential>(null);
   const [appName, setAppName] = useState<string>(null); // UI model, possibly not yet saved to local VC/published VC
   const [appIconUrl, setAppIconUrl] = useState<string>(null); // UI model, possibly not yet saved to local VC/published VC
-  const [appDIDDocumentStatusWasChecked, setAppDIDDocumentStatusWasChecked] = useState(false); // Whether the App DID document has been checked on chain or not yet
-  const [publishedDIDDocument, setPublishedDIDDocument] = useState<Document>(null);
-  const [appIdentityNeedsToBePublished, setAppIdentityNeedsToBePublished] = useState(false);
+  const [appDIDDocumentStatusWasChecked, setAppDIDDocumentStatusWasChecked] =
+    useState(false); // Whether the App DID document has been checked on chain or not yet
+  const [publishedDIDDocument, setPublishedDIDDocument] =
+    useState<Document>(null);
+  const [appIdentityNeedsToBePublished, setAppIdentityNeedsToBePublished] =
+    useState(false);
   //const developerDIDDocument: DIDPlugin.DIDDocument = null;
   const [publishingIdentity, setPublishingIdentity] = useState(false);
   const { showSuccessToast, showErrorToast } = useToast();
@@ -41,25 +51,29 @@ const ApplicationDetailsPage: FC<{
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   const fetchRemoteDIDDocument = useCallback((): void => {
-    console.log("applicationDid", applicationDid)
+    console.log("applicationDid", applicationDid);
     setAppDIDDocumentStatusWasChecked(false);
-    didDocumentService.resolveDIDDocument(applicationDid, true).then(async doc => {
-      setPublishedDIDDocument(doc);
-      setAppDIDDocumentStatusWasChecked(true);
+    didDocumentService
+      .resolveDIDDocument(applicationDid, true)
+      .then(async (doc) => {
+        setPublishedDIDDocument(doc);
+        setAppDIDDocumentStatusWasChecked(true);
 
-      if (doc) {
-        logger.log("developers", "App DID is on chain");
-      }
-      else {
-        logger.log("developers", "App DID is NOT on chain");
-      }
-    })
+        if (doc) {
+          logger.log("developers", "App DID is on chain");
+        } else {
+          logger.log("developers", "App DID is NOT on chain");
+        }
+      });
   }, [applicationDid]);
 
   // Component initialization
   useEffect(() => {
     // Get the did document on chain, without any local cache
-    logger.log("developers", "Checking if the application DID is on chain or not");
+    logger.log(
+      "developers",
+      "Checking if the application DID is on chain or not"
+    );
     fetchRemoteDIDDocument();
   }, [fetchRemoteDIDDocument]);
 
@@ -82,16 +96,17 @@ const ApplicationDetailsPage: FC<{
   }, [appName, appIconUrl, publishedDIDDocument]);
 
   useEffect(() => {
-    setLocalAppCredential(appIdentity?.credentials().getCredentialByType("ApplicationCredential"));
+    setLocalAppCredential(
+      appIdentity?.credentials().getCredentialByType("ApplicationCredential")
+    );
   }, [appIdentity, localAppIdentityCredentials]);
 
   const updateLocalAppCredential = async () => {
     await appIdentity.update(appName, appIconUrl);
-  }
+  };
 
   const publishAppIdentity = async (): Promise<void> => {
-    if (publishingIdentity)
-      return;
+    if (publishingIdentity) return;
 
     // Must set the app icon
     if (!appIconUrl) {
@@ -107,57 +122,55 @@ const ApplicationDetailsPage: FC<{
     // Get a fresh version of the published document so the UI can normally update and tell "up to date"
     fetchRemoteDIDDocument();
     setPublishingIdentity(false);
-  }
+  };
 
   const isAppIdentityPublished = (): boolean => {
-    return appDIDDocumentStatusWasChecked && publishedDIDDocument != null
-  }
+    return appDIDDocumentStatusWasChecked && publishedDIDDocument != null;
+  };
 
   const getOnChainEndpoint = (endPointName: string): string => {
-    if (!publishedDIDDocument)
-      return "";
+    if (!publishedDIDDocument) return "";
 
-    const credential = publishedDIDDocument.getDIDDocument().getCredential("#appinfo");
-    if (!credential)
-      return "";
+    const credential = publishedDIDDocument
+      .getDIDDocument()
+      .getCredential("#appinfo");
+    if (!credential) return "";
 
     const subject = credential.getSubject();
-    if (!("endpoints" in subject))
-      return "";
-    else
-      return subject.getProperty("endpoints")[endPointName] || "";
-  }
+    if (!("endpoints" in subject)) return "";
+    else return subject.getProperty("endpoints")[endPointName] || "";
+  };
 
   const getOnChainAppDeveloperDID = (): string => {
-    if (!publishedDIDDocument)
-      return null;
+    if (!publishedDIDDocument) return null;
 
-    const credential = publishedDIDDocument.getDIDDocument().getCredential("#appinfo");
-    if (!credential)
-      return null;
+    const credential = publishedDIDDocument
+      .getDIDDocument()
+      .getCredential("#appinfo");
+    if (!credential) return null;
 
     const subject = credential.getSubject();
-    if (!("developer" in subject))
-      return "";
-    else
-      return subject.getProperty("developer")["did"] || "";
-  }
+    if (!("developer" in subject)) return "";
+    else return subject.getProperty("developer")["did"] || "";
+  };
 
   const chainAppNameMatchesLocalAppName = (): boolean => {
-    const appCredential = publishedDIDDocument.getCredentialByType("ApplicationCredential");
-    if (!appCredential)
-      return false;
+    const appCredential = publishedDIDDocument.getCredentialByType(
+      "ApplicationCredential"
+    );
+    if (!appCredential) return false;
 
     return appName === appCredential.getSubject().getProperty("name");
-  }
+  };
 
   const chainAppIconMatchesLocalAppIcon = (): boolean => {
-    const appCredential = publishedDIDDocument.getCredentialByType("ApplicationCredential");
-    if (!appCredential)
-      return false;
+    const appCredential = publishedDIDDocument.getCredentialByType(
+      "ApplicationCredential"
+    );
+    if (!appCredential) return false;
 
     return appIconUrl === appCredential.getSubject().getProperty("iconUrl");
-  }
+  };
 
   /**
    * Based on on going changes, updates the state that tells us if we should publish the
@@ -166,10 +179,10 @@ const ApplicationDetailsPage: FC<{
   const updateAppIdentityNeedsToBePublished = (): void => {
     setAppIdentityNeedsToBePublished(
       !isAppIdentityPublished() ||
-      !chainAppNameMatchesLocalAppName() ||
-      !chainAppIconMatchesLocalAppIcon()
+        !chainAppNameMatchesLocalAppName() ||
+        !chainAppIconMatchesLocalAppIcon()
     );
-  }
+  };
 
   const onAppTitleChange = (event: ChangeEvent<HTMLInputElement>): void => {
     setAppName(event.currentTarget?.value);
@@ -179,28 +192,35 @@ const ApplicationDetailsPage: FC<{
   const copyAppDIDToClipboard = async (): Promise<void> => {
     /* await native.copyClipboard(app.didString);
     native.genericToast('developers.app-did-copied', 2000); */
-  }
+  };
 
   const handleAppIconFileChanged = async (file: File): Promise<void> => {
     setUploadingAvatar(true);
     const uploadedAvatar = await editAvatarOnHive(appIdentity, file);
-    console.log("uploadedAvatar", uploadedAvatar)
+    console.log("uploadedAvatar", uploadedAvatar);
     setUploadingAvatar(false);
 
     await appIdentity.update(appName, uploadedAvatar.avatarHiveURL);
-  }
+  };
 
   const handleExportMnemonic = async (): Promise<void> => {
-    const mnemonic = await activeUser.get("identity").exportMnemonic(appIdentity.identityRootId);
+    const mnemonic = await activeUser
+      .get("identity")
+      .exportMnemonic(appIdentity.identityRootId);
     if (mnemonic) {
-      setShowMnemonic(mnemonic)
+      setShowMnemonic(mnemonic);
     }
-  }
+  };
 
   return (
     <div className="col-span-full">
-      <Breadcrumbs entries={["developers", "application-details"]} />
-
+      {/* <Breadcrumbs entries={["developers", "application-details"]} /> */}
+      <Headline
+        title="Application Details"
+        description="Fill in the details below to register your app, which will enable seamless communication with the identity framework, enhancing services, and customizing user experiences."
+        showBg={true}
+      />
+      <CardReader />
       <div>
         <Typography variant="h6">Application details</Typography>
 
@@ -208,7 +228,11 @@ const ApplicationDetailsPage: FC<{
         <div className="flex flex-col">
           {/* App icon */}
           <div className="flex">
-            <EditableCredentialAvatar credential={localAppCredential} onFileUpload={handleAppIconFileChanged} updating={uploadingAvatar} />
+            <EditableCredentialAvatar
+              credential={localAppCredential}
+              onFileUpload={handleAppIconFileChanged}
+              updating={uploadingAvatar}
+            />
             {/* <ion-img *ngIf="!fetchingIcon && !uploadingIcon" [src]="getAppIcon()"
               onClick="selectAndUploadAppIconFromLibrary()"></ion-img> */}
             {/* <p *ngIf="!fetchingIcon && !uploadingIcon && !base64iconPath">{{ 'developers.set-app-icon' | translate
@@ -223,7 +247,7 @@ const ApplicationDetailsPage: FC<{
             <div>Name</div>
             <div>
               <TextField
-                className='w-full'
+                className="w-full"
                 label="Application name"
                 onChange={onAppTitleChange}
                 defaultValue={appName}
@@ -237,7 +261,7 @@ const ApplicationDetailsPage: FC<{
             </div>
           </div>
         </div>
-      </div >
+      </div>
 
       {/* Other properties */}
       <div className="flex flex-col gap-4 mt-8">
@@ -247,9 +271,7 @@ const ApplicationDetailsPage: FC<{
             {/* <ion-icon name="copy" onClick={copyAppDIDToClipboard}></ion-icon> */}
           </div>
           <div className="inline-flex items-center">
-            <Typography variant="body2">
-              {applicationDid}
-            </Typography>
+            <Typography variant="body2">{applicationDid}</Typography>
             <CopyButton text={applicationDid} />
           </div>
         </div>
@@ -264,16 +286,22 @@ const ApplicationDetailsPage: FC<{
         <div className="flex flex-row gap-4">
           <div>App DID published?</div>
           <div>
-            {!appDIDDocumentStatusWasChecked && <Typography>Checking</Typography>}
-            {appDIDDocumentStatusWasChecked && publishedDIDDocument && <Typography>Yes</Typography>}
-            {appDIDDocumentStatusWasChecked && !publishedDIDDocument && <Typography>No</Typography>}
+            {!appDIDDocumentStatusWasChecked && (
+              <Typography>Checking</Typography>
+            )}
+            {appDIDDocumentStatusWasChecked && publishedDIDDocument && (
+              <Typography>Yes</Typography>
+            )}
+            {appDIDDocumentStatusWasChecked && !publishedDIDDocument && (
+              <Typography>No</Typography>
+            )}
           </div>
         </div>
 
         {/** Show application DID mnemonic*/}
         {showMnemonic ? (
           <div className="inline-flex items-center">
-            <div>{'Application DID mnemonic：' + showMnemonic}</div>
+            <div>{"Application DID mnemonic：" + showMnemonic}</div>
             <CopyButton text={showMnemonic} />
           </div>
         ) : (
@@ -283,20 +311,30 @@ const ApplicationDetailsPage: FC<{
         )}
 
         <div className="mt-4">
-          {
-            appDIDDocumentStatusWasChecked && localAppCredential && appIdentityNeedsToBePublished &&
-            <div>
-              <div>The local application info has been modified, please publish it for others to view your new app info.</div>
-              <MainButton onClick={publishAppIdentity} busy={publishingIdentity}>Publish DID</MainButton>
-            </div>
-          }
+          {appDIDDocumentStatusWasChecked &&
+            localAppCredential &&
+            appIdentityNeedsToBePublished && (
+              <div>
+                <div>
+                  The local application info has been modified, please publish
+                  it for others to view your new app info.
+                </div>
+                <MainButton
+                  onClick={publishAppIdentity}
+                  busy={publishingIdentity}
+                >
+                  Publish DID
+                </MainButton>
+              </div>
+            )}
 
-          {appDIDDocumentStatusWasChecked && localAppCredential && !appIdentityNeedsToBePublished && <p>Up to date</p>}
-
+          {appDIDDocumentStatusWasChecked &&
+            localAppCredential &&
+            !appIdentityNeedsToBePublished && <p>Up to date</p>}
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default ApplicationDetailsPage;
