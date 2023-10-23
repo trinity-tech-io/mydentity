@@ -63,7 +63,7 @@ export class IdentityFeature implements UserFeature {
     logger.log("identity", "Creating a new application identity", name);
 
     const hiveAddress = getRandomQuickStartHiveNodeAddress();
-    const identity = <ApplicationIdentity>await identityService.createIdentity(name, IdentityType.APPLICATION, hiveAddress);
+    const identity = <ApplicationIdentity>await identityService.createIdentity(name, IdentityType.APPLICATION, hiveAddress, null, true);
     this.identities$.next([identity, ...this.identities$.value]);
     return identity;
   }

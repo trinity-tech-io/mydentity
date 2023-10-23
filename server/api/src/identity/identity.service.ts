@@ -47,13 +47,13 @@ export class IdentityService {
 
   async create(createIdentityInput: CreateIdentityInput, user: User, browser: Browser): Promise<Identity> {
     const storePassword = this.getDIDStorePassword(user?.id, browser?.id);
-    return this.createIdentityInternal(user.id, storePassword, createIdentityInput.identityType, createIdentityInput.rootIdentityId, user, createIdentityInput.hiveVaultProvider);
+    return this.createIdentityInternal(user.id, storePassword, createIdentityInput.identityType, createIdentityInput.rootIdentityId, user, createIdentityInput.hiveVaultProvider, null, createIdentityInput.publish);
   }
 
   /**
   * @param context sandboxing context for DID storage
   */
-  private async createIdentityInternal(context: string, storePassword: string, type: IdentityType = IdentityType.REGULAR, rootIdentityId?: string, user?: User, hiveVaultProvider?: string, creatingAppDid?: string): Promise<Identity> {
+  private async createIdentityInternal(context: string, storePassword: string, type: IdentityType = IdentityType.REGULAR, rootIdentityId?: string, user?: User, hiveVaultProvider?: string, creatingAppDid?: string, publish = true): Promise<Identity> {
     let rootIdentity: RootIdentity = null;
     let didDocument: DIDDocument = null;
     let identityDid: string = null;
@@ -114,14 +114,16 @@ export class IdentityService {
       }
     })
 
-    // publish DID
-    const payload = await this.didService.createDIDPublishTransaction(context, identityDid, storePassword);
-    const { publicationId } = await this.publishIdentity(identityDid, payload);
-    identity.publicationId = publicationId;
+    if (publish) {
+      // Publish the related DID
+      const payload = await this.didService.createDIDPublishTransaction(context, identityDid, storePassword);
+      const { publicationId } = await this.publishIdentity(identityDid, payload);
+      identity.publicationId = publicationId;
+    }
 
     await this.activityService.createActivity(user, { type: ActivityType.IDENTITY_CREATED, identityId: identity.did, identityDid: identity.did });
 
-    this.logger.log('create identity:' + JSON.stringify(identity));
+    this.logger.log('Created identity:' + JSON.stringify(identity));
 
     return identity;
   }

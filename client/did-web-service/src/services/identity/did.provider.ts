@@ -2,12 +2,12 @@ import type { VerifiableCredential, VerifiablePresentation } from "@elastosfound
 import { Credential } from "@model/credential/credential";
 import { Document } from "@model/document/document";
 import { IdentityPublicationStatusResult } from "@model/identity-publication/identity-publication-status.dto";
+import { IdentityRoot } from "@model/identity-root/identity-root";
 import { Identity } from "@model/identity/identity";
 import { IdentityType } from "@model/identity/identity-type";
-import { IdentityRoot } from "@model/identity-root/identity-root";
 
 export interface IdentityProviderIdentity {
-  createIdentity(name: string, identityType: IdentityType, hiveVaultProvider?: string, rootIdentityId?: string): Promise<Identity>;
+  createIdentity(name: string, identityType: IdentityType, hiveVaultProvider?: string, rootIdentityId?: string, publish?: boolean): Promise<Identity>;
   deleteIdentity(identityDid: string): Promise<boolean>;
   listIdentities(): Promise<Identity[]>;
   listIdentityRoots(): Promise<IdentityRoot[]>;

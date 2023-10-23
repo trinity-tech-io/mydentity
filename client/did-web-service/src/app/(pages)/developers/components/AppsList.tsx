@@ -1,3 +1,17 @@
+import { NormalButton } from "@components/button";
+import { CredentialAvatar } from "@components/credential/CredentialAvatar";
+import AccountForm from "@components/form/AccountForm";
+import { callWithUnlock } from "@components/security/unlock-key-prompt/call-with-unlock";
+import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
+import { useMounted } from "@hooks/useMounted";
+import { Icon as ReactIcon } from "@iconify/react";
+import { ApplicationIdentity } from "@model/application-identity/application-identity";
+import { Credential } from "@model/credential/credential";
+import { NavigateNext as NavigateNextIcon } from "@mui/icons-material";
+import { FormHelperText, Input, Stack, Typography } from "@mui/material";
+import { useToast } from "@services/feedback.service";
+import { authUser$ } from "@services/user/user.events";
+import { useRouter } from "next13-progressbar";
 import {
   ChangeEventHandler,
   FC,
@@ -6,21 +20,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { useRouter } from "next13-progressbar";
-import { Icon as ReactIcon } from "@iconify/react";
-import { FormHelperText, Input, Stack, Typography } from "@mui/material";
-import { NavigateNext as NavigateNextIcon } from "@mui/icons-material";
-import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
-import { useMounted } from "@hooks/useMounted";
-import { authUser$ } from "@services/user/user.events";
 import SecuritySection from "../../account/security/components/SecuritySection";
-import AccountForm from "@components/form/AccountForm";
-import { callWithUnlock } from "@components/security/unlock-key-prompt/call-with-unlock";
-import { useToast } from "@services/feedback.service";
-import { ApplicationIdentity } from "@model/application-identity/application-identity";
-import { CredentialAvatar } from "@components/credential/CredentialAvatar";
-import { Credential } from "@model/credential/credential";
-import { NormalButton } from "@components/button";
 import DidTextfield from "./DidTextfield";
 
 const ApplicationBox: FC<{ appIdentity: ApplicationIdentity }> = ({
@@ -127,8 +127,9 @@ export const AppsList: FC = () => {
       );
       if (applicationIdentity) {
         setProgressStep(1);
+
         // Wait until the app did is published on chain
-        await applicationIdentity.publication().awaitIdentityPublished();
+        //await applicationIdentity.publication().awaitIdentityPublished();
 
         // Create a first empty application credential in this new identity. User is going to edit it
         // and publish the app did again right after
@@ -148,9 +149,8 @@ export const AppsList: FC = () => {
       className="h-full"
       icon={<ReactIcon icon="material-symbols:apps" />}
       title="Applications"
-      statusTitle={`${
-        appIdentities?.length > 0 ? "CREATED" : "NO APPS AVAILABLE"
-      }`}
+      statusTitle={`${appIdentities?.length > 0 ? "CREATED" : "NO APPS AVAILABLE"
+        }`}
       isSet={appIdentities && appIdentities?.length > 0}
       actionTitle={
         !ready2generate ? "CREATE APPLICATION" : "GENERATE APPLICATION IDENTITY"

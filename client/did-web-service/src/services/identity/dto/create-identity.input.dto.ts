@@ -5,4 +5,5 @@ export type CreateIdentityInput = {
   hiveVaultProvider?: string;
   identityType: IdentityType;
   rootIdentityId?: string;
+  publish?: boolean;
 }

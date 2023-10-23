@@ -1,5 +1,4 @@
 "use client";
-import { Breadcrumbs } from "@components/breadcrumbs/Breadcrumbs";
 import { CopyButton } from "@components/button";
 import { EditableCredentialAvatar } from "@components/credential/EditableCredentialAvatar";
 import { MainButton } from "@components/generic/MainButton";
@@ -179,8 +178,8 @@ const ApplicationDetailsPage: FC<{
   const updateAppIdentityNeedsToBePublished = (): void => {
     setAppIdentityNeedsToBePublished(
       !isAppIdentityPublished() ||
-        !chainAppNameMatchesLocalAppName() ||
-        !chainAppIconMatchesLocalAppIcon()
+      !chainAppNameMatchesLocalAppName() ||
+      !chainAppIconMatchesLocalAppIcon()
     );
   };
 
@@ -316,8 +315,7 @@ const ApplicationDetailsPage: FC<{
             appIdentityNeedsToBePublished && (
               <div>
                 <div>
-                  The local application info has been modified, please publish
-                  it for others to view your new app info.
+                  Please update your application on chain.
                 </div>
                 <MainButton
                   onClick={publishAppIdentity}

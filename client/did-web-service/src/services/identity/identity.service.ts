@@ -1,9 +1,9 @@
 import { Document } from "@model/document/document";
 import { IdentityPublicationStatusResult } from "@model/identity-publication/identity-publication-status.dto";
+import { IdentityRoot } from "@model/identity-root/identity-root";
 import { Identity } from "@model/identity/identity";
 import { IdentityType } from "@model/identity/identity-type";
 import { RegularIdentity } from "@model/regular-identity/regular-identity";
-import { IdentityRoot } from "@model/identity-root/identity-root";
 import { CustodialDIDProvider } from "./custodial/custodial-did.provider";
 import { activeIdentity$ } from "./identity.events";
 
@@ -16,8 +16,8 @@ class IdentityService {
   /**
    * Creates a new identity (DID) for the signed in user
    */
-  public createIdentity(name: string, identityType: IdentityType, hiveVaultProvider?: string, rootIdentityId?: string): Promise<Identity> {
-    return this.provider.identity.createIdentity(name, identityType, hiveVaultProvider, rootIdentityId);
+  public createIdentity(name: string, identityType: IdentityType, hiveVaultProvider?: string, rootIdentityId?: string, publish = false): Promise<Identity> {
+    return this.provider.identity.createIdentity(name, identityType, hiveVaultProvider, rootIdentityId, false);
   }
 
   /**
@@ -145,7 +145,7 @@ class IdentityService {
 
   /**
    * Export mnemonics based on identity root
-   */ 
+   */
   public exportMnemonic(identityRootId: string): Promise<string> {
     return this.provider.identity.exportMnemonic(identityRootId);
   }
