@@ -49,6 +49,7 @@ import { OrderBy } from "./order-by";
 import CredentialTableRow from "@components/credential/CredentialTableRow";
 import UserListHead from "@components/generic/ListHead";
 import AddProfileItem from "./components/AddProfileItem";
+import { authUser$ } from "@services/user/user.events";
 
 const CREDENTIAL_LIST_HEAD = [
   { id: "name", label: "Profile item", alignRight: false },
@@ -61,6 +62,10 @@ type ComparatorMethod = (a: ProfileCredential, b: ProfileCredential) => number;
 const Profile: FC = () => {
   const TAG = "ProfilePage";
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
+  const [authUser] = useBehaviorSubject(authUser$);
+  const [identities] = useBehaviorSubject(
+    authUser?.get("identity").regularIdentities$
+  );
   const credentialsFeature = activeIdentity?.credentials();
   const identityProfileFeature = activeIdentity?.profile();
   const [name] = useBehaviorSubject(identityProfileFeature?.name$);
@@ -301,7 +306,7 @@ const Profile: FC = () => {
     router.push("/identities");
   };
 
-  const handleShowAllCredentials= (): void => {
+  const handleShowAllCredentials = (): void => {
     router.push("/credentials/list");
   };
 
@@ -325,32 +330,36 @@ const Profile: FC = () => {
       >
         <Stack direction="row">
           <div className="flex flex-1 items-center">
-            {!unlockerIsIdle || (mounted && !!activeIdentity) ? (
+            {!unlockerIsIdle || (mounted && identities) ? (
               <>
-                <EditableCredentialAvatar
-                  credential={avatarCredential}
-                  width={80}
-                  height={80}
-                  onFileUpload={handleAvatarFileChanged}
-                  updating={uploadingAvatar}
-                  disabled={!credentials}
-                />
-                <div className="flex flex-col ml-4">
-                  <div className="flex pb-2">
-                    <Box className="rounded-md bg-[#9291A5] text-[8pt] px-3 py-0.5 inline-block">
-                      ACTIVE IDENTITY
-                    </Box>
-                  </div>
-                  <Typography variant="h4">
-                    {name || "Unnamed identity"}
-                  </Typography>
-                  <div className="inline-flex items-center">
-                    <Typography variant="body2">
-                      {activeIdentity?.did?.toString()}
-                    </Typography>
-                    <CopyButton text={activeIdentity?.did?.toString()} />
-                  </div>
-                </div>
+                {activeIdentity && (
+                  <>
+                    <EditableCredentialAvatar
+                      credential={avatarCredential}
+                      width={80}
+                      height={80}
+                      onFileUpload={handleAvatarFileChanged}
+                      updating={uploadingAvatar}
+                      disabled={!credentials}
+                    />
+                    <div className="flex flex-col ml-4">
+                      <div className="flex pb-2">
+                        <Box className="rounded-md bg-[#9291A5] text-[8pt] px-3 py-0.5 inline-block">
+                          ACTIVE IDENTITY
+                        </Box>
+                      </div>
+                      <Typography variant="h4">
+                        {name || "Unnamed identity"}
+                      </Typography>
+                      <div className="inline-flex items-center">
+                        <Typography variant="body2">
+                          {activeIdentity?.did?.toString()}
+                        </Typography>
+                        <CopyButton text={activeIdentity?.did?.toString()} />
+                      </div>
+                    </div>
+                  </>
+                )}
               </>
             ) : (
               <LoadingProfileInfo />
@@ -419,9 +428,9 @@ const Profile: FC = () => {
               </>
             }
             bodyRows={
-              mounted && !!filteredCredentials ? (
+              mounted && identities && (!activeIdentity || filteredCredentials) ? (
                 <>
-                  {!filteredCredentials.length ? (
+                  {!activeIdentity || !filteredCredentials.length ? (
                     <>
                       <TableRow>
                         <TableCell component="th" colSpan={6} align="center">
