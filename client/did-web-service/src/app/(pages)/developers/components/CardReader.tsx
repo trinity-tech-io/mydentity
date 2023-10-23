@@ -118,6 +118,21 @@ const ReaderBox = styled(Box)((theme) => ({
         "0 0 calc(var(--sz) / 2.5) 0 var(--lg), 0 0 calc(var(--sz) / 3) calc(var(--sz) / 20) var(--lg) inset, 0 calc(var(--sz) / -20) calc(var(--sz) / 10) calc(var(--sz) / 10) #000 inset; background: radial-gradient(circle at 50% 32%, #fff 0 calc(var(--sz) / 20), #fff2 calc(var(--sz) / 3) calc(var(--sz) / 3))",
     },
   },
+  "&.on": {
+    "span.light:after": {
+      boxShadow:
+        "0 0 calc(var(--sz) / 2.5) 0 var(--lg), 0 0 calc(var(--sz) / 3) calc(var(--sz) / 20) var(--lg) inset, 0 calc(var(--sz) / -20) calc(var(--sz) / 10) calc(var(--sz) / 10) #000 inset; background: radial-gradient(circle at 50% 32%, #fff 0 calc(var(--sz) / 20), #fff2 calc(var(--sz) / 3) calc(var(--sz) / 3))",
+    },
+    ".surface-back:before": {
+      background: "#f3f",
+    },
+    ".surface-back-light": {
+      transform: "rotate(0)",
+      "&:before": {
+        transform: "scale(3)",
+      },
+    },
+  },
   "@keyframes bloc-reval": {
     "0%": {
       width: "20%",
@@ -179,14 +194,19 @@ const CardReader: FC<{ identityCard: ReactNode }> = ({ identityCard }) => {
   }
 
   return (
-    <ReaderBox className="relative flex items-center justify-center">
+    <ReaderBox
+      className={clsx(
+        "relative flex items-center justify-center",
+        isInserted && "on"
+      )}
+    >
       <div className="surface-back-light absolute w-1/4 h-1/4" />
       <div className="surface-back absolute w-full h-full" />
       <div className="surface absolute w-full h-full overflow-hidden flex">
         <span className="entry" />
       </div>
       <div className="surface absolute w-full h-full overflow-hidden flex top flex-col">
-        <span className={clsx("light relative", isInserted && "on")} />
+        <span className="light relative" />
         <div className="entry-left" />
         <span className="entry" />
       </div>
