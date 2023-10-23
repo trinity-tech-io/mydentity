@@ -100,10 +100,6 @@ export const AppsList: FC = () => {
   const router = useRouter();
   const { showSuccessToast } = useToast();
 
-  const newApp = (): void => {
-    router.push("/developers/new-application");
-  };
-
   const handleCreateButton = (): void => {
     setReady2generate(true);
   };
