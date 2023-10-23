@@ -23,7 +23,7 @@ const LinkedinRedirect: FC = () => {
     init = true;
 
     if (!code) {
-      alert('GoogleRedirect: No code from Linked authentication callback.');
+      alert('LinkedinRedirect: No code from Linked authentication callback.');
       return;
     }
 
