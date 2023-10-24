@@ -39,7 +39,7 @@ const ApplicationBox: FC<{ appIdentity: ApplicationIdentity }> = ({
   }, [appIdentity, localAppIdentityCredentials]);
 
   const showAllAction = (): void => {
-    router.push("/applications");
+    router.push("/developers/applications");
   };
 
   return (

@@ -24,6 +24,7 @@ const CopyButton: FC<CopyButtonTypes> = ({ text, iconWidth = "17px" }) => {
           e.preventDefault();
           e.stopPropagation();
         }}
+        color="primary"
       >
         <Icon icon="material-symbols:content-copy-rounded" width={iconWidth} />
       </IconButton>
