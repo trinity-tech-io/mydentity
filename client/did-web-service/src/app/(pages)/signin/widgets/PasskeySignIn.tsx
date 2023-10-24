@@ -5,7 +5,7 @@ import { Icon as ReactIcon } from '@iconify/react';
 import { useToast } from "@services/feedback.service";
 import { usePostSignInFlow } from '@services/flow.service';
 import { authenticateWithPasskey, getPasskeyAllUsers } from "@services/user/user.service";
-import { FC, useState } from 'react';
+import { FC, useState, useEffect } from 'react';
 import { UserSelectionModal } from './UserSelectionModal'
 
 const PasskeySignIn: FC = () => {
@@ -13,6 +13,17 @@ const PasskeySignIn: FC = () => {
   const { navigateToPostSignInLandingPage } = usePostSignInFlow();
   const [showUserSelection, setShowUserSelection] = useState(false);
   const [selectedUser, setSelectedUser] = useState({ credentialId: '', name: '' });
+  const [isWebauthnAvailable, setIsWebauthnAvailable] = useState<boolean | null>(null);
+  
+  useEffect(() => {
+    async function isPasskeySupported(): Promise<void> {
+      // Check if user verification platform authenticator is supported.
+      const result = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+      console.log('TODO: REMOVE >>>>>>>>>>>>>>>>>>>>> isPasskeySupported result= ', result);
+      setIsWebauthnAvailable(result);
+    }
+    isPasskeySupported();
+  }, []);
 
   const signInWithPasskey = async (): Promise<void> => {
     const users = getPasskeyAllUsers();
@@ -50,6 +61,7 @@ const PasskeySignIn: FC = () => {
     <>
       <DarkButton
         id="signin-pk"
+        disabled={!isWebauthnAvailable}
         className="w-full"
         startIcon={<ReactIcon icon="material-symbols:passkey" />}
         onClick={signInWithPasskey}

@@ -1,4 +1,4 @@
-import { FC } from "react";
+import React, { FC, useState, useEffect } from 'react';
 import { useRouter } from "next13-progressbar";
 import { Button, Stack } from "@mui/material";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
@@ -14,6 +14,16 @@ export const BindingSuggestionStep: FC<{
   onSkip: () => void;
 }> = ({ onSkip, initialDataFetched }) => {
   const router = useRouter();
+  const [isWebauthnAvailable, setIsWebauthnAvailable] = useState<boolean | null>(null);
+  useEffect(() => {
+    async function isPasskeySupported(): Promise<void> {
+      // Check if user verification platform authenticator is supported.
+      const result = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+      console.log('TODO: REMOVE >>>>>>>>>>>>>>>>>>>>> isPasskeySupported result= ', result);
+      setIsWebauthnAvailable(result);
+    }
+    isPasskeySupported();
+  }, []);
 
   const bindEmail = (): void => {
     setOnGoingFlowOperation(FlowOperation.OnBoardingEmailBinding);
@@ -96,7 +106,7 @@ export const BindingSuggestionStep: FC<{
           footer={
             <DarkButton
               color="primary"
-              disabled={!initialDataFetched}
+              disabled={!initialDataFetched || !isWebauthnAvailable}
               className="w-full sm:w-4/5 md:w-[70%]"
               value="dashboard"
               onClick={bindBrowser}
