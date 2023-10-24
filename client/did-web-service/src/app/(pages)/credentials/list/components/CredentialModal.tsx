@@ -122,7 +122,7 @@ const CredentialSliderContent: FC<{ credential: Credential }> = memo(
               <ListItem key={_id}>
                 <ListItemTextStyled
                   primary={item.name.toUpperCase()}
-                  secondary={typeof item.value === 'string' ? item.value : item.value.label}
+                  secondary={credential?.getDisplayValue()}
                 />
               </ListItem>
             )
