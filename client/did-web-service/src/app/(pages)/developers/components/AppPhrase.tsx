@@ -38,7 +38,7 @@ const AppPhrase: FC<{ appIdentity: ApplicationIdentity }> = ({
     }
   }, [activeUser, appIdentity]);
   return (
-    <Stack>
+    <Stack flexGrow={1} justifyContent="end">
       <Stack direction="row" alignItems="center" className="mt-2" spacing={1}>
         <Typography
           variant="caption"
@@ -55,6 +55,7 @@ const AppPhrase: FC<{ appIdentity: ApplicationIdentity }> = ({
             sx={{ p: "5px" }}
             onClick={handleClickShowPhrases}
             onMouseDown={handleMouseDownPhrases}
+            color="primary"
           >
             {showMnemonic ? (
               <VisibilityOff sx={{ fontSize: { xs: 16, sm: 20 } }} />
@@ -80,11 +81,14 @@ const AppPhrase: FC<{ appIdentity: ApplicationIdentity }> = ({
           lineHeight={1.3}
           align="center"
           className={clsx("block px-1 py-2", !showMnemonic && "redacted")}
-          fontSize={9}
+          fontSize={10}
         >
           {phrases}
         </Typography>
       </Box>
+      <Typography variant="caption" color="error.main" fontSize={10} align="center">
+        Reminder: Please store the mnemonics in a secure place
+      </Typography>
     </Stack>
   );
 };

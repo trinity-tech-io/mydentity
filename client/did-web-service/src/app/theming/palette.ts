@@ -73,15 +73,15 @@ const ERROR = {
 const COMMON = {
   common: { black: "#000", white: "#fff" },
 
-  origin: { main: "#FF5082", contrastText: "#fff" },
-  primary: { ...PRIMARY },
-  secondary: { ...SECONDARY },
+  // origin: { main: "#FF5082", contrastText: "#fff" },
+  // primary: { ...PRIMARY },
+  // secondary: { ...SECONDARY },
   info: { ...INFO },
   success: { ...SUCCESS },
   warning: { ...WARNING },
   error: { ...ERROR },
-  grey: GREY,
-  divider: GREY[500_24],
+  // grey: GREY,
+  // divider: GREY[500_24],
   action: {
     hover: GREY[500_8],
     selected: GREY[500_16],
@@ -95,7 +95,7 @@ const COMMON = {
 
 const palette = {
   light: {
-    // ...COMMON,
+    ...COMMON,
     primary: {
       light: "#DDD",
       main: "#121212",
@@ -107,7 +107,7 @@ const palette = {
     action: { active: GREY[600], ...COMMON.action },
   },
   dark: {
-    // ...COMMON,
+    ...COMMON,
     primary: {
       main: "#FFF",
       dark: "#DDD",

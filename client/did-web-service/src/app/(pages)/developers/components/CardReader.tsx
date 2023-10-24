@@ -5,8 +5,8 @@ import { useMounted } from "@hooks/useMounted";
 import clsx from "clsx";
 
 const ReaderBox = styled(Box)((theme) => ({
-  width: 360,
-  height: 300,
+  width: 420,
+  height: 350,
   display: "flex",
   "--sz": "14px",
   "--lg": "#5dff05",
@@ -242,7 +242,7 @@ const CardReader: FC<{ identityCard: ReactNode; detailPaper: ReactNode }> = ({
               isInserted && "reveal--visible"
             )}
           >
-            <div className="detail-content p-4">
+            <div className="detail-content p-4 h-full">
               {isInserted && detailPaper}
             </div>
           </div>
@@ -250,11 +250,11 @@ const CardReader: FC<{ identityCard: ReactNode; detailPaper: ReactNode }> = ({
       </div>
       <Box
         className={clsx(
-          "absolute top-[11%] bottom-[11%] left-[100%]",
+          "absolute top-[12%] bottom-[12%] left-[100%]",
           mounted && !!identityCard && "left-[50%]"
         )}
         sx={{
-          width: "calc((80%*5/6)*100/63.29)",
+          width: "calc((76%*5/6)*100/63.29)",
           transition: "left 1s ease-out",
         }}
       >

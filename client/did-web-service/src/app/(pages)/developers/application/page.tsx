@@ -245,7 +245,7 @@ const ApplicationDetailsPage: FC<{
           }
           detailPaper={
             <ThemeProvider theme={lightTheme}>
-              <div className="flex flex-col">
+              <div className="flex flex-col h-full">
                 <EditableCredentialAvatar
                   credential={localAppCredential}
                   onFileUpload={handleAppIconFileChanged}
@@ -291,7 +291,7 @@ const ApplicationDetailsPage: FC<{
                     >
                       <Typography
                         variant="caption"
-                        className="break-all"
+                        className="break-all flex-1"
                         color="text.primary"
                         fontSize={9}
                       >
