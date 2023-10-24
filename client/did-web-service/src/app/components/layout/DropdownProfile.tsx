@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 "use client";
-import { FC, useEffect, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { useRouter } from "next13-progressbar";
+import IdentityCaseIcon from "@assets/images/identity-case.svg";
 import Transition from "@components/generic/Transition";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
@@ -20,7 +18,9 @@ import {
 import Avatar from "@mui/material/Avatar";
 import { authUser$ } from "@services/user/user.events";
 import { signOut } from "@services/user/user.service";
-import IdentityCaseIcon from "@assets/images/identity-case.svg";
+import { useSearchParams } from "next/navigation";
+import { useRouter } from "next13-progressbar";
+import { FC, useEffect, useRef, useState } from "react";
 
 export const DropdownUserProfile: FC<{
   align: "left" | "right";
@@ -64,6 +64,7 @@ export const DropdownUserProfile: FC<{
     { name: "Account profile", link: "/account/profile" },
     { name: "Security center", link: "/account/security" },
     { name: "Developers zone", link: "/developers" },
+    { name: "Import", link: "/account/import" },
     { name: "Export", link: "/account/export" },
     { name: "Sign out", action: onSignOut },
   ];

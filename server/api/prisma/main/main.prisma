@@ -18,7 +18,7 @@ model User {
   lastSeenAt         DateTime  @default(now()) // Updated every time the user uses the app
   welcomeEmailSentAt DateTime? // Date at which the welcome email was sent, if any
 
-  defaultRootIdentityId String?
+  defaultRootIdentityId String? // This is a prisma IdentityRoot.id
 
   IdentityRoot            IdentityRoot[]
   Identity                Identity[]

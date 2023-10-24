@@ -13,6 +13,7 @@ import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { IdentityProvider, IdentityProviderIdentity } from "@services/identity/did.provider";
 import { CreateIdentityInput } from "@services/identity/dto/create-identity.input.dto";
+import { ImportIdentityInput } from "@services/identity/dto/import-identity.input.dto";
 import { logger } from "@services/logger";
 
 export class IdentityModule implements IdentityProviderIdentity {
@@ -48,6 +49,38 @@ export class IdentityModule implements IdentityProviderIdentity {
     }
     else {
       throw new Error("Failed to create DID");
+    }
+  }
+
+  async importIdentity(identityType: IdentityType, mnemonic: string): Promise<Identity> {
+    const input: ImportIdentityInput = {
+      identityType,
+      mnemonic
+    };
+
+    const result = await callWithUnlock(() => {
+      return withCaughtAppException(async () => {
+        return (await getApolloClient()).mutate<{ importIdentity: IdentityDTO }>({
+          mutation: gql`
+          mutation importIdentity($input: ImportIdentityInput!) {
+            importIdentity(input: $input) {
+              ${gqlIdentityFields}
+            }
+          }
+        `,
+          variables: {
+            input
+          }
+        });
+      });
+    });
+
+    if (result?.data?.importIdentity) {
+      const { identityFromJson } = await import("@model/identity/identity-builder");
+      return identityFromJson(result.data.importIdentity, this.provider);
+    }
+    else {
+      throw new Error("Failed to import DID");
     }
   }
 

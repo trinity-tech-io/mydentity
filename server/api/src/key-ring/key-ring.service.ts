@@ -254,8 +254,6 @@ export class KeyRingService {
     const browserId = browserOrId ? (typeof browserOrId === "string" ? browserOrId : browserOrId.id) : null;
     const browser = browserOrId && (typeof browserOrId === "string" ? null : browserOrId);
 
-    console.log("BIND browser id", browserId);
-
     const shadow = await this.prisma.userShadowKey.findFirst({
       where: {
         userId: user.id
@@ -458,7 +456,6 @@ export class KeyRingService {
   }
 
   getMasterKey(userId: string, browserId: string, throwIfNotExists = true): string | undefined {
-    console.log("GET browser id", browserId);
     const id = userId + "-" + browserId;
     const masterKey: string = this.masterKeyCache.get(id);
     if (masterKey) {

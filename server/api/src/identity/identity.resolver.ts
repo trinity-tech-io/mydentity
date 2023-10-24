@@ -10,6 +10,7 @@ import { AddServiceInput } from './dto/add-service.input';
 import { CreateIdentityInput } from './dto/create-identity.input';
 import { CreateManagedIdentityInput } from './dto/create-managed-identity.input';
 import { SetCredentialVisibilityInput } from './dto/credential-visibility.input';
+import { ImportIdentityInput } from './dto/import-identity.input';
 import { PublicationStatusInput } from './dto/publication-status.input';
 import { RemoveServiceInput } from './dto/remove-service.input';
 import { DocumentEntity } from './entities/document.entity';
@@ -31,7 +32,13 @@ export class IdentityResolver {
   @UseGuards(JwtAuthGuard)
   @Mutation(() => IdentityEntity)
   async createIdentity(@Args('input') createIdentityInput: CreateIdentityInput, @CurrentUser() user: User, @CurrentBrowser() browser: Browser) {
-    return await this.identityService.create(createIdentityInput, user, browser);
+    return await this.identityService.createFromAPIInput(createIdentityInput, user, browser);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => IdentityEntity)
+  async importIdentity(@Args('input') importIdentityInput: ImportIdentityInput, @CurrentUser() user: User, @CurrentBrowser() browser: Browser) {
+    return await this.identityService.import(importIdentityInput, user, browser);
   }
 
   @UseGuards(JwtAuthGuard)

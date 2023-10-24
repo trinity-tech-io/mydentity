@@ -10,6 +10,7 @@ import { DidService } from 'src/did/did.service';
 import { AppException } from 'src/exceptions/app-exception';
 import { AuthExceptionCode, DIDExceptionCode } from 'src/exceptions/exception-codes';
 import { IdentityClaimService } from 'src/identity-claim/identity-claim.service';
+import { IdentityRootService } from 'src/identity-root/identity-root.service';
 import { AuthKeyInput } from 'src/key-ring/dto/auth-key-input';
 import { KeyRingService } from 'src/key-ring/key-ring.service';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -19,6 +20,7 @@ import { ActivityService } from "../activity/activity.service";
 import { AddServiceInput } from './dto/add-service.input';
 import { CreateIdentityInput } from './dto/create-identity.input';
 import { SetCredentialVisibilityInput } from './dto/credential-visibility.input';
+import { ImportIdentityInput } from './dto/import-identity.input';
 import { RemoveServiceInput } from './dto/remove-service.input';
 import { ManagedIdentityStatusEntity } from './entities/managed-identity-status.entity';
 import { IdentityAccessInfo } from './model/identity-access-info';
@@ -37,6 +39,7 @@ export class IdentityService {
     private didPublishingService: DIDPublishingService,
     private interactingApplicationsService: InteractingApplicationsService,
     private identityClaimService: IdentityClaimService,
+    private identityRootService: IdentityRootService,
     private didService: DidService,
     private userService: UserService,
     private authService: AuthService,
@@ -45,24 +48,26 @@ export class IdentityService {
     private activityService: ActivityService) {
   }
 
-  async create(createIdentityInput: CreateIdentityInput, user: User, browser: Browser): Promise<Identity> {
+  public async createFromAPIInput(createIdentityInput: CreateIdentityInput, user: User, browser: Browser): Promise<Identity> {
     const storePassword = this.getDIDStorePassword(user?.id, browser?.id);
-    return this.createIdentityInternal(user.id, storePassword, createIdentityInput.identityType, createIdentityInput.rootIdentityId, user, createIdentityInput.hiveVaultProvider, null, createIdentityInput.publish);
+    return this.createIdentity(user, storePassword, createIdentityInput.identityType, createIdentityInput.rootIdentityId, createIdentityInput.hiveVaultProvider, null, createIdentityInput.publish);
   }
 
   /**
   * @param context sandboxing context for DID storage
   */
-  private async createIdentityInternal(context: string, storePassword: string, type: IdentityType = IdentityType.REGULAR, rootIdentityId?: string, user?: User, hiveVaultProvider?: string, creatingAppDid?: string, publish = true): Promise<Identity> {
-    let rootIdentity: RootIdentity = null;
+  public async createIdentity(user: User, storePassword: string, type: IdentityType = IdentityType.REGULAR, identityRootId: string | null, hiveVaultProvider?: string, creatingAppDid?: string, publish = true): Promise<Identity> {
+    const context = user.id;
+    let didStoreRootIdentity: RootIdentity = null;
     let didDocument: DIDDocument = null;
     let identityDid: string = null;
 
     try {
-      // Get rootIdentity to new did.
-      rootIdentity = await this.didService.getRootIdentity(context, storePassword);
+      // Get the main root identity if existing, otherwise create one
+      const defaultIdentityRoot = await this.identityRootService.findOne(user.defaultRootIdentityId);
+      didStoreRootIdentity = await this.didService.getOrCreateDefaultRootIdentity(context, defaultIdentityRoot?.didStoreRootIdentityId, storePassword);
 
-      didDocument = await rootIdentity.newDid(storePassword);
+      didDocument = await didStoreRootIdentity.newDid(storePassword);
 
       // In order to avoid publishing the DID at creation, then publish again to set the hive provider,
       // we add the hive vault provider as a service, if any given, during the identity creation.
@@ -82,31 +87,32 @@ export class IdentityService {
     }
 
     // One user can create multiple dids, so we save the derivation index.
-    const derivationIndex = rootIdentity.getIndex() - 1;
+    const derivationIndex = didStoreRootIdentity.getIndex() - 1;
     this.logger.log('Creating DID at index ' + derivationIndex);
 
-    // check the rootIdentityId?
-    if (!rootIdentityId && user.defaultRootIdentityId) {
-      rootIdentityId = user.defaultRootIdentityId;
-    }
-    if (!rootIdentityId) {
+    // If no root identity id is provider but the user has a default root identity, then we user the default root identity
+    if (!identityRootId && user.defaultRootIdentityId)
+      identityRootId = user.defaultRootIdentityId;
+
+    // If there is no known root identity, we create one and mark it as default for the user.
+    if (!identityRootId) {
       const identityRoot = await this.prisma.identityRoot.create({
         data: {
           ...(user && { user: { connect: { id: user.id } } }),
-          didStoreRootIdentityId: rootIdentity.getId()
+          didStoreRootIdentityId: didStoreRootIdentity.getId()
         }
       });
 
       await this.userService.updateUserDefaultRootIdentityId(user, identityRoot.id);
 
-      rootIdentityId = identityRoot.id;
+      identityRootId = identityRoot.id;
     }
 
     const identity = await this.prisma.identity.create({
       data: {
         did: identityDid,
         type, // regular user, or application identity
-        identityRoot: { connect: { id: rootIdentityId } },
+        identityRoot: { connect: { id: identityRootId } },
         derivationIndex: derivationIndex,
         ...(user && { user: { connect: { id: user.id } } }),
         publicationId: "",
@@ -126,6 +132,43 @@ export class IdentityService {
     this.logger.log('Created identity:' + JSON.stringify(identity));
 
     return identity;
+  }
+
+  async import(input: ImportIdentityInput, user: User, browser: Browser): Promise<Identity[]> {
+    const storePassword = this.getDIDStorePassword(user?.id, browser?.id);
+    return this.importIdentityInternal(user.id, storePassword, input.identityType, user, input.mnemonic, browser);
+  }
+
+  private async importIdentityInternal(context: string, storePassword: string, type: IdentityType = IdentityType.REGULAR, user: User, mnemonic: string, browser: Browser): Promise<Identity[]> {
+    try {
+      this.logger.log("Importing identities from mnemonic");
+
+      // Create the new root identity. If already exists, an exception is thrown by the method call
+      // because we can't import the same mnemonic twice.
+      const identityRoot = await this.identityRootService.createFromMnemonic(user, storePassword, mnemonic);
+
+      // Ask our the identity root service to synchronize chain content into the local DID store.
+      await this.synchronize(user, browser);
+
+      // Compare and upsert DIDs and VCs
+      const { created } = await this.identityRootService.synchronizeDIDStoreToDatabase(user, browser, identityRoot);
+
+      // Save some activity info
+      for (const createdIdentity of created) {
+        // TOOD: We could save as "imported" instead of "created"
+        await this.activityService.createActivity(user, { type: ActivityType.IDENTITY_CREATED, identityId: createdIdentity.did, identityDid: createdIdentity.did });
+      }
+
+      this.logger.log('Imported identities:' + JSON.stringify(created));
+
+      return created;
+    } catch (e) {
+      this.logger.error(`Identity import exception: ${e}`)
+      if (!(e instanceof AppException))
+        throw new AppException(DIDExceptionCode.DIDStorageError, e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+      else
+        throw e;
+    }
   }
 
   async deleteIdentity(didString: string, user: User) {
@@ -230,6 +273,10 @@ export class IdentityService {
     }
   }
 
+  findOne(did: string) {
+    return this.prisma.identity.findFirst({ where: { did } });
+  }
+
   findAll(user: User) {
     return this.prisma.identity.findMany({
       where: {
@@ -316,7 +363,6 @@ export class IdentityService {
     const unmanagedUser = await this.userService.createUnmanagedUser();
 
     const identityPassword = uuid(); // random password that will be stored in the identity token returned to the calling app
-    const context = unmanagedUser.id;
 
     // Create a master key and a password based shadow key. This is used when called by the third party app later to encrypt/decrypt DID stored content such as credentials.
     const authKeyInput: AuthKeyInput = {
@@ -329,7 +375,7 @@ export class IdentityService {
     await this.keyRingService.unlockMasterKey(authKeyInput, null, unmanagedUser);
     const masterKey = this.keyRingService.getMasterKey(unmanagedUser.id, null, true);
 
-    const identity = await this.createIdentityInternal(context, masterKey, IdentityType.REGULAR, null, unmanagedUser, null, appDid);
+    const identity = await this.createIdentity(unmanagedUser, masterKey, IdentityType.REGULAR, null, null, appDid);
 
     const identityAccessToken = await this.generateIdentityAccessToken(identityPassword, identity.did);
 

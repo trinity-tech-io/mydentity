@@ -88,6 +88,10 @@ export class CredentialsService {
     return this.prisma.credential.findUnique({ where: { id } });
   }
 
+  public async findByCredentialId(credentialId: string): Promise<Credential> {
+    return this.prisma.credential.findFirst({ where: { credentialId } });
+  }
+
   async findAll(identityDid: string, user: User, browser: Browser): Promise<CredentialWithStringVC[]> {
     const credentials = await this.prisma.credential.findMany({
       where: { identityDid },

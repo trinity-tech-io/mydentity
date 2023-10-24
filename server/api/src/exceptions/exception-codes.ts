@@ -39,6 +39,8 @@ export enum DIDExceptionCode {
   DIDPublishError = 10311,
   DIDObjectAlreadyExist = 10312,
   DIDObjectNotExist = 10313,
+  SyncError = 10314,
+  RootIdentityAlreadyExists = 10315,
 }
 
 export enum DataExceptionCode {

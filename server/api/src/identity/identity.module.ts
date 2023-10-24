@@ -7,6 +7,7 @@ import { CredentialsModule } from 'src/credentials/credentials.module';
 import { DIDPublishingModule } from 'src/did-publishing/did-publishing.module';
 import { DIDModule } from 'src/did/did.module';
 import { IdentityClaimModule } from 'src/identity-claim/identity-claim.module';
+import { IdentityRootModule } from 'src/identity-root/identity-root.module';
 import { KeyRingModule } from 'src/key-ring/key-ring.module';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { UserModule } from 'src/user/user.module';
@@ -36,6 +37,7 @@ import { IdentityService } from './identity.service';
     AuthModule,
     ActivityModule,
     UserModule,
+    IdentityRootModule,
     forwardRef(() => AppInteractionModule),
     IdentityClaimModule
   ],

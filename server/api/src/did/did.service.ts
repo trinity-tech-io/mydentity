@@ -41,28 +41,46 @@ export class DidService {
   }
 
   /**
-   * Create rootIdentity if no exist, or use the exist rootIdenity.
-   * @param context
-   * @param storePassword
-   * @returns
+   * Create a new root identity if not existing, or return the existing one.
    */
-  async getRootIdentity(context: string, storePassword: string) {
+  async getOrCreateDefaultRootIdentity(context: string, didStoreRootIdentityId: string | undefined, storePassword: string) {
     const didStore = await this.openStore(context);
 
     let rootIdentity: RootIdentity = null;
-    if (!(await didStore.containsRootIdentities())) {
+    if (!didStoreRootIdentityId) {
       // Create DID SDK root identity
-      this.logger.log('No root identities, creating a root identity');
+      this.logger.log('No root identity provider, creating a root identity');
       rootIdentity = await this.initPrivateIdentity(didStore, storePassword);
     } else {
-      this.logger.log('Root identities found - reusing the existing root identity');
-      rootIdentity = await didStore.loadRootIdentity();
+      this.logger.log('Root identity provided - reusing the given root identity');
+      rootIdentity = await didStore.loadRootIdentity(didStoreRootIdentityId);
     }
 
     if (!rootIdentity)
       throw new AppException(DIDExceptionCode.DIDStorageError, "Can't load rootIdentity", HttpStatus.INTERNAL_SERVER_ERROR);
 
     return rootIdentity;
+  }
+
+  /**
+   * Creates a new root identity into the given context's did store, for the given mnemonic.
+   * If it already exists, an exception is thrown.
+   */
+  public async createRootIdentity(context: string, mnemonic: string, storePassword: string): Promise<RootIdentity> {
+    const didStore = await this.openStore(context);
+
+    try {
+      const rootIdentity = await RootIdentity.createFromMnemonic(mnemonic, "", didStore, storePassword, false);
+      return rootIdentity;
+    }
+    catch (e) {
+      if (e instanceof Exceptions.RootIdentityAlreadyExistException) {
+        throw new AppException(DIDExceptionCode.RootIdentityAlreadyExists, "Root identity already exists for the user. Are you trying to import the same mnemonic twice?", 403);
+      }
+      else {
+        throw e; // Just rethrow
+      }
+    }
   }
 
   /**
@@ -338,7 +356,9 @@ export class DidService {
   async synchronize(context: string, storepass: string) {
     const didStore = await this.openStore(context);
     try {
+      this.logger.log("Synchronizing DID store");
       await didStore.synchronize(null, storepass);
+      this.logger.log("DID store synchronization complete");
     } catch (e) {
       if (e instanceof Exceptions.NetworkException) {
         throw new AppException(DIDExceptionCode.NetworkError, e.message, HttpStatus.SERVICE_UNAVAILABLE);
