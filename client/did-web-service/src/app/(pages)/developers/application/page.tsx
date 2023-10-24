@@ -26,6 +26,7 @@ import CardReader from "../components/CardReader";
 import ApplicationCard from "@components/applications/ApplicationCard";
 import AccountForm from "@components/form/AccountForm";
 import { generateTheme } from "@/app/theming/material-ui.theme";
+import AppPhrase from "../components/AppPhrase";
 
 const ApplicationDetailsPage: FC<{
   params: {
@@ -292,7 +293,7 @@ const ApplicationDetailsPage: FC<{
                         variant="caption"
                         className="break-all"
                         color="text.primary"
-                        fontSize={10}
+                        fontSize={9}
                       >
                         {appIdentity.did}
                       </Typography>
@@ -301,6 +302,7 @@ const ApplicationDetailsPage: FC<{
                       </div>
                     </Stack>
                   )}
+                  <AppPhrase appIdentity={appIdentity}/>
                 </div>
               </div>
             </ThemeProvider>

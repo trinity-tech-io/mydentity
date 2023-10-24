@@ -97,8 +97,7 @@ const palette = {
   light: {
     // ...COMMON,
     primary: {
-      lighter: "#C8FACD",
-      light: "#5BE584",
+      light: "#DDD",
       main: "#121212",
       dark: "#000",
       contrastText: "#fff",
@@ -112,7 +111,6 @@ const palette = {
     primary: {
       main: "#FFF",
       dark: "#DDD",
-      darker: "#323B45",
       contrastText: "#000",
     },
     text: { primary: "#fff", secondary: GREY[500], disabled: GREY[600] },
