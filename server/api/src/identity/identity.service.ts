@@ -120,13 +120,10 @@ export class IdentityService {
       }
     })
 
-    console.log("publish", publish)
-
     if (publish) {
       // Publish the related DID
       const payload = await this.didService.createDIDPublishTransaction(context, identityDid, storePassword);
       const { publicationId } = await this.publishIdentity(identityDid, payload);
-      console.log("publicationId", publicationId)
       identity.publicationId = publicationId;
     }
 
@@ -146,9 +143,9 @@ export class IdentityService {
     try {
       this.logger.log("Importing identities from mnemonic");
 
-      // Create the new root identity. If already exists, an exception is thrown by the method call
-      // because we can't import the same mnemonic twice.
-      const identityRoot = await this.identityRootService.createFromMnemonic(user, storePassword, mnemonic);
+      // Create the new root identity. If already exists (importing the same mnemonic again), we reuse the identity root and we sync it again, in case
+      // something changed on chain.
+      const identityRoot = await this.identityRootService.getOrCreateFromMnemonic(user, storePassword, mnemonic);
 
       // Ask our the identity root service to synchronize chain content into the local DID store.
       await this.synchronize(user, browser);

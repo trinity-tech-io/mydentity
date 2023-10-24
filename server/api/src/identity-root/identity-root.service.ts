@@ -49,6 +49,35 @@ export class IdentityRootService {
   }
 
   /**
+   * Retrieves a potentially existing root identity for the given mnemonic.
+   * If not existing, one is created.
+   */
+  public async getOrCreateFromMnemonic(user: User, storePassword: string, mnemonic: string): Promise<IdentityRoot> {
+    const rootIdentity = await this.didService.getOrCreateRootIdentity(user.id, mnemonic, storePassword);
+
+    // Check if we have a IdentityRoot in our database that already use this root identity that potentially already existed.
+    const existingIdentityRoot = await this.prisma.identityRoot.findFirst({
+      where: {
+        userId: user.id,
+        didStoreRootIdentityId: rootIdentity.getId()
+      }
+    });
+
+    if (existingIdentityRoot)
+      return existingIdentityRoot;
+
+    // No identity root uses this store root identity yet: create one
+    const identityRoot = await this.prisma.identityRoot.create({
+      data: {
+        user: { connect: { id: user.id } },
+        didStoreRootIdentityId: rootIdentity.getId()
+      }
+    });
+
+    return identityRoot;
+  }
+
+  /**
    * Creates a new root identity for the given mnemonic.
    * Throws an exception if the root identity already exists.
    */
@@ -126,6 +155,7 @@ export class IdentityRootService {
 
     const didStore = await this.didService.openStore(user.id);
     const allDids = await didStore.listDids();
+    console.log("ALL DIDS", allDids.map(d => d.toString()))
     for (const did of allDids) {
       // Only deal with DIDs that belong to the target root identity
       const metadata = await did.getMetadata();

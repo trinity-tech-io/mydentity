@@ -68,15 +68,15 @@ export class IdentityFeature implements UserFeature {
     return identity;
   }
 
-  public async importRegularIdentity(mnemonic: string): Promise<RegularIdentity> {
-    logger.log("identity", "Importing a regular identity from mnemonic words");
+  public async importIdentity(mnemonic: string): Promise<Identity[]> {
+    logger.log("identity", "Importing identities from mnemonic words");
 
-    const identity = <RegularIdentity>await custodialIdentityProvider.identity.importIdentity(IdentityType.REGULAR, mnemonic);
-    if (identity) {
-      this.identities$.next([identity, ...this.identities$.value]);
+    const identities = <Identity[]>await custodialIdentityProvider.identity.importIdentity(IdentityType.REGULAR, mnemonic);
+    if (identities) {
+      this.identities$.next([...identities, ...this.identities$.value]);
     }
 
-    return identity;
+    return identities;
   }
 
   public async deleteIdentity(didString: string): Promise<boolean> {

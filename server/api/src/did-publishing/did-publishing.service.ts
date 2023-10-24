@@ -82,7 +82,7 @@ export class DIDPublishingService {
   public async publishDID(didString: string, payload: string | any, memo = ''): Promise<string> {
     this.logger.log("Requesting identity publication to Assist for DID: " + didString);
 
-    return new Promise(async (resolve, reject) => {
+    return new Promise((resolve, reject) => {
       let didRequest: any;
       try {
         if (typeof payload === "string")
@@ -117,7 +117,7 @@ export class DIDPublishingService {
           body: JSON.stringify(requestBody) // must be string
         };
 
-        request.post(options, (error, response, bodyString) => {
+        request.post(options, (error: any, response: { statusCode: number; }, bodyString: string) => {
           // this.logger.log("response.statusCode:" + response.statusCode)
           // this.logger.log("bodyString:" + bodyString)
           const body: AssistCreateTxResponse = bodyString ? JSON.parse(bodyString) : null;

@@ -41,6 +41,7 @@ export enum DIDExceptionCode {
   DIDObjectNotExist = 10313,
   SyncError = 10314,
   RootIdentityAlreadyExists = 10315,
+  InvalidMnemonic = 10316,
 }
 
 export enum DataExceptionCode {

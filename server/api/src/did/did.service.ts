@@ -2,9 +2,9 @@ import { DIDBackend, DIDDocument, DIDStore, DefaultDIDAdapter, Exceptions, Featu
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { AppException } from 'src/exceptions/app-exception';
 import { DIDExceptionCode } from 'src/exceptions/exception-codes';
+import { DIDPrismaService } from '../prisma/did.prisma.service';
 import { DidAdapter } from './did.adapter';
 import { PrismaDIDStorage } from './prisma.did.storage';
-
 @Injectable()
 export class DidService {
   private network = 'mainnet';
@@ -13,7 +13,9 @@ export class DidService {
 
   private logger: Logger = new Logger("DidService");
 
-  constructor() {
+  constructor(
+    private prismaDidService: DIDPrismaService // Keep it here even if unused to keep the DID database prism instance alive
+  ) {
     this.globalDidAdapter = new DidAdapter();
     DIDBackend.initialize(new DefaultDIDAdapter(this.network));
     Features.enableJsonLdContext(true);
@@ -63,6 +65,24 @@ export class DidService {
   }
 
   /**
+   * Retrieves a potentially existing root identity for the given mnemonic.
+   * If not existing, one is created
+   */
+  public async getOrCreateRootIdentity(context: string, mnemonic: string, storePassword: string): Promise<RootIdentity> {
+    const didStore = await this.openStore(context);
+    const rootIdentityId = RootIdentity.getIdFromMnemonic(mnemonic, ""); // Computed root identity id for a givne mnemonic. Doesn't mean it exists or not in store.
+
+    if (await didStore.containsRootIdentity(rootIdentityId)) {
+      // Root identity already exists for this mnemonic, return it
+      return didStore.loadRootIdentity(rootIdentityId);
+    }
+    else {
+      // Create the root identity
+      return this.createRootIdentity(context, mnemonic, storePassword);
+    }
+  }
+
+  /**
    * Creates a new root identity into the given context's did store, for the given mnemonic.
    * If it already exists, an exception is thrown.
    */
@@ -74,8 +94,12 @@ export class DidService {
       return rootIdentity;
     }
     catch (e) {
+      console.log(e, e.toString())
       if (e instanceof Exceptions.RootIdentityAlreadyExistException) {
         throw new AppException(DIDExceptionCode.RootIdentityAlreadyExists, "Root identity already exists for the user. Are you trying to import the same mnemonic twice?", 403);
+      }
+      else if ((<string>e.toString()).includes("Invalid mnemonic")) { // No specific exception for invalid mnemonic errors...
+        throw new AppException(DIDExceptionCode.InvalidMnemonic, "The mnemonic is invalid", 403);
       }
       else {
         throw e; // Just rethrow
@@ -117,7 +141,7 @@ export class DidService {
       await didStore.deleteCredential(c);
     }
 
-    const successfulDeletion = didStore.deleteDid(didString);
+    const successfulDeletion = await didStore.deleteDid(didString);
     if (!successfulDeletion) {
       const didExist = await didStore.loadDid(didString);
       //the did is deleted before.
@@ -360,11 +384,10 @@ export class DidService {
       await didStore.synchronize(null, storepass);
       this.logger.log("DID store synchronization complete");
     } catch (e) {
-      if (e instanceof Exceptions.NetworkException) {
-        throw new AppException(DIDExceptionCode.NetworkError, e.message, HttpStatus.SERVICE_UNAVAILABLE);
+      if (e instanceof Exceptions.NetworkException || e instanceof Exceptions.DIDResolveException) {
+        throw new AppException(DIDExceptionCode.SyncError, e.message, HttpStatus.SERVICE_UNAVAILABLE);
       } else {
-        console.log("ResolveException?", e instanceof Exceptions.ResolveException);
-        throw new AppException(DIDExceptionCode.DIDStorageError, e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+        throw new AppException(DIDExceptionCode.SyncError, e.message, HttpStatus.INTERNAL_SERVER_ERROR);
       }
     }
   }

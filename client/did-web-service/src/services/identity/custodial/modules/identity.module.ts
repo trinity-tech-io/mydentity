@@ -3,6 +3,7 @@ import { callWithUnlock } from "@components/security/unlock-key-prompt/call-with
 import { gqlIdentityFields } from "@graphql/identity.fields";
 import { gqlMnemonicFields } from "@graphql/mnemonic.fields";
 import { gqlIdentityRootFields } from "@graphql/root-identity.fields";
+import { DIDExceptionCode } from "@model/exceptions/exception-codes";
 import { IdentityRoot } from "@model/identity-root/identity-root";
 import { IdentityRootDTO } from "@model/identity-root/identity-root.dto";
 import type { Identity } from "@model/identity/identity";
@@ -52,15 +53,15 @@ export class IdentityModule implements IdentityProviderIdentity {
     }
   }
 
-  async importIdentity(identityType: IdentityType, mnemonic: string): Promise<Identity> {
+  async importIdentity(identityType: IdentityType, mnemonic: string): Promise<Identity[]> {
     const input: ImportIdentityInput = {
       identityType,
       mnemonic
     };
 
-    const result = await callWithUnlock(() => {
-      return withCaughtAppException(async () => {
-        return (await getApolloClient()).mutate<{ importIdentity: IdentityDTO }>({
+    return callWithUnlock(async () => {
+      const result = await withCaughtAppException(async () => {
+        return (await getApolloClient()).mutate<{ importIdentity: IdentityDTO[] }>({
           mutation: gql`
           mutation importIdentity($input: ImportIdentityInput!) {
             importIdentity(input: $input) {
@@ -72,16 +73,21 @@ export class IdentityModule implements IdentityProviderIdentity {
             input
           }
         });
-      });
-    });
+      }, null, [
+        DIDExceptionCode.NetworkError,
+        DIDExceptionCode.SyncError,
+        DIDExceptionCode.InvalidMnemonic
+      ]);
 
-    if (result?.data?.importIdentity) {
-      const { identityFromJson } = await import("@model/identity/identity-builder");
-      return identityFromJson(result.data.importIdentity, this.provider);
-    }
-    else {
-      throw new Error("Failed to import DID");
-    }
+      // NOTE: Import identity actually imports a mnemonic, which can contain several derived DIDs so it can potentially return multiple identities.
+      if (result?.data?.importIdentity) {
+        const { identityFromJson } = await import("@model/identity/identity-builder");
+        return await Promise.all(result.data.importIdentity.map(i => identityFromJson(i, this.provider)));
+      }
+      else {
+        throw new Error("Failed to import identity");
+      }
+    });
   }
 
   async deleteIdentity(identityDid: string): Promise<boolean> {

@@ -419,6 +419,7 @@ export class PrismaDIDStorage implements DIDStorage {
       data = Buffer.concat([prefix, vc]);
     }
 
+    console.log("storeCredential", id.toString(), data.toString(), this.path, id.getDid().toString(), encrypted)
     await this.prisma.verifiableCredential.upsert({
       where: {
         path: this.path,

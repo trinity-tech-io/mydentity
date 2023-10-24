@@ -35,7 +35,13 @@ export enum DIDExceptionCode {
   InvalidCredential = 10307,
   DIDNotUpToDateError = 10308,
   DIDTransactionError = 10309,
-  NetworkError = 10310
+  NetworkError = 10310,
+  DIDPublishError = 10311,
+  DIDObjectAlreadyExist = 10312,
+  DIDObjectNotExist = 10313,
+  SyncError = 10314,
+  RootIdentityAlreadyExists = 10315,
+  InvalidMnemonic = 10316,
 }
 
 export enum IdentityClaimExceptionCode {
