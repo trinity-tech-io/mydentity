@@ -208,7 +208,7 @@ const NewIdentityPage: FC = () => {
     setVisibleInputForm(true);
     setTimeout(() => {
       nameInputRef.current.focus();
-    }, 1000);
+    }, 1500);
   };
 
   const handleInputName: React.ChangeEventHandler<HTMLInputElement> = (e) => {
