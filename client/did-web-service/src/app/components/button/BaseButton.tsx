@@ -5,7 +5,7 @@ import { ButtonBase } from "@mui/material";
  * Button styled component used for chip icon button in identity card
  */
 const ButtonBaseStyled = styled(ButtonBase)(({ theme }) => ({
-  borderRadius: "6.5px",
+  borderRadius: "4px",
   overflow: "hidden",
   "&:after": {
     background: "#fff",

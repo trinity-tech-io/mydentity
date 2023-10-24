@@ -57,7 +57,7 @@ const LandingCard: FC<{
   dividerVisible = true,
   topRightSection = null,
   chipClickable = false,
-  handleClickChip = (e) => {},
+  handleClickChip = (e): void => {},
   children,
   footer,
 }) => {
@@ -77,21 +77,21 @@ const LandingCard: FC<{
           <CircleVector width="100%" height="100%" viewBox="0 0 349 354" />
         </div>
         <div className=" flex flex-col h-full">
-          <div className="flex h-[14%] mb-7">
-            {chipClickable ? (
-              <BaseButton onClick={handleClickChip}>
-                <div className="h-full chip-item">
+          <div className="flex mb-7">
+            <div className="w-[10%]">
+              {chipClickable ? (
+                <BaseButton onClick={handleClickChip}>
+                  <ChipIcon width="100%" height="100%" viewBox="0 0 50 38" />
+                </BaseButton>
+              ) : (
+                <div className="chip-item">
                   <ChipIcon width="100%" height="100%" viewBox="0 0 50 38" />
                 </div>
-              </BaseButton>
-            ) : (
-              <div className="h-full chip-item">
-                <ChipIcon width="100%" height="100%" viewBox="0 0 50 38" />
-              </div>
-            )}
+              )}
+            </div>
             <div className="flex-1" />
             {waveIconVisible ? (
-              <div className="h-full">
+              <div className="w-[7%]">
                 <WaveLogoIcon width="100%" height="100%" viewBox="0 0 32 40" />
               </div>
             ) : (
