@@ -232,7 +232,7 @@ export class SecurityFeature implements UserFeature {
     }
 
     // Save the updated passkey data back to localStorage
-    localStorage.setItem(passkey, JSON.stringify(existingPasskeys));
+    localStorage.setItem("passkey_users_list", JSON.stringify(existingPasskeys));
   }  
 
   private upsertShadowKey(shadowKey: ShadowKey): void {
