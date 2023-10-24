@@ -18,7 +18,7 @@ import type { IssuerInfo } from "./issuer-info";
 
 type ValueItem = {
   name: string,
-  value: string
+  value: any
 };
 
 export abstract class Credential {
@@ -231,7 +231,7 @@ export abstract class Credential {
       .filter((key) => key != "displayable")
       .sort()
       .map((prop) => {
-        let value = '';
+        let value;
         if (prop == 'wallet') {
           value = 'wallet';
           if (subject[prop]) {
@@ -248,7 +248,14 @@ export abstract class Credential {
           } else if (subject[prop] == 'F' || subject[prop] == 'female') {
             value = "female";
           }
-        } else {
+        }
+        /**
+         * nationality: {code: 'AD', label: 'Andorra', phone: '376'}
+        */
+        else if (prop == 'nationality') {
+          value = subject[prop]
+        }
+        else {
           value = subject[prop].toString() != ""
             ? subject[prop].toString()
             : "not set";
