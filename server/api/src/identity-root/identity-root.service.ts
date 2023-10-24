@@ -26,6 +26,9 @@ export class IdentityRootService {
    * Gets a prisma identity root entry by its ID (NOT a did store id)
    */
   public async findOne(id: string) {
+    if (!id)
+      return null;
+
     return this.prisma.identityRoot.findFirst({ where: { id } });
   }
 

@@ -120,10 +120,13 @@ export class IdentityService {
       }
     })
 
+    console.log("publish", publish)
+
     if (publish) {
       // Publish the related DID
       const payload = await this.didService.createDIDPublishTransaction(context, identityDid, storePassword);
       const { publicationId } = await this.publishIdentity(identityDid, payload);
+      console.log("publicationId", publicationId)
       identity.publicationId = publicationId;
     }
 

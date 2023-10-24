@@ -53,7 +53,8 @@ const ImportPage: FC = () => {
         />
       </div>
 
-      <MainButton onClick={handleImportMnemonic}>Import my DID</MainButton>
+      <MainButton onClick={handleImportMnemonic} busy={importing}>Import my DID</MainButton>
+      {importing && <Typography>Importing identities, please wait. This take several seconds.</Typography>}
     </div>
   );
 };
