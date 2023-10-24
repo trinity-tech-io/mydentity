@@ -111,10 +111,13 @@ export const DropdownUserProfile: FC<{
         </ListItemIcon>
         <ListItemText
           primary={
-            <span className="text-base font-medium">Hi {userName}!</span>
+            <span className="text-base font-semibold">Hi {userName}!</span>
           }
+          primaryTypographyProps={{ color: "text.primary" }}
         />
-        {dropdownOpen ? <ExpandLess /> : <ExpandMore />}
+        <Typography color="text.primary" className="flex pl-1">
+          {dropdownOpen ? <ExpandLess fontSize="small" /> : <ExpandMore fontSize="small" />}
+        </Typography>
       </ListItemButton>
       {isSignedIn && (
         <Transition

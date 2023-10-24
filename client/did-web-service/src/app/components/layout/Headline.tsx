@@ -1,5 +1,6 @@
 import { FC, ReactNode } from "react";
 import { styled } from "@mui/material/styles";
+import { Typography } from "@mui/material";
 
 const HeadlineBox = styled("div")((props: { showBg: boolean }) => {
   const { showBg } = props;
@@ -14,8 +15,8 @@ const Headline: FC<{
   showBg?: boolean;
 }> = ({ title, description, showBg = false }) => (
   <HeadlineBox showBg={showBg} className={showBg?"p-6 rounded-lg":""}>
-    <h3 className="w-full text-4xl font-bold pb-8">{title}</h3>
-    <span className="mt-4">{description}</span>
+    <Typography className="w-full pb-8" variant="h3" color="text.primary">{title}</Typography>
+    <Typography className="mt-4" variant="body1" color="text.primary">{description}</Typography>
   </HeadlineBox>
 );
 export default Headline;

@@ -9,13 +9,15 @@ const AccountForm = styled(FormControl)(({ theme }) => ({
     marginTop: 0,
     "&:before, &:after": {
       opacity: 0.18,
-      borderColor: "white",
+      borderColor:
+        theme.palette.mode == "dark" ? "white" : theme.palette.primary.main,
     },
   },
   ".MuiInputBase-root.MuiInput-root:hover:not(.Mui-disabled, .Mui-error)": {
     "&:before, &:after": {
       opacity: 0.18,
-      borderColor: "white",
+      borderColor:
+        theme.palette.mode == "dark" ? "white" : theme.palette.primary.main,
     },
   },
   ".MuiInput-root.Mui-focused": {

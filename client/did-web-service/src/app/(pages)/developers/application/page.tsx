@@ -7,15 +7,25 @@ import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { Credential } from "@model/credential/credential";
 import { Document } from "@model/document/document";
 import { editAvatarOnHive } from "@model/regular-identity/features/profile/upload-avatar";
-import { TextField, Typography } from "@mui/material";
+import { Input, Stack, TextField, Typography } from "@mui/material";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { useToast } from "@services/feedback.service";
 import { didDocumentService } from "@services/identity/diddocuments.service";
 import { logger } from "@services/logger";
 import { authUser$ } from "@services/user/user.events";
 import { useSearchParams } from "next/navigation";
-import { ChangeEvent, FC, useCallback, useEffect, useState } from "react";
+import {
+  ChangeEvent,
+  FC,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import CardReader from "../components/CardReader";
 import ApplicationCard from "@components/applications/ApplicationCard";
+import AccountForm from "@components/form/AccountForm";
+import { generateTheme } from "@/app/theming/material-ui.theme";
 
 const ApplicationDetailsPage: FC<{
   params: {
@@ -49,6 +59,7 @@ const ApplicationDetailsPage: FC<{
   const { showSuccessToast, showErrorToast } = useToast();
   const [showMnemonic, setShowMnemonic] = useState<string>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const appNameInput = useRef(null);
 
   const fetchRemoteDIDDocument = useCallback((): void => {
     console.log("applicationDid", applicationDid);
@@ -212,6 +223,7 @@ const ApplicationDetailsPage: FC<{
     }
   };
 
+  const lightTheme = generateTheme("light");
   return (
     <div className="col-span-full">
       {/* <Breadcrumbs entries={["developers", "application-details"]} /> */}
@@ -229,6 +241,69 @@ const ApplicationDetailsPage: FC<{
                 wrapperClassName="w-full h-full"
               />
             )
+          }
+          detailPaper={
+            <ThemeProvider theme={lightTheme}>
+              <div className="flex flex-col">
+                <EditableCredentialAvatar
+                  credential={localAppCredential}
+                  onFileUpload={handleAppIconFileChanged}
+                  updating={uploadingAvatar}
+                  width={48}
+                  height={48}
+                />
+                <div className="mt-2 flex flex-col">
+                  <AccountForm fullWidth>
+                    <Typography
+                      variant="caption"
+                      component="label"
+                      htmlFor="app-name"
+                      fontSize={10}
+                      fontWeight={600}
+                      autoFocus
+                      color="text.primary"
+                    >
+                      APPLICATION NAME
+                    </Typography>
+                    {localAppCredential && (
+                      <Input
+                        id="app-name"
+                        autoFocus
+                        defaultValue={localAppCredential
+                          ?.getSubject()
+                          .getProperty("name")}
+                        inputProps={{
+                          maxLength: 30,
+                          style: { fontSize: 20 },
+                          ref: appNameInput,
+                        }}
+                        // onChange={handleInputName}
+                      />
+                    )}
+                  </AccountForm>
+                  {appIdentity && (
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      className="mt-2"
+                      spacing={1}
+                    >
+                      <Typography
+                        variant="caption"
+                        className="break-all"
+                        color="text.primary"
+                        fontSize={10}
+                      >
+                        {appIdentity.did}
+                      </Typography>
+                      <div className="inline">
+                        <CopyButton text={appIdentity.did} />
+                      </div>
+                    </Stack>
+                  )}
+                </div>
+              </div>
+            </ThemeProvider>
           }
         />
       </div>

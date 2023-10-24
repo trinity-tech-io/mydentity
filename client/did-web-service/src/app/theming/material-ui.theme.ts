@@ -86,7 +86,7 @@ export const generateTheme = (mode: PaletteMode): Theme => createTheme({
       fontWeight: 700,
       lineHeight: 1.5,
       fontSize: pxToRem(24),
-      ...responsiveFontSizes({ sm: 26, md: 30, lg: 32 })
+      ...responsiveFontSizes({ sm: 26, md: 30, lg: 36 })
     },
     h4: {
       fontWeight: 600,
@@ -129,7 +129,6 @@ export const generateTheme = (mode: PaletteMode): Theme => createTheme({
   },
   palette: {
     mode,
-    contrastThreshold: 4.5,
     ... palette[mode]
-  }
+  },
 });

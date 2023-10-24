@@ -95,13 +95,26 @@ const COMMON = {
 
 const palette = {
   light: {
-    ...COMMON,
+    // ...COMMON,
+    primary: {
+      lighter: "#C8FACD",
+      light: "#5BE584",
+      main: "#121212",
+      dark: "#000",
+      contrastText: "#fff",
+    },
     text: { primary: GREY[800], secondary: GREY[600], disabled: GREY[500] },
     background: { paper: "#fff", default: "#fff" },
     action: { active: GREY[600], ...COMMON.action },
   },
   dark: {
-    ...COMMON,
+    // ...COMMON,
+    primary: {
+      main: "#FFF",
+      dark: "#DDD",
+      darker: "#323B45",
+      contrastText: "#000",
+    },
     text: { primary: "#fff", secondary: GREY[500], disabled: GREY[600] },
     background: { paper: GREY[800], default: GREY[900] },
     action: { active: GREY[500], ...COMMON.action },

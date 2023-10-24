@@ -12,7 +12,6 @@ const ReaderBox = styled(Box)((theme) => ({
   "--lg": "#5dff05",
   ".surface": {
     perspective: "1000px",
-    fontSize: "5rem",
     borderRadius: 20,
     padding: "1.3rem",
     backgroundColor: "#0A0A0A",
@@ -105,17 +104,13 @@ const ReaderBox = styled(Box)((theme) => ({
       "0 0 calc(var(--sz) / 50) calc(var(--sz) / 50) #0008, 0 calc(var(--sz) / -20) calc(var(--sz) / 10) calc(var(--sz) / 500) #000, 0 calc(var(--sz) / 20) calc(var(--sz) / 10) calc(var(--sz) / 500) #fff8, 0 0 calc(var(--sz) / 20) calc(var(--sz) / 25) #000",
     "&:after": {
       content: "''",
-      width: "calc(100% - calc(var(--sz) / 15))",
-      height: "calc(100% - calc(var(--sz) / 15))",
+      width: "100%",
+      height: "100%",
       position: "absolute",
       borderRadius: "50%",
       boxShadow:
         "0 0 calc(var(--sz) / 3) 0 #00f56d20, 0 0 calc(var(--sz) / 3) calc(var(--sz) / 20) #00f56d20 inset; background: radial-gradient(circle at 50% 32%, #fff5 0 calc(var(--sz) / 20), #000 calc(var(--sz) / 3) calc(var(--sz) / 3))",
       transition: "all 0.5s ease-out",
-    },
-    "&.on:after": {
-      boxShadow:
-        "0 0 calc(var(--sz) / 2.5) 0 var(--lg), 0 0 calc(var(--sz) / 3) calc(var(--sz) / 20) var(--lg) inset, 0 calc(var(--sz) / -20) calc(var(--sz) / 10) calc(var(--sz) / 10) #000 inset; background: radial-gradient(circle at 50% 32%, #fff 0 calc(var(--sz) / 20), #fff2 calc(var(--sz) / 3) calc(var(--sz) / 3))",
     },
   },
   "&.on": {
@@ -130,6 +125,33 @@ const ReaderBox = styled(Box)((theme) => ({
       transform: "rotate(0)",
       "&:before": {
         transform: "scale(3)",
+      },
+    },
+  },
+  ".detail-paper": {
+    width: "87%",
+    ".reveal": {
+      zIndex: 1,
+      transition: "background-color 0.8s 0.4s cubic-bezier(0.77, 0, 0.175, 1)",
+      "&:after": {
+        content: "''",
+        display: "block",
+        position: "absolute",
+        zIndex: -1,
+        margin: 0,
+        top: 0,
+        bottom: 0,
+        background: "#ffffff",
+      },
+      ".detail-content": {
+        opacity: 0,
+      },
+      "&.reveal--visible:after": {
+        animation: "bloc-reval 1.8s cubic-bezier(0.77, 0, 0.175, 1) forwards",
+      },
+      "&.reveal--visible .detail-content": {
+        opacity: 1,
+        transition: "opacity 0.8s 1.2s cubic-bezier(0.77, 0, 0.175, 1)",
       },
     },
   },
@@ -184,7 +206,11 @@ const ReaderBox = styled(Box)((theme) => ({
     },
   },
 }));
-const CardReader: FC<{ identityCard: ReactNode }> = ({ identityCard }) => {
+
+const CardReader: FC<{ identityCard: ReactNode; detailPaper: ReactNode }> = ({
+  identityCard,
+  detailPaper,
+}) => {
   const { mounted } = useMounted();
   const [isInserted, setIsInserted] = useState(false);
   if (mounted && identityCard) {
@@ -209,6 +235,18 @@ const CardReader: FC<{ identityCard: ReactNode }> = ({ identityCard }) => {
         <span className="light relative" />
         <div className="entry-left" />
         <span className="entry" />
+        <div className="detail-paper flex-1 pt-2">
+          <div
+            className={clsx(
+              "reveal relative inline-block overflow-hidden w-full h-full",
+              isInserted && "reveal--visible"
+            )}
+          >
+            <div className="detail-content p-4">
+              {isInserted && detailPaper}
+            </div>
+          </div>
+        </div>
       </div>
       <Box
         className={clsx(

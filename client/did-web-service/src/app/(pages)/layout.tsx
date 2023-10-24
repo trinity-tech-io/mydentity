@@ -85,7 +85,25 @@ const EntryLayout: FC<{ children: ReactNode }> = ({ children }) => {
     </main>
   );
 };
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import Checkbox from "@mui/material/Checkbox";
+import { green, orange } from "@mui/material/colors";
 
+const outerTheme = createTheme({
+  palette: {
+    primary: {
+      main: orange[500],
+    },
+  },
+});
+
+const innerTheme = createTheme({
+  palette: {
+    primary: {
+      main: green[500],
+    },
+  },
+});
 export default function RootLayout({
   children,
 }: {
@@ -96,6 +114,14 @@ export default function RootLayout({
     ? EntryLayout
     : LayoutCore;
   return (
+    // <AppThemeProvider>
+    //   <ThemeRegistry>
+    //       <Checkbox defaultChecked />
+    //       <ThemeProvider theme={innerTheme}>
+    //         <Checkbox defaultChecked />
+    //       </ThemeProvider>
+    //   </ThemeRegistry>
+    // </AppThemeProvider>
     <AppThemeProvider>
       <ThemeRegistry>
         <SnackbarProvider>
