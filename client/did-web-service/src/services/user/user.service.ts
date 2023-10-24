@@ -273,7 +273,6 @@ function getPasskeyPublicKeyCredentialWithUserName(credentialId: string): Public
 export function getPasskeyAllUsers(): { name: string, credentialId: string }[] {
   const passkeyUsersString = localStorage.getItem("passkey_users_list");
   const passkeyUsers: { name: string, credentialId: string }[] = passkeyUsersString ? JSON.parse(passkeyUsersString) : [];
-  console.log("TODO: REMOVE: passkeyUsers: ", passkeyUsers)
   return passkeyUsers
 }
 
@@ -283,11 +282,7 @@ export async function authenticateWithPasskey(credentialId: string): Promise<boo
   const challengeInfo = await getPasskeyChallenge()
   const unlockOptions = unlockPasskeyOptions(credentialId, challengeInfo)
   // true: Autofill account password will report an error
-  // TODO: REMOVE
-  console.log("authenticateWithPasskey>>>>>>>>>>>> unlockOptions: ", unlockOptions)
   const authenResponse = await startAuthentication(unlockOptions, false)
-  // TODO: REMOVE
-  console.log("authenticateWithPasskey>>>>>>>>>>>> authenResponse: ", authenResponse)
   const authKey = {
     type: ShadowKeyType.WEBAUTHN,//-7
     keyId: authenResponse.id,
@@ -316,8 +311,6 @@ export async function authenticateWithPasskey(credentialId: string): Promise<boo
     });
   });
 
-  // TODO: REMOVE
-  console.log("authenticateWithPasskey>>>>>>>>>>>> result: ", result)
   if (result?.data?.signInWithPasskey?.accessToken) {
     const accessToken = result?.data?.signInWithPasskey?.accessToken;
     const refreshToken = result?.data?.signInWithPasskey?.refreshToken;

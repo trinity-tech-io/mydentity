@@ -19,7 +19,6 @@ export const BindingSuggestionStep: FC<{
     async function isPasskeySupported(): Promise<void> {
       // Check if user verification platform authenticator is supported.
       const result = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-      console.log('TODO: REMOVE >>>>>>>>>>>>>>>>>>>>> isPasskeySupported result= ', result);
       setIsWebauthnAvailable(result);
     }
     isPasskeySupported();
