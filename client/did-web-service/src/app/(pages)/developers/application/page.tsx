@@ -7,7 +7,7 @@ import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { Credential } from "@model/credential/credential";
 import { Document } from "@model/document/document";
 import { editAvatarOnHive } from "@model/regular-identity/features/profile/upload-avatar";
-import { Input, Stack, TextField, Typography } from "@mui/material";
+import { Box, Input, Stack, TextField, Typography } from "@mui/material";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { useToast } from "@services/feedback.service";
 import { didDocumentService } from "@services/identity/diddocuments.service";
@@ -27,6 +27,7 @@ import ApplicationCard from "@components/applications/ApplicationCard";
 import AccountForm from "@components/form/AccountForm";
 import { generateTheme } from "@/app/theming/material-ui.theme";
 import AppPhrase from "../components/AppPhrase";
+import clsx from "clsx";
 
 const ApplicationDetailsPage: FC<{
   params: {
@@ -246,13 +247,28 @@ const ApplicationDetailsPage: FC<{
           detailPaper={
             <ThemeProvider theme={lightTheme}>
               <div className="flex flex-col h-full">
-                <EditableCredentialAvatar
+                <div className="flex">
+                  <EditableCredentialAvatar
                   credential={localAppCredential}
-                  onFileUpload={handleAppIconFileChanged}
-                  updating={uploadingAvatar}
-                  width={48}
-                  height={48}
-                />
+                    onFileUpload={handleAppIconFileChanged}
+                    updating={uploadingAvatar}
+                    width={48}
+                    height={48}
+                  />
+                  <div className="flex-1" />
+                  <div className="leading-none">
+                    {appDIDDocumentStatusWasChecked && (
+                      <div
+                        className={clsx(
+                          "rounded-md text-[7pt] px-3 py-1 inline-block text-white whitespace-nowrap",
+                          publishedDIDDocument ? "bg-[#34A853]" : "bg-[#EA4335]"
+                        )}
+                      >
+                        {publishedDIDDocument ? "PUBLISHED" : "UNPUBLISHED"}
+                      </div>
+                    )}
+                  </div>
+                </div>
                 <div className="mt-2 flex flex-col">
                   <AccountForm fullWidth>
                     <Typography
@@ -302,7 +318,7 @@ const ApplicationDetailsPage: FC<{
                       </div>
                     </Stack>
                   )}
-                  <AppPhrase appIdentity={appIdentity}/>
+                  <AppPhrase appIdentity={appIdentity} />
                 </div>
               </div>
             </ThemeProvider>
