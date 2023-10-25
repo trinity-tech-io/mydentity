@@ -31,55 +31,36 @@ export const ClaimDisplayEntryListWidget: FC<Props> = (props) => {
       able2ShowAll={false}
     >
       <div className="mb-1">
-        <DetailTable
-          headCells={
-            <>
-              <TableCell>PROFILE CREDENTIALS</TableCell>
-              <TableCell>SELECTED</TableCell>
-            </>
-          }
-          bodyRows={
-            claimDisplayEntryList ? (
+        {claimDisplayEntryList && claimDisplayEntryList.length > 0 ? (
+          claimDisplayEntryList.map((cl, _id) => (
+            <ClaimDisplayEntryWidget key={_id} claimDisplayEntry={cl} />
+          ))
+        ) : (
+          <DetailTable
+            headCells={
               <>
-                {!claimDisplayEntryList.length ? (
-                  <TableRow>
-                    <TableCell component="th" colSpan={6} align="center">
-                      <Typography variant="body1" color="text.primary">
-                        No credential found
-                      </Typography>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  claimDisplayEntryList.map((cl, _id) => (
-                    <ClaimDisplayEntryWidget key={_id} claimDisplayEntry={cl} />
-                  ))
-                )}
+                <TableCell>CREDENTIALS</TableCell>
+                <TableCell>SELECT</TableCell>
               </>
-            ) : (
-              Array(3)
-                .fill(0)
-                .map((_, _i) => <LoadingTableAvatarRow key={_i} />)
-            )
-          }
-        />
+            }
+            bodyRows={
+              !claimDisplayEntryList ? (
+                Array(3)
+                  .fill(0)
+                  .map((_, _i) => <LoadingTableAvatarRow key={_i} />)
+              ) : (
+                <TableRow>
+                  <TableCell component="th" colSpan={6} align="center">
+                    <Typography variant="body1" color="text.primary">
+                      No credential found
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              )
+            }
+          />
+        )}
       </div>
     </DetailContainer>
-    // <div className="col-span-full p-2 xl:col-span-5 bg-white dark:bg-slate-800 shadow-lg rounded-sm border border-slate-200 dark:border-slate-700">
-    //   List of credentials
-    //   <Divider />
-    //   <Box sx={{ width: '100%', bgcolor: 'background.paper' }}>
-    //     { claimDisplayEntryList &&
-    //       <List component="nav" aria-label="main mailbox folders">
-    //         {
-    //           claimDisplayEntryList.map(cl =>
-    //             <div key={cl.claimDescription.reason} className='flex flex-col flex-1'>
-    //               <ClaimDisplayEntryWidget claimDisplayEntry={cl} />
-    //             </div>
-    //           )
-    //         }
-    //       </List>
-    //     }
-    //   </Box>
-    // </div>
   );
 };

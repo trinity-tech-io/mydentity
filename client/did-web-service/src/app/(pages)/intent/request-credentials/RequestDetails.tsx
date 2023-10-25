@@ -380,18 +380,20 @@ export const RequestDetails: FC<{
           <ClaimDisplayEntryListWidget
             claimDisplayEntryList={organizedClaims}
           />
-          <div className="flex items-center space-x-3">
-            <MainButton className="w-1/2" onClick={rejectRequest}>
-              Cancel
-            </MainButton>
-            <MainButton
-              className="w-1/2"
-              onClick={approveRequest}
-              busy={preparingResponse}
-            >
-              Approve
-            </MainButton>
-          </div>
+          {organizedClaims && organizedClaims.length > 0 && (
+            <div className="flex items-center space-x-3">
+              <MainButton className="w-1/2" onClick={rejectRequest}>
+                Cancel
+              </MainButton>
+              <MainButton
+                className="w-1/2"
+                onClick={approveRequest}
+                busy={preparingResponse}
+              >
+                Approve
+              </MainButton>
+            </div>
+          )}
         </Stack>
       )}
 

@@ -78,7 +78,9 @@ export const CredentialDisplayEntryWidget: FC<Props> = (props) => {
   return (
     <DetailTableRow
       props={{ hover: true }}
-      onClick={(): void => onCredentialSelection(claimDisplayEntry, credentialDisplayEntry)}
+      onClick={(): void =>
+        onCredentialSelection(claimDisplayEntry, credentialDisplayEntry)
+      }
       className="h-[3rem] cursor-pointer"
       avatar={
         <CredentialAvatar
@@ -95,7 +97,14 @@ export const CredentialDisplayEntryWidget: FC<Props> = (props) => {
             />
           </TableCell>
           <TableCell align="center">
-            <Checkbox checked={credentialSelected} />
+            <Checkbox
+              checked={credentialSelected}
+              sx={{
+                "&.Mui-checked": {
+                  color: "#9D3E3E",
+                },
+              }}
+            />
           </TableCell>
         </>
       }

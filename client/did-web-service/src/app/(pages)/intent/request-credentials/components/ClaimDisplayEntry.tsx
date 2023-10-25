@@ -1,9 +1,9 @@
 "use client";
-import Divider from "@mui/material/Divider";
-import List from "@mui/material/List";
 import { FC, useEffect, useState } from "react";
 import { ClaimDisplayEntry, CredentialDisplayEntry } from "../RequestDetails";
 import { CredentialDisplayEntryWidget } from "./CredentialDisplayEntry";
+import { TableCell, TableRow, Typography } from "@mui/material";
+import { DetailTable } from "@components/generic/DetailTable";
 
 interface Props {
   claimDisplayEntry: ClaimDisplayEntry;
@@ -53,43 +53,60 @@ export const ClaimDisplayEntryWidget: FC<Props> = (props) => {
   };
 
   return (
-    <>
-      {claimDisplayEntry &&
+    <DetailTable
+      headCells={
+        <>
+          <TableCell>CREDENTIALS</TableCell>
+          <TableCell>SELECTED {selectionSummary}</TableCell>
+        </>
+      }
+      bodyRows={
+        claimDisplayEntry &&
         claimDisplayEntry.matchingCredentials &&
-        claimDisplayEntry.matchingCredentials.map(
-          (c: CredentialDisplayEntry) => (
-            <CredentialDisplayEntryWidget
-              key={c.credential.id}
-              credentialDisplayEntry={c}
-              claimDisplayEntry={claimDisplayEntry}
-              updateSummary={updateSummary}
-            />
+        claimDisplayEntry.matchingCredentials.length > 0 ? (
+          claimDisplayEntry.matchingCredentials.map(
+            (c: CredentialDisplayEntry) => (
+              <CredentialDisplayEntryWidget
+                key={c.credential.id}
+                credentialDisplayEntry={c}
+                claimDisplayEntry={claimDisplayEntry}
+                updateSummary={updateSummary}
+              />
+            )
           )
-        )}
-      {/* { claimDisplayEntry &&
-      <div key={claimDisplayEntry.claimDescription.reason} className='flex flex-col'>
-        <div className="flex flex-row p-4">
-          <div className="flex flex-row p-1"> { claimDisplayEntry.claimDescription.reason } </div>
-          <div className="absolute right-1 p-1">
-            { selectionSummary }
-          </div>
-        </div>
+        ) : (
+          <TableRow>
+            <TableCell component="th" colSpan={6} align="center">
+              <Typography variant="body1" color="text.primary">
+                No credential found
+              </Typography>
+            </TableCell>
+          </TableRow>
+        )
+      }
+    />
+    // claimDisplayEntry &&
+    // <div key={claimDisplayEntry.claimDescription.reason} className='flex flex-col'>
+    //   <div className="flex flex-row p-4">
+    //     <div className="flex flex-row p-1"> { claimDisplayEntry.claimDescription.reason } </div>
+    //     <div className="absolute right-1 p-1">
+    //       { selectionSummary }
+    //     </div>
+    //   </div>
 
-        { claimDisplayEntry.matchingCredentials &&
-          <List component="nav" aria-label="main mailbox folders">
-            {
-              claimDisplayEntry.matchingCredentials.map((c: CredentialDisplayEntry) =>
-                <div key={c.credential.id} >
-                  <CredentialDisplayEntryWidget credentialDisplayEntry={c} claimDisplayEntry={claimDisplayEntry}
-                    updateSummary={updateSummary}/>
-                  <Divider />
-                </div>
-              )
-            }
-          </List>
-        }
-      </div>
-    } */}
-    </>
+    //   { claimDisplayEntry.matchingCredentials &&
+    //     <List component="nav" aria-label="main mailbox folders">
+    //       {
+    //         claimDisplayEntry.matchingCredentials.map((c: CredentialDisplayEntry) =>
+    //           <div key={c.credential.id} >
+    //             <CredentialDisplayEntryWidget credentialDisplayEntry={c} claimDisplayEntry={claimDisplayEntry}
+    //               updateSummary={updateSummary}/>
+    //             <Divider />
+    //           </div>
+    //         )
+    //       }
+    //     </List>
+    //   }
+    // </div>
   );
 };
