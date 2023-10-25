@@ -63,7 +63,7 @@ const AppPhrase: FC<{ appIdentity: ApplicationIdentity }> = ({
               <Visibility sx={{ fontSize: { xs: 16, sm: 20 } }} />
             )}
           </IconButton>
-          <CopyButton text={appIdentity.did} />
+          <CopyButton text={phrases} />
         </div>
       </Stack>
       <Box

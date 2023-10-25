@@ -1,4 +1,4 @@
-import { FC, ReactNode, useState } from "react";
+import { FC, ReactNode, memo, useState } from "react";
 import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useMounted } from "@hooks/useMounted";
@@ -263,4 +263,4 @@ const CardReader: FC<{ identityCard: ReactNode; detailPaper: ReactNode }> = ({
     </ReaderBox>
   );
 };
-export default CardReader;
+export default memo(CardReader);

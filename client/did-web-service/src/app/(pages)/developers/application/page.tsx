@@ -1,19 +1,4 @@
 "use client";
-import { CopyButton } from "@components/button";
-import { EditableCredentialAvatar } from "@components/credential/EditableCredentialAvatar";
-import { MainButton } from "@components/generic/MainButton";
-import Headline from "@components/layout/Headline";
-import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
-import { Credential } from "@model/credential/credential";
-import { Document } from "@model/document/document";
-import { editAvatarOnHive } from "@model/regular-identity/features/profile/upload-avatar";
-import { Box, Input, Stack, TextField, Typography } from "@mui/material";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
-import { useToast } from "@services/feedback.service";
-import { didDocumentService } from "@services/identity/diddocuments.service";
-import { logger } from "@services/logger";
-import { authUser$ } from "@services/user/user.events";
-import { useSearchParams } from "next/navigation";
 import {
   ChangeEvent,
   FC,
@@ -22,12 +7,30 @@ import {
   useRef,
   useState,
 } from "react";
+import { useSearchParams } from "next/navigation";
+import clsx from "clsx";
+import { CopyButton, DarkButton } from "@components/button";
+import { EditableCredentialAvatar } from "@components/credential/EditableCredentialAvatar";
+import Headline from "@components/layout/Headline";
+import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
+import { Credential } from "@model/credential/credential";
+import { Document } from "@model/document/document";
+import { editAvatarOnHive } from "@model/regular-identity/features/profile/upload-avatar";
+import { Input, Stack, Typography } from "@mui/material";
+import { ThemeProvider } from "@mui/material/styles";
+import { useToast } from "@services/feedback.service";
+import { didDocumentService } from "@services/identity/diddocuments.service";
+import { logger } from "@services/logger";
+import { authUser$ } from "@services/user/user.events";
 import CardReader from "../components/CardReader";
 import ApplicationCard from "@components/applications/ApplicationCard";
 import AccountForm from "@components/form/AccountForm";
 import { generateTheme } from "@/app/theming/material-ui.theme";
 import AppPhrase from "../components/AppPhrase";
-import clsx from "clsx";
+import {
+  SecurityState,
+  SecurityStatus,
+} from "../../dashboard/components/SecurityStatus";
 
 const ApplicationDetailsPage: FC<{
   params: {
@@ -58,10 +61,10 @@ const ApplicationDetailsPage: FC<{
     useState(false);
   //const developerDIDDocument: DIDPlugin.DIDDocument = null;
   const [publishingIdentity, setPublishingIdentity] = useState(false);
-  const { showSuccessToast, showErrorToast } = useToast();
-  const [showMnemonic, setShowMnemonic] = useState<string>(null);
+  const { showErrorToast } = useToast();
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const appNameInput = useRef(null);
+  const lightTheme = generateTheme("light");
 
   const fetchRemoteDIDDocument = useCallback((): void => {
     console.log("applicationDid", applicationDid);
@@ -95,7 +98,7 @@ const ApplicationDetailsPage: FC<{
     if (appIdentity) {
       appIdentity.synchronizeDIDDocument();
     }
-  }, [applicationDid, appIdentity]);
+  }, [appIdentity]);
 
   useEffect(() => {
     if (localAppCredential) {
@@ -106,6 +109,7 @@ const ApplicationDetailsPage: FC<{
 
   useEffect(() => {
     updateAppIdentityNeedsToBePublished();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appName, appIconUrl, publishedDIDDocument]);
 
   useEffect(() => {
@@ -114,7 +118,7 @@ const ApplicationDetailsPage: FC<{
     );
   }, [appIdentity, localAppIdentityCredentials]);
 
-  const updateLocalAppCredential = async () => {
+  const updateLocalAppCredential = async (): Promise<void> => {
     await appIdentity.update(appName, appIconUrl);
   };
 
@@ -168,7 +172,7 @@ const ApplicationDetailsPage: FC<{
   };
 
   const chainAppNameMatchesLocalAppName = (): boolean => {
-    const appCredential = publishedDIDDocument.getCredentialByType(
+    const appCredential = publishedDIDDocument?.getCredentialByType(
       "ApplicationCredential"
     );
     if (!appCredential) return false;
@@ -177,7 +181,7 @@ const ApplicationDetailsPage: FC<{
   };
 
   const chainAppIconMatchesLocalAppIcon = (): boolean => {
-    const appCredential = publishedDIDDocument.getCredentialByType(
+    const appCredential = publishedDIDDocument?.getCredentialByType(
       "ApplicationCredential"
     );
     if (!appCredential) return false;
@@ -202,11 +206,6 @@ const ApplicationDetailsPage: FC<{
     updateAppIdentityNeedsToBePublished();
   };
 
-  const copyAppDIDToClipboard = async (): Promise<void> => {
-    /* await native.copyClipboard(app.didString);
-    native.genericToast('developers.app-did-copied', 2000); */
-  };
-
   const handleAppIconFileChanged = async (file: File): Promise<void> => {
     setUploadingAvatar(true);
     const uploadedAvatar = await editAvatarOnHive(appIdentity, file);
@@ -216,16 +215,6 @@ const ApplicationDetailsPage: FC<{
     await appIdentity.update(appName, uploadedAvatar.avatarHiveURL);
   };
 
-  const handleExportMnemonic = async (): Promise<void> => {
-    const mnemonic = await activeUser
-      .get("identity")
-      .exportMnemonic(appIdentity.identityRootId);
-    if (mnemonic) {
-      setShowMnemonic(mnemonic);
-    }
-  };
-
-  const lightTheme = generateTheme("light");
   return (
     <div className="col-span-full">
       {/* <Breadcrumbs entries={["developers", "application-details"]} /> */}
@@ -234,7 +223,7 @@ const ApplicationDetailsPage: FC<{
         description="Fill in the details below to register your app, which will enable seamless communication with the identity framework, enhancing services, and customizing user experiences."
         showBg={true}
       />
-      <div className="sm:ml-[10vw]">
+      <div className="sm:ml-[10vw] max-w-lg">
         <CardReader
           identityCard={
             appIdentity && (
@@ -249,14 +238,13 @@ const ApplicationDetailsPage: FC<{
               <div className="flex flex-col h-full">
                 <div className="flex">
                   <EditableCredentialAvatar
-                  credential={localAppCredential}
+                    credential={localAppCredential}
                     onFileUpload={handleAppIconFileChanged}
                     updating={uploadingAvatar}
                     width={48}
                     height={48}
                   />
-                  <div className="flex-1" />
-                  <div className="leading-none">
+                  <div className="text-sm ml-auto">
                     {appDIDDocumentStatusWasChecked && (
                       <div
                         className={clsx(
@@ -269,7 +257,7 @@ const ApplicationDetailsPage: FC<{
                     )}
                   </div>
                 </div>
-                <div className="mt-2 flex flex-col">
+                <div className="mt-3 flex flex-col flex-1">
                   <AccountForm fullWidth>
                     <Typography
                       variant="caption"
@@ -286,15 +274,14 @@ const ApplicationDetailsPage: FC<{
                       <Input
                         id="app-name"
                         autoFocus
-                        defaultValue={localAppCredential
-                          ?.getSubject()
-                          .getProperty("name")}
+                        defaultValue={appName}
                         inputProps={{
                           maxLength: 30,
                           style: { fontSize: 20 },
                           ref: appNameInput,
                         }}
                         // onChange={handleInputName}
+                        onChange={onAppTitleChange}
                       />
                     )}
                   </AccountForm>
@@ -324,115 +311,30 @@ const ApplicationDetailsPage: FC<{
             </ThemeProvider>
           }
         />
-      </div>
-      <div>
-        <Typography variant="h6">Application details</Typography>
-
-        {/*  Header */}
-        <div className="flex flex-col">
-          {/* App icon */}
-          <div className="flex">
-            <EditableCredentialAvatar
-              credential={localAppCredential}
-              onFileUpload={handleAppIconFileChanged}
-              updating={uploadingAvatar}
-            />
-            {/* <ion-img *ngIf="!fetchingIcon && !uploadingIcon" [src]="getAppIcon()"
-              onClick="selectAndUploadAppIconFromLibrary()"></ion-img> */}
-            {/* <p *ngIf="!fetchingIcon && !uploadingIcon && !base64iconPath">{{ 'developers.set-app-icon' | translate
-              }}</p>
-            <p *ngIf="!fetchingIcon && !uploadingIcon && base64iconPath">{{ 'developers.touch-to-change' | translate
-              }}</p> */}
-            {/* <ion-spinner * ngIf="fetchingIcon || uploadingIcon" ></ion - spinner > */}
-          </div>
-
-          {/* App title */}
-          <div className="flex flex-row mt-4 items-center gap-4">
-            <div>Name</div>
-            <div>
-              <TextField
-                className="w-full"
-                label="Application name"
-                onChange={onAppTitleChange}
-                defaultValue={appName}
-                autoFocus
-                variant="outlined"
-                autoComplete="off"
-              />
-
-              {/* <ion-input [(ngModel)]="appName" placeholder="{{ 'developers.appName-placeholder' | translate }}">
-            </ion-input> */}
+        {appDIDDocumentStatusWasChecked && localAppCredential && (
+          <Stack className="p-4" spacing={2}>
+            <div className="px-4">
+              {appIdentityNeedsToBePublished ? (
+                <SecurityStatus
+                  state={SecurityState.Average}
+                  advice="The local application info has been modified. Please publish it for others to view your new app info."
+                />
+              ) : (
+                <SecurityStatus
+                  state={SecurityState.Good}
+                  advice="The application info is up-to-date. If the local application info is modified, you need to republish the DID again."
+                />
+              )}
             </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Other properties */}
-      <div className="flex flex-col gap-4 mt-8">
-        <div className="flex flex-row gap-4">
-          <div>
-            <p>DID</p>
-            {/* <ion-icon name="copy" onClick={copyAppDIDToClipboard}></ion-icon> */}
-          </div>
-          <div className="inline-flex items-center">
-            <Typography variant="body2">{applicationDid}</Typography>
-            <CopyButton text={applicationDid} />
-          </div>
-        </div>
-        {/* <div>
-            <div >
-              <p>Mnemonic</p>
-            </div>
-            <div>
-              <Typography>{didSession.mnemonic}</Typography>
-            </div>
-          </div> */}
-        <div className="flex flex-row gap-4">
-          <div>App DID published?</div>
-          <div>
-            {!appDIDDocumentStatusWasChecked && (
-              <Typography>Checking</Typography>
-            )}
-            {appDIDDocumentStatusWasChecked && publishedDIDDocument && (
-              <Typography>Yes</Typography>
-            )}
-            {appDIDDocumentStatusWasChecked && !publishedDIDDocument && (
-              <Typography>No</Typography>
-            )}
-          </div>
-        </div>
-
-        {/** Show application DID mnemonic*/}
-        {showMnemonic ? (
-          <div className="inline-flex items-center">
-            <div>{"Application DID mnemonic：" + showMnemonic}</div>
-            <CopyButton text={showMnemonic} />
-          </div>
-        ) : (
-          <MainButton onClick={handleExportMnemonic}>
-            Application DID mnemonic
-          </MainButton>
+            <DarkButton
+              loading={publishingIdentity}
+              onClick={publishAppIdentity}
+              disabled={!appIdentityNeedsToBePublished}
+            >
+              PUBLISH DID
+            </DarkButton>
+          </Stack>
         )}
-
-        <div className="mt-4">
-          {appDIDDocumentStatusWasChecked &&
-            localAppCredential &&
-            appIdentityNeedsToBePublished && (
-              <div>
-                <div>Please update your application on chain.</div>
-                <MainButton
-                  onClick={publishAppIdentity}
-                  busy={publishingIdentity}
-                >
-                  Publish DID
-                </MainButton>
-              </div>
-            )}
-
-          {appDIDDocumentStatusWasChecked &&
-            localAppCredential &&
-            !appIdentityNeedsToBePublished && <p>Up to date</p>}
-        </div>
       </div>
     </div>
   );
