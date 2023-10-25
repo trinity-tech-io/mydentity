@@ -57,7 +57,7 @@ const CredentialsList: FC = () => {
               N
             </div>
             <Typography variant="body2" fontWeight={600} className="flex-1">
-              Non-conform format
+              Number of shared apps
             </Typography>
           </div>
         </div>
