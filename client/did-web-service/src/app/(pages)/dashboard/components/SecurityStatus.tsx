@@ -33,7 +33,7 @@ export const SecurityStatus: FC<{
       style={{background: ColorByState[state]}}
     >
       <span className="text-white">{IconByState[state]}</span>
-      <span className="text-white text-[13px] leading-[1.4] font-semibold">{advice}</span>
+      <span className="text-white text-[10.5px] sm:text-[12px] leading-[1.4] font-semibold">{advice}</span>
     </div>
   );
 };

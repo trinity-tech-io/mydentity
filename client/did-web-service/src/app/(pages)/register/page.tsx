@@ -2,7 +2,14 @@
 import React, { FC, useRef, useState } from "react";
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
-import { useMediaQuery, Input, InputAdornment, Fade, InputLabel, FormHelperText } from "@mui/material";
+import {
+  useMediaQuery,
+  Input,
+  InputAdornment,
+  Fade,
+  InputLabel,
+  FormHelperText,
+} from "@mui/material";
 import { useTheme, styled } from "@mui/material/styles";
 import { useToast } from "@services/feedback.service";
 import { signOut, signUp } from "@services/user/user.service";
@@ -11,6 +18,7 @@ import { BlackButton } from "@components/button";
 import { CaseWrapper, CardCase, LandingCard } from "@components/card";
 import AccountForm from "@components/form/AccountForm";
 import PasswordInput from "./components/PasswordInput";
+import { SecurityState, SecurityStatus } from "../dashboard/components/SecurityStatus";
 
 const DescriptionText = styled("div")(({ theme }) => ({
   ".fade-in": {
@@ -74,7 +82,12 @@ const RegisterPage: FC = () => {
   const pwInputRef = useRef(null);
   const confirmPwInputRef = useRef(null);
   const { showErrorToast } = useToast();
-  const enabledButtonState = holderName.trim().length>0 && (!visibleNextForm || (visibleNextForm && password.pw.length>0 && password.pw === password.confirm))
+  const enabledButtonState =
+    holderName.trim().length > 0 &&
+    (!visibleNextForm ||
+      (visibleNextForm &&
+        password.pw.length > 0 &&
+        password.pw === password.confirm));
 
   const handleInputName: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     setVisibleNextBtn(true);
@@ -99,29 +112,29 @@ const RegisterPage: FC = () => {
     setValidationState(true);
     if (pwInputRef.current.value !== confirmPwInputRef.current.value) return;
 
-    setIsCreating(true)
+    setIsCreating(true);
     try {
       const createdUser = await signUp(holderName);
       if (createdUser) {
         // After sign up, create the first shadow key based on the given password, so we can create a first identity just after.
-        const passwordBound = await createdUser.get("security").bindPassword(password.pw);
+        const passwordBound = await createdUser
+          .get("security")
+          .bindPassword(password.pw);
         if (passwordBound) {
           // All good, go to on boarding
           router.push("/onboarding");
-        }
-        else {
+        } else {
           // Something wrong happened, sign out from the failing attempt
           // TODO: Show feedback to user
           signOut();
           setIsCreating(false);
         }
-      }
-      else {
+      } else {
         setIsCreating(false);
-        showErrorToast("Sign up failed.")
+        showErrorToast("Sign up failed.");
       }
-    } catch(e) {
-      showErrorToast("Sign up failed.")
+    } catch (e) {
+      showErrorToast("Sign up failed.");
     }
   };
 
@@ -182,7 +195,7 @@ const RegisterPage: FC = () => {
           />
         </div>
       </DescriptionText>
-      <div className="w-4/5 max-w-md flex items-center flex-col m-auto">
+      <div className="w-full max-w-md flex items-center flex-col m-auto">
         <CaseWrapper className="wrapper relative w-full md:pb-2">
           <div className={clsx("card", visibleNextForm && "is-flipped")}>
             <div className="card-face front">
@@ -229,8 +242,8 @@ const RegisterPage: FC = () => {
               <CardCase className="relative w-full md:pb-2">
                 <div className="absolute w-full h-full p-2">
                   <div className="dashed-body w-full h-full rounded-2xl p-1.5">
-                    <div className="px-6 py-8 w-full">
-                      <div className="flex flex-col gap-5">
+                    <div className="px-6 w-full h-full flex items-center">
+                      <div className="flex flex-col gap-5 text-left">
                         <AccountForm fullWidth>
                           <InputLabel htmlFor="pw">PASSWORD</InputLabel>
                           <PasswordInput
@@ -259,6 +272,10 @@ const RegisterPage: FC = () => {
                             Confirm password is incorrect!
                           </FormHelperText>
                         </AccountForm>
+                        <SecurityStatus
+                          state={SecurityState.Bad}
+                          advice="Important reminder: There is no way to retrieve or recover this password later. Please keep it securely stored for your account's safety."
+                        />
                       </div>
                     </div>
                   </div>

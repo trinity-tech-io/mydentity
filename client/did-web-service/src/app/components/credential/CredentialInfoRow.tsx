@@ -1,4 +1,4 @@
-import { FC, MouseEvent, useRef, useState } from "react";
+import { FC, MouseEvent, ReactNode, useRef, useState } from "react";
 import {
   Fade,
   ListItemText,
@@ -9,10 +9,10 @@ import {
   Typography,
 } from "@mui/material";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
-import { CredentialAvatar } from "./CredentialAvatar";
 import { Credential } from "@model/credential/credential";
-import { JsonViewer } from "./JsonViewer";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
+import { CredentialAvatar } from "./CredentialAvatar";
+import { JsonViewer } from "./JsonViewer";
 import SharedCountLabel, { ConformBadge } from "./SharedCountLabel";
 import CredentialInteractingApp from "./CredentialInteractingApp";
 
@@ -26,11 +26,11 @@ export const CredentialInfoRow: FC<{ credential: Credential }> = ({
   const [openPopper, setOpenPopper] = useState(false);
   const menuEl = useRef(null);
 
-  const handleEnter = (e: MouseEvent) => {
+  const handleEnter = (e: MouseEvent): void => {
     setOpenPopper(true);
   };
 
-  const handleLeave = () => {
+  const handleLeave = (): void => {
     setOpenPopper(false);
   };
 
@@ -96,14 +96,14 @@ export const CredentialInfoRow: FC<{ credential: Credential }> = ({
           anchorEl={menuEl.current}
           placement="right-start"
           transition
-          onMouseEnter={(e) => {
+          onMouseEnter={(e): void => {
             setOpenPopper(true);
           }}
-          onMouseLeave={(e) => {
+          onMouseLeave={(e): void => {
             setOpenPopper(false);
           }}
         >
-          {({ TransitionProps, placement }) => (
+          {({ TransitionProps, placement }): ReactNode => (
             <Fade
               {...TransitionProps}
               style={{
