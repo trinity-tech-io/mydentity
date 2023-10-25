@@ -54,6 +54,8 @@ export class IdentityService {
   }
 
   /**
+  * Creates a new identity derived from the given root identity. If no root identity, one is created.
+  *
   * @param context sandboxing context for DID storage
   */
   public async createIdentity(user: User, storePassword: string, type: IdentityType = IdentityType.REGULAR, identityRootId: string | null, hiveVaultProvider?: string, creatingAppDid?: string, publish = true): Promise<Identity> {
@@ -134,12 +136,12 @@ export class IdentityService {
     return identity;
   }
 
-  async import(input: ImportIdentityInput, user: User, browser: Browser): Promise<Identity[]> {
+  async importMnemonic(input: ImportIdentityInput, user: User, browser: Browser): Promise<Identity[]> {
     const storePassword = this.getDIDStorePassword(user?.id, browser?.id);
-    return this.importIdentityInternal(user.id, storePassword, input.identityType, user, input.mnemonic, browser);
+    return this.importMnemonicInternal(user.id, storePassword, input.identityType, user, input.mnemonic, browser);
   }
 
-  private async importIdentityInternal(context: string, storePassword: string, type: IdentityType = IdentityType.REGULAR, user: User, mnemonic: string, browser: Browser): Promise<Identity[]> {
+  private async importMnemonicInternal(context: string, storePassword: string, type: IdentityType = IdentityType.REGULAR, user: User, mnemonic: string, browser: Browser): Promise<Identity[]> {
     try {
       this.logger.log("Importing identities from mnemonic");
 
@@ -153,12 +155,6 @@ export class IdentityService {
       // Compare and upsert DIDs and VCs
       const { created } = await this.identityRootService.synchronizeDIDStoreToDatabase(user, browser, identityRoot);
 
-      // Save some activity info
-      for (const createdIdentity of created) {
-        // TOOD: We could save as "imported" instead of "created"
-        await this.activityService.createActivity(user, { type: ActivityType.IDENTITY_CREATED, identityId: createdIdentity.did, identityDid: createdIdentity.did });
-      }
-
       this.logger.log('Imported identities:' + JSON.stringify(created));
 
       return created;
@@ -169,6 +165,32 @@ export class IdentityService {
       else
         throw e;
     }
+  }
+
+  /**
+   * Creates a new Identity database entry from a given store identity info.
+   * This method is used during  mnemonic import, to synchronize our database with the content
+   * that has just been updated in the DID store, by the DID SDK.
+   */
+  public async importIdentity(user: User, did: string, type: IdentityType = IdentityType.REGULAR, identityRootId: string): Promise<Identity> {
+    const identity = await this.prisma.identity.create({
+      data: {
+        did,
+        type, // regular user, or application identity
+        identityRoot: { connect: { id: identityRootId } },
+        derivationIndex: 0, // TODO: this is wrong, this imported identity is possibly not at 0 in case of multiple identities in the same mnemonic!
+        user: { connect: { id: user.id } },
+        publicationId: ""
+      }
+    })
+
+    // Save some activity info
+    // TOOD: We could save as "imported" instead of "created"
+    await this.activityService.createActivity(user, { type: ActivityType.IDENTITY_CREATED, identityId: identity.did, identityDid: identity.did });
+
+    this.logger.log('Imported identity:' + JSON.stringify(identity));
+
+    return identity;
   }
 
   async deleteIdentity(didString: string, user: User) {

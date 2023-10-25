@@ -51,7 +51,7 @@ export class DidService {
     let rootIdentity: RootIdentity = null;
     if (!didStoreRootIdentityId) {
       // Create DID SDK root identity
-      this.logger.log('No root identity provider, creating a root identity');
+      this.logger.log('No root identity provided, creating a root identity');
       rootIdentity = await this.initPrivateIdentity(didStore, storePassword);
     } else {
       this.logger.log('Root identity provided - reusing the given root identity');

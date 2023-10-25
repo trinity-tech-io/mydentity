@@ -178,13 +178,14 @@ export class IdentityRootService {
     let created: Identity = null;
     let modified: Identity = null;
 
-    this.logger.log(`Synchronizing identity from DID store`);
+    this.logger.log(`Synchronizing identity from DID store:`, did.toString());
 
     // Make sure we have this DID as "Identity" in the database. If not, create it.
     let identity = await this.identityService.findOne(did.toString());
     if (!identity) {
       // Identity doesn't exist, create it
-      identity = await this.identityService.createIdentity(user, storePassword, IdentityType.REGULAR, identityRoot.id, null, null, false);
+      // TODO: REGULAR is wrong here. We should actually check if there if an appinfo redential inside.
+      identity = await this.identityService.importIdentity(user, did.toString(), IdentityType.REGULAR, identityRoot.id);
       created = identity;
     }
     else {
@@ -196,6 +197,7 @@ export class IdentityRootService {
 
     // Now sync (upsert) credentials
     const credentialIds = await didStore.listCredentials(identity.did);
+    this.logger.log(`Identity ${identity.did} has ${credentialIds.length} credentials`);
     for (const credentialId of credentialIds) {
       const { created: credentialCreated } = await this.synchronizeCredentialFromDIDStore(user, browser, didStore, identity, credentialId);
       if (credentialCreated && !created) {

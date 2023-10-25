@@ -60,8 +60,10 @@ export class PrismaDIDStorage implements DIDStorage {
   async storeRootIdentityMetadata(id: string, metadata: RootIdentity.Metadata): Promise<void> {
     await this.prisma.rootIdentity.update({
       where: {
-        path: this.path,
-        id: id
+        path_id: {
+          path: this.path,
+          id: id
+        }
       },
       data: {
         defaultDid: metadata.getDefaultDid().toString() || null,
@@ -72,8 +74,10 @@ export class PrismaDIDStorage implements DIDStorage {
   async loadRootIdentityMetadata(id: string): Promise<RootIdentity.Metadata> {
     const result = await this.prisma.rootIdentity.findUnique({
       where: {
-        path: this.path,
-        id: id
+        path_id: {
+          path: this.path,
+          id: id
+        }
       },
     });
 
@@ -102,8 +106,10 @@ export class PrismaDIDStorage implements DIDStorage {
   async loadRootIdentity(rid: string): Promise<RootIdentity> {
     const result = await this.prisma.rootIdentity.findUnique({
       where: {
-        path: this.path,
-        id: rid
+        path_id: {
+          path: this.path,
+          id: rid
+        }
       },
       select: {
         publicKey: true,
@@ -117,8 +123,10 @@ export class PrismaDIDStorage implements DIDStorage {
   async containsRootIdentity(rid: string): Promise<boolean> {
     const result = await this.prisma.rootIdentity.findUnique({
       where: {
-        path: this.path,
-        id: rid
+        path_id: {
+          path: this.path,
+          id: rid
+        }
       },
     });
 
@@ -128,8 +136,10 @@ export class PrismaDIDStorage implements DIDStorage {
   async updateRootIdentityIndex(rid: string, index: number): Promise<void> {
     await this.prisma.rootIdentity.update({
       where: {
-        path: this.path,
-        id: rid,
+        path_id: {
+          path: this.path,
+          id: rid,
+        }
       },
       data: {
         index: index,
@@ -140,8 +150,10 @@ export class PrismaDIDStorage implements DIDStorage {
   async loadRootIdentityPrivateKey(id: string): Promise<string> {
     const result = await this.prisma.rootIdentity.findUnique({
       where: {
-        path: this.path,
-        id: id
+        path_id: {
+          path: this.path,
+          id: id
+        }
       },
       select: {
         privateKey: true,
@@ -153,8 +165,10 @@ export class PrismaDIDStorage implements DIDStorage {
   async loadRootIdentityMnemonic(id: string): Promise<string> {
     const result = await this.prisma.rootIdentity.findUnique({
       where: {
-        path: this.path,
-        id: id
+        path_id: {
+          path: this.path,
+          id: id
+        }
       },
       select: {
         mnemonic: true,
@@ -167,8 +181,10 @@ export class PrismaDIDStorage implements DIDStorage {
     try {
       await this.prisma.rootIdentity.delete({
         where: {
-          path: this.path,
-          id: id
+          path_id: {
+            path: this.path,
+            id: id
+          }
         },
       });
       return true;
@@ -203,8 +219,10 @@ export class PrismaDIDStorage implements DIDStorage {
   async storeDidMetadata(did: DID, metadata: DIDMetadata): Promise<void> {
     await this.prisma.didDocument.upsert({
       where: {
-        path: this.path,
-        did: did.toString(),
+        path_did: {
+          path: this.path,
+          did: did.toString(),
+        }
       },
       update: {
         index: metadata.getIndex() || null,
@@ -234,8 +252,10 @@ export class PrismaDIDStorage implements DIDStorage {
   async loadDidMetadata(did: DID): Promise<DIDMetadata> {
     const result = await this.prisma.didDocument.findUnique({
       where: {
-        path: this.path,
-        did: did.toString()
+        path_did: {
+          path: this.path,
+          did: did.toString()
+        }
       },
       select: {
         rootIdentityId: true,
@@ -274,8 +294,10 @@ export class PrismaDIDStorage implements DIDStorage {
   async storeDid(doc: DIDDocument): Promise<void> {
     await this.prisma.didDocument.upsert({
       where: {
-        path: this.path,
-        did: doc.getSubject().toString(),
+        path_did: {
+          path: this.path,
+          did: doc.getSubject().toString(),
+        }
       },
       update: {
         doc: doc.toString(),
@@ -291,8 +313,10 @@ export class PrismaDIDStorage implements DIDStorage {
   async loadDid(did: DID): Promise<DIDDocument> {
     const result = await this.prisma.didDocument.findUnique({
       where: {
-        path: this.path,
-        did: did.toString(),
+        path_did: {
+          path: this.path,
+          did: did.toString(),
+        }
       },
       select: { doc: true, },
     });
@@ -307,8 +331,10 @@ export class PrismaDIDStorage implements DIDStorage {
     try {
       await this.prisma.didDocument.delete({
         where: {
-          path: this.path,
-          did: did.toString(),
+          path_did: {
+            path: this.path,
+            did: did.toString(),
+          }
         }
       });
 
@@ -368,8 +394,10 @@ export class PrismaDIDStorage implements DIDStorage {
   async storeCredentialMetadata(id: DIDURL, metadata: CredentialMetadata): Promise<void> {
     await this.prisma.verifiableCredential.update({
       where: {
-        path: this.path,
-        id: id.toString(),
+        path_id: {
+          path: this.path,
+          id: id.toString(),
+        }
       },
       data: {
         txid: metadata.getTransactionId() || null,
@@ -383,8 +411,10 @@ export class PrismaDIDStorage implements DIDStorage {
   async loadCredentialMetadata(id: DIDURL): Promise<CredentialMetadata> {
     const result = await this.prisma.verifiableCredential.findUnique({
       where: {
-        path: this.path,
-        id: id.toString(),
+        path_id: {
+          path: this.path,
+          id: id.toString(),
+        }
       },
       select: {
         id: true,
@@ -422,8 +452,10 @@ export class PrismaDIDStorage implements DIDStorage {
     console.log("storeCredential", id.toString(), data.toString(), this.path, id.getDid().toString(), encrypted)
     await this.prisma.verifiableCredential.upsert({
       where: {
-        path: this.path,
-        id: id.toString(),
+        path_id: {
+          path: this.path,
+          id: id.toString(),
+        }
       },
       update: {
         credential: data.toString(),
@@ -440,8 +472,10 @@ export class PrismaDIDStorage implements DIDStorage {
   async loadCredential(id: DIDURL): Promise<[Uint8Array, boolean]> {
     const result = await this.prisma.verifiableCredential.findUnique({
       where: {
-        path: this.path,
-        id: id.toString()
+        path_id: {
+          path: this.path,
+          id: id.toString()
+        }
       },
       select: {
         credential: true,
@@ -482,8 +516,10 @@ export class PrismaDIDStorage implements DIDStorage {
     try {
       await this.prisma.verifiableCredential.delete({
         where: {
-          path: this.path,
-          id: id.toString(),
+          path_id: {
+            path: this.path,
+            id: id.toString(),
+          }
         },
       });
       return true;
@@ -511,9 +547,11 @@ export class PrismaDIDStorage implements DIDStorage {
   async containsPrivateKey(id: DIDURL): Promise<boolean> {
     const result = await this.prisma.privateKey.findUnique({
       where: {
-        path: this.path,
+        path_id: {
+          path: this.path,
+          id: id.toString(),
+        },
         did: id.getDid().toString(),
-        id: id.toString(),
       },
     });
 
@@ -523,7 +561,10 @@ export class PrismaDIDStorage implements DIDStorage {
   async storePrivateKey(id: DIDURL, privateKey: string): Promise<void> {
     await this.prisma.privateKey.upsert({
       where: {
-        id: id.toString()
+        path_id: {
+          path: this.path,
+          id: id.toString()
+        }
       },
       create: {
         id: id.toString(),
@@ -540,8 +581,10 @@ export class PrismaDIDStorage implements DIDStorage {
   async loadPrivateKey(id: DIDURL): Promise<string> {
     const result = await this.prisma.privateKey.findUnique({
       where: {
-        path: this.path,
-        id: id.toString(),
+        path_id: {
+          path: this.path,
+          id: id.toString(),
+        }
       },
       select: {
         context: true,
@@ -562,8 +605,10 @@ export class PrismaDIDStorage implements DIDStorage {
     try {
       await this.prisma.privateKey.delete({
         where: {
-          path: this.path,
-          id: id.toString(),
+          path_id: {
+            path: this.path,
+            id: id.toString(),
+          }
         }
       });
       return true;
@@ -599,8 +644,10 @@ export class PrismaDIDStorage implements DIDStorage {
     for (const result of mnemonicResult) {
       await this.prisma.rootIdentity.update({
         where: {
-          path: this.path,
-          id: result.id
+          path_id: {
+            path: this.path,
+            id: result.id
+          }
         },
         data: {
           mnemonic: reEncryptor.reEncrypt(result.mnemonic),
@@ -615,8 +662,10 @@ export class PrismaDIDStorage implements DIDStorage {
     for (const sk of privateKeyResult) {
       await this.prisma.privateKey.update({
         where: {
-          path: this.path,
-          id: sk.id
+          path_id: {
+            path: this.path,
+            id: sk.id
+          }
         },
         data: {
           context: reEncryptor.reEncrypt(sk.context),
@@ -642,8 +691,10 @@ export class PrismaDIDStorage implements DIDStorage {
 
         await this.prisma.verifiableCredential.update({
           where: {
-            path: this.path,
-            id: vc.id,
+            path_id: {
+              path: this.path,
+              id: vc.id,
+            }
           },
           data: {
             credential: dataBuffer.toString(),
@@ -676,8 +727,10 @@ export class PrismaDIDStorage implements DIDStorage {
         console.log("UPDATE ID ROOT", identityRoot.id);
         await tx.rootIdentity.update({
           where: {
-            path: src,
-            id: identityRoot.id
+            path_id: {
+              path: src,
+              id: identityRoot.id
+            }
           },
           data: {
             path: dest,
@@ -694,8 +747,10 @@ export class PrismaDIDStorage implements DIDStorage {
       for (const sk of privateKeys) {
         await tx.privateKey.update({
           where: {
-            path: src,
-            id: sk.id
+            path_id: {
+              path: src,
+              id: sk.id
+            }
           },
           data: {
             path: dest,
@@ -722,8 +777,10 @@ export class PrismaDIDStorage implements DIDStorage {
 
           await tx.verifiableCredential.update({
             where: {
-              path: src,
-              id: vc.id,
+              path_id: {
+                path: src,
+                id: vc.id,
+              }
             },
             data: {
               path: dest,
@@ -733,8 +790,10 @@ export class PrismaDIDStorage implements DIDStorage {
         } else {
           await tx.verifiableCredential.update({
             where: {
-              path: src,
-              id: vc.id,
+              path_id: {
+                path: src,
+                id: vc.id,
+              }
             },
             data: {
               path: dest

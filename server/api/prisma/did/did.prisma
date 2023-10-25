@@ -17,28 +17,32 @@ model StoreMetadata {
 
 model RootIdentity {
   path       String
-  id         String  @id @unique
+  id         String
   defaultDid String?
   mnemonic   String?
   privateKey String?
   publicKey  String?
   index      Int
+
+  @@unique([path, id])
 }
 
 model VerifiableCredential {
   path       String
-  id         String    @id @unique
+  id         String
   did        String
   credential String
   txid       String?
   published  DateTime?
   revoked    Boolean?
   alias      String?
+
+  @@unique([path, id])
 }
 
 model DidDocument {
   path              String
-  did               String    @id @unique
+  did               String
   doc               String?
   rootIdentityId    String?
   index             Int?
@@ -48,11 +52,15 @@ model DidDocument {
   published         DateTime?
   deactivated       Boolean?
   alias             String?
+
+  @@unique([path, did])
 }
 
 model PrivateKey {
   path    String
   did     String
-  id      String @id @unique
+  id      String
   context String
+
+  @@unique([path, id])
 }

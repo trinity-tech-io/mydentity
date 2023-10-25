@@ -38,7 +38,7 @@ export class IdentityResolver {
   @UseGuards(JwtAuthGuard)
   @Mutation(() => [IdentityEntity])
   async importIdentity(@Args('input') importIdentityInput: ImportIdentityInput, @CurrentUser() user: User, @CurrentBrowser() browser: Browser) {
-    return await this.identityService.import(importIdentityInput, user, browser);
+    return await this.identityService.importMnemonic(importIdentityInput, user, browser);
   }
 
   @UseGuards(JwtAuthGuard)
