@@ -1,16 +1,9 @@
 "use client";
-import {
-  ChangeEvent,
-  FC,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
-import { useSearchParams } from "next/navigation";
-import clsx from "clsx";
+import { generateTheme } from "@/app/theming/material-ui.theme";
+import ApplicationCard from "@components/applications/ApplicationCard";
 import { CopyButton, DarkButton } from "@components/button";
 import { EditableCredentialAvatar } from "@components/credential/EditableCredentialAvatar";
+import AccountForm from "@components/form/AccountForm";
 import Headline from "@components/layout/Headline";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { Credential } from "@model/credential/credential";
@@ -22,15 +15,22 @@ import { useToast } from "@services/feedback.service";
 import { didDocumentService } from "@services/identity/diddocuments.service";
 import { logger } from "@services/logger";
 import { authUser$ } from "@services/user/user.events";
-import CardReader from "../components/CardReader";
-import ApplicationCard from "@components/applications/ApplicationCard";
-import AccountForm from "@components/form/AccountForm";
-import { generateTheme } from "@/app/theming/material-ui.theme";
-import AppPhrase from "../components/AppPhrase";
+import clsx from "clsx";
+import { useSearchParams } from "next/navigation";
+import {
+  ChangeEvent,
+  FC,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   SecurityState,
   SecurityStatus,
 } from "../../dashboard/components/SecurityStatus";
+import AppPhrase from "../components/AppPhrase";
+import CardReader from "../components/CardReader";
 
 const ApplicationDetailsPage: FC<{
   params: {
@@ -67,7 +67,6 @@ const ApplicationDetailsPage: FC<{
   const lightTheme = generateTheme("light");
 
   const fetchRemoteDIDDocument = useCallback((): void => {
-    console.log("applicationDid", applicationDid);
     setAppDIDDocumentStatusWasChecked(false);
     didDocumentService
       .resolveDIDDocument(applicationDid, true)
@@ -196,8 +195,8 @@ const ApplicationDetailsPage: FC<{
   const updateAppIdentityNeedsToBePublished = (): void => {
     setAppIdentityNeedsToBePublished(
       !isAppIdentityPublished() ||
-        !chainAppNameMatchesLocalAppName() ||
-        !chainAppIconMatchesLocalAppIcon()
+      !chainAppNameMatchesLocalAppName() ||
+      !chainAppIconMatchesLocalAppIcon()
     );
   };
 
@@ -209,7 +208,6 @@ const ApplicationDetailsPage: FC<{
   const handleAppIconFileChanged = async (file: File): Promise<void> => {
     setUploadingAvatar(true);
     const uploadedAvatar = await editAvatarOnHive(appIdentity, file);
-    console.log("uploadedAvatar", uploadedAvatar);
     setUploadingAvatar(false);
 
     await appIdentity.update(appName, uploadedAvatar.avatarHiveURL);

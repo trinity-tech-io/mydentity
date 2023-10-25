@@ -10,6 +10,9 @@ export class IntentEntity {
   @Field(() => GraphQLISODateTime)
   createdAt: string;
 
+  @Field(() => GraphQLISODateTime)
+  fulfilledAt: string;
+
   @Field(() => String)
   type: IntentType;
 

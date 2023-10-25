@@ -6,6 +6,6 @@ export class FulfilIntentInput {
   @Field()
   intentId: string;
 
-  @Field(() => GraphQlJson)
+  @Field(() => GraphQlJson, { nullable: true })
   payload: any;
 }

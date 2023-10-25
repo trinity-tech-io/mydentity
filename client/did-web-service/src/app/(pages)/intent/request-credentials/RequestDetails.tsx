@@ -9,7 +9,6 @@ import { ActivityType } from "@model/activity/activity-type";
 import { Credential } from "@model/credential/credential";
 import { Intent } from "@model/intent/intent";
 import { IntentRequestPayload } from "@model/intent/request-payload";
-import { ActivityFeature } from "@model/user/features/activity/activity.feature";
 import { credentialTypesService } from "@services/credential-types/credential.types.service";
 import { activeIdentity$ } from "@services/identity/identity.events";
 import { issuerService } from "@services/identity/issuer.service";
@@ -356,7 +355,10 @@ export const RequestDetails: FC<{
   };
 
   // User reject the upcoming request.
-  const rejectRequest = (): void => {
+  const rejectRequest = async (): Promise<void> => {
+    //  Fulfill request with empty payload (meaning cancelled)
+    await fulfilIntentRequest(intent.id, null);
+
     // Send the response to the original app, including the intent id as parameter.
     // The web connector will catch this parameter to retrieve the intent response payload and
     // to deliver it to the app through the connectivity sdk.

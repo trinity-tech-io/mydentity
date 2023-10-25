@@ -39,7 +39,6 @@ export class ProfileFeature implements IdentityFeature {
   public avatarCredential$ = new AdvancedBehaviorSubject<ProfileCredential>(null, async () => {
     this.profileCredentials$.subscribe(creds => {
       const avatarCredential = creds?.find(c => c.verifiableCredential.getId().getFragment() === "avatar");
-      console.log("avatarCredential", avatarCredential)
       avatarCredential?.representativeIcon$.subscribe(icon => {
         this.refreshIdentityIcon();
       })

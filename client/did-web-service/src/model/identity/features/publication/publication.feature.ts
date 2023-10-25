@@ -43,7 +43,7 @@ export class PublicationFeature implements IdentityFeature {
       }
     }
     catch (e) {
-      logger.error("Exception while fetching identity publication status", e)
+      logger.error("publication", "Exception while fetching identity publication status", e)
     }
   }
 

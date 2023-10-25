@@ -137,8 +137,9 @@ enum IntentType {
 model Intent {
   id String @id @unique @default(uuid())
 
-  createdAt DateTime   @default(now()) // Time of the initial intent request (creation)
-  type      IntentType
+  createdAt   DateTime   @default(now()) // Time of the initial intent request (creation)
+  fulfilledAt DateTime?
+  type        IntentType
 
   redirectUrl     String // URL (original dapp) where we to redirect user after getting a response from the web service.
   requestPayload  Json // Raw payload received by the requesting app

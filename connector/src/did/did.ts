@@ -27,6 +27,9 @@ export class DID {
     }
 
     static async processRequestCredentialsResponse(intent: IntentEntity): Promise<VerifiablePresentation> {
+        if (!intent.responsePayload)
+            return null; // Cancelled by user
+
         const presentation = VerifiablePresentation.parse(intent.responsePayload);
         return presentation;
     }
@@ -50,6 +53,9 @@ export class DID {
     }
 
     static async processImportCredentialsResponse(intent: IntentEntity): Promise<ImportedCredential[]> {
+        if (!intent.responsePayload)
+            return null; // Cancelled by user
+
         let importedCredentials: ImportedCredential[];
         importedCredentials = (intent.responsePayload as string[]).map(credentialUrl => {
             return {

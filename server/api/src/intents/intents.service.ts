@@ -29,7 +29,8 @@ export class IntentsService {
         id: input.intentId
       },
       data: {
-        responsePayload: input.payload
+        responsePayload: input.payload,
+        fulfilledAt: new Date()
       }
     });
 
@@ -50,7 +51,7 @@ export class IntentsService {
       return null;
 
     // Has the intent been fulfilled?
-    if (!intent.responsePayload) {
+    if (!intent.fulfilledAt) {
       this.logger.warn(`Cannot serve intent response for intent ${id} because no response has been generated yet`);
       return null;
     }

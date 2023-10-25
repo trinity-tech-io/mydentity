@@ -49,9 +49,9 @@ export const CredentialPreview: FC<Props> = (props: Props) => {
                         }
 
                         <div className='flex flex-row gap-4 items-center w-full mt-4'>
-                            <Stack>
+                            {issuerInfo?.avatarIcon && <Stack>
                                 <Image unoptimized src={issuerInfo?.avatarIcon} width={30} height={30} style={{ borderRadius: '50%' }} alt="" />
-                            </Stack>
+                            </Stack>}
                             <div className='flex flex-col'>
                                 <Typography fontSize={10} fontWeight={300} noWrap>Issued by:</Typography>
                                 <Typography fontSize={13} noWrap>{issuerInfo && shortenString(issuerInfo?.name, 30)}</Typography>

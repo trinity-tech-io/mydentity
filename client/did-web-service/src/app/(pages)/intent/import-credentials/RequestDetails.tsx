@@ -165,7 +165,9 @@ export const RequestDetails: FC<{
   }
 
   // User reject the upcoming request.
-  const rejectRequest = (): void => {
+  const rejectRequest = async (): Promise<void> => {
+    //  Fulfill request with empty payload (meaning cancelled)
+    await fulfilIntentRequest(intent.id, null);
 
     // Send the response to the original app, including the intent id as parameter.
     // The web connector will catch this parameter to retrieve the intent response payload and

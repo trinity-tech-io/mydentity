@@ -94,7 +94,6 @@ export class DidService {
       return rootIdentity;
     }
     catch (e) {
-      console.log(e, e.toString())
       if (e instanceof Exceptions.RootIdentityAlreadyExistException) {
         throw new AppException(DIDExceptionCode.RootIdentityAlreadyExists, "Root identity already exists for the user. Are you trying to import the same mnemonic twice?", 403);
       }

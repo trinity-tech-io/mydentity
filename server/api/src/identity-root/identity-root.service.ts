@@ -155,7 +155,7 @@ export class IdentityRootService {
 
     const didStore = await this.didService.openStore(user.id);
     const allDids = await didStore.listDids();
-    console.log("ALL DIDS", allDids.map(d => d.toString()))
+
     for (const did of allDids) {
       // Only deal with DIDs that belong to the target root identity
       const metadata = await did.getMetadata();

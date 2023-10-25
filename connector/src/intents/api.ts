@@ -70,7 +70,7 @@ export async function fetchIntentResponse<T>(intentId: string): Promise<IntentEn
 
   const gqlQuery = `mutation ServerIntentResponse {
     serveIntentResponse (id: "${intentId}") {
-      id type requestPayload responsePayload
+      id type fulfilledAt requestPayload responsePayload
     }
   }`;
 

@@ -1,6 +1,6 @@
 {
   "name": "@trinitytech/mydentity-connector-browser",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Elastos Connectivity SDK Connector for Trinity Tech's Mydentity web app.",
   "main": "dist/index.js",
   "module": "dist.esm/index.js",
