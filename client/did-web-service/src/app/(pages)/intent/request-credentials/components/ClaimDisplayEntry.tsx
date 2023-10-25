@@ -1,23 +1,21 @@
-'use client';
-import Divider from '@mui/material/Divider';
-import List from '@mui/material/List';
-import { FC, useEffect, useState } from 'react';
-import { ClaimDisplayEntry, CredentialDisplayEntry } from '../RequestDetails';
-import { CredentialDisplayEntryWidget } from './CredentialDisplayEntry';
+"use client";
+import Divider from "@mui/material/Divider";
+import List from "@mui/material/List";
+import { FC, useEffect, useState } from "react";
+import { ClaimDisplayEntry, CredentialDisplayEntry } from "../RequestDetails";
+import { CredentialDisplayEntryWidget } from "./CredentialDisplayEntry";
 
 interface Props {
-  claimDisplayEntry: ClaimDisplayEntry
+  claimDisplayEntry: ClaimDisplayEntry;
 }
 
 export const ClaimDisplayEntryWidget: FC<Props> = (props) => {
   const { claimDisplayEntry } = props;
-  const [selectionSummary, setSelectionSummary] = useState('');
+  const [selectionSummary, setSelectionSummary] = useState("");
 
   useEffect(() => {
-    if (claimDisplayEntry)
-      updateSummary()
-  }, [claimDisplayEntry])
-
+    if (claimDisplayEntry) updateSummary();
+  }, [claimDisplayEntry]);
 
   /**
    * Convenient string format that describes the currenty claim selection status and requirement.
@@ -38,20 +36,37 @@ export const ClaimDisplayEntryWidget: FC<Props> = (props) => {
       else
         return `${selectedNb} / min ${claim.claimDescription.min}, max ${claim.claimDescription.max}`;
     }
-  }
+  };
 
-  const numberOfSelectedCredentialsInClaim = (claim: ClaimDisplayEntry): number => {
-    return claim.matchingCredentials.reduce((acc, c) => c.selected ? acc + 1 : acc, 0);
-  }
+  const numberOfSelectedCredentialsInClaim = (
+    claim: ClaimDisplayEntry
+  ): number => {
+    return claim.matchingCredentials.reduce(
+      (acc, c) => (c.selected ? acc + 1 : acc),
+      0
+    );
+  };
 
-  const updateSummary =(): void => {
-    const summary = claimSelectionSummary(claimDisplayEntry)
+  const updateSummary = (): void => {
+    const summary = claimSelectionSummary(claimDisplayEntry);
     setSelectionSummary(summary);
-  }
+  };
 
   return (
     <>
-    { claimDisplayEntry &&
+      {claimDisplayEntry &&
+        claimDisplayEntry.matchingCredentials &&
+        claimDisplayEntry.matchingCredentials.map(
+          (c: CredentialDisplayEntry) => (
+            <CredentialDisplayEntryWidget
+              key={c.credential.id}
+              credentialDisplayEntry={c}
+              claimDisplayEntry={claimDisplayEntry}
+              updateSummary={updateSummary}
+            />
+          )
+        )}
+      {/* { claimDisplayEntry &&
       <div key={claimDisplayEntry.claimDescription.reason} className='flex flex-col'>
         <div className="flex flex-row p-4">
           <div className="flex flex-row p-1"> { claimDisplayEntry.claimDescription.reason } </div>
@@ -74,8 +89,7 @@ export const ClaimDisplayEntryWidget: FC<Props> = (props) => {
           </List>
         }
       </div>
-    }
+    } */}
     </>
   );
-}
-
+};

@@ -43,7 +43,7 @@ const CredentialBox: FC<{
     });
   };
 
-  const handleClick = () => {
+  const handleClick = (): void => {
     onClick(credential);
   };
 

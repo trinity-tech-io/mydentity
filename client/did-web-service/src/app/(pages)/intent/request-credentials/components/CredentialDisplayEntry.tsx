@@ -1,14 +1,15 @@
-'use client';
-import { CredentialAvatar } from '@components/credential/CredentialAvatar';
-import CredentialBasicInfo from '@components/credential/CredentialBasicInfo';
-import { Checkbox, ListItemButton } from '@mui/material';
-import { logger } from '@services/logger';
-import { FC, useEffect, useState } from 'react';
-import { ClaimDisplayEntry, CredentialDisplayEntry } from '../RequestDetails';
+"use client";
+import { CredentialAvatar } from "@components/credential/CredentialAvatar";
+import CredentialBasicInfo from "@components/credential/CredentialBasicInfo";
+import { Checkbox, ListItemButton, TableCell } from "@mui/material";
+import { logger } from "@services/logger";
+import { FC, useEffect, useState } from "react";
+import { ClaimDisplayEntry, CredentialDisplayEntry } from "../RequestDetails";
+import { DetailTableRow } from "@components/generic/DetailTable";
 
 interface Props {
-  claimDisplayEntry: ClaimDisplayEntry,
-  credentialDisplayEntry: CredentialDisplayEntry,
+  claimDisplayEntry: ClaimDisplayEntry;
+  credentialDisplayEntry: CredentialDisplayEntry;
   updateSummary: () => void;
 }
 
@@ -20,8 +21,8 @@ export const CredentialDisplayEntryWidget: FC<Props> = (props) => {
 
   useEffect(() => {
     if (credentialDisplayEntry)
-      setCredentialSelected(credentialDisplayEntry.selected)
-  }, [credentialDisplayEntry])
+      setCredentialSelected(credentialDisplayEntry.selected);
+  }, [credentialDisplayEntry]);
 
   /**
    * Called when user clicks the credential checkbox.
@@ -29,7 +30,10 @@ export const CredentialDisplayEntryWidget: FC<Props> = (props) => {
    * Several cases can happen, and it all depends the min and max number of credentials the calling
    * app is expecting for the parent claim.
    */
-  const onCredentialSelection = (claim: ClaimDisplayEntry, credentialEntry: CredentialDisplayEntry): void => {
+  const onCredentialSelection = (
+    claim: ClaimDisplayEntry,
+    credentialEntry: CredentialDisplayEntry
+  ): void => {
     // If currently selected, we expect to unselect. But the code below will decide whether this
     // expectation can be fulfilled or not.
     const expectingToUnselect = credentialEntry.selected;
@@ -38,48 +42,77 @@ export const CredentialDisplayEntryWidget: FC<Props> = (props) => {
 
     if (expectingToUnselect) {
       // Expecting to unselect
-      if (claim.claimDescription.min === 1 && claim.claimDescription.max === 1) {
+      if (
+        claim.claimDescription.min === 1 &&
+        claim.claimDescription.max === 1
+      ) {
         // Do nothing, cannot unselect. Need to select another one
-      }
-      else {
+      } else {
         credentialEntry.selected = false;
       }
-    }
-    else {
+    } else {
       // Expecting to select
-      if (claim.claimDescription.min === 1 && claim.claimDescription.max === 1) {
+      if (
+        claim.claimDescription.min === 1 &&
+        claim.claimDescription.max === 1
+      ) {
         // We can select yes, but we also need to unselect the currently selected one
-        const selectedCredentialEntry = getFirstSelectedCredentialInClaim(claim);
-        if (selectedCredentialEntry)
-          selectedCredentialEntry.selected = false;
+        const selectedCredentialEntry =
+          getFirstSelectedCredentialInClaim(claim);
+        if (selectedCredentialEntry) selectedCredentialEntry.selected = false;
       }
 
       credentialEntry.selected = true;
     }
 
-    setCredentialSelected(credentialEntry.selected)
+    setCredentialSelected(credentialEntry.selected);
     updateSummary();
-  }
+  };
 
-  const getFirstSelectedCredentialInClaim = (claim: ClaimDisplayEntry): CredentialDisplayEntry => {
-    return claim.matchingCredentials.find(c => c.selected);
-  }
+  const getFirstSelectedCredentialInClaim = (
+    claim: ClaimDisplayEntry
+  ): CredentialDisplayEntry => {
+    return claim.matchingCredentials.find((c) => c.selected);
+  };
 
   return (
-    <div className='flex flex-row mt-4 gap-6'>
-      <ListItemButton
-        onClick={(): void => onCredentialSelection(claimDisplayEntry, credentialDisplayEntry)}
-        style={{ display: 'flex', alignItems: 'center' }}
-      >
-        <div style={{ marginRight: 10 }}>
-          <CredentialAvatar credential={credentialDisplayEntry.credential} width={60} height={60} />
-        </div>
-        <CredentialBasicInfo credential={credentialDisplayEntry.credential} />
-        <Checkbox
-          checked={ credentialSelected }
+    <DetailTableRow
+      props={{ hover: true }}
+      onClick={(): void => onCredentialSelection(claimDisplayEntry, credentialDisplayEntry)}
+      className="h-[3rem] cursor-pointer"
+      avatar={
+        <CredentialAvatar
+          credential={credentialDisplayEntry.credential}
+          width={36}
+          height={36}
         />
-      </ListItemButton>
-    </div>
+      }
+      rowCells={
+        <>
+          <TableCell>
+            <CredentialBasicInfo
+              credential={credentialDisplayEntry.credential}
+            />
+          </TableCell>
+          <TableCell align="center">
+            <Checkbox checked={credentialSelected} />
+          </TableCell>
+        </>
+      }
+    />
+    // <div className='flex flex-row mt-4 gap-6'>
+    //   <ListItemButton
+    //     onClick={(): void => onCredentialSelection(claimDisplayEntry, credentialDisplayEntry)}
+    //     style={{ display: 'flex', alignItems: 'center' }}
+    //   >
+    //     <div style={{ marginRight: 10 }}>
+    //       <CredentialAvatar credential={credentialDisplayEntry.credential} width={60} height={60} />
+    //     </div>
+    //     <CredentialBasicInfo credential={credentialDisplayEntry.credential} />
+    //     <Checkbox
+    //       checked={ credentialSelected }
+    //     />
+    //   </ListItemButton>
+    // </div>
   );
-}
-
+};
