@@ -4,7 +4,7 @@ import { Icon as ReactIcon } from "@iconify/react";
 import { useRouter } from "next13-progressbar";
 import { Box, Grid, InputAdornment, Typography } from "@mui/material";
 import { Add as AddIcon, Search as SearchIcon } from "@mui/icons-material";
-import Joyride, { CallBackProps } from "react-joyride";
+import Joyride, { CallBackProps, Step } from "react-joyride";
 import { IconAvatar } from "@components/feature/DetailLine";
 import Headline from "@components/layout/Headline";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
@@ -78,7 +78,7 @@ export const AllIdentityList: FC = (_) => {
     router.push("/new-identity");
   };
 
-  const TourSteps = [
+  const TourSteps: Array<Step> = [
     {
       content: (
         <div>

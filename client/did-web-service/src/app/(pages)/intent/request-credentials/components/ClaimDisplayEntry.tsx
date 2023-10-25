@@ -15,6 +15,7 @@ export const ClaimDisplayEntryWidget: FC<Props> = (props) => {
 
   useEffect(() => {
     if (claimDisplayEntry) updateSummary();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [claimDisplayEntry]);
 
   /**
@@ -85,28 +86,5 @@ export const ClaimDisplayEntryWidget: FC<Props> = (props) => {
         )
       }
     />
-    // claimDisplayEntry &&
-    // <div key={claimDisplayEntry.claimDescription.reason} className='flex flex-col'>
-    //   <div className="flex flex-row p-4">
-    //     <div className="flex flex-row p-1"> { claimDisplayEntry.claimDescription.reason } </div>
-    //     <div className="absolute right-1 p-1">
-    //       { selectionSummary }
-    //     </div>
-    //   </div>
-
-    //   { claimDisplayEntry.matchingCredentials &&
-    //     <List component="nav" aria-label="main mailbox folders">
-    //       {
-    //         claimDisplayEntry.matchingCredentials.map((c: CredentialDisplayEntry) =>
-    //           <div key={c.credential.id} >
-    //             <CredentialDisplayEntryWidget credentialDisplayEntry={c} claimDisplayEntry={claimDisplayEntry}
-    //               updateSummary={updateSummary}/>
-    //             <Divider />
-    //           </div>
-    //         )
-    //       }
-    //     </List>
-    //   }
-    // </div>
   );
 };

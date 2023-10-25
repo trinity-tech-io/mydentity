@@ -1,9 +1,9 @@
 "use client";
+import { FC, useEffect, useState } from "react";
+import { Checkbox, TableCell } from "@mui/material";
 import { CredentialAvatar } from "@components/credential/CredentialAvatar";
 import CredentialBasicInfo from "@components/credential/CredentialBasicInfo";
-import { Checkbox, ListItemButton, TableCell } from "@mui/material";
 import { logger } from "@services/logger";
-import { FC, useEffect, useState } from "react";
 import { ClaimDisplayEntry, CredentialDisplayEntry } from "../RequestDetails";
 import { DetailTableRow } from "@components/generic/DetailTable";
 
@@ -109,19 +109,5 @@ export const CredentialDisplayEntryWidget: FC<Props> = (props) => {
         </>
       }
     />
-    // <div className='flex flex-row mt-4 gap-6'>
-    //   <ListItemButton
-    //     onClick={(): void => onCredentialSelection(claimDisplayEntry, credentialDisplayEntry)}
-    //     style={{ display: 'flex', alignItems: 'center' }}
-    //   >
-    //     <div style={{ marginRight: 10 }}>
-    //       <CredentialAvatar credential={credentialDisplayEntry.credential} width={60} height={60} />
-    //     </div>
-    //     <CredentialBasicInfo credential={credentialDisplayEntry.credential} />
-    //     <Checkbox
-    //       checked={ credentialSelected }
-    //     />
-    //   </ListItemButton>
-    // </div>
   );
 };

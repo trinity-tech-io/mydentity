@@ -20,7 +20,8 @@ import { FC, useEffect, useState } from "react";
 import { RequestingApp } from "../components/RequestingApp";
 import { ClaimDisplayEntryListWidget } from "./components/ClaimDisplayEntryList";
 import { V1Claim } from "./model/v1claim";
-import { Stack, Typography } from "@mui/material";
+import { Button, Stack, Typography } from "@mui/material";
+import { DarkButton } from "@components/button";
 
 export type CredentialDisplayEntry = {
   credential: Credential;
@@ -65,6 +66,7 @@ export const RequestDetails: FC<{
         setOrganizedClaims(organizedClaims);
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [credentials, payload]);
 
   /**
@@ -381,26 +383,37 @@ export const RequestDetails: FC<{
             claimDisplayEntryList={organizedClaims}
           />
           {organizedClaims && organizedClaims.length > 0 && (
-            <div className="flex items-center space-x-3">
-              <MainButton className="w-1/2" onClick={rejectRequest}>
-                Cancel
-              </MainButton>
-              <MainButton
-                className="w-1/2"
-                onClick={approveRequest}
-                busy={preparingResponse}
+            <div className="flex items-center gap-4 sm:px-4 sm: gap-8">
+              <Button
+                variant="contained"
+                className="flex-1"
+                onClick={rejectRequest}
+                color="error"
               >
-                Approve
-              </MainButton>
+                CANCEL
+              </Button>
+              <DarkButton
+                className="flex-1"
+                onClick={approveRequest}
+                loading={preparingResponse}
+              >
+                APPROVE
+              </DarkButton>
             </div>
           )}
         </Stack>
       )}
 
-      {!activeUser && "Please sign in or sign up to continue"}
-      {activeUser &&
-        !activeIdentity &&
-        "Please make an identity active to continue"}
+      {!activeUser && (
+        <Typography variant="h6">
+          Please sign in or sign up to continue
+        </Typography>
+      )}
+      {activeUser && !activeIdentity && (
+        <Typography variant="h6">
+          Please make an identity active to continue
+        </Typography>
+      )}
     </>
   );
 };

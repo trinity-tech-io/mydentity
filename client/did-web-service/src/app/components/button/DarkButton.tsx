@@ -4,7 +4,6 @@ import LoadingButton from "@mui/lab/LoadingButton";
 const DarkButton = styled(LoadingButton)(({ theme, className }) => ({
   background: "#323B45 !important",
   borderRadius: className?.includes("rounded") ? 8 : 4,
-  padding: "8px 18px",
   color: "white",
   textTransform: "capitalize",
   "&:disabled": {

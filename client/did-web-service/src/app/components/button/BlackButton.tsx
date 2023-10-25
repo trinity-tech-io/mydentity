@@ -4,7 +4,6 @@ import LoadingButton from '@mui/lab/LoadingButton';
 const BlackButton = styled(LoadingButton)(({ theme }) => ({
   background: "#000 !important",
   borderRadius: 4,
-  padding: "8px 18px",
   color: "white",
   "&:disabled": {
     opacity: '0.7 !important',
