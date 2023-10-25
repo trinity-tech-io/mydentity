@@ -438,7 +438,7 @@ export class PrismaDIDStorage implements DIDStorage {
   }
 
   async storeCredential(id: DIDURL, vc: Uint8Array, encrypted: boolean): Promise<void> {
-    let data = vc;
+    let data;
 
     if (encrypted) {
       const prefix = Buffer.alloc(4);
@@ -447,6 +447,8 @@ export class PrismaDIDStorage implements DIDStorage {
       prefix[2] = 0x56;
       prefix[3] = 0x43;
       data = Buffer.concat([prefix, vc]);
+    } else {
+      data = Buffer.from(vc);
     }
 
     await this.prisma.verifiableCredential.upsert({
