@@ -5,6 +5,7 @@ import { gqlIdentityInteractingApplicationFields } from '@graphql/identity-inter
 import { IdentityInteractingApplication } from '@model/identity-interacting-application/identity-interacting-application';
 import type { IdentityInteractingApplicationDTO } from '@model/identity-interacting-application/identity-interacting-application.dto';
 import type { JSONObject } from "@model/json";
+import { Identity } from "@model/identity/identity";
 import { credentialTypesService } from "@services/credential-types/credential.types.service";
 import { withCaughtAppException } from '@services/error.service';
 import { getApolloClient } from '@services/graphql.service';
@@ -380,6 +381,21 @@ export abstract class Credential {
   public getIssuer(): string {
     return this.verifiableCredential.getIssuer().toString();
   }
+
+  public getCreatedBy = (issuerInfo: IssuerInfo, activeIdentity: Identity): string => {
+    const issuer = this.getIssuer();
+    const activeDid = activeIdentity?.did.toString();
+    const isMe = issuer === activeDid;
+    const hasIssuerInfo = issuerInfo?.name && issuerInfo?.avatarIcon;
+
+    if (isMe) {
+      return 'Created by myself';
+    } else if (hasIssuerInfo) {
+      return '👤 Created by an anonymous entity';
+    } else {
+      return issuerInfo.name || '';
+    }
+  };
 
   private async fetchIssuerInfo(): Promise<IssuerInfo> {
     const issuerDidString = this.verifiableCredential.getIssuer().toString();

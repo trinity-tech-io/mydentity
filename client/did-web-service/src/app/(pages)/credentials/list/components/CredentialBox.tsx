@@ -17,6 +17,7 @@ import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import SharedCountLabel, {
   ConformBadge,
 } from "@components/credential/SharedCountLabel";
+import { activeIdentity$ } from "@services/identity/identity.events";
 
 const CredentialBox: FC<{
   id: string;
@@ -30,6 +31,7 @@ const CredentialBox: FC<{
   );
   const [isConform] = useBehaviorSubject(credential?.isConform$);
   const [issuerInfo] = useBehaviorSubject(credential?.issuerInfo$);
+  const [activeIdentity] = useBehaviorSubject(activeIdentity$);
 
   const handleExpanding: MouseEventHandler<HTMLButtonElement> = (e): void => {
     e.stopPropagation();
@@ -133,7 +135,7 @@ const CredentialBox: FC<{
                 <ListItem>
                   <ListItemText
                     primary="CREATED BY"
-                    secondary={issuerInfo?.name}
+                    secondary={credential.getCreatedBy(issuerInfo, activeIdentity)}
                     primaryTypographyProps={{ fontSize: 14, fontWeight: 600 }}
                     secondaryTypographyProps={{ fontSize: 11 }}
                   />

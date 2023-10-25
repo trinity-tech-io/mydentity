@@ -25,6 +25,7 @@ import { ProfileFeature } from "@model/regular-identity/features/profile/profile
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { Credential } from "@model/credential/credential";
 import SharedCountLabel, { ConformBadge } from "@components/credential/SharedCountLabel";
+import { activeIdentity$ } from "@services/identity/identity.events";
 
 const style = {
   position: "absolute",
@@ -91,6 +92,7 @@ const CredentialSliderContent: FC<{ credential: Credential }> = memo(
     const [issuerInfo] = useBehaviorSubject(credential?.issuerInfo$);
     const contentTree = credential?.getContentTree();
     const valueItems = credential?.getValueItems();
+    const [activeIdentity] = useBehaviorSubject(activeIdentity$);
     return (
       <Box className="p-1 relative">
         <Stack
@@ -148,7 +150,7 @@ const CredentialSliderContent: FC<{ credential: Credential }> = memo(
           <ListItem>
             <ListItemTextStyled
               primary="CREATED BY"
-              secondary={issuerInfo?.name}
+              secondary={credential.getCreatedBy(issuerInfo, activeIdentity)}
             />
           </ListItem>
         </List>
