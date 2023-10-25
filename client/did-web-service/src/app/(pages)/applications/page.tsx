@@ -6,7 +6,7 @@ import { activeIdentity$ } from "@services/identity/identity.events";
 import { FC } from "react";
 import { ApplicationRow } from "./ApplicationRow";
 import Headline from "@components/layout/Headline";
-import ApplicationBox from "./ApplicationBox";
+import ApplicationBox from "./components/ApplicationBox";
 
 const Applications: FC = () => {
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
