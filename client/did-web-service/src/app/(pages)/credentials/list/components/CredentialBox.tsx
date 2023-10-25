@@ -14,7 +14,9 @@ import { Credential } from "@model/credential/credential";
 import { CredentialAvatar } from "@components/credential/CredentialAvatar";
 import { JsonViewer } from "@components/credential/JsonViewer";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
-import SharedCountLabel from "@components/credential/SharedCountLabel";
+import SharedCountLabel, {
+  ConformBadge,
+} from "@components/credential/SharedCountLabel";
 
 const CredentialBox: FC<{
   id: string;
@@ -43,7 +45,7 @@ const CredentialBox: FC<{
 
   const handleClick = () => {
     onClick(credential);
-  }
+  };
 
   return (
     <div className="relative h-full cursor-pointer" onClick={handleClick}>
@@ -71,7 +73,16 @@ const CredentialBox: FC<{
             alignItems="center"
             overflow="hidden"
           >
-            <CredentialAvatar credential={credential} width={32} height={32} />
+            <div className="relative">
+              <CredentialAvatar
+                credential={credential}
+                width={32}
+                height={32}
+              />
+              {isConform && (
+                <ConformBadge className="absolute right-0 bottom-0 translate-x-[10%] translate-y-[20%]" />
+              )}
+            </div>
             <Stack overflow="hidden">
               <Typography variant="body2" fontWeight={600} noWrap={true}>
                 {credential.getDisplayableTitle()}
@@ -133,10 +144,7 @@ const CredentialBox: FC<{
         </AnimatePresence>
       </CardStyled>
       <div className="inline-flex absolute bottom-0 right-0 translate-x-1/3 translate-y-1/3">
-        <SharedCountLabel
-          count={requestingApplications?.length || 0}
-          isConform={isConform}
-        />
+        <SharedCountLabel count={requestingApplications?.length || 0} />
       </div>
     </div>
   );

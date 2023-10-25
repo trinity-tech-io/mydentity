@@ -1,6 +1,10 @@
 import { FC } from "react";
 import clsx from "clsx";
 
+export const ConformBadge: FC<{ className?: string }> = ({
+  className = "",
+}) => <div className={clsx("bg-[#34A853] w-[10px] h-[10px] rounded-full", className)} />;
+
 const SharedCountLabel: FC<{ count: number; isConform?: boolean }> = ({
   count,
   isConform = false,

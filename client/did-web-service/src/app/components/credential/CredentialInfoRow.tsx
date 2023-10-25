@@ -13,7 +13,7 @@ import { CredentialAvatar } from "./CredentialAvatar";
 import { Credential } from "@model/credential/credential";
 import { JsonViewer } from "./JsonViewer";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
-import SharedCountLabel from "./SharedCountLabel";
+import SharedCountLabel, { ConformBadge } from "./SharedCountLabel";
 import CredentialInteractingApp from "./CredentialInteractingApp";
 
 export const CredentialInfoRow: FC<{ credential: Credential }> = ({
@@ -44,7 +44,16 @@ export const CredentialInfoRow: FC<{ credential: Credential }> = ({
       >
         <div className="flex items-center w-full">
           <Stack alignItems="center" flexGrow={1} spacing={1.5} direction="row">
-            <CredentialAvatar credential={credential} width={32} height={32} />
+            <div className="relative">
+              <CredentialAvatar
+                credential={credential}
+                width={32}
+                height={32}
+              />
+              {isConform && (
+                <ConformBadge className="absolute right-0 bottom-0 translate-x-[10%] translate-y-[20%]" />
+              )}
+            </div>
             <ListItemText
               primary={
                 <Typography variant="body2" fontWeight={600}>
@@ -71,10 +80,7 @@ export const CredentialInfoRow: FC<{ credential: Credential }> = ({
               }}
             />
           </Stack>
-          <SharedCountLabel
-            count={requestingApplications?.length || 0}
-            isConform={isConform}
-          />
+          <SharedCountLabel count={requestingApplications?.length || 0} />
           <KeyboardArrowRightIcon
             className="ml-1 mr-[-.5rem]"
             sx={{

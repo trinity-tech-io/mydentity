@@ -24,7 +24,7 @@ import { CredentialAvatar } from "@components/credential/CredentialAvatar";
 import { ProfileFeature } from "@model/regular-identity/features/profile/profile.feature";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { Credential } from "@model/credential/credential";
-import SharedCountLabel from "@components/credential/SharedCountLabel";
+import SharedCountLabel, { ConformBadge } from "@components/credential/SharedCountLabel";
 
 const style = {
   position: "absolute",
@@ -99,8 +99,14 @@ const CredentialSliderContent: FC<{ credential: Credential }> = memo(
           flexGrow={1}
           alignItems="center"
           overflow="hidden"
+          className="pb-1"
         >
-          <CredentialAvatar credential={credential} width={24} height={24} />
+          <div className="relative">
+            <CredentialAvatar credential={credential} width={32} height={32} />
+            {isConform && (
+              <ConformBadge className="absolute right-0 bottom-0 translate-x-[10%] translate-y-[20%]" />
+            )}
+          </div>
           <Typography
             flexGrow={1}
             variant="body2"
@@ -147,10 +153,7 @@ const CredentialSliderContent: FC<{ credential: Credential }> = memo(
           </ListItem>
         </List>
         <div className="inline-flex absolute bottom-0 right-0">
-          <SharedCountLabel
-            count={requestingApplications?.length || 0}
-            isConform={isConform}
-          />
+          <SharedCountLabel count={requestingApplications?.length || 0} />
         </div>
       </Box>
     );
@@ -242,7 +245,7 @@ const CredentialModal: FC<CredentialModalType> = (props) => {
       <Fade in={open}>
         <CardStyled sx={style} elevation={0}>
           <div className="inline-flex items-center pb-2">
-            <IconAvatar sx={{ width: 32, height: 32 }}>
+            <IconAvatar sx={{ width: 36, height: 36 }}>
               <div className="w-4 h-4 flex justify-center">
                 <ChipIcon />
               </div>

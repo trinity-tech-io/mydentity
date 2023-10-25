@@ -13,6 +13,7 @@ import SelectBox from "@components/select/SelectBox";
 import { activeIdentity$ } from "@services/identity/identity.events";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import AddProfileItem from "../../profile/components/AddProfileItem";
+import { ConformBadge } from "@components/credential/SharedCountLabel";
 
 const CredentialsList: FC = () => {
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
@@ -23,9 +24,11 @@ const CredentialsList: FC = () => {
   const onFilterChange = (value: string): void => {
     setSelectedFilter(value);
   };
-  const handleFilterString:ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> = (e) => {
-    setStringFilter(e.target.value.trim())
-  }
+  const handleFilterString: ChangeEventHandler<
+    HTMLInputElement | HTMLTextAreaElement
+  > = (e) => {
+    setStringFilter(e.target.value.trim());
+  };
   const handleDetailSwitch = (event: ChangeEvent, checked: boolean): void => {
     setOpenedDetail(checked);
   };
@@ -42,15 +45,17 @@ const CredentialsList: FC = () => {
       </div>
       <Stack direction="row" spacing={2} marginBottom={2}>
         <div className="bg-[#666666]/[.18] flex flex-col flex-1 gap-4 p-4 rounded-md">
-          <div className="flex items-center gap-2">
-            <div className="bg-[#34A853] w-4 h-4 rounded-[4px]" />
+          <div className="flex items-center gap-4">
+            <ConformBadge className="mx-1" />
             <Typography variant="body2" fontWeight={600} className="flex-1">
               This credential conforms to a format published by its issuer and
               can be easily reused by multiple apps.
             </Typography>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="bg-[#9291A5] w-4 h-4 rounded-[4px]" />
+          <div className="flex items-center gap-4">
+            <div className="w-4 h-4 inline-flex justify-center items-center p-2 text-[7pt] rounded-[4px] bg-[#9291A5]">
+              N
+            </div>
             <Typography variant="body2" fontWeight={600} className="flex-1">
               Non-conform format
             </Typography>
@@ -70,7 +75,7 @@ const CredentialsList: FC = () => {
                 </InputAdornment>
               }
             />
-            <AddProfileItem identity={activeIdentity}/>
+            <AddProfileItem identity={activeIdentity} />
           </div>
           <div className="flex flex-col flex-1 justify-end">
             <div className="inline-flex gap-2">
