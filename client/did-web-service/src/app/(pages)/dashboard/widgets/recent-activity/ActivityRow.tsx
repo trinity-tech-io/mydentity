@@ -1,19 +1,42 @@
+import { FC, ReactNode, useRef, useState } from "react";
+import ConfirmDialog from "@components/generic/ConfirmDialog";
 import { DetailTableRow } from "@components/generic/DetailTable";
+import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { Icon as ReactIcon } from "@iconify/react";
 import { Activity } from "@model/activity/activity";
 import { ActivityType } from "@model/activity/activity-type";
-import { MoreVert as MoreVertIcon } from "@mui/icons-material";
-import { Avatar, IconButton, ListItemText, TableCell } from "@mui/material";
+import {
+  Avatar,
+  ClickAwayListener,
+  Grow,
+  IconButton,
+  ListItemIcon,
+  ListItemText,
+  MenuItem,
+  MenuList,
+  Paper,
+  Popper,
+  TableCell,
+} from "@mui/material";
+import {
+  MoreVert as MoreVertIcon,
+  DeleteOutline as DeleteOutlineIcon,
+} from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import { logger } from "@services/logger";
+import { authUser$ } from "@services/user/user.events";
 import { getDateDistance } from "@utils/date";
-import { FC, ReactNode } from "react";
 
-function getActivityRenderer(activity: Activity) {
-  const renderer = {
-    icon: null as ReactNode,
+interface ActivityRenderType {
+  icon: ReactNode;
+  action_name: string;
+  action_for: string | ReactNode;
+}
+function getActivityRenderer(activity: Activity): ActivityRenderType {
+  const renderer: ActivityRenderType = {
+    icon: null,
     action_name: "",
-    action_for: "" as string | ReactNode,
+    action_for: "",
   };
   switch (activity.type) {
     case ActivityType.NEW_ACCOUNT:
@@ -52,7 +75,10 @@ function getActivityRenderer(activity: Activity) {
       break;
     case ActivityType.CREDENTIALS_SHARED:
       renderer.icon = <ReactIcon icon="ic:round-share" />;
-      renderer.action_name = (activity.credentialsCount && activity.credentialsCount > 0) ? `${activity.credentialsCount} credential(s) shared with an app` : 'Identity ID shared with an app';
+      renderer.action_name =
+        activity.credentialsCount && activity.credentialsCount > 0
+          ? `${activity.credentialsCount} credential(s) shared with an app`
+          : "Identity ID shared with an app";
       break;
     case ActivityType.CREDENTIALS_IMPORTED:
       renderer.icon = <ReactIcon icon="mdi:integrated-circuit-chip" />;
@@ -79,55 +105,131 @@ const IconAvatar = styled(Avatar)(({ theme }) => ({
 export const ActivityRow: FC<{
   activity: Activity;
   needMoreAction?: boolean;
-}> = ({ activity, needMoreAction = false }) => {
+  deleteActivity?: (activity: Activity) => Promise<boolean>;
+}> = ({
+  activity,
+  needMoreAction = false,
+  deleteActivity = async (_: Activity): Promise<boolean> => {
+    return false;
+  },
+}) => {
+  const [authUser] = useBehaviorSubject(authUser$);
+  const [openMenu, setOpenMenu] = useState(false);
+  const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
+  const moreButtonRef = useRef(null);
   const renderer = getActivityRenderer(activity);
 
+  const handleCloseMenu = (): void => {
+    setOpenMenu(false);
+  };
+
+  // Click -> Delete activity
+  const handleDelete = (): void => {
+    handleCloseMenu();
+    setOpenConfirmDialog(true);
+  };
+
+  // Click -> Agree/Disagree Delete activity
+  const handleCloseDialog = async (isAgree: boolean): Promise<void> => {
+    if (!isAgree) {
+      setOpenConfirmDialog(false);
+      return;
+    }
+
+    let isSuccess = false;
+    try {
+      // Deletion
+      isSuccess = await deleteActivity(activity);
+      if (isSuccess) setOpenConfirmDialog(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
-    <DetailTableRow
-      className="h-[3.5rem]"
-      avatar={<IconAvatar>{renderer.icon}</IconAvatar>}
-      rowCells={
-        <>
-          <TableCell>
-            <ListItemText
-              className="flex-1"
-              primary={
-                <span className="font-medium">{renderer.action_name}</span>
-              }
-              secondary={
-                <span className="text-[8pt]">{renderer.action_for}</span>
-              }
-              sx={{ my: 0 }}
-              primaryTypographyProps={{
-                sx: {
-                  lineHeight: 1.3,
-                },
-              }}
-              secondaryTypographyProps={{
-                sx: {
-                  lineHeight: 1.2,
-                },
-              }}
-            />
-          </TableCell>
-          <TableCell align={needMoreAction ? "center" : "right"}>
-            {getDateDistance(activity.createdAt)}
-          </TableCell>
-          {needMoreAction && (
+    <>
+      <DetailTableRow
+        className="h-[3.5rem]"
+        avatar={<IconAvatar>{renderer.icon}</IconAvatar>}
+        rowCells={
+          <>
             <TableCell>
-              <IconButton
-                size="small"
-                color="inherit"
-                // onClick={(event): void => {
-                //   handleOpenMenu(event, credential);
-                // }}
-              >
-                <MoreVertIcon />
-              </IconButton>
+              <ListItemText
+                className="flex-1"
+                primary={
+                  <span className="font-medium">{renderer.action_name}</span>
+                }
+                secondary={
+                  <span className="text-[8pt]">{renderer.action_for}</span>
+                }
+                sx={{ my: 0 }}
+                primaryTypographyProps={{
+                  sx: {
+                    lineHeight: 1.3,
+                  },
+                }}
+                secondaryTypographyProps={{
+                  sx: {
+                    lineHeight: 1.2,
+                  },
+                }}
+              />
             </TableCell>
-          )}
-        </>
-      }
-    />
+            <TableCell align={needMoreAction ? "center" : "right"}>
+              {getDateDistance(activity.createdAt)}
+            </TableCell>
+            {needMoreAction && (
+              <TableCell>
+                <IconButton
+                  ref={moreButtonRef}
+                  size="small"
+                  color="inherit"
+                  onClick={(event): void => {
+                    setOpenMenu(!openMenu);
+                  }}
+                >
+                  <MoreVertIcon />
+                </IconButton>
+              </TableCell>
+            )}
+          </>
+        }
+      />
+      <Popper
+        open={openMenu}
+        anchorEl={moreButtonRef?.current}
+        placement="bottom-end"
+        transition
+        sx={{ zIndex: 10 }}
+      >
+        {({ TransitionProps, placement }): ReactNode => (
+          <ClickAwayListener onClickAway={handleCloseMenu}>
+            <Grow
+              {...TransitionProps}
+              style={{
+                transformOrigin:
+                  placement === "bottom-end" ? "right top" : "right bottom",
+              }}
+            >
+              <Paper>
+                <MenuList>
+                  <MenuItem sx={{ color: "error.main" }} onClick={handleDelete}>
+                    <ListItemIcon sx={{ color: "error.main" }}>
+                      <DeleteOutlineIcon fontSize="small" />
+                    </ListItemIcon>
+                    Delete
+                  </MenuItem>
+                </MenuList>
+              </Paper>
+            </Grow>
+          </ClickAwayListener>
+        )}
+      </Popper>
+      <ConfirmDialog
+        title="Delete this activity?"
+        content="Do you want to delete this activity?"
+        open={openConfirmDialog}
+        onClose={handleCloseDialog}
+      />
+    </>
   );
 };

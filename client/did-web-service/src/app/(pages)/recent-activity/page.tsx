@@ -1,7 +1,7 @@
 "use client";
 import { FC, useEffect } from "react";
 import { TableCell, TableRow, Typography } from "@mui/material";
-import { Icon as ReactIcon } from "@iconify/react"
+import { Icon as ReactIcon } from "@iconify/react";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { clearOnGoingFlowOperation } from "@services/flow.service";
 import { authUser$ } from "@services/user/user.events";
@@ -12,6 +12,7 @@ import { DetailTable } from "@components/generic/DetailTable";
 import { useMounted } from "@hooks/useMounted";
 import { LoadingTableAvatarRow } from "@components/loading-skeleton";
 import { ActivityRow } from "../dashboard/widgets/recent-activity/ActivityRow";
+import { Activity } from "@model/activity/activity";
 
 const RecentActivity: FC = () => {
   const [activeUser] = useBehaviorSubject(authUser$);
@@ -24,6 +25,13 @@ const RecentActivity: FC = () => {
     clearOnGoingFlowOperation();
   }, []);
 
+  const deleteActivity = async (activity: Activity): Promise<boolean> => {
+    const isSuccess = await activeUser
+      ?.get("activity")
+      .deleteActivities({ ids: [activity.id] });
+    return isSuccess;
+  };
+
   return (
     <div className="col-span-full">
       <Headline
@@ -34,7 +42,9 @@ const RecentActivity: FC = () => {
       <DetailContainer
         title={
           <div className="flex items-center">
-            <IconAvatar><ReactIcon icon="akar-icons:wallet" /></IconAvatar>
+            <IconAvatar>
+              <ReactIcon icon="akar-icons:wallet" />
+            </IconAvatar>
             <Typography
               className="flex-1"
               variant="h6"
@@ -60,19 +70,24 @@ const RecentActivity: FC = () => {
               !mounted || !activities ? (
                 Array(3)
                   .fill(0)
-                  .map((_, _i) => <LoadingTableAvatarRow colSpan={3} key={_i} />)
+                  .map((_, _i) => (
+                    <LoadingTableAvatarRow colSpan={3} key={_i} />
+                  ))
               ) : (
                 <>
                   {activities.length > 0 ? (
                     activities.map((activity, i) => (
-                      <ActivityRow activity={activity} needMoreAction={true} key={i} />
+                      <ActivityRow
+                        activity={activity}
+                        needMoreAction={true}
+                        deleteActivity={deleteActivity}
+                        key={i}
+                      />
                     ))
                   ) : (
                     <TableRow>
                       <TableCell component="th" colSpan={4} align="center">
-                        <span className="text-base">
-                          No activity found.
-                        </span>
+                        <span className="text-base">No activity found.</span>
                       </TableCell>
                     </TableRow>
                   )}
