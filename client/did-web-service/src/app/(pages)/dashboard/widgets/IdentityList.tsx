@@ -33,6 +33,7 @@ export const IdentityListWidget: FC = (_) => {
         })
       );
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [identities?.length, activeIdentity]);
 
   const openCreateIdentity = (): void => {

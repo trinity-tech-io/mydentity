@@ -1,11 +1,11 @@
+import { FC, ReactNode } from "react";
+import { styled } from "@mui/material/styles";
+import { Box, Card, CardContent, Typography } from "@mui/material";
 import { DarkButton } from "@components/button";
 import { IconAvatar } from "@components/feature/DetailLine";
+import PassStateLabel from "@components/generic/PassStateLabel";
 import { LoadingSecurityContent } from "@components/loading-skeleton";
 import { useMounted } from "@hooks/useMounted";
-import { Box, Card, CardContent, Typography } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import clsx from "clsx";
-import { FC, ReactNode } from "react";
 
 export const CardStyled = styled(Card)(({ theme }) => ({
   border: "1px solid #FFFFFF55",
@@ -58,14 +58,7 @@ const SecuritySection: FC<{
             {title}
           </Typography>
           {mounted && isSet !== null && (
-            <Box
-              className={clsx(
-                "rounded-md text-[7pt] px-3 py-0.5 inline-block text-white whitespace-nowrap",
-                isSet ? "bg-[#34A853]" : "bg-[#EA4335]"
-              )}
-            >
-              {statusTitle}
-            </Box>
+            <PassStateLabel isPassed={isSet} title={statusTitle} />
           )}
         </Box>
         {disabledSkel ? (

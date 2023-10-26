@@ -2,7 +2,7 @@
 import { FC, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next13-progressbar";
-import { Avatar, Grid, Stack, Typography } from "@mui/material";
+import { Avatar, Box, Grid, Stack, Typography } from "@mui/material";
 import { Icon as ReactIcon } from "@iconify/react";
 import { Breadcrumbs } from "@components/breadcrumbs/Breadcrumbs";
 import { DarkButton } from "@components/button";
@@ -14,6 +14,14 @@ import { activeIdentity$ } from "@services/identity/identity.events";
 import { authUser$ } from "@services/user/user.events";
 import DetailContainer from "@components/generic/DetailContainer";
 import { IconAvatar } from "@components/feature/DetailLine";
+import PassStateLabel from "@components/generic/PassStateLabel";
+
+const VaultStatusText = {
+  [VaultStatus.NotChecked]: "Checking",
+  [VaultStatus.Subscribing]: "Subscribing",
+  [VaultStatus.ReadyToUse]: "Ready to use",
+  [VaultStatus.UnknownError]: "Failed to retrieve status",
+};
 
 /**
  * Hive storage status and setup for the active identity
@@ -91,6 +99,17 @@ const StoragePage: FC = () => {
           </div>
         }
         able2ShowAll={false}
+        topRightSection={
+          <Stack alignItems="end" spacing={1}>
+            <PassStateLabel
+              isPassed={vaultStatus === VaultStatus.ReadyToUse}
+              title={VaultStatusText[vaultStatus]}
+            />
+            <Typography variant="caption" color="text.primary" fontStyle="italic">
+              Created : {vaultInfo.getStartTime().toLocaleString()}
+            </Typography>
+          </Stack>
+        }
       >
         <Typography>
           We have associated your identity with an Elastos <b>Hive Storage</b>.
