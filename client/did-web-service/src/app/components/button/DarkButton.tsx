@@ -6,6 +6,8 @@ const DarkButton = styled(LoadingButton)(({ theme, className }) => ({
   borderRadius: className?.includes("rounded") ? 8 : 4,
   color: "white",
   textTransform: "capitalize",
+  paddingLeft: 12,
+  paddingRight: 12,
   "&:disabled": {
     opacity: "0.7 !important",
     backgroundColor: "#555 !important",
