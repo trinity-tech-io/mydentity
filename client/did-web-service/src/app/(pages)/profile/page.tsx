@@ -1,25 +1,8 @@
 "use client";
-import { ChangeEvent, FC, MouseEvent, useState } from "react";
-import { useRouter } from "next13-progressbar";
-import Link from "next/link";
-import { filter } from "lodash";
-import {
-  NavigateNext as NavigateNextIcon,
-  Search as SearchIcon,
-} from "@mui/icons-material";
-import {
-  Container,
-  InputAdornment,
-  MenuItem,
-  Popover,
-  Stack,
-  TableCell,
-  TableRow,
-  Typography,
-  Box,
-} from "@mui/material";
 import ChipIcon from "@assets/images/chip.svg";
 import { CopyButton, NormalButton } from "@components/button";
+import CredentialTableRow from "@components/credential/CredentialTableRow";
+import { EditableCredentialAvatar } from "@components/credential/EditableCredentialAvatar";
 import { IconAvatar } from "@components/feature/DetailLine";
 import ConfirmDialog from "@components/generic/ConfirmDialog";
 import DetailContainer from "@components/generic/DetailContainer";
@@ -39,17 +22,33 @@ import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useMounted } from "@hooks/useMounted";
 import { Credential } from "@model/credential/credential";
 import { ProfileCredential } from "@model/credential/profile-credential";
+import {
+  NavigateNext as NavigateNextIcon,
+  Search as SearchIcon,
+} from "@mui/icons-material";
+import {
+  Box,
+  Container,
+  InputAdornment,
+  MenuItem,
+  Popover,
+  Stack,
+  TableCell,
+  TableRow,
+  Typography,
+} from "@mui/material";
 import { useToast } from "@services/feedback.service";
 import { findProfileInfoByTypes } from "@services/identity-profile-info/identity-profile-info.service";
 import { ProfileCredentialInfo } from "@services/identity-profile-info/profile-credential-info";
 import { activeIdentity$ } from "@services/identity/identity.events";
 import { logger } from "@services/logger";
-import { EditableCredentialAvatar } from "@components/credential/EditableCredentialAvatar";
-import { OrderBy } from "./order-by";
-import CredentialTableRow from "@components/credential/CredentialTableRow";
-import UserListHead from "@components/generic/ListHead";
-import AddProfileItem from "./components/AddProfileItem";
 import { authUser$ } from "@services/user/user.events";
+import { filter } from "lodash";
+import Link from "next/link";
+import { useRouter } from "next13-progressbar";
+import { ChangeEvent, FC, MouseEvent, useState } from "react";
+import AddProfileItem from "./components/AddProfileItem";
+import { OrderBy } from "./order-by";
 
 const CREDENTIAL_LIST_HEAD = [
   { id: "name", label: "Profile item", alignRight: false },
@@ -443,7 +442,7 @@ const Profile: FC = () => {
                             </Typography>
                           ) : (
                             <Typography variant="body1">
-                              No credential found
+                              No profile credential found. View all your credentials from "All credentials".
                             </Typography>
                           )}
                         </TableCell>
