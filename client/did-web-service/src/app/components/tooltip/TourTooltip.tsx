@@ -14,7 +14,7 @@ const TourTooltip = ({
   return (
     <Card
       {...tooltipProps}
-      radius="sm"
+      // radius="sm"
       sx={{ background: "linear-gradient(to bottom, #5300bd, #380976)", px: 2, py: 1, maxWidth: 420, minWidth: 300 }}
     >
       <Box padding="md">
@@ -26,17 +26,23 @@ const TourTooltip = ({
       {!step.hideFooter && (
         <Box className="flex">
           {!isLastStep && (
-            <Button {...skipProps} size="sm">
+            <Button {...skipProps}
+                    // size="sm"
+            >
               Skip
             </Button>
           )}
           <div className="flex flex-1 justify-end">
             {index > 0 && (
-              <Button {...backProps} size="sm">
+              <Button {...backProps}
+                      // size="sm"
+              >
                 back
               </Button>
             )}
-            <Button {...primaryProps} size="sm">
+            <Button {...primaryProps}
+                    // size="sm"
+            >
               {continuous ? "next" : "close"}
             </Button>
           </div>

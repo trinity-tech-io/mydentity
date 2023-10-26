@@ -141,7 +141,7 @@ fi
 # Push git folder to git
 if [ $commit_push = true ]
 then
-  echo "${log_tag} Pushing built clients and tests to git"
+  echo "${log_tag} Pushing built client and/or test app to git"
 
   cd ${ROOT_DIR}
   git add .
