@@ -18,9 +18,12 @@ export class ProfileCredential extends Credential {
     }
   }
 
-  protected prepareDisplayValue(): void {
-    this.displayValue = this.profileInfo.options.converter.toDisplayableValue(this);
-  }
+  // TODO: REMOVE : TO BE TEST
+  // protected prepareDisplayValue(): void {
+  //   console.log("TODO: REMOVE: Profile-credential.ts: prepareDisplayValue >>>>>>>>>>>>>>>>>>>>>>>")
+  //   this.displayValue = this.profileInfo.options.converter.toDisplayableValue(this);
+  //   console.log("TODO: REMOVE: Profile-credential.ts: this.displayValue >>>>>>>>>>>>>>>>>>>>>>>", this.displayValue)
+  // }
 
   /**
    * Profile info to use to generate, edit and display this credential

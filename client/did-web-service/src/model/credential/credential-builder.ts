@@ -50,6 +50,7 @@ export async function credentialFromJson(json: CredentialDTO): Promise<Credentia
   credential.verifiableCredential = vc;
 
   credential.prepareForDisplay();
+  console.log("TODO: REMOVE: credential-builder: >>>>>>>>>>>>>>>>>> credentialFromJson")
 
   return credential;
 }
@@ -63,6 +64,7 @@ export async function credentialFromVerifiableCredential(vc: VerifiableCredentia
   credential.verifiableCredential = vc;
 
   credential.prepareForDisplay();
+  console.log("TODO: REMOVE: credential-builder: >>>>>>>>>>>>>>>>>> credentialFromVerifiableCredential;")
 
   return credential;
 }
