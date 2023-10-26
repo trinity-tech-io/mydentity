@@ -1,4 +1,4 @@
-import { FC, memo, useCallback, useEffect, useRef, useState } from "react";
+import { FC, memo, useEffect, useState } from "react";
 import {
   Fade,
   Modal,
@@ -6,14 +6,9 @@ import {
   Typography,
   Stack,
   Box,
-  ListItemText,
   List,
   ListItem,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
 } from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Swiper, SwiperClass, SwiperSlide } from "swiper/react";
 import { Keyboard, Pagination, Navigation } from "swiper/modules";
 import { Icon as ReactIcon } from "@iconify/react";
@@ -24,8 +19,12 @@ import { CredentialAvatar } from "@components/credential/CredentialAvatar";
 import { ProfileFeature } from "@model/regular-identity/features/profile/profile.feature";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { Credential } from "@model/credential/credential";
-import SharedCountLabel, { ConformBadge } from "@components/credential/SharedCountLabel";
+import SharedCountLabel, {
+  ConformBadge,
+} from "@components/credential/SharedCountLabel";
 import { activeIdentity$ } from "@services/identity/identity.events";
+import ListItemTextStyled from "./ListItemText";
+import SubAccordion from "./SubAccordion";
 
 const style = {
   position: "absolute",
@@ -67,20 +66,6 @@ const style = {
     backdropFilter: "blur(5px)",
     fontWeight: 600,
   },
-};
-
-const ListItemTextStyled: FC<{ primary: string; secondary: string }> = ({
-  primary,
-  secondary,
-}) => {
-  return (
-    <ListItemText
-      primary={primary}
-      secondary={secondary}
-      primaryTypographyProps={{ fontSize: 14, fontWeight: 600 }}
-      secondaryTypographyProps={{ fontSize: 11 }}
-    />
-  );
 };
 
 const CredentialSliderContent: FC<{ credential: Credential }> = memo(
@@ -163,40 +148,6 @@ const CredentialSliderContent: FC<{ credential: Credential }> = memo(
 );
 CredentialSliderContent.displayName = "CredentialSliderContent";
 
-const SubAccordion: FC<{ subfield: { [key: string]: string } }> = memo(
-  ({ subfield }) => {
-    return (
-      <Accordion className="w-full" sx={{ boxShadow: "unset" }} defaultExpanded>
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          sx={{
-            p: 0,
-            minHeight: "auto !important",
-            ".MuiAccordionSummary-content, .MuiAccordionSummary-content.Mui-expanded":
-              { my: 0.5 },
-          }}
-        >
-          <Typography variant="body2" fontWeight={600}>
-            SUBFIELD
-          </Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <List dense sx={{ p: 0, ".MuiListItemText-root": { margin: 0 } }}>
-            {Object.keys(subfield).map((key, _id) => (
-              <ListItem key={_id}>
-                <ListItemTextStyled
-                  primary={key.toUpperCase()}
-                  secondary={subfield[key]}
-                />
-              </ListItem>
-            ))}
-          </List>
-        </AccordionDetails>
-      </Accordion>
-    );
-  }
-);
-SubAccordion.displayName = "SubDetailAccordion";
 interface CredentialModalType {
   credentials: Array<Credential>;
   identityProfile: ProfileFeature;

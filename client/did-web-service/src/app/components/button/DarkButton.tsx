@@ -15,7 +15,6 @@ const DarkButton = styled(LoadingButton)(({ theme, className }) => ({
     background: "#666e76 !important",
   },
   [theme.breakpoints.down("md")]: {
-    fontSize: 12,
     padding: "6px 14px",
   },
   ".MuiLoadingButton-loadingIndicator": {

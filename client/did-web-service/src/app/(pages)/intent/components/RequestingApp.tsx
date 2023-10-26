@@ -1,12 +1,10 @@
-import { LoadingCircle } from "@components/loading-cards/loading-circle/LoadingCircle";
-import { LoadingApplicationProfile } from "@components/loading-skeleton";
-import SkelTheme from "@components/loading-skeleton/SkelTheme";
-import { Avatar, Box, Stack, Typography } from "@mui/material";
-import { didDocumentService } from "@services/identity/diddocuments.service";
-import clsx from "clsx";
-import Image from "next/image";
 import { FC, useEffect, useState } from "react";
 import Skeleton from "react-loading-skeleton";
+import Image from "next/image";
+import { Avatar, Box, Stack, Typography } from "@mui/material";
+import { LoadingApplicationProfile } from "@components/loading-skeleton";
+import SkelTheme from "@components/loading-skeleton/SkelTheme";
+import { didDocumentService } from "@services/identity/diddocuments.service";
 
 export const RequestingApp: FC<{
   applicationDID: string;
