@@ -1,7 +1,6 @@
 import { FC, ReactNode, useRef, useState } from "react";
 import ConfirmDialog from "@components/generic/ConfirmDialog";
 import { DetailTableRow } from "@components/generic/DetailTable";
-import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { Icon as ReactIcon } from "@iconify/react";
 import { Activity } from "@model/activity/activity";
 import { ActivityType } from "@model/activity/activity-type";
@@ -24,7 +23,6 @@ import {
 } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import { logger } from "@services/logger";
-import { authUser$ } from "@services/user/user.events";
 import { getDateDistance } from "@utils/date";
 
 interface ActivityRenderType {
@@ -113,7 +111,6 @@ export const ActivityRow: FC<{
     return false;
   },
 }) => {
-  const [authUser] = useBehaviorSubject(authUser$);
   const [openMenu, setOpenMenu] = useState(false);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const moreButtonRef = useRef(null);

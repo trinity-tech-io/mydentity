@@ -38,6 +38,7 @@ export const RequestDetails: FC<{
   intent: Intent<ConnDID.CredentialDisclosureRequest>;
 }> = ({ intent }) => {
   const TAG = "RequestCredentialsIntent";
+  const [activeUser] = useBehaviorSubject(authUser$);
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const [credentials] = useBehaviorSubject(
     activeIdentity?.credentials().credentials$
@@ -51,7 +52,6 @@ export const RequestDetails: FC<{
     useState<boolean>(false);
   const [organizedClaims, setOrganizedClaims] =
     useState<ClaimDisplayEntry[]>(null);
-  const [activeUser] = useBehaviorSubject(authUser$);
   const payload = intent.requestPayload;
   const requestingAppDID = intent.requestPayload.caller;
 
@@ -371,11 +371,10 @@ export const RequestDetails: FC<{
   return (
     <>
       {activeIdentity && (
-        <Stack spacing={2}>
+        <Stack spacing={2} alignItems="center">
           <RequestingApp applicationDID={requestingAppDID} />
-          <Typography variant="body2" color="text.primary" textAlign="center">
+          <Typography variant="body2" color="text.primary" textAlign="center" className="max-w-lg">
             This application is requesting access to some of your information.
-            <br />
             Please review and select the profile items (credentials) you wish to
             share.
           </Typography>
@@ -383,7 +382,7 @@ export const RequestDetails: FC<{
             claimDisplayEntryList={organizedClaims}
           />
           {organizedClaims && organizedClaims.length > 0 && (
-            <div className="flex items-center gap-4 sm:px-4 sm: gap-8">
+            <div className="flex w-full items-center gap-4 sm:px-4 sm: gap-8">
               <Button
                 variant="contained"
                 className="flex-1"

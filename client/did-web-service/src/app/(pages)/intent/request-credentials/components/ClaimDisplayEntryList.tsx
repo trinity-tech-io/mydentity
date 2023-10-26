@@ -18,6 +18,7 @@ export const ClaimDisplayEntryListWidget: FC<Props> = (props) => {
 
   return (
     <DetailContainer
+      className="w-full"
       title={
         <div className="inline-flex items-center">
           <IconAvatar>

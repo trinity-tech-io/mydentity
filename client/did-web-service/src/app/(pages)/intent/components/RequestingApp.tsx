@@ -1,9 +1,12 @@
 import { LoadingCircle } from "@components/loading-cards/loading-circle/LoadingCircle";
+import { LoadingApplicationProfile } from "@components/loading-skeleton";
+import SkelTheme from "@components/loading-skeleton/SkelTheme";
 import { Avatar, Box, Stack, Typography } from "@mui/material";
 import { didDocumentService } from "@services/identity/diddocuments.service";
 import clsx from "clsx";
 import Image from "next/image";
 import { FC, useEffect, useState } from "react";
+import Skeleton from "react-loading-skeleton";
 
 export const RequestingApp: FC<{
   applicationDID: string;
@@ -36,32 +39,40 @@ export const RequestingApp: FC<{
 
   useEffect(() => {
     updateApplicationData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [applicationDID]);
 
-  if (!loaded || !applicationDID)
-    return (
-      <div className="flex items-center justify-center">
-        <LoadingCircle width={120} height={120} />
-      </div>
-    );
-
-  return (
-    <Stack className={className} justifyContent="center" alignItems="center" spacing={1.5}>
-      <Stack justifyContent="center" alignItems="center" spacing={.5}>
-        <Avatar sx={{ width: 96, height: 96 }}>
-          {requestingAppIconUrl && (
+  return loaded && !!applicationDID ? (
+    <Stack
+      className={className}
+      justifyContent="center"
+      alignItems="center"
+      spacing={1.5}
+    >
+      <Stack justifyContent="center" alignItems="center" spacing={0.5}>
+        {requestingAppIconUrl ? (
+          <Avatar sx={{ width: 88, height: 88 }}>
             <Image src={requestingAppIconUrl} alt="" width={120} height={120} />
-          )}
-        </Avatar>
+          </Avatar>
+        ) : (
+          <SkelTheme>
+            <Skeleton
+              width={88}
+              height={88}
+              circle={true}
+              containerClassName="leading-none"
+            />
+          </SkelTheme>
+        )}
         <div>
           <Box className="rounded-[4px] text-[8px] px-2.5 py-1 inline-block text-white whitespace-nowrap bg-[#9291A5]">
             APPLICATION
           </Box>
         </div>
       </Stack>
-      <Typography variant="h4">
-        {requestingAppName}
-      </Typography>
+      <Typography variant="h4">{requestingAppName}</Typography>
     </Stack>
+  ) : (
+    <LoadingApplicationProfile />
   );
 };

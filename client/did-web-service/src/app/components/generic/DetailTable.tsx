@@ -51,7 +51,12 @@ export const DetailTable: FC<{ headCells: ReactNode; bodyRows: ReactNode }> = ({
         thead: {
           background:
             "linear-gradient(to right, transparent, #4e4e4eb3 25%, #555555b3 50%, #4e4e4eb3 75%, transparent)",
-          th: { px: 1, fontSize: 15, fontWeight: "600" },
+          th: {
+            px: 1,
+            fontSize: { xs: 12, sm: 15 },
+            lineHeight: { xs: "1.2rem", sm: "1.5rem" },
+            fontWeight: "600",
+          },
           "th:last-child": { textAlign: "right" },
         },
         tbody: {

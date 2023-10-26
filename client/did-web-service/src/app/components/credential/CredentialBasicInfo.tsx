@@ -14,7 +14,7 @@ function CredentialBasicInfo(props: Props): JSX.Element {
       <Typography variant="body1" fontWeight={600} lineHeight={1.2}>
         {credential.getDisplayableTitle()}
       </Typography>
-      <Typography variant="body2" color="text.secondary" lineHeight={1.2}>
+      <Typography component="span" variant="body2" color="text.secondary" lineHeight={1.2}>
         {credential.getDisplayValue() && (
           <JsonViewer data={credential.getDisplayValue()} />
         )}

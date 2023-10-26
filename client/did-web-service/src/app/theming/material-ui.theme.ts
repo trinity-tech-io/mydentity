@@ -67,7 +67,7 @@ export const generateTheme = (mode: PaletteMode): Theme => createTheme({
           backgroundImage: 'unset',
         }
       }
-    }
+    },
   },
   typography: {
     h1: {

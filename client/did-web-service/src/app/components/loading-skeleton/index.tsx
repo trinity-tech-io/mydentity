@@ -5,6 +5,7 @@ import LoadingCard from "./Card";
 import LoadingCredentialBox from "./CredentialItem";
 import LoadingAccountName from "./AccountName";
 import LoadingApplicationBox from "./ApplicationItem";
+import LoadingApplicationProfile from "./ApplicationProfile";
 
 export {
   LoadingTableAvatarRow,
@@ -14,4 +15,5 @@ export {
   LoadingCredentialBox,
   LoadingAccountName,
   LoadingApplicationBox,
+  LoadingApplicationProfile,
 };
