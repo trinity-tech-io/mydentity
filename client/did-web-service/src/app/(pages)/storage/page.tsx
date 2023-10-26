@@ -101,13 +101,21 @@ const StoragePage: FC = () => {
         able2ShowAll={false}
         topRightSection={
           <Stack alignItems="end" spacing={1}>
-            <PassStateLabel
-              isPassed={vaultStatus === VaultStatus.ReadyToUse}
-              title={VaultStatusText[vaultStatus]}
-            />
-            <Typography variant="caption" color="text.primary" fontStyle="italic">
-              Created : {vaultInfo.getStartTime().toLocaleString()}
-            </Typography>
+            {vaultStatus != null && (
+              <PassStateLabel
+                isPassed={vaultStatus === VaultStatus.ReadyToUse}
+                title={VaultStatusText[vaultStatus]}
+              />
+            )}
+            {vaultInfo && (
+              <Typography
+                variant="caption"
+                color="text.primary"
+                fontStyle="italic"
+              >
+                Created : {vaultInfo.getStartTime().toLocaleString()}
+              </Typography>
+            )}
           </Stack>
         }
       >
