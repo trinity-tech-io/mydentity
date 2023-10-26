@@ -4,6 +4,7 @@ import { logger } from "@services/logger";
 import { PermanentCache } from "@utils/caches/permanent-cache";
 import { isClientSide } from "@utils/client-server";
 import { rawImageToBase64DataUrl } from "@utils/pictures";
+import { AnonymousScriptRunner } from "@elastosfoundation/hive-js-sdk";
 
 
 type CacheCustomData = {
@@ -69,9 +70,13 @@ async function fetchHiveScriptPicture(hiveScriptUrl: string, identity: Identity)
   try {
     logger.log('hive', 'Calling script url to download file', hiveScriptUrl);
 
-    const vault = await identity.hive().getVaultService();
-
-    const pictureBuffer = await vault.getScriptingService().downloadFileByHiveUrl(hiveScriptUrl);
+    let pictureBuffer;
+    if (identity) {
+      const vault = await identity.hive().getVaultService();
+      pictureBuffer = await vault.getScriptingService().downloadFileByHiveUrl(hiveScriptUrl);
+    } else {
+      pictureBuffer = await AnonymousScriptRunner.downloadFileByHiveUrl(hiveScriptUrl);
+    }
     if (!pictureBuffer || pictureBuffer.length === 0) {
       logger.warn('hive', 'Got empty data while fetching hive script picture', hiveScriptUrl);
       return null;
