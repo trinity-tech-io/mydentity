@@ -19,9 +19,9 @@ export class ProfileCredential extends Credential {
   }
 
   // TODO: REMOVE : TO BE TEST
-  // protected prepareDisplayValue(): void {
-  //   this.displayValue = this.profileInfo.options.converter.toDisplayableValue(this);
-  // }
+  protected prepareDisplayValue(): void {
+    this.displayValue = this.profileInfo.options.converter.toDisplayableValue(this);
+  }
 
   /**
    * Profile info to use to generate, edit and display this credential
