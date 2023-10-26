@@ -18,7 +18,6 @@ export class CredentialValueConverterGender extends CredentialValueConverter<str
 
   // return: male/female
   public toDisplayableValue(credential: Credential): string {
-    console.log("TODO: REMOVE: gender-converter toDisplayableValue >>>>>>>>>>>>>>>>>>>>>>> displayableCredentialDescription:", credential.verifiableCredential.getSubject().getProperty(this.subjectKey))
     return converGenderFullName(credential.verifiableCredential.getSubject().getProperty(this.subjectKey))
   }
 

@@ -15,7 +15,6 @@ export class CredentialValueConverterDate extends CredentialValueConverter<Date>
 
   // return: locale date time string
   public toDisplayableValue(credential: Credential): string {
-    console.log("TODO: REMOVE: date-converter toDisplayableValue >>>>>>>>>>>>>>>>>>>>>>> displayableCredentialDescription:", credential.verifiableCredential.getSubject().getProperty(this.subjectKey))
     return convertUtcToLocaleDateTime(credential.verifiableCredential.getSubject().getProperty(this.subjectKey))
   }
 

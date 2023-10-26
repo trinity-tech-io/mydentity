@@ -22,7 +22,6 @@ export class CredentialValueConverterNationality extends CredentialValueConverte
   }
 
   public toDisplayableValue(credential: Credential): string {
-    console.log("TODO: REMOVE: nationality-converter toDisplayableValue >>>>>>>>>>>>>>>>>>>>>>> displayableCredentialDescription:", credential.verifiableCredential.getSubject().getProperty(this.subjectKey))
     return credential.verifiableCredential.getSubject().getProperty(this.subjectKey).label
   }
 

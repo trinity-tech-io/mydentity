@@ -54,11 +54,8 @@ export abstract class Credential {
    * Prepare all display data.
    */
   public prepareForDisplay(): void {
-    console.log("TODO: REMOVE: CREDENTIAL: prepareDisplayTitle>>>>>>>>>>>>>>>>>>")
     this.prepareDisplayTitle();
-    console.log("TODO: REMOVE: CREDENTIAL: prepareForDisplay -> prepareDisplayValue>>>>>>>>>>>>>>>>>>0:")
     this.prepareDisplayValue();
-    console.log("TODO: REMOVE: CREDENTIAL: prepareForDisplay -> prepareDisplayValue>>>>>>>>>>>>>>>>>>1:", this.getDisplayValue())
   }
 
   // Method to override to prepare higher level data from a VC we just set.
@@ -90,6 +87,7 @@ export abstract class Credential {
   protected getDisplayableCredentialDescription(): any {
     const credProps = this.verifiableCredential.getSubject().getProperties();
     if ("displayable" in credProps) {
+      console.log("TODO: REMOVE: CREDENTIAL: getDisplayableCredentialDescription >>>>>>>>>>>>>>>>>>>>>>> description:", this.parseDisplayable(credProps).description)
       return this.parseDisplayable(credProps).description
     }
     console.log("TODO: REMOVE: CREDENTIAL: getDisplayableCredentialDescription >>>>>>>>>>>>>>>>>>>>>>> credProps:", credProps)
@@ -182,7 +180,7 @@ export abstract class Credential {
   // the type is not displayable
   protected getOtherDescription(): any {
     const subject = this.verifiableCredential.getSubject().getProperties();
-    const concatenatedValues: any[] = [];  // Initialize an array with a single element
+    let concatenatedValues = '';  // Initialize an array with a single element
     let allValuesValid = true;  // Assume all values are valid initially
 
     // if the type is not displayable , but the json contains only one field and the field type is string/number/boolean, then we just show that value as value, but without the blue "name" key (don't use json ui tree)
@@ -190,7 +188,7 @@ export abstract class Credential {
       const value = subject[key];
       const type = typeof value;
       if (type === 'string' || type === 'boolean' || type === 'number') {
-        concatenatedValues.push(value)
+        concatenatedValues = concatenatedValues + value + " " 
       } else {
         allValuesValid = false;
       }
@@ -199,6 +197,7 @@ export abstract class Credential {
       return concatenatedValues
     }
 
+    // TODO: IMPROVE
     // if the type is not displayable credential, and the json contains more than one string/boolean/number field, then we show the json tree.
     return subject
   }
@@ -207,7 +206,7 @@ export abstract class Credential {
     const displayableCredentialDescription = this.getDisplayableCredentialDescription();
     console.log("TODO: REMOVE: CREDENTIAL: prepareDisplayValue >>>>>>>>>>>>>>>>>>>>>>> displayableCredentialDescription:", displayableCredentialDescription)
     if (displayableCredentialDescription) {
-      this.displayValue = displayableCredentialDescription;
+      this.displayValue = displayableCredentialDescription
       console.log("TODO: REMOVE: CREDENTIAL: prepareDisplayValue >>>>>>>>>>>>>>>>>>>>>>> this.displayValue:", this.displayValue)
     }
     else {

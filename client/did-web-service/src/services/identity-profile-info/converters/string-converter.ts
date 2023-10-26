@@ -15,7 +15,6 @@ export class CredentialValueConverterString extends CredentialValueConverter<str
   }
 
   public toDisplayableValue(credential: Credential): string {
-    console.log("TODO: REMOVE: string-converter toDisplayableValue >>>>>>>>>>>>>>>>>>>>>>> displayableCredentialDescription:", credential.verifiableCredential.getSubject().getProperty(this.subjectKey))
     return credential.verifiableCredential.getSubject().getProperty(this.subjectKey);
   }
 
