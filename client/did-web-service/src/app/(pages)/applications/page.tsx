@@ -1,5 +1,11 @@
 "use client";
-import { ChangeEvent, FC, useEffect, useState } from "react";
+import {
+  ChangeEvent,
+  ChangeEventHandler,
+  FC,
+  useEffect,
+  useState,
+} from "react";
 import {
   FormControl,
   Grid,
@@ -24,6 +30,13 @@ const Applications: FC = () => {
   );
   const [expandedIDs, setExpandedIDs] = useState<string[]>([]);
   const [openedDetail, setOpenedDetail] = useState(false);
+  const [stringFilter, setStringFilter] = useState<string>("");
+  const filteredApplications = interactingApplications?.filter((app) =>
+    app?.interactingApplication?.name$
+      .getValue()
+      .toLowerCase()
+      .includes(stringFilter.toLowerCase())
+  );
 
   useEffect(() => {
     if (interactingApplications?.length)
@@ -34,6 +47,12 @@ const Applications: FC = () => {
 
   const handleDetailSwitch = (event: ChangeEvent, checked: boolean): void => {
     setOpenedDetail(checked);
+  };
+
+  const handleFilterString: ChangeEventHandler<
+    HTMLInputElement | HTMLTextAreaElement
+  > = (e) => {
+    setStringFilter(e.target.value.trim());
   };
 
   return (
@@ -50,7 +69,7 @@ const Applications: FC = () => {
           size="small"
           placeholder="Search"
           className="mr-4 rounded"
-          // onChange={handleFilterString}
+          onChange={handleFilterString}
           startAdornment={
             <InputAdornment position="start">
               <SearchIcon />
@@ -73,16 +92,22 @@ const Applications: FC = () => {
           </FormControl>
         </Stack>
       </Stack>
-
-      {interactingApplications?.length == 0 && (
+      {filteredApplications && !filteredApplications.length && (
         <Typography variant="h6" align="center" sx={{ pt: 2 }}>
-          No application has interacted with this identity yet.
+          {!stringFilter ? (
+            "No application has interacted with this identity yet."
+          ) : (
+            <>
+              No results found for &nbsp;
+              <strong>&quot;{stringFilter}&quot;</strong>.
+              <br /> Try checking for typos or using complete words.
+            </>
+          )}
         </Typography>
       )}
-
-      {interactingApplications?.length > 0 && (
+      {filteredApplications?.length > 0 && (
         <Grid container spacing={2}>
-          {interactingApplications?.map((app, _id) => (
+          {filteredApplications?.map((app, _id) => (
             <Grid item xs={12} sm={6} key={_id}>
               <ApplicationBox
                 application={app}
