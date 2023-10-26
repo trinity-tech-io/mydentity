@@ -22,6 +22,7 @@ import ApplicationBox from "./components/ApplicationBox";
 import OutlinedInputStyled from "@components/input/OutlinedInputStyled";
 import SwitchUI from "@components/switch/Switch";
 import SelectBox from "@components/select/SelectBox";
+import { LoadingApplicationBox } from "@components/loading-skeleton";
 
 const Applications: FC = () => {
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
@@ -31,12 +32,14 @@ const Applications: FC = () => {
   const [expandedIDs, setExpandedIDs] = useState<string[]>([]);
   const [openedDetail, setOpenedDetail] = useState(false);
   const [stringFilter, setStringFilter] = useState<string>("");
-  const filteredApplications = interactingApplications?.filter((app) =>
-    app?.interactingApplication?.name$
-      .getValue()
-      .toLowerCase()
-      .includes(stringFilter.toLowerCase())
-  );
+  const filteredApplications = stringFilter
+    ? interactingApplications?.filter((app) =>
+        app?.interactingApplication?.name$
+          .getValue()
+          ?.toLowerCase()
+          .includes(stringFilter.toLowerCase())
+      )
+    : interactingApplications;
 
   useEffect(() => {
     if (interactingApplications?.length)
@@ -92,32 +95,42 @@ const Applications: FC = () => {
           </FormControl>
         </Stack>
       </Stack>
-      {filteredApplications && !filteredApplications.length && (
-        <Typography variant="h6" align="center" sx={{ pt: 2 }}>
-          {!stringFilter ? (
-            "No application has interacted with this identity yet."
-          ) : (
-            <>
-              No results found for &nbsp;
-              <strong>&quot;{stringFilter}&quot;</strong>.
-              <br /> Try checking for typos or using complete words.
-            </>
-          )}
-        </Typography>
-      )}
-      {filteredApplications?.length > 0 && (
+      {!interactingApplications ? (
         <Grid container spacing={2}>
-          {filteredApplications?.map((app, _id) => (
-            <Grid item xs={12} sm={6} key={_id}>
-              <ApplicationBox
-                application={app}
-                id={app.id}
-                expanded={expandedIDs.includes(app.id)}
-                setExpanded={setExpandedIDs}
-              />
-            </Grid>
-          ))}
+          <Grid item xs={12} sm={6}>
+            <LoadingApplicationBox />
+          </Grid>
         </Grid>
+      ) : (
+        <>
+          {filteredApplications && !filteredApplications.length && (
+            <Typography variant="h6" align="center" sx={{ pt: 2 }}>
+              {!stringFilter ? (
+                "No application has interacted with this identity yet."
+              ) : (
+                <>
+                  No results found for &nbsp;
+                  <strong>&quot;{stringFilter}&quot;</strong>.
+                  <br /> Try checking for typos or using complete words.
+                </>
+              )}
+            </Typography>
+          )}
+          {filteredApplications?.length > 0 && (
+            <Grid container spacing={2}>
+              {filteredApplications?.map((app, _id) => (
+                <Grid item xs={12} sm={6} key={_id}>
+                  <ApplicationBox
+                    application={app}
+                    id={app.id}
+                    expanded={expandedIDs.includes(app.id)}
+                    setExpanded={setExpandedIDs}
+                  />
+                </Grid>
+              ))}
+            </Grid>
+          )}
+        </>
       )}
     </div>
   );
