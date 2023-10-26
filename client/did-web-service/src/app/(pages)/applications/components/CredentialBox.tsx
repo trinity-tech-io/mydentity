@@ -1,24 +1,9 @@
-import { FC, MouseEventHandler } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  IconButton,
-  List,
-  ListItem,
-  ListItemText,
-  Stack,
-  Typography,
-} from "@mui/material";
-import { MoreVert as MoreVertIcon } from "@mui/icons-material";
+import { FC } from "react";
+import { Stack, Typography } from "@mui/material";
 import { CardStyled } from "@/app/(pages)/account/security/components/SecuritySection";
 import { Credential } from "@model/credential/credential";
 import { CredentialAvatar } from "@components/credential/CredentialAvatar";
 import { JsonViewer } from "@components/credential/JsonViewer";
-import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
-import SharedCountLabel, {
-  ConformBadge,
-} from "@components/credential/SharedCountLabel";
-import { activeIdentity$ } from "@services/identity/identity.events";
-import { RequestedCredential } from "@model/requested-credentials/requested-credentials";
 
 const CredentialBox: FC<{
   credential: Credential;
