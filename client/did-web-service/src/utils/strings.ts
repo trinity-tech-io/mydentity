@@ -20,8 +20,8 @@ export function initialsString(str?: string): string {
 }
 
 export function convertUtcToLocaleDateTime(utcDateTimeString: string): string {
-  if (!isUtcTimeString(utcDateTimeString)) return utcDateTimeString
-  const utcDate = new Date(utcDateTimeString);
+  if (!isUtcTimeString(utcDateTimeString.trim())) return utcDateTimeString
+  const utcDate = new Date(utcDateTimeString.trim());
   const locale = navigator.language; // Get the local language setting of the user's browser
   const dateFormatter = new Intl.DateTimeFormat(locale);
   const localDateTimeString = dateFormatter.format(utcDate);
@@ -30,8 +30,8 @@ export function convertUtcToLocaleDateTime(utcDateTimeString: string): string {
 }
 
 export function isUtcTimeString(str: string): boolean {
-  const utcTimeStringRegex = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,3})?Z)$/;
-  return utcTimeStringRegex.test(str)
+  const utcTimeStringRegex = /^\s*(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,3})?Z)\s*$/;
+  return utcTimeStringRegex.test(str);
 }
 
 export function converGenderFullName(str?: string): string {
