@@ -18,6 +18,7 @@ import {
   SecurityStatus,
 } from "../dashboard/components/SecurityStatus";
 import GradientTypography from "@components/text/GradientTypography";
+import { LoadingCard } from "@components/loading-skeleton";
 
 const TAG = "delete-identity";
 
@@ -42,8 +43,6 @@ const DeleteIdentityPage: FC = () => {
     await activeUser.get("identity").deleteIdentity(identityStringToDelete);
   };
 
-  if (!mounted) return null;
-
   return (
     <div>
       {/* <Breadcrumbs entries={["delete-identity"]} /> */}
@@ -62,43 +61,46 @@ const DeleteIdentityPage: FC = () => {
           Active Identity
         </Typography>
       </div>
-      {activeIdentity && (
-        <div className="max-w-md w-full m-auto pt-4">
-          <LandingCard
-            className="w-full h-auto bg-neutral-950"
-            waveIconVisible={false}
-            topRightSection={
-              <Stack alignItems="end" spacing={0.5}>
-                <Box className="rounded-md bg-[#9291A5] text-[7pt] px-3 py-0.5 inline-block">
-                  ACTIVE IDENTITY
-                </Box>
-                {lastUsedAt && (
-                  <Typography variant="caption" fontStyle="italic">
-                    Last used : {lastUsedAt.toLocaleString()}
-                  </Typography>
-                )}
+      <div className="max-w-md w-full m-auto pt-4">
+        {activeIdentity ? (
+          <>
+            <LandingCard
+              className="w-full h-auto bg-neutral-950"
+              waveIconVisible={false}
+              topRightSection={
+                <Stack alignItems="end" spacing={0.5}>
+                  <Box className="rounded-md bg-[#9291A5] text-[7pt] px-3 py-0.5 inline-block">
+                    ACTIVE IDENTITY
+                  </Box>
+                  {lastUsedAt && (
+                    <Typography variant="caption" fontStyle="italic">
+                      Last used : {lastUsedAt.toLocaleString()}
+                    </Typography>
+                  )}
+                </Stack>
+              }
+              footer={
+                <Typography variant="caption">{activeIdentity.did}</Typography>
+              }
+            >
+              <Stack spacing={2} sx={{ mb: { xs: "3%", sm: "5%" }, mt: -12 }}>
+                <SecurityStatus
+                  state={SecurityState.Bad}
+                  advice="You are about to delete the active identity and all the associated information (credentials)."
+                />
+                <div className="flex flex-col">
+                  <label
+                    htmlFor="holder-name"
+                    className="text-white text-[10px]"
+                  >
+                    IDENTITY NAME
+                  </label>
+                  <GradientTypography variant="h4" fontWeight={600}>
+                    {name || "Unnamed application"}
+                  </GradientTypography>
+                </div>
               </Stack>
-            }
-            footer={
-              <Typography variant="caption">{activeIdentity.did}</Typography>
-            }
-          >
-            <Stack spacing={2} sx={{ mb: { xs: "3%", sm: "5%" }, mt: -12 }}>
-              <SecurityStatus
-                state={SecurityState.Bad}
-                advice="You are about to delete the active identity and all the associated information (credentials)."
-              />
-              <div className="flex flex-col">
-                <label htmlFor="holder-name" className="text-white text-[10px]">
-                  IDENTITY NAME
-                </label>
-                <GradientTypography variant="h4" fontWeight={600}>
-                  {name || "Unnamed application"}
-                </GradientTypography>
-              </div>
-            </Stack>
-          </LandingCard>
-          {
+            </LandingCard>
             <div className="mt-4 px-4">
               <MainButton
                 onClick={deleteIdentity}
@@ -109,9 +111,11 @@ const DeleteIdentityPage: FC = () => {
                 Delete this identity
               </MainButton>
             </div>
-          }
-        </div>
-      )}
+          </>
+        ) : (
+          <LoadingCard />
+        )}
+      </div>
     </div>
   );
 };

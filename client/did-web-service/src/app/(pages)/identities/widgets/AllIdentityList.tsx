@@ -180,7 +180,9 @@ export const AllIdentityList: FC = (_) => {
           </div>
         </Box>
         {!filteredIdentites ? (
-          <LoadingCard />
+          <div className="w-[26rem]">
+            <LoadingCard />
+          </div>
         ) : (
           <>
             {filteredIdentites?.length > 0 ? (

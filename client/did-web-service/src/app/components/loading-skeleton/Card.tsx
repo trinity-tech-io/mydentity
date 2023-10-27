@@ -11,12 +11,12 @@ const Card: FC = () => {
   return (
     <SkelTheme>
       <LandingCard
-        className={"w-[26rem] h-auto bg-neutral-950"}
+        className={"w-full h-auto bg-neutral-950"}
         waveIconVisible={false}
         topRightSection={
           <h5 className="w-[30%]"><Skeleton count={1} height={24} /></h5>
         }
-        footer={<h5><Skeleton count={1} /></h5>}
+        footer={<h5 className="w-full"><Skeleton count={1} /></h5>}
       >
         <div className="flex flex-col mb-[5%]">
           <label htmlFor="holder-name" className="text-white text-[10px]">
