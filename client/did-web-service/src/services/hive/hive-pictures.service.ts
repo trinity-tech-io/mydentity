@@ -1,5 +1,5 @@
 import { Identity } from "@model/identity/identity";
-import { awaitActiveIdentity } from "@services/identity/identity.events";
+import { awaitActiveIdentity, getActiveIdentity } from "@services/identity/identity.events";
 import { logger } from "@services/logger";
 import { PermanentCache } from "@utils/caches/permanent-cache";
 import { isClientSide } from "@utils/client-server";
@@ -35,10 +35,11 @@ export async function getHiveScriptPictureDataUrl(hiveScriptUrl: string): Promis
   // Because some features from the user itself can request access to hive pictures, even before an active identity is set,
   // we await for an active identity to happen here. This is dirty as we should normally not need to depend on an identity to fetch
   // hive pictures. To be improved.
-  const identity = await awaitActiveIdentity();
+  // const identity = await awaitActiveIdentity();
+  const identity = getActiveIdentity();
 
   // The cache will queue requests to avoid fetching multiple times in case of concurrent access to the same resource.
-  return cache.get(hiveScriptUrl + identity.did, { hiveScriptUrl, identity });
+  return cache.get(hiveScriptUrl + identity?.did, { hiveScriptUrl, identity });
 }
 
 /**
