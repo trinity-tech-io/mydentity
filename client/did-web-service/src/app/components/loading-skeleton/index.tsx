@@ -6,6 +6,7 @@ import LoadingCredentialBox from "./CredentialItem";
 import LoadingAccountName from "./AccountName";
 import LoadingApplicationBox from "./ApplicationItem";
 import LoadingApplicationProfile from "./ApplicationProfile";
+import LoadingOneLineText from "./OneLineText";
 
 export {
   LoadingTableAvatarRow,
@@ -16,4 +17,5 @@ export {
   LoadingAccountName,
   LoadingApplicationBox,
   LoadingApplicationProfile,
+  LoadingOneLineText,
 };

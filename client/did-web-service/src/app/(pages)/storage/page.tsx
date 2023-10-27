@@ -1,7 +1,7 @@
 "use client";
 import { FC, useEffect, useState } from "react";
 import Link from "next/link";
-import { Avatar, LinearProgress, Stack, Typography } from "@mui/material";
+import { Avatar, Box, LinearProgress, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { Icon as ReactIcon } from "@iconify/react";
 import { Breadcrumbs } from "@components/breadcrumbs/Breadcrumbs";
@@ -15,6 +15,7 @@ import { authUser$ } from "@services/user/user.events";
 import DetailContainer from "@components/generic/DetailContainer";
 import { IconAvatar } from "@components/feature/DetailLine";
 import PassStateLabel from "@components/generic/PassStateLabel";
+import { LoadingOneLineText } from "@components/loading-skeleton";
 
 const VaultStatusText = {
   [VaultStatus.NotChecked]: "Checking",
@@ -38,7 +39,6 @@ const StorageProgress = styled(LinearProgress)(({ theme, value }) => ({
  * Hive storage status and setup for the active identity
  */
 const StoragePage: FC = () => {
-  const { mounted } = useMounted();
   const [authUser] = useBehaviorSubject(authUser$);
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const hiveFeature = activeIdentity?.hive();
@@ -58,8 +58,6 @@ const StoragePage: FC = () => {
       setStorageQuota(getDisplayableStorageSizeMB(vaultInfo.getStorageQuota()));
     }
   }, [vaultInfo]);
-
-  if (!mounted) return null;
 
   return (
     <div>
@@ -131,26 +129,47 @@ const StoragePage: FC = () => {
         <Stack spacing={2}>
           <div>
             <Typography variant="subtitle1">Storage provider</Typography>
-            <Typography variant="body2">{vaultAddress}</Typography>
+            {vaultAddress != null ? (
+              <Typography variant="body2">{vaultAddress}</Typography>
+            ) : (
+              <Box sx={{ maxWidth: 200 }}>
+                <LoadingOneLineText />
+              </Box>
+            )}
           </div>
-          {vaultInfo && (
-            <Stack spacing={1}>
-              <Typography variant="subtitle1">Storage size in use</Typography>
-              <Stack direction="row" alignItems="end">
-                <Typography variant="h2" sx={{ lineHeight: 1 }}>
-                  {storageUsed} MB
-                </Typography>
-                <Typography variant="body2" sx={{ ml: "auto" }}>
-                  Max Size : {storageQuota} MB
-                </Typography>
-              </Stack>
+          <Stack spacing={1}>
+            <Typography variant="subtitle1">Storage size in use</Typography>
+            <Stack direction="row" alignItems="end">
+              {vaultInfo ? (
+                <>
+                  <Typography variant="h2" sx={{ lineHeight: 1 }}>
+                    {storageUsed} MB
+                  </Typography>
+                  <Typography variant="body2" sx={{ ml: "auto" }}>
+                    Max Size : {storageQuota} MB
+                  </Typography>
+                </>
+              ) : (
+                <>
+                  <Box sx={{ width: 100 }}>
+                    <LoadingOneLineText height={48} />
+                  </Box>
+                  <Box sx={{ width: 100, ml: "auto", lineHeight: 1 }}>
+                    <LoadingOneLineText />
+                  </Box>
+                </>
+              )}
+            </Stack>
+            {vaultInfo ? (
               <StorageProgress
                 variant="determinate"
                 value={(100 * storageUsed) / (storageQuota || 1)}
                 sx={{ height: 24, background: "#5a5a5aa8" }}
               />
-            </Stack>
-          )}
+            ) : (
+              <LoadingOneLineText height={24} />
+            )}
+          </Stack>
         </Stack>
       </DetailContainer>
     </div>
