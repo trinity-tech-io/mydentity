@@ -9,9 +9,10 @@ import { withCaughtAppException } from "@services/error.service";
 import { getApolloClient } from "@services/graphql.service";
 import { logger } from "@services/logger";
 import { onMessage } from "@services/websockets/websocket.events";
-import { WebSocketEventType } from "@services/websockets/websocket.types";
+import { WebSocketEventType, WsMessageEvent } from "@services/websockets/websocket.types";
 import { AdvancedBehaviorSubject } from "@utils/advanced-behavior-subject";
 import { DeleteActivitiesInput } from "@model/activity/delete-activities.input";
+import { getActiveUser } from "@services/user/user.events";
 
 export class ActivityFeature implements UserFeature {
     public activities$ = new AdvancedBehaviorSubject<Activity[]>([], () => this.fetchActivities());
@@ -24,8 +25,10 @@ export class ActivityFeature implements UserFeature {
         onMessage.subscribe(async e => {
             if (e.event === WebSocketEventType.ACTIVITY_CREATED) {
                 logger.log("activity", 'ACTIVITY_CREATED:', e.data);
-                const activity = await Activity.fromJson(e.data);
-                this.activities$.next([activity].concat(this.activities$.value));
+                const event: WsMessageEvent<ActivityDto> = e;
+                const activity = await Activity.fromJson(event.data);
+                if (activity.user && getActiveUser()?.id === activity.user?.id)
+                    this.activities$.next([activity].concat(this.activities$.value));
             }
         });
     }

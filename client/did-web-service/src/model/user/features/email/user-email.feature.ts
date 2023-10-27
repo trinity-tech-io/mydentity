@@ -11,7 +11,7 @@ import { getApolloClient } from "@services/graphql.service";
 import { logger } from "@services/logger";
 import { AdvancedBehaviorSubject } from "@utils/advanced-behavior-subject";
 import { onMessage } from "@services/websockets/websocket.events";
-import { WebSocketEventType } from "@services/websockets/websocket.types";
+import { WebSocketEventType, WsMessageEvent } from "@services/websockets/websocket.types";
 
 export function isEmailAlreadyExistsException(e: AppException): boolean {
     return e.appExceptionCode === AuthExceptionCode.EmailAlreadyExists;
@@ -32,8 +32,9 @@ export class UserEmailFeature implements UserFeature {
         onMessage.subscribe(async e => {
             if (e.event === WebSocketEventType.USER_EMAIL_CREATED) {
                 logger.log("userEmail", 'USER_EMAIL_CREATED:', e.data);
-                const userEmail = await UserEmail.fromJson(e.data);
-                const email = this.userEmails$.value.find(e => e.id === userEmail.id);
+                const event: WsMessageEvent<UserEmailDTO> = e;
+                const userEmail = await UserEmail.fromJson(event.data);
+                const email = this.userEmails$.value.find(m => m.id === userEmail.id);
                 if (!email) {
                     logger.log("userEmail", 'USER_EMAIL_CREATED, append a new one,', userEmail);
                     this.userEmails$.next([...this.userEmails$.value, userEmail]);

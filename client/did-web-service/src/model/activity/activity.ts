@@ -4,11 +4,13 @@ import type { Identity } from "@model/identity/identity";
 import type { UserEmail } from "@model/user-email/user-email";
 import { custodialIdentityProvider } from "@services/identity/identity.service";
 import moment from "moment";
+import { User } from "@model/user/user";
 
 export class Activity {
     public id: string;
     public createdAt: Date;
     public type: string;
+    public user?: User;
     private userEmail?: UserEmail;
     public userEmailProvider?: string;
     private userEmailAddress?: string;
@@ -27,6 +29,9 @@ export class Activity {
         const { Browser } = await import("@model/browser/browser");
         const { UserEmail } = await import("@model/user-email/user-email");
         const { identityFromJson } = await import("@model/identity/identity-builder");
+
+        if (json.user)
+            activity.user = await User.fromJson(json.user, true);
 
         if (json.userEmail)
             activity.userEmail = UserEmail.fromJson(json.userEmail);

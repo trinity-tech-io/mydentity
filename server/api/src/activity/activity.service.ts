@@ -19,6 +19,7 @@ export class ActivityService {
                 userId
             },
             include: {
+                user: true,
                 browser: true,
                 userEmail: { include: { user: true } },
                 identity: true,
@@ -32,6 +33,7 @@ export class ActivityService {
                 id, userId
             },
             include: {
+                user: true,
                 browser: true,
                 userEmail: { include: { user: true } },
                 identity: true,

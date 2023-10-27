@@ -3,6 +3,7 @@ import { ActivityType, UserEmailProvider } from '@prisma/client/main';
 import { BrowserEntity } from "../../browsers/entities/browser.entity";
 import { IdentityEntity } from "../../identity/entities/identity.entity";
 import { UserEmailEntity } from "../../user/entities/user-email.entity";
+import { UserEntity } from "../../user/entities/user.entity";
 
 @ObjectType()
 export class ActivityEntity {
@@ -11,6 +12,9 @@ export class ActivityEntity {
 
     @Field(() => ActivityType)
     type: ActivityType;
+
+    @Field(() => UserEntity)
+    user: UserEntity;
 
     @Field(() => UserEmailEntity, { nullable: true })
     userEmail?: UserEmailEntity;
