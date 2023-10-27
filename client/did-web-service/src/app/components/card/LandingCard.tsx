@@ -77,7 +77,7 @@ const LandingCard: FC<{
           <CircleVector width="100%" height="100%" viewBox="0 0 349 354" />
         </div>
         <div className="flex flex-col h-full">
-          <div className="flex mb-4 sm:mb-7">
+          <div className="flex mb-4 sm:mb-6">
             <div className="w-[10%]">
               {chipClickable ? (
                 <BaseButton onClick={handleClickChip}>

@@ -29,7 +29,7 @@ export const SecurityStatus: FC<{
 }> = ({ state, advice }) => {
   return (
     <div
-      className={`flex rounded-lg px-2 py-4 flex gap-2`}
+      className={`flex rounded-lg px-2 py-2 sm:py-4 flex gap-2`}
       style={{background: ColorByState[state]}}
     >
       <span className="text-white">{IconByState[state]}</span>

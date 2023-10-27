@@ -2,14 +2,20 @@ import { FC } from "react";
 import clsx from "clsx";
 import { Box } from "@mui/material";
 
-const PassStateLabel: FC<{ isPassed: boolean; title: string }> = ({
+export enum StateTextSize {
+  SMALL = 7,
+  MEDIUM = 8,
+  LARGE = 9,
+}
+const PassStateLabel: FC<{ isPassed: boolean; title: string; size?: StateTextSize; }> = ({
   isPassed,
   title,
+  size = StateTextSize.MEDIUM
 }) => {
   return (
     <Box
       className={clsx(
-        "rounded-md text-[8pt] px-3 py-0.5 inline-block text-white whitespace-nowrap",
+        `rounded-md text-[${size}pt] px-3 py-0.5 inline-block text-white whitespace-nowrap`,
         isPassed ? "bg-[#34A853]" : "bg-[#EA4335]"
       )}
     >

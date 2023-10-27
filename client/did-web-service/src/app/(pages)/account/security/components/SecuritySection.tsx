@@ -3,7 +3,7 @@ import { styled } from "@mui/material/styles";
 import { Box, Card, CardContent, Typography } from "@mui/material";
 import { DarkButton } from "@components/button";
 import { IconAvatar } from "@components/feature/DetailLine";
-import PassStateLabel from "@components/generic/PassStateLabel";
+import PassStateLabel, { StateTextSize } from "@components/generic/PassStateLabel";
 import { LoadingSecurityContent } from "@components/loading-skeleton";
 import { useMounted } from "@hooks/useMounted";
 
@@ -58,7 +58,7 @@ const SecuritySection: FC<{
             {title}
           </Typography>
           {mounted && isSet !== null && (
-            <PassStateLabel isPassed={isSet} title={statusTitle} />
+            <PassStateLabel isPassed={isSet} title={statusTitle} size={StateTextSize.SMALL} />
           )}
         </Box>
         {disabledSkel ? (
