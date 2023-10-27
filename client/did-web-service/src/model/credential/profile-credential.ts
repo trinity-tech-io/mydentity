@@ -1,6 +1,6 @@
-import { ProfileCredentialInfo } from "@services/identity-profile-info/profile-credential-info";
-import { capitalizeFirstLetter } from "@utils/strings";
 import { Credential } from "./credential";
+import { capitalizeFirstLetter } from "@utils/strings";
+import { ProfileCredentialInfo } from "@services/identity-profile-info/profile-credential-info";
 import { findProfileInfoByTypes } from "@services/identity-profile-info/identity-profile-info.service";
 import { defaultProfileIcons } from "./profile-info-icons";
 

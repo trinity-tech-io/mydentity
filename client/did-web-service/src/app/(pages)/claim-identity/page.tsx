@@ -28,6 +28,7 @@ import {
   SecurityState,
   SecurityStatus,
 } from "../dashboard/components/SecurityStatus";
+import { DarkButton } from "@components/button";
 
 const TAG = "claim-identity";
 
@@ -221,11 +222,11 @@ const ClaimIdentityPage: FC = () => {
       {claimRequest && (
         <>
           {/* Icon of the app DID that represents the creator of the user identity */}
-          {creatingAppInfoCredential && (
+          {/* {creatingAppInfoCredential && (
             <>
               <CredentialAvatar credential={creatingAppInfoCredential} />
             </>
-          )}
+          )} */}
           <div className="max-w-md w-full m-auto">
             <LandingCard
               className="w-full h-auto bg-neutral-950"
@@ -244,37 +245,19 @@ const ClaimIdentityPage: FC = () => {
                 </GradientTypography>
               </Stack>
             </LandingCard>
-          </div>
-
-          {/*  No signed in user, he must sign in first */}
-          {!authUser && (
-            <>
-              <div className="flex items-center space-x-3 mt-8">
-                {mounted && !authUser && (
-                  <>
-                    <MainButton onClick={signUp}>Sign up</MainButton>
-                    <MainButton onClick={signIn}>Sign in</MainButton>
-                  </>
-                )}
+            {/* User is signed in, we can proceed to claiming */}
+            {authUser && (
+              <div className="mt-4 px-4">
+                <DarkButton
+                  className="w-full"
+                  loading={claimingIdentity}
+                  onClick={claimIdentity}
+                >
+                  CLAIM THIS IDENTITY
+                </DarkButton>
               </div>
-            </>
-          )}
-
-          {/* User is signed in, we can proceed to claiming */}
-          {authUser && (
-            <>
-              <MainButton
-                className="mt-8"
-                onClick={claimIdentity}
-                busy={claimingIdentity}
-              >
-                Claim this identity
-              </MainButton>
-              <Typography>
-                This new identity will be transfered to your account.
-              </Typography>
-            </>
-          )}
+            )}
+          </div>
         </>
       )}
     </div>
