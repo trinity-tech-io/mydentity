@@ -2,6 +2,7 @@ import LoadingTableAvatarRow from "./TableAvatarRow";
 import LoadingProfileInfo from "./ProfileInfo";
 import LoadingSecurityContent from "./SecurityContent";
 import LoadingCard from "./Card";
+import LoadingApplicationCard from "./ApplicationCard";
 import LoadingCredentialBox from "./CredentialItem";
 import LoadingAccountName from "./AccountName";
 import LoadingApplicationBox from "./ApplicationItem";
@@ -13,6 +14,7 @@ export {
   LoadingProfileInfo,
   LoadingSecurityContent,
   LoadingCard,
+  LoadingApplicationCard,
   LoadingCredentialBox,
   LoadingAccountName,
   LoadingApplicationBox,

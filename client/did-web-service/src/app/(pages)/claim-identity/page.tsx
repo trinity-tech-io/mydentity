@@ -29,6 +29,10 @@ import {
   SecurityStatus,
 } from "../dashboard/components/SecurityStatus";
 import { DarkButton } from "@components/button";
+import {
+  LoadingApplicationCard,
+  LoadingCard,
+} from "@components/loading-skeleton";
 
 const TAG = "claim-identity";
 
@@ -164,8 +168,6 @@ const ClaimIdentityPage: FC = () => {
     }
   };
 
-  if (!mounted) return null;
-
   return (
     <div>
       <Headline
@@ -201,7 +203,11 @@ const ClaimIdentityPage: FC = () => {
         </Typography>
       </div>
       {/* Fetching initial data */}
-      {!readyToDisplayDetails && <VerticalStackLoadingCard />}
+      {(!claimRequest || !readyToDisplayDetails) && (
+        <div className="max-w-md w-full m-auto pt-4">
+          <LoadingApplicationCard />
+        </div>
+      )}
 
       {/* Claim request not found */}
       {readyToDisplayDetails && !fetchingRequestDetails && (
@@ -219,7 +225,7 @@ const ClaimIdentityPage: FC = () => {
       )}
 
       {/* Claim request details */}
-      {claimRequest && (
+      {readyToDisplayDetails && claimRequest && (
         <>
           {/* Icon of the app DID that represents the creator of the user identity */}
           {/* {creatingAppInfoCredential && (
@@ -227,7 +233,7 @@ const ClaimIdentityPage: FC = () => {
               <CredentialAvatar credential={creatingAppInfoCredential} />
             </>
           )} */}
-          <div className="max-w-md w-full m-auto">
+          <div className="max-w-md w-full m-auto pt-4">
             <LandingCard
               className="w-full h-auto bg-neutral-950"
               waveIconVisible={false}
