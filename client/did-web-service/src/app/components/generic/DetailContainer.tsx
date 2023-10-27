@@ -1,6 +1,13 @@
 import { FC, ReactNode } from "react";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import { Box, Card, CardContent, Typography } from "@mui/material";
+import {
+  Box,
+  Card,
+  CardContent,
+  SxProps,
+  Theme,
+  Typography,
+} from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { NormalButton } from "@components/button";
 
@@ -34,6 +41,7 @@ const DetailContainer: FC<{
   children: ReactNode;
   able2ShowAll?: boolean;
   topRightSection?: ReactNode;
+  sx?: SxProps<Theme>;
   showAllAction?: () => void;
 }> = ({
   title,
@@ -41,11 +49,12 @@ const DetailContainer: FC<{
   className = "",
   able2ShowAll = true,
   topRightSection = null,
+  sx = {},
   showAllAction = (): void => {},
 }) => {
   return (
-    <CardStyled className={className} elevation={0}>
-      <Box className="py-4 px-6 flex">
+    <CardStyled className={className} elevation={0} sx={sx}>
+      <Box className="py-4 px-6 flex card-header">
         <Typography className="flex-1" variant="h6" fontWeight={600}>
           {title}
         </Typography>

@@ -1,8 +1,8 @@
 "use client";
 import { FC, useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next13-progressbar";
-import { Avatar, Box, Grid, Stack, Typography } from "@mui/material";
+import { Avatar, LinearProgress, Stack, Typography } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import { Icon as ReactIcon } from "@iconify/react";
 import { Breadcrumbs } from "@components/breadcrumbs/Breadcrumbs";
 import { DarkButton } from "@components/button";
@@ -23,20 +23,30 @@ const VaultStatusText = {
   [VaultStatus.UnknownError]: "Failed to retrieve status",
 };
 
+const StorageProgress = styled(LinearProgress)(({ theme, value }) => ({
+  height: 24,
+  borderRadius: 5,
+  "& .MuiLinearProgress-bar": {
+    borderRadius: 5,
+    background: `linear-gradient(90deg, #34A853 ${100 - value}%, #9D3E3E ${
+      200 - value
+    }%)`,
+  },
+}));
+
 /**
  * Hive storage status and setup for the active identity
  */
 const StoragePage: FC = () => {
   const { mounted } = useMounted();
-  const router = useRouter();
   const [authUser] = useBehaviorSubject(authUser$);
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const hiveFeature = activeIdentity?.hive();
   const [vaultStatus] = useBehaviorSubject(hiveFeature?.vaultStatus$);
   const [vaultAddress] = useBehaviorSubject(hiveFeature?.vaultAddress$);
   const [vaultInfo] = useBehaviorSubject(hiveFeature?.vaultInfo$);
-  const [storageUsed, setStorageUsed] = useState<string>("");
-  const [storageQuota, setStorageQuota] = useState<string>("");
+  const [storageUsed, setStorageUsed] = useState<number>(0);
+  const [storageQuota, setStorageQuota] = useState<number>(0);
 
   const getDisplayableStorageSizeMB = (size: number): number => {
     return parseFloat((size / (1024 * 1024)).toFixed(2));
@@ -44,12 +54,8 @@ const StoragePage: FC = () => {
 
   useEffect(() => {
     if (vaultInfo) {
-      setStorageUsed(
-        getDisplayableStorageSizeMB(vaultInfo.getStorageUsed()) + " MB"
-      );
-      setStorageQuota(
-        getDisplayableStorageSizeMB(vaultInfo.getStorageQuota()) + " MB"
-      );
+      setStorageUsed(getDisplayableStorageSizeMB(vaultInfo.getStorageUsed()));
+      setStorageQuota(getDisplayableStorageSizeMB(vaultInfo.getStorageQuota()));
     }
   }, [vaultInfo]);
 
@@ -80,9 +86,11 @@ const StoragePage: FC = () => {
           <Typography variant="body2">hivehub.xyz</Typography>
         </div>
         <div>
-          <DarkButton startIcon={<ReactIcon icon="tabler:external-link" />}>
-            MANAGE MY VAULT
-          </DarkButton>
+          <Link target="_blank" href="https://hivehub.xyz/" passHref={true}>
+            <DarkButton startIcon={<ReactIcon icon="tabler:external-link" />}>
+              MANAGE MY VAULT
+            </DarkButton>
+          </Link>
         </div>
       </Stack>
 
@@ -118,79 +126,33 @@ const StoragePage: FC = () => {
             )}
           </Stack>
         }
+        sx={{ ".card-header": { paddingBottom: 0 } }}
       >
-        <Typography>
-          We have associated your identity with an Elastos <b>Hive Storage</b>.
-          Hive is a decentralized network of independant servers that store
-          data. You can choose to use a default vault provider, or your own
-          vault storage at home. For now, only your identity avatar is stored on
-          your hive vault.
-        </Typography>
-
-        <div className="font-bold mt-4">Hive storage status</div>
-        <div>
-          {vaultStatus === VaultStatus.NotChecked && "Checking"}
-          {vaultStatus === VaultStatus.Subscribing && "Subscribing"}
-          {vaultStatus === VaultStatus.ReadyToUse && "Ready to use"}
-          {vaultStatus === VaultStatus.UnknownError &&
-            "Failed to retrieve status"}
-        </div>
-
-        <div className="font-bold mt-4">Information about your vault</div>
-        {vaultInfo && (
-          <>
-            <Grid container spacing={2} sx={{}}>
-              <Grid item xs={6}>
-                <Typography variant="body1" sx={{ color: "text.secondary" }}>
-                  Storage provider:
+        <Stack spacing={2}>
+          <div>
+            <Typography variant="subtitle1">Storage provider</Typography>
+            <Typography variant="body2">{vaultAddress}</Typography>
+          </div>
+          {vaultInfo && (
+            <Stack spacing={1}>
+              <Typography variant="subtitle1">Storage size in use</Typography>
+              <Stack direction="row" alignItems="end">
+                <Typography variant="h2" sx={{ lineHeight: 1 }}>
+                  {storageUsed} MB
                 </Typography>
-              </Grid>
-              <Grid item xs={6}>
-                <Typography variant="body1" sx={{ color: "text.secondary" }}>
-                  {vaultAddress}
+                <Typography variant="body2" sx={{ ml: "auto" }}>
+                  Max Size : {storageQuota} MB
                 </Typography>
-              </Grid>
-
-              <Grid item xs={6}>
-                <Typography variant="body1" sx={{ color: "text.secondary" }}>
-                  Max storage:
-                </Typography>
-              </Grid>
-              <Grid item xs={6}>
-                <Typography variant="body1" sx={{ color: "text.secondary" }}>
-                  {storageQuota}
-                </Typography>
-              </Grid>
-
-              <Grid item xs={6}>
-                <Typography variant="body1" sx={{ color: "text.secondary" }}>
-                  File storage in use:
-                </Typography>
-              </Grid>
-              <Grid item xs={6}>
-                <Typography variant="body1" sx={{ color: "text.secondary" }}>
-                  {storageUsed}
-                </Typography>
-              </Grid>
-
-              <Grid item xs={6}>
-                <Typography variant="body1" sx={{ color: "text.secondary" }}>
-                  Creation date:
-                </Typography>
-              </Grid>
-              <Grid item xs={6}>
-                <Typography variant="body1" sx={{ color: "text.secondary" }}>
-                  {vaultInfo.getStartTime().toDateString()}
-                </Typography>
-              </Grid>
-            </Grid>
-          </>
-        )}
+              </Stack>
+              <StorageProgress
+                variant="determinate"
+                value={(100 * storageUsed) / (storageQuota || 1)}
+                sx={{ height: 24, background: "#5a5a5aa8" }}
+              />
+            </Stack>
+          )}
+        </Stack>
       </DetailContainer>
-
-      <Link target="_blank" href="https://hivehub.xyz/" className="mt-4">
-        Manage my hive vault on hivehub.xyz
-      </Link>
     </div>
   );
 };
