@@ -88,6 +88,10 @@ export class ActivityFeature implements UserFeature {
     public async deleteActivities(input: DeleteActivitiesInput): Promise<boolean> {
         logger.log("activity", "Delete activities");
 
+        if (!input?.ids || input.ids.length === 0) {
+            return true;
+        }
+
         const result = await withCaughtAppException(async () => {
             return await (await getApolloClient()).mutate<{ deleteActivities: ActivityDto }>({
                 mutation: gql`
@@ -99,6 +103,7 @@ export class ActivityFeature implements UserFeature {
         });
 
         if (result?.data?.deleteActivities) {
+            this.activities$.next(this.activities$.value.filter(a => !input.ids.includes(a.id)));
             return true;
         } else {
             logger.error('activity', 'Failed to delete activities.');
