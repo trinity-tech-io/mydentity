@@ -6,7 +6,6 @@ import { CredentialAvatar } from "@components/credential/CredentialAvatar";
 import { IconAvatar } from "@components/feature/DetailLine";
 import { MainButton } from "@components/generic/MainButton";
 import Headline from "@components/layout/Headline";
-import { VerticalStackLoadingCard } from "@components/loading-cards/vertical-stack-loading-card/VerticalStackLoadingCard";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useMounted } from "@hooks/useMounted";
 import { AppInfoCredential } from "@model/credential/app-info-credential";
@@ -29,10 +28,7 @@ import {
   SecurityStatus,
 } from "../dashboard/components/SecurityStatus";
 import { DarkButton } from "@components/button";
-import {
-  LoadingApplicationCard,
-  LoadingCard,
-} from "@components/loading-skeleton";
+import { LoadingApplicationCard } from "@components/loading-skeleton";
 
 const TAG = "claim-identity";
 

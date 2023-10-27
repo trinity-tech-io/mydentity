@@ -1,7 +1,6 @@
 "use client";
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect } from "react";
 import { useRouter } from "next13-progressbar";
-import { VerticalStackLoadingCard } from "@components/loading-cards/vertical-stack-loading-card/VerticalStackLoadingCard";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { authUser$ } from "@services/user/user.events";
 import { BindingSuggestionStep } from "./steps/BindingSuggestionStep";

@@ -2,7 +2,6 @@ import CheckIcon from '@assets/images/check-full.svg';
 import WarningIcon from '@assets/images/warning.svg';
 import { CredentialAvatar } from '@components/credential/CredentialAvatar';
 import { JsonViewer } from "@components/credential/JsonViewer";
-import { VerticalStackLoadingCard } from '@components/loading-cards/vertical-stack-loading-card/VerticalStackLoadingCard';
 import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
 import { useMounted } from '@hooks/useMounted';
 import { Box, Grid, ListItemButton, ListItemIcon, Stack, Typography } from '@mui/material';
@@ -30,7 +29,6 @@ export const CredentialDetailWidget: FC = () => {
 
   return (
     <div className="col-span-full xl:col-span-7 bg-white dark:bg-slate-800 shadow-lg rounded-sm border border-slate-200 dark:border-slate-700">
-      {(!mounted) && <VerticalStackLoadingCard />}
       {mounted && activeCredential &&
         (<Box sx={{ px: 2.5, pb: 3 }}>
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '24px' }}>

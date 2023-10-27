@@ -7,7 +7,6 @@ import { CredentialDetailWidget } from "./components/CredentialDetail";
 import { CredentialListWidget } from "./components/CredentialList";
 import Headline from "@components/layout/Headline";
 import OutlinedInputStyled from "@components/input/OutlinedInputStyled";
-import { DarkButton } from "@components/button";
 import SwitchUI from "@components/switch/Switch";
 import SelectBox from "@components/select/SelectBox";
 import { activeIdentity$ } from "@services/identity/identity.events";
