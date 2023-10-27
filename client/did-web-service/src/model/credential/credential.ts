@@ -4,8 +4,8 @@ import { VerifiableCredential } from "@elastosfoundation/did-js-sdk";
 import { gqlIdentityInteractingApplicationFields } from '@graphql/identity-interacting-application.fields';
 import { IdentityInteractingApplication } from '@model/identity-interacting-application/identity-interacting-application';
 import type { IdentityInteractingApplicationDTO } from '@model/identity-interacting-application/identity-interacting-application.dto';
-import type { JSONObject } from "@model/json";
 import { Identity } from "@model/identity/identity";
+import type { JSONObject } from "@model/json";
 import { credentialTypesService } from "@services/credential-types/credential.types.service";
 import { withCaughtAppException } from '@services/error.service';
 import { getApolloClient } from '@services/graphql.service';
@@ -126,7 +126,7 @@ export abstract class Credential {
       const title = (credentialProperty["displayable"] as JSONObject)['title'] as string;
       const icon = (credentialProperty["displayable"] as JSONObject)['icon'] as string;
       // From a raw description, find all special ${...} tags and replace them with values from the subject.
-      if (rawDescription) { 
+      if (rawDescription) {
         const tagsMatch = rawDescription.match(/\${([a-zA-Z0-9.]+)}/g);
         const keywordTags = tagsMatch ? Array.from(tagsMatch) : [];
 
@@ -142,7 +142,7 @@ export abstract class Credential {
           }
         }
         // return : displayValue
-        if (isDisplayble) { 
+        if (isDisplayble) {
           return {
             title: title,
             description: description,
@@ -167,7 +167,7 @@ export abstract class Credential {
       const value = subject[key];
       const type = typeof value;
       if (type === 'string' || type === 'boolean' || type === 'number') {
-        concatenatedValues = concatenatedValues + value + " " 
+        concatenatedValues = concatenatedValues + value + " "
       } else {
         allValuesValid = false;
       }
@@ -383,7 +383,7 @@ export abstract class Credential {
     const hasIssuerInfo = issuerInfo?.name || issuerInfo?.avatarIcon;
 
     if (isMe) {
-      return ['Created by myself', null];
+      return ['Myself', null];
     } else if (hasIssuerInfo) {
       return [issuerInfo?.name || '', issuerInfo?.avatarIcon];
     } else {
