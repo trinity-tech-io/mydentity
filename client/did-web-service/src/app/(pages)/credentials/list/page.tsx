@@ -1,7 +1,14 @@
 "use client";
 import { ChangeEvent, ChangeEventHandler, FC, useState } from "react";
-import { Add as AddIcon, Search as SearchIcon } from "@mui/icons-material";
-import { FormControl, InputAdornment, Stack, Typography } from "@mui/material";
+import { Search as SearchIcon } from "@mui/icons-material";
+import {
+  FormControl,
+  InputAdornment,
+  Stack,
+  Typography,
+  useMediaQuery,
+} from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import { Breadcrumbs } from "@components/breadcrumbs/Breadcrumbs";
 import { CredentialDetailWidget } from "./components/CredentialDetail";
 import { CredentialListWidget } from "./components/CredentialList";
@@ -15,10 +22,12 @@ import AddProfileItem from "../../profile/components/AddProfileItem";
 import { ConformBadge } from "@components/credential/SharedCountLabel";
 
 const CredentialsList: FC = () => {
+  const theme = useTheme();
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const [openedDetail, setOpenedDetail] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState<string>(""); // State to hold the selected filter
   const [stringFilter, setStringFilter] = useState<string>("");
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const onFilterChange = (value: string): void => {
     setSelectedFilter(value);
@@ -42,7 +51,11 @@ const CredentialsList: FC = () => {
           showBg={true}
         />
       </div>
-      <Stack direction="row" spacing={2} marginBottom={2}>
+      <Stack
+        direction={{ xs: "column", md: "row" }}
+        spacing={2}
+        marginBottom={2}
+      >
         <div className="bg-[#666666]/[.18] flex flex-col flex-1 gap-4 p-4 rounded-md">
           <div className="flex items-center gap-4">
             <ConformBadge className="mx-1" />
@@ -61,12 +74,12 @@ const CredentialsList: FC = () => {
           </div>
         </div>
         <div className="flex flex-col items-end gap-1">
-          <div className="flex">
+          <div className="flex w-full">
             <OutlinedInputStyled
               id="credential-search"
               size="small"
               placeholder="Search"
-              className="mr-4 rounded"
+              className="mr-4 rounded flex-1"
               onChange={handleFilterString}
               startAdornment={
                 <InputAdornment position="start">
@@ -74,16 +87,7 @@ const CredentialsList: FC = () => {
                 </InputAdornment>
               }
             />
-            <AddProfileItem identity={activeIdentity} />
-          </div>
-          <div className="flex flex-col flex-1 justify-end">
-            <div className="inline-flex gap-2">
-              <Stack direction="row" spacing={1} alignItems="center">
-                <Typography variant="body2" className="text-[#C4C4C4]">
-                  Show Details
-                </Typography>
-                <SwitchUI onChange={handleDetailSwitch} />
-              </Stack>
+            {isMobile ? (
               <FormControl>
                 <SelectBox
                   valuePrefix="filter"
@@ -97,6 +101,35 @@ const CredentialsList: FC = () => {
                   onChange={onFilterChange}
                 />
               </FormControl>
+            ) : (
+              <AddProfileItem identity={activeIdentity} />
+            )}
+          </div>
+          <div className="flex flex-col flex-1 justify-end">
+            <div className="inline-flex gap-2">
+              <Stack direction="row" spacing={1} alignItems="center">
+                <Typography variant="body2" className="text-[#C4C4C4]">
+                  Show Details
+                </Typography>
+                <SwitchUI onChange={handleDetailSwitch} />
+              </Stack>
+              {!isMobile ? (
+                <FormControl>
+                  <SelectBox
+                    valuePrefix="filter"
+                    list={[
+                      "All",
+                      "Created by me",
+                      "Created by others",
+                      "Conform",
+                      "Not conform",
+                    ]}
+                    onChange={onFilterChange}
+                  />
+                </FormControl>
+              ) : (
+                <AddProfileItem identity={activeIdentity} />
+              )}
             </div>
           </div>
         </div>
