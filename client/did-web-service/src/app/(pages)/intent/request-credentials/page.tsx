@@ -1,9 +1,10 @@
-"use client"
+"use client";
+import { FC, useEffect, useState } from "react";
+import { Typography } from "@mui/material";
+import { useSearchParams } from "next/navigation";
 import { DID as ConnDID } from "@elastosfoundation/elastos-connectivity-sdk-js";
 import { Intent } from "@model/intent/intent";
 import { fetchIntent } from "@services/intent.service";
-import { useSearchParams } from "next/navigation";
-import { FC, useEffect, useState } from "react";
 import { PreparingRequest } from "../components/PreparingRequest";
 import { RequestDetails } from "./RequestDetails";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
@@ -19,22 +20,24 @@ import { authUser$ } from "@services/user/user.events";
 //}> = ({ searchParams }) => {
 const RequestCredentialsIntent: FC = () => {
   const searchParams = useSearchParams();
-  const requestId = searchParams.get('rid');
+  const requestId = searchParams.get("rid");
   const [loadingIntent, setLoadingIntent] = useState(true);
-  const [intent, setIntent] = useState<Intent<ConnDID.CredentialDisclosureRequest>>(null);
+  const [intent, setIntent] =
+    useState<Intent<ConnDID.CredentialDisclosureRequest>>(null);
   const [activeUser] = useBehaviorSubject(authUser$);
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
 
   // Try to find an intent that corresponds to the given intent ID.
   useEffect(() => {
     //const requestId = searchParams?.rid;
-    if (!requestId)
-      return;
+    if (!requestId) return;
 
-    fetchIntent<ConnDID.CredentialDisclosureRequest>(requestId).then(_intent => {
-      setLoadingIntent(false);
-      setIntent(_intent);
-    });
+    fetchIntent<ConnDID.CredentialDisclosureRequest>(requestId).then(
+      (_intent) => {
+        setLoadingIntent(false);
+        setIntent(_intent);
+      }
+    );
     //}, [searchParams?.rid]);
   }, [requestId]);
 
@@ -43,8 +46,7 @@ const RequestCredentialsIntent: FC = () => {
     if (!activeUser || !activeIdentity) {
       // Remember the current url to come back after signing in, if needed.
       setPostSignInUrl(window.location.href);
-    }
-    else {
+    } else {
       clearPostSignInUrl();
     }
   }, [activeUser, activeIdentity]);
@@ -53,9 +55,13 @@ const RequestCredentialsIntent: FC = () => {
     <div className="col-span-full">
       {loadingIntent && <PreparingRequest className="mb-6" />}
       {!loadingIntent && intent && <RequestDetails intent={intent} />}
-      {!loadingIntent && !intent && <div>No matching request</div>}
+      {!loadingIntent && !intent && (
+        <Typography variant="h6" textAlign="center">
+          No matching request
+        </Typography>
+      )}
     </div>
-  )
-}
+  );
+};
 
 export default RequestCredentialsIntent;
