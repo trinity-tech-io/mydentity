@@ -18,10 +18,14 @@ export class ProfileCredential extends Credential {
     }
   }
 
-  // TODO: REMOVE : TO BE TEST
-  protected prepareDisplayValue(): void {
-    this.displayValue = this.profileInfo.options.converter.toDisplayableValue(this);
+  protected formatValue(preprocessedValue: any): string {
+    return this.profileInfo.options.converter.toFormatDisplayableValue(preprocessedValue)
   }
+
+  // // TODO: REMOVE : TO BE TEST
+  // protected prepareDisplayValue(): void {
+  //   this.displayValue = this.profileInfo.options.converter.toDisplayableValue(this);
+  // }
 
   /**
    * Profile info to use to generate, edit and display this credential

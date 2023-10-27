@@ -18,6 +18,10 @@ export class CredentialValueConverterString extends CredentialValueConverter<str
     return credential.verifiableCredential.getSubject().getProperty(this.subjectKey);
   }
 
+  public toFormatDisplayableValue(preprocessedValue: any): string {
+    return preprocessedValue
+  }
+
   public toSubject(editedValue: string): any {
     return {
       [this.subjectKey]: editedValue

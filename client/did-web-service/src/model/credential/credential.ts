@@ -87,13 +87,10 @@ export abstract class Credential {
   protected getDisplayableCredentialDescription(): any {
     const credProps = this.verifiableCredential.getSubject().getProperties();
     if ("displayable" in credProps) {
-      console.log("TODO: REMOVE: CREDENTIAL: getDisplayableCredentialDescription >>>>>>>>>>>>>>>>>>>>>>> description:", this.parseDisplayable(credProps).description)
       return this.parseDisplayable(credProps).description
     }
-    console.log("TODO: REMOVE: CREDENTIAL: getDisplayableCredentialDescription >>>>>>>>>>>>>>>>>>>>>>> credProps:", credProps)
     // the type is not displayable
-    const otherDescription = this.getOtherDescription()
-    console.log("TODO: REMOVE: CREDENTIAL: getDisplayableCredentialDescription >>>>>>>>>>>>>>>>>>>>>>> otherDescription:", otherDescription)
+    const otherDescription = this.getOtherDisplayDescription()
     if (otherDescription != null && otherDescription != undefined) {
       return otherDescription
     }
@@ -102,10 +99,16 @@ export abstract class Credential {
     }
   }
 
-  protected parseDisplayable(credProps: JSONObject): any {
+  protected parseDisplayable(credentialProperty: JSONObject): any {
+    return this.parseProperties(credentialProperty, true)
+  }
+
+  protected parseContentTree(credentialProperty: JSONObject): any {
+    return this.parseProperties(credentialProperty, false)
+  }
+
+  protected parseProperties(credentialProperty: JSONObject, isDisplayble: boolean): any {
     /* When the data structure of credential is as follows (import credential):
-        Add prepareRemoveKey field to remove description1 and description2, 
-        because description1 and description2 are the content of description and do not need to be displayed repeatedly.
     credProps: {
       displayable: {description: "${prescription1}，${prescription2}",
                     icon:"nowhere",
@@ -115,33 +118,14 @@ export abstract class Credential {
                     }
       subField:{firstSubValue: 'Yes', secondSubValue: 'Tomorrow'}
     }
-
-    At this time, the return data structure is:
-      {
-          title: 'Medical certificate',
-          description: "Drink more, Eat less",
-          prepareRemoveKey: [prescription1, prescription2],
-          icon: 'nowhere'
-        };
     */
-    // const credProps = {
-    //   displayable: {
-    //     description: '${lastName} ${firstNames}',
-    //     icon: 'https://testnet.kyc-me.io/icons/credentials/name.png',
-    //     title: 'Full name',
-    //     firstNames: 'AIHONG',
-    //     lastName: 'LI',
-    //   }
-    // }
-    const prepareRemoveKey = []; 
-
-    console.log("TODO: REMOVE: CREDENTIAL: parseDisplayable start >>>>>>>>>>>>>>>>>>>>>>> credProps:", credProps)
-    if ("displayable" in credProps) {
+    console.log("TODO: REMOVE: CREDENTIAL: parseDisplayable start >>>>>>>>>>>>>>>>>>>>>>> credentialProperty:", credentialProperty)
+    if ("displayable" in credentialProperty) {
 
       // rawDescription sample: hello ${firstName} ${lastName.test}
-      const rawDescription = (credProps["displayable"] as JSONObject)["description"] as string;
-      const title = (credProps["displayable"] as JSONObject)['title'] as string;
-      const icon = (credProps["displayable"] as JSONObject)['icon'] as string;
+      const rawDescription = (credentialProperty["displayable"] as JSONObject)["description"] as string;
+      const title = (credentialProperty["displayable"] as JSONObject)['title'] as string;
+      const icon = (credentialProperty["displayable"] as JSONObject)['icon'] as string;
       // From a raw description, find all special ${...} tags and replace them with values from the subject.
       console.log("TODO: REMOVE: CREDENTIAL: parseDisplayable >>>>>>>>>>>>>>>>>>>>>>> rawDescription:", rawDescription)
       if (rawDescription) { 
@@ -160,25 +144,29 @@ export abstract class Credential {
           if (matchingGroup && matchingGroup.length > 1) {
             const jsonFieldPath = matchingGroup[1];
             console.log("TODO: REMOVE: CREDENTIAL: parseDisplayable >>>>>>>>>>>>>>>>>>>>>>> jsonFieldPath:", jsonFieldPath)
-            prepareRemoveKey.push(jsonFieldPath)
-            const evaluatedField = evalObjectFieldPath(credProps, jsonFieldPath);
+            const evaluatedField = evalObjectFieldPath(credentialProperty, jsonFieldPath);
             console.log("TODO: REMOVE: CREDENTIAL: parseDisplayable >>>>>>>>>>>>>>>>>>>>>>> evaluatedField:", evaluatedField)
             description = description.replace(tag, evaluatedField);
             console.log("TODO: REMOVE: CREDENTIAL: parseDisplayable end >>>>>>>>>>>>>>>>>>>>>>> description:", description)
           }
         }
-        return {
-          title: title,
-          description: description,
-          prepareRemoveKey: prepareRemoveKey,
-          icon: icon
-        };
+        // return : displayValue
+        if (isDisplayble) { 
+          return {
+            title: title,
+            description: description,
+            icon: icon
+          };
+        }
+        // return : contentTree
+        (credentialProperty["displayable"] as JSONObject)["description"] = description;
+        return credentialProperty
       }
     }
   }
 
   // the type is not displayable
-  protected getOtherDescription(): any {
+  protected getOtherDisplayDescription(): any {
     const subject = this.verifiableCredential.getSubject().getProperties();
     let concatenatedValues = '';  // Initialize an array with a single element
     let allValuesValid = true;  // Assume all values are valid initially
@@ -196,7 +184,6 @@ export abstract class Credential {
     if (allValuesValid) {
       return concatenatedValues
     }
-
     // TODO: IMPROVE
     // if the type is not displayable credential, and the json contains more than one string/boolean/number field, then we show the json tree.
     return subject
@@ -204,50 +191,34 @@ export abstract class Credential {
 
   protected prepareDisplayValue(): void {
     const displayableCredentialDescription = this.getDisplayableCredentialDescription();
-    console.log("TODO: REMOVE: CREDENTIAL: prepareDisplayValue >>>>>>>>>>>>>>>>>>>>>>> displayableCredentialDescription:", displayableCredentialDescription)
     if (displayableCredentialDescription) {
       this.displayValue = displayableCredentialDescription
-      console.log("TODO: REMOVE: CREDENTIAL: prepareDisplayValue >>>>>>>>>>>>>>>>>>>>>>> this.displayValue:", this.displayValue)
     }
     else {
       const valueItems = this.getValueItems();
       if (valueItems.length <= 1) {
         this.displayValue = valueItems[0]?.value;
-        console.log("TODO: REMOVE: CREDENTIAL: prepareDisplayValue >>>>>>>>>>>>>>>>>>>>>>> valueItems[0]?.value:", valueItems[0]?.value)
       } else {
         this.displayValue = JSON.stringify(valueItems);
-        console.log("TODO: REMOVE: CREDENTIAL: prepareDisplayValue >>>>>>>>>>>>>>>>>>>>>>> valueItems:", valueItems)
-        console.log("TODO: REMOVE: CREDENTIAL: prepareDisplayValue >>>>>>>>>>>>>>>>>>>>>>> JSON.stringify(valueItems):", JSON.stringify(valueItems))
       }
     }
   }
 
+  // Subclass implementation
+  protected formatValue(preprocessedValue: any): string {
+    return preprocessedValue
+  }
+
   public getDisplayValue(): any {
-    console.log("TODO: REMOVE: CREDENTIAL: getDisplayValue >>>>>>>>>>>>>>>>>>>>>>> getDisplayValue:", this.displayValue)
-    return this.displayValue
+    return this.formatValue(this.displayValue)
   }
 
   public getContentTree = (): any => {
-    let credProps = this.verifiableCredential.getSubject().getProperties();
-    const displayable = this.parseDisplayable(credProps)
+    const credProps = this.verifiableCredential.getSubject().getProperties();
+    const displayable = this.parseContentTree(credProps)
     console.log("TODO: REMOVE: CREDENTIAL: getContentTree >>>>>>>>>>>>>>>>>>>>>>> displayable:", displayable)
     if (!displayable) return null
-    // Remove duplicate fields: comment in parseDisplayable() method
-    const removeArray = displayable.prepareRemoveKey
-    credProps.displayable = displayable;
-    delete displayable['prepareRemoveKey']; // Remove specified key
-    credProps = this.removeKeysFromJSONObject(credProps, removeArray)
-
-    return credProps
-  }
-  public removeKeysFromJSONObject(obj: JSONObject, keysToRemove: string[]): JSONObject {
-    const clonedObject: JSONObject = { ...obj }; // Clone the original object to avoid modifying it directly
-    keysToRemove.forEach(key => {
-      if (key in clonedObject) {
-        delete clonedObject[key]; // Remove specified key
-      }
-    });
-    return clonedObject;
+    return displayable
   }
 
   public getValueItems = (): ValueItem[] => {

@@ -18,6 +18,11 @@ export class CredentialValueConverterDate extends CredentialValueConverter<Date>
     return convertUtcToLocaleDateTime(credential.verifiableCredential.getSubject().getProperty(this.subjectKey))
   }
 
+  // return: locale date time string
+  public toFormatDisplayableValue(preprocessedValue: any): string {
+    return convertUtcToLocaleDateTime(preprocessedValue)
+  }
+
   // return: utcString
   public toSubject(editedValue: Date): any {
     return {

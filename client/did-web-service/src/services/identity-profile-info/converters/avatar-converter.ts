@@ -34,6 +34,10 @@ export class CredentialValueConverterAvatar extends CredentialValueConverter<Ava
     return null; // Can't find any nice displayable string value for avatars
   }
 
+  public toFormatDisplayableValue(preprocessedValue: any): string {
+    return null
+  }
+
   public toSubject(editedValue: AvatarInfoToSubject): any {
     return this.buildAvatar(<any>editedValue.mimeType, "elastoshive", editedValue.hiveDownloadScriptUrl);
   }

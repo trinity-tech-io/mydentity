@@ -25,6 +25,10 @@ export class CredentialValueConverterNationality extends CredentialValueConverte
     return credential.verifiableCredential.getSubject().getProperty(this.subjectKey).label
   }
 
+  public toFormatDisplayableValue(preprocessedValue: any): string {
+    return preprocessedValue.nationality.label ? preprocessedValue.nationality.label : preprocessedValue
+  }
+
   public toSubject(editedValue: NationalityCredentialSubject): any {
     return {
       [this.subjectKey]: editedValue

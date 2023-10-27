@@ -21,6 +21,11 @@ export class CredentialValueConverterGender extends CredentialValueConverter<str
     return converGenderFullName(credential.verifiableCredential.getSubject().getProperty(this.subjectKey))
   }
 
+  // return: male/female
+  public toFormatDisplayableValue(preprocessedValue: any): string {
+    return converGenderFullName(preprocessedValue)
+  }
+
   // return: {gender: M/F}
   public toSubject(editedValue: string): any {
     return {
