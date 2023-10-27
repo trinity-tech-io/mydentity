@@ -119,7 +119,6 @@ export abstract class Credential {
       subField:{firstSubValue: 'Yes', secondSubValue: 'Tomorrow'}
     }
     */
-    console.log("TODO: REMOVE: CREDENTIAL: parseDisplayable start >>>>>>>>>>>>>>>>>>>>>>> credentialProperty:", credentialProperty)
     if ("displayable" in credentialProperty) {
 
       // rawDescription sample: hello ${firstName} ${lastName.test}
@@ -127,27 +126,19 @@ export abstract class Credential {
       const title = (credentialProperty["displayable"] as JSONObject)['title'] as string;
       const icon = (credentialProperty["displayable"] as JSONObject)['icon'] as string;
       // From a raw description, find all special ${...} tags and replace them with values from the subject.
-      console.log("TODO: REMOVE: CREDENTIAL: parseDisplayable >>>>>>>>>>>>>>>>>>>>>>> rawDescription:", rawDescription)
       if (rawDescription) { 
         const tagsMatch = rawDescription.match(/\${([a-zA-Z0-9.]+)}/g);
         const keywordTags = tagsMatch ? Array.from(tagsMatch) : [];
-        console.log("TODO: REMOVE: CREDENTIAL: parseDisplayable >>>>>>>>>>>>>>>>>>>>>>> tagsMatch:", tagsMatch)
-        console.log("TODO: REMOVE: CREDENTIAL: parseDisplayable >>>>>>>>>>>>>>>>>>>>>>> keywordTags:", keywordTags)
 
         let description = rawDescription;
         for (const tag of keywordTags) {
-          console.log("TODO: REMOVE: CREDENTIAL: parseDisplayable >>>>>>>>>>>>>>>>>>>>>>> tag:", tag)
           // tag: ${xxx}
           // matchingGroup: ['${...}', '...'];
           const matchingGroup = tag.match(/\${([a-zA-Z0-9.]+)}/);
-          console.log("TODO: REMOVE: CREDENTIAL: parseDisplayable >>>>>>>>>>>>>>>>>>>>>>> matchingGroup:", matchingGroup)
           if (matchingGroup && matchingGroup.length > 1) {
             const jsonFieldPath = matchingGroup[1];
-            console.log("TODO: REMOVE: CREDENTIAL: parseDisplayable >>>>>>>>>>>>>>>>>>>>>>> jsonFieldPath:", jsonFieldPath)
             const evaluatedField = evalObjectFieldPath(credentialProperty, jsonFieldPath);
-            console.log("TODO: REMOVE: CREDENTIAL: parseDisplayable >>>>>>>>>>>>>>>>>>>>>>> evaluatedField:", evaluatedField)
             description = description.replace(tag, evaluatedField);
-            console.log("TODO: REMOVE: CREDENTIAL: parseDisplayable end >>>>>>>>>>>>>>>>>>>>>>> description:", description)
           }
         }
         // return : displayValue
@@ -216,7 +207,6 @@ export abstract class Credential {
   public getContentTree = (): any => {
     const credProps = this.verifiableCredential.getSubject().getProperties();
     const displayable = this.parseContentTree(credProps)
-    console.log("TODO: REMOVE: CREDENTIAL: getContentTree >>>>>>>>>>>>>>>>>>>>>>> displayable:", displayable)
     if (!displayable) return null
     return displayable
   }
@@ -387,7 +377,6 @@ export abstract class Credential {
     const issuer = this.getIssuer();
     const activeDid = activeIdentity?.did.toString();
     const isMe = issuer === activeDid;
-    console.log("TODO: REMOVE: CREDENTIAL: issuerInfo >>>>>>>>>>>>>>>>>>>>>>>", issuerInfo)
     const hasIssuerInfo = issuerInfo?.name && issuerInfo?.avatarIcon;
 
     if (isMe) {
