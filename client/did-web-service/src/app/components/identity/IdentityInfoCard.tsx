@@ -8,17 +8,8 @@ import { Typography } from "@mui/material";
 import { activeIdentity$ } from "@services/identity/identity.events";
 import { shortenDID } from "@services/identity/identity.utils";
 import clsx from "clsx";
+import GradientTypography from "@components/text/GradientTypography";
 
-const GradientTypography = styled(Typography)({
-  backgroundImage: "linear-gradient(180deg, #FFFFFFAE, #FFFFFF)",
-  backgroundSize: "100%",
-  backgroundRepeat: "repeat",
-  WebkitBackgroundClip: "text",
-  WebkitTextFillColor: "transparent",
-  MozBackgroundClip: "text",
-  MozTextFillColor: "transparent",
-  display: "inline",
-});
 /**
  * Component used as card styled identity on top left sidebar
  */

@@ -6,17 +6,8 @@ import { LandingCard } from "@components/card";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { ApplicationIdentity } from "@model/application-identity/application-identity";
 import { Credential } from "@model/credential/credential";
+import GradientTypography from "@components/text/GradientTypography";
 
-const GradientTypography = styled(Typography)({
-  backgroundImage: "linear-gradient(180deg, #FFFFFFAE, #FFFFFF)",
-  backgroundSize: "100%",
-  backgroundRepeat: "repeat",
-  WebkitBackgroundClip: "text",
-  WebkitTextFillColor: "transparent",
-  MozBackgroundClip: "text",
-  MozTextFillColor: "transparent",
-  display: "inline",
-});
 /**
  * Component used as card styled identity in application page
  */

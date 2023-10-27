@@ -39,17 +39,8 @@ import { identityService } from "@services/identity/identity.service";
 import ConfirmDialog from "@components/generic/ConfirmDialog";
 import { authUser$ } from "@services/user/user.events";
 import { logger } from "@services/logger";
+import GradientTypography from "@components/text/GradientTypography";
 
-const GradientTypography = styled(Typography)({
-  backgroundImage: "linear-gradient(180deg, #FFFFFFAE, #FFFFFF)",
-  backgroundSize: "100%",
-  backgroundRepeat: "repeat",
-  WebkitBackgroundClip: "text",
-  WebkitTextFillColor: "transparent",
-  MozBackgroundClip: "text",
-  MozTextFillColor: "transparent",
-  display: "inline",
-});
 /**
  * Component used as card styled identity in My identities page
  */
