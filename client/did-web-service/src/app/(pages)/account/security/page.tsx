@@ -1,18 +1,25 @@
 "use client";
+import React, { FC, useEffect, useState } from "react";
+import QRCode from "react-qr-code";
+import { useSearchParams } from "next/navigation";
+import { useRouter } from "next13-progressbar";
+import {
+  Button,
+  Grid,
+  IconButton,
+  Stack,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+import LinkOffIcon from "@mui/icons-material/LinkOff";
+import { Icon as ReactIcon } from "@iconify/react";
 import { CopyButton } from "@components/button";
 import Headline from "@components/layout/Headline";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useMounted } from "@hooks/useMounted";
-import { Icon as ReactIcon } from "@iconify/react";
-import { Grid, Stack, Typography } from "@mui/material";
 import { authUser$ } from "@services/user/user.events";
-import { useSearchParams } from "next/navigation";
-import { useRouter } from "next13-progressbar";
-import React, { FC, useEffect, useState } from "react";
-import QRCode from "react-qr-code";
 import { BrowserRow } from "./components/BrowserRow";
 import SecuritySection from "./components/SecuritySection";
-import { Button } from "@mui/base";
 
 const Security: FC = () => {
   const { mounted } = useMounted();
@@ -66,12 +73,10 @@ const Security: FC = () => {
   };
 
   const unbindEmail = async (id: string): Promise<void> => {
-    const success = await authUser.get('email').deleteUserEmail(id);
-    if (success)
-      alert('Success to unbind email.');
-    else
-      alert('Failed to unbind email.');
-  }
+    const success = await authUser.get("email").deleteUserEmail(id);
+    if (success) alert("Success to unbind email.");
+    else alert("Failed to unbind email.");
+  };
 
   const createSignInLink = (): void => {
     setCreatingSignInLink(true);
@@ -113,16 +118,23 @@ const Security: FC = () => {
                 <Typography variant="body2">
                   Email addresses already bound
                 </Typography>
-                <div className="flex flex-col mt-2">
+                <div className="flex flex-col mt-2 gap-1">
                   {userEmails.map((email) => (
-                    <div key={email.id} className="info mb-2">
-                      {email.email}
-                      <Button
-                          className="sm:flex-1"
-                          onClick={()=>unbindEmail(email.id)}
-                          color="error">
-                        Unbind
-                      </Button>
+                    <div key={email.id} className="info flex items-center gap-1">
+                      <Typography variant="body2" color="text.primary" className="break-all">
+                        {email.email}
+                      </Typography>
+                      <Tooltip title="Unbind email" arrow>
+                        <IconButton
+                          color="error"
+                          size="small"
+                          onClick={(): void => {
+                            unbindEmail(email.id);
+                          }}
+                        >
+                          <LinkOffIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
                     </div>
                   ))}
                 </div>
@@ -208,16 +220,23 @@ const Security: FC = () => {
           >
             {!externalAuthUrl && (
               <Typography variant="body2">
-                You can create a temporary url to sign in from another browser on your computer or mobile phone.
+                You can create a temporary url to sign in from another browser
+                on your computer or mobile phone.
               </Typography>
             )}
             {externalAuthUrl && (
               <>
                 <Typography variant="body2">
                   Send the following url to your another browser to sign in from
-                  there. Use PIN code <b>{externalAuthPinCode}</b> when asked. This link is valid for 10 minutes.
+                  there. Use PIN code <b>{externalAuthPinCode}</b> when asked.
+                  This link is valid for 10 minutes.
                 </Typography>
-                <Stack direction="row" alignItems="center" className="mt-2" spacing={1}>
+                <Stack
+                  direction="row"
+                  alignItems="center"
+                  className="mt-2"
+                  spacing={1}
+                >
                   <Typography variant="body2" className="break-all">
                     {externalAuthUrl}
                   </Typography>
