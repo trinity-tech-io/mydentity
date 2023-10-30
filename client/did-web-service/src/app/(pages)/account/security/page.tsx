@@ -8,10 +8,11 @@ import { Grid, Stack, Typography } from "@mui/material";
 import { authUser$ } from "@services/user/user.events";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next13-progressbar";
-import { FC, useEffect, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import QRCode from "react-qr-code";
 import { BrowserRow } from "./components/BrowserRow";
 import SecuritySection from "./components/SecuritySection";
+import { Button } from "@mui/base";
 
 const Security: FC = () => {
   const { mounted } = useMounted();
@@ -64,6 +65,14 @@ const Security: FC = () => {
     router.push("/account/security/bind-email");
   };
 
+  const unbindEmail = async (id: string): Promise<void> => {
+    const success = await authUser.get('email').deleteUserEmail(id);
+    if (success)
+      alert('Success to unbind email.');
+    else
+      alert('Failed to unbind email.');
+  }
+
   const createSignInLink = (): void => {
     setCreatingSignInLink(true);
     authUser
@@ -108,6 +117,12 @@ const Security: FC = () => {
                   {userEmails.map((email) => (
                     <div key={email.id} className="info mb-2">
                       {email.email}
+                      <Button
+                          className="sm:flex-1"
+                          onClick={()=>unbindEmail(email.id)}
+                          color="error">
+                        Unbind
+                      </Button>
                     </div>
                   ))}
                 </div>

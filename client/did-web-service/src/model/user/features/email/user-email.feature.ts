@@ -71,27 +71,29 @@ export class UserEmailFeature implements UserFeature {
         return null;
     }
 
-    public async removeUserEmail(id: string): Promise<boolean> {
-        logger.log("user", "remove user email.");
+    public async deleteUserEmail(id: string): Promise<boolean> {
+        logger.log("user", "delete user email.");
 
         const result = await withCaughtAppException(async () => {
             return (await getApolloClient()).mutate<{
-                removeUserEmail: boolean
+                deleteUserEmail: boolean
             }>({
                 mutation: gql`
-                query RemoveUserEmail($id: String!) {
-                  removeUserEmail(id: $id)
+                mutation DeleteUserEmail($id: String!) {
+                  deleteUserEmail(id: $id)
                 }
                 `,
                 variables: { id }
             });
         });
 
-        if (!result?.data?.removeUserEmail) {
+        if (!result?.data?.deleteUserEmail) {
             console.error('user', 'can not remove user email.');
+        } else {
+            this.userEmails$.next(this.userEmails$.value.filter(m => m.id !== id));
         }
 
-        return result?.data?.removeUserEmail;
+        return result?.data?.deleteUserEmail;
     }
 
     /**

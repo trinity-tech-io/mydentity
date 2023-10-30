@@ -338,10 +338,10 @@ export class UserService {
     return emails;
   }
 
-  async deleteUserEmail(user: User, email: string) {
+  async deleteUserEmail(user: User, id: string) {
     const userEmail = await this.prisma.userEmail.findFirst({
       where: {
-        email
+        id
       },
       include: {
         user: true
@@ -352,13 +352,11 @@ export class UserService {
       return
 
     if (userEmail.user.id !== user.id) {
-      throw new AppException(AuthExceptionCode.AuthError, `No permission to remove email ${email}`, 401);
+      throw new AppException(AuthExceptionCode.AuthError, `No permission to remove email ${userEmail.email}`, 401);
     }
 
     await this.prisma.userEmail.delete({
-      where: {
-        id: userEmail.id
-      }
+      where: {id}
     });
   }
 

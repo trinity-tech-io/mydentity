@@ -143,8 +143,8 @@ export class UserResolver {
 
   @UseGuards(JwtAuthGuard)
   @Mutation(() => Boolean)
-  async deleteUserEmail(@CurrentUser() user: User, @Args('email') email: string) {
-    await this.userService.deleteUserEmail(user, email);
+  async deleteUserEmail(@CurrentUser() user: User, @Args('id') id: string) {
+    await this.userService.deleteUserEmail(user, id);
     return true;
   }
 
