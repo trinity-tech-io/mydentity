@@ -377,7 +377,7 @@ export abstract class Credential {
     const issuer = this.getIssuer();
     const activeDid = activeIdentity?.did.toString();
     const isMe = issuer === activeDid;
-    const hasIssuerInfo = issuerInfo?.name && issuerInfo?.avatarIcon;
+    const hasIssuerInfo = issuerInfo?.name || issuerInfo?.avatarIcon;
 
     if (isMe) {
       return 'Created by myself';
