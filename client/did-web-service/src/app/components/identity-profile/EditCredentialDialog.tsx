@@ -68,6 +68,7 @@ function EditCredentialDialog(props: EditCredentialDialogProps): JSX.Element {
       inputRef?.current?.focus();
       setEditionType(credentialInfo.getConverter().getEditionType());
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [credentialInfo, open]);
 
   const inputRef = createRef<HTMLInputElement>();

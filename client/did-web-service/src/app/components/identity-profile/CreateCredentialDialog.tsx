@@ -16,6 +16,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { ProfileCredentialInfo } from "@services/identity-profile-info/profile-credential-info";
 import { capitalizeFirstLetter } from "@utils/strings";
 import ChipIcon from "@assets/images/chip.svg";
+import Scrollbar from "@components/scrollbar";
 
 const ModalBody = styled(Card)((theme) => ({
   position: "absolute",
@@ -151,24 +152,28 @@ const CreateCredentialDialog: FC<CreateCredentialDialog> = ({
     >
       <Fade in={open}>
         <ModalBody>
-          <Typography variant="h5" color="text.primary">
+          <Typography variant="h5" color="text.primary" sx={{ pb: 2 }}>
             Add Profile Item
           </Typography>
-          <Grid
-            container
-            spacing={1}
-            columns={{ xs: 8, sm: 10 }}
-            sx={{ pt: 2 }}
+          <Scrollbar
+            props={{ autoHeight: true, autoHeightMin: 300, autoHeightMax: 500 }}
           >
-            {availableItemsForAddition?.map((addableItem, i) => (
-              <Grid item xs={2} key={i}>
-                <CredentialItem
-                  title={capitalizeFirstLetter(addableItem.key)}
-                  onClick={(): void => handleListItemClick(addableItem)}
-                />
-              </Grid>
-            ))}
-          </Grid>
+            <Grid
+              container
+              spacing={1}
+              columns={{ xs: 8, sm: 10 }}
+              sx={{ maxHeight: "calc(100vh - 80px)" }}
+            >
+              {availableItemsForAddition?.map((addableItem, i) => (
+                <Grid item xs={2} key={i}>
+                  <CredentialItem
+                    title={capitalizeFirstLetter(addableItem.key)}
+                    onClick={(): void => handleListItemClick(addableItem)}
+                  />
+                </Grid>
+              ))}
+            </Grid>
+          </Scrollbar>
         </ModalBody>
       </Fade>
     </Modal>

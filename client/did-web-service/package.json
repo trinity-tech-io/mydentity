@@ -58,6 +58,7 @@
     "react": "18.2.0",
     "react-barcode": "^1.4.6",
     "react-copy-to-clipboard": "^5.1.0",
+    "react-custom-scrollbars-2": "^4.5.0",
     "react-dom": "18.2.0",
     "react-dropzone": "^14.2.3",
     "react-flatpickr": "^3.10.13",
