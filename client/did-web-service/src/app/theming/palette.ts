@@ -99,7 +99,7 @@ const palette = {
     primary: {
       light: "#DDD",
       main: "#121212",
-      dark: "#000",
+      dark: "#777",
       contrastText: "#fff",
     },
     text: { primary: GREY[800], secondary: GREY[600], disabled: GREY[500] },

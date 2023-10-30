@@ -1,5 +1,4 @@
 import { FC } from "react";
-import { Stack } from "@mui/material";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import SkelTheme from "./SkelTheme";
