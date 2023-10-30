@@ -75,7 +75,7 @@ const CredentialSliderContent: FC<{ credential: Credential }> = memo(
     );
     const [isConform] = useBehaviorSubject(credential?.isConform$);
     const [issuerInfo] = useBehaviorSubject(credential?.issuerInfo$);
-    const contentTree = credential?.getContentTree();
+    const contentTree = credential?.getContentTree() || {};
     const valueItems = credential?.getValueItems();
     const [activeIdentity] = useBehaviorSubject(activeIdentity$);
     return (
@@ -104,22 +104,27 @@ const CredentialSliderContent: FC<{ credential: Credential }> = memo(
           </Typography>
         </Stack>
         <List dense sx={{ pl: 2, ".MuiListItemText-root": { margin: 0 } }}>
-          {valueItems?.map((item, _id) =>
-            item.name.toLowerCase() === "subfield" ? (
-              contentTree["subField"] && (
-                <ListItem key={_id}>
-                  <SubAccordion subfield={contentTree["subField"]} />
-                </ListItem>
-              )
-            ) : (
+          {valueItems?.map((item, _id) => {
+            const { name, value } = item;
+            if (name.toLowerCase() === "subfield")
+              return (
+                contentTree["subField"] && (
+                  <ListItem key={_id}>
+                    <SubAccordion subfield={contentTree["subField"]} />
+                  </ListItem>
+                )
+              );
+            return (
               <ListItem key={_id}>
                 <ListItemTextStyled
-                  primary={item.name.toUpperCase()}
-                  secondary={item.value}
+                  primary={name.toUpperCase()}
+                  secondary={
+                    typeof value == "string" ? value : value?.label || ""
+                  }
                 />
               </ListItem>
-            )
-          )}
+            );
+          })}
           <ListItem>
             <ListItemTextStyled
               primary="ISSUANCE DATE"
