@@ -2,9 +2,10 @@
 import React, { FC, useEffect, useState } from "react";
 import QRCode from "react-qr-code";
 import { useSearchParams } from "next/navigation";
+import Countdown, { CountdownRendererFn } from "react-countdown";
 import { useRouter } from "next13-progressbar";
 import {
-  Button,
+  Card,
   Grid,
   IconButton,
   Stack,
@@ -20,6 +21,7 @@ import { useMounted } from "@hooks/useMounted";
 import { authUser$ } from "@services/user/user.events";
 import { BrowserRow } from "./components/BrowserRow";
 import SecuritySection from "./components/SecuritySection";
+import LinkTextfield from "../../developers/components/DidTextfield";
 
 const Security: FC = () => {
   const { mounted } = useMounted();
@@ -42,6 +44,7 @@ const Security: FC = () => {
   const [creatingSignInLink, setCreatingSignInLink] = useState(false);
   const [externalAuthUrl, setExternalAuthUrl] = useState<string>(null);
   const [externalAuthPinCode, setExternalAuthPinCode] = useState<string>(null);
+  const [expireTime, setExpireTime] = useState<number>(Date.now());
 
   useEffect(() => {
     if (error && error !== "") {
@@ -78,6 +81,21 @@ const Security: FC = () => {
     else alert("Failed to unbind email.");
   };
 
+  const renderer: CountdownRendererFn = ({ minutes, seconds, completed }) => {
+    if (completed) {
+      setExternalAuthUrl(null);
+      setExternalAuthPinCode(null);
+      return null;
+    } else {
+      return (
+        <Typography variant="body2" color="error" textAlign="right">
+          {minutes.toString().padStart(2, "0")}:
+          {seconds.toString().padStart(2, "0")} left
+        </Typography>
+      );
+    }
+  };
+
   const createSignInLink = (): void => {
     setCreatingSignInLink(true);
     authUser
@@ -87,6 +105,7 @@ const Security: FC = () => {
         if (result) {
           setExternalAuthUrl(result.url);
           setExternalAuthPinCode(result.pinCode);
+          setExpireTime(Date.now() + 1000 * 60 * 10);
         }
         setCreatingSignInLink(false);
       });
@@ -120,8 +139,15 @@ const Security: FC = () => {
                 </Typography>
                 <div className="flex flex-col mt-2 gap-1">
                   {userEmails.map((email) => (
-                    <div key={email.id} className="info flex items-center gap-1">
-                      <Typography variant="body2" color="text.primary" className="break-all">
+                    <div
+                      key={email.id}
+                      className="info flex items-center gap-1"
+                    >
+                      <Typography
+                        variant="body2"
+                        color="text.primary"
+                        className="break-all"
+                      >
                         {email.email}
                       </Typography>
                       <Tooltip title="Unbind email" arrow>
@@ -214,7 +240,8 @@ const Security: FC = () => {
             icon={<ReactIcon icon="fluent-mdl2:website" />}
             title="Sign in from another browser"
             actionTitle={"CREATE A SIGN IN LINK"}
-            statusTitle={null}
+            statusTitle={externalAuthUrl ? "LINK CREATED" : null}
+            isSet={!!externalAuthUrl || null}
             handleAction={createSignInLink}
             actionInProgress={creatingSignInLink}
           >
@@ -225,29 +252,36 @@ const Security: FC = () => {
               </Typography>
             )}
             {externalAuthUrl && (
-              <>
-                <Typography variant="body2">
-                  Send the following url to your another browser to sign in from
-                  there. Use PIN code <b>{externalAuthPinCode}</b> when asked.
-                  This link is valid for 10 minutes.
-                </Typography>
-                <Stack
-                  direction="row"
-                  alignItems="center"
-                  className="mt-2"
-                  spacing={1}
-                >
-                  <Typography variant="body2" className="break-all">
-                    {externalAuthUrl}
+              <Stack spacing={2}>
+                <Stack>
+                  <Typography variant="body2">
+                    Send the provided URL to another browser to sign in.
                   </Typography>
-                  <div className="inline">
-                    <CopyButton text={externalAuthUrl} />
-                  </div>
+                  <Typography variant="body2">
+                    When prompted, enter the PIN code{" "}
+                    <b>{externalAuthPinCode}</b>. This link is valid for 10
+                    minutes.
+                  </Typography>
                 </Stack>
-                <div className="p-8 mt-4 bg-white flex items-center justify-center">
+                <Card
+                  variant="outlined"
+                  className="p-8 flex justify-center"
+                  sx={{ background: "white" }}
+                >
                   <QRCode value={externalAuthUrl} />
-                </div>
-              </>
+                </Card>
+                <Stack spacing={1}>
+                  <LinkTextfield
+                    value={externalAuthUrl}
+                    outerProps={{ readOnly: true }}
+                    inputProps={{
+                      className: "opacity-80",
+                      style: { fontSize: 12 },
+                    }}
+                  />
+                  <Countdown date={expireTime} renderer={renderer} />
+                </Stack>
+              </Stack>
             )}
           </SecuritySection>
         </Grid>
