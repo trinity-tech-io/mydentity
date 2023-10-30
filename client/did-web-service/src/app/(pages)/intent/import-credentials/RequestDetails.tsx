@@ -56,6 +56,7 @@ export const RequestDetails: FC<{
         }
       );
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [payload, identities, activeIdentity]);
 
   /**

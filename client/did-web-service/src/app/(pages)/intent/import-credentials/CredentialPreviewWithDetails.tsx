@@ -88,22 +88,25 @@ export const CredentialPreviewWithDetails: FC<Props> = (props: Props) => {
           </Typography>
         </Stack>
         <List dense sx={{ pl: 2, ".MuiListItemText-root": { margin: 0 } }}>
-          {valueItems?.map((item, _id) =>
-            item.name.toLowerCase() === "subfield" ? (
-              contentTree["subField"] && (
-                <ListItem key={_id}>
-                  <SubAccordion subfield={contentTree["subField"]} />
-                </ListItem>
-              )
-            ) : (
+          {valueItems?.map((item, _id) => {
+            const { name, value } = item;
+            if (name.toLowerCase() === "subfield")
+              return (
+                contentTree?.subField && (
+                  <ListItem key={_id}>
+                    <SubAccordion subfield={contentTree.subField} />
+                  </ListItem>
+                )
+              );
+            return (
               <ListItem key={_id}>
                 <ListItemTextStyled
-                  primary={item.name.toUpperCase()}
-                  secondary={item.value}
+                  primary={name.toUpperCase()}
+                  secondary={value}
                 />
               </ListItem>
-            )
-          )}
+            );
+          })}
           <ListItem>
             <ListItemTextStyled
               primary="ISSUANCE DATE"

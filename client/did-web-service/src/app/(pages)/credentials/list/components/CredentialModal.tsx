@@ -108,9 +108,9 @@ const CredentialSliderContent: FC<{ credential: Credential }> = memo(
             const { name, value } = item;
             if (name.toLowerCase() === "subfield")
               return (
-                contentTree["subField"] && (
+                contentTree?.subField && (
                   <ListItem key={_id}>
-                    <SubAccordion subfield={contentTree["subField"]} />
+                    <SubAccordion subfield={contentTree.subField} />
                   </ListItem>
                 )
               );
