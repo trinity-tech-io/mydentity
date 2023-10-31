@@ -53,7 +53,7 @@ const RequestCredentialsIntent: FC = () => {
 
   return (
     <div className="col-span-full">
-      {loadingIntent && <PreparingRequest className="mb-6" />}
+      {loadingIntent && <PreparingRequest />}
       {!loadingIntent && intent && <RequestDetails intent={intent} />}
       {!loadingIntent && !intent && (
         <Typography variant="h6" textAlign="center">

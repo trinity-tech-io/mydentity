@@ -67,7 +67,7 @@ const ImportCredentialsIntent: FC = () => {
 
   return (
     <div className="col-span-full">
-      {loadingIntent && <PreparingRequest className="mb-6" />}
+      {loadingIntent && <PreparingRequest />}
       {!loadingIntent && intent && <RequestDetails intent={intent} />}
       {!loadingIntent && !intent && <div>No matching request</div>}
     </div>
