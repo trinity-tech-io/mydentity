@@ -151,7 +151,7 @@ const CheckAuthKey: FC = () => {
             length={6}
             className="pin-field"
             onChange={handleInputPin}
-            disabled={authenticating}
+            disabled={authenticating || undefined}
             validate={/\d/}
           />
         </PinInputWrapper>
