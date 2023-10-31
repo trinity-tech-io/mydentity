@@ -36,6 +36,9 @@ export class BrowsersService {
     if (!agentInfo)
       return "Unrecognized device";
 
+    if (!agentInfo.device.vendor)
+      return `${agentInfo.os.name} ${agentInfo.browser.name}`;
+
     return `${agentInfo.device.vendor} ${agentInfo.device.model} ${agentInfo.browser.name}`;
   }
 
