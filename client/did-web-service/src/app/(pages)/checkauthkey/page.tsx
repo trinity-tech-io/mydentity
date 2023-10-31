@@ -1,14 +1,8 @@
 "use client";
 import { ChangeEvent, FC, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import PinField from "react-pin-field";
-import {
-  Box,
-  CircularProgress,
-  Stack,
-  TextField,
-  Typography,
-} from "@mui/material";
+import ReactPinField from "react-pin-field";
+import { Box, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import Headline from "@components/layout/Headline";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
@@ -67,7 +61,6 @@ const CheckAuthKey: FC = () => {
   const encodedAuthKey = searchParams.get("key");
   const authKey = encodedAuthKey ? decode(encodedAuthKey as string) : null;
   const [authenticating, setAuthenticating] = useState(false);
-  const [authError, setAuthError] = useState<string>(null);
   const [pinCode, setPinCode] = useState("");
   const [signedIn, setSignedIn] = useState(false);
   const router = useRouter();
@@ -129,21 +122,15 @@ const CheckAuthKey: FC = () => {
     }
   };
 
-  const onPinChange = (event: ChangeEvent<HTMLInputElement>): void => {
-    // setAuthError(null);
-
-    const userPin = event.currentTarget?.value;
-
-    // Automatically try to authenticate after entering the 6th digit
-    if (userPin.length == 6) checkPin(userPin);
-  };
-
   const handleCheckPin = (): void => {
     if (pinCode.length == 6) checkPin(pinCode);
   };
 
   const handleInputPin = (code: string): void => {
     setPinCode(code);
+
+    // Automatically try to authenticate after entering the 6th digit
+    if (code.length == 6 && !authenticating) checkPin(code);
   };
   return (
     <div>
@@ -152,16 +139,20 @@ const CheckAuthKey: FC = () => {
         description="Kindly enter the 6-digit PIN that was provided when generating a sign-in link for another browser"
         showBg={true}
       />
-      <Stack alignItems="center" className="max-w-sm m-auto" sx={{pt: {xs: 2,sm:4}}}>
+      <Stack
+        alignItems="center"
+        className="max-w-sm m-auto"
+        sx={{ pt: { xs: 2, sm: 4 } }}
+      >
         <Typography variant="subtitle1">Enter PIN Code</Typography>
         <PinInputWrapper>
-          <PinField
+          <ReactPinField
             autoFocus
-            className="pin-field"
-            validate={/\d/}
             length={6}
+            className="pin-field"
             onChange={handleInputPin}
             disabled={authenticating}
+            validate={/\d/}
           />
         </PinInputWrapper>
         <div className="px-2 sm:px-12 w-full mt-8">
@@ -175,33 +166,7 @@ const CheckAuthKey: FC = () => {
           </DarkButton>
         </div>
       </Stack>
-
-      {/* <div className="flex flex-row items-center mt-4">
-        <TextField
-          autoFocus
-          onChange={onPinChange}
-          margin="dense"
-          id="pinCode"
-          label="PIN Code"
-          variant="outlined"
-          autoComplete="off"
-          disabled={authenticating}
-        />
-        {authenticating && (
-          <div className="ml-4">
-            <CircularProgress size={20} />
-          </div>
-        )}
-      </div>
-
-      {authError && (
-        <Typography className="w-full text-red-500 mt-4">
-          {authError}
-        </Typography>
-      )} */}
     </div>
   );
-
-  return <div></div>;
 };
 export default CheckAuthKey;
