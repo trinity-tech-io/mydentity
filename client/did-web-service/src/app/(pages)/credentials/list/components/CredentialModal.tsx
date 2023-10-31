@@ -1,4 +1,4 @@
-import { FC, memo, useEffect, useState } from "react";
+import { FC, memo, useEffect, useState, useCallback} from "react";
 import {
   Fade,
   Modal,
@@ -8,6 +8,7 @@ import {
   Box,
   List,
   ListItem,
+  ListItemText,
 } from "@mui/material";
 import { Swiper, SwiperClass, SwiperSlide } from "swiper/react";
 import { Keyboard, Pagination, Navigation } from "swiper/modules";
@@ -25,6 +26,7 @@ import SharedCountLabel, {
 import { activeIdentity$ } from "@services/identity/identity.events";
 import ListItemTextStyled from "./ListItemText";
 import SubAccordion from "./SubAccordion";
+import TextWithDynamicImage from './TextWithDynamicImage';
 
 const style = {
   position: "absolute",
@@ -140,9 +142,10 @@ const CredentialSliderContent: FC<{ credential: Credential }> = memo(
           <ListItem>
             <ListItemTextStyled
               primary="CREATED BY"
-              secondary={credential.getCreatedBy(issuerInfo, activeIdentity)}
+              secondary=''
             />
           </ListItem>
+          <TextWithDynamicImage createdBy={(credential.getCreatedBy(issuerInfo, activeIdentity))[0]} dynamicImage={(credential.getCreatedBy(issuerInfo, activeIdentity))[1]} />
         </List>
         <div className="inline-flex absolute bottom-0 right-0">
           <SharedCountLabel count={requestingApplications?.length || 0} />

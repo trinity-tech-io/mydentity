@@ -1,4 +1,4 @@
-import { FC, MouseEventHandler } from "react";
+import { FC, MouseEventHandler, useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   IconButton,
@@ -18,6 +18,7 @@ import SharedCountLabel, {
   ConformBadge,
 } from "@components/credential/SharedCountLabel";
 import { activeIdentity$ } from "@services/identity/identity.events";
+import TextWithDynamicImage from './TextWithDynamicImage';
 
 const CredentialBox: FC<{
   id: string;
@@ -135,11 +136,10 @@ const CredentialBox: FC<{
                 <ListItem>
                   <ListItemText
                     primary="CREATED BY"
-                    secondary={credential.getCreatedBy(issuerInfo, activeIdentity)}
-                    primaryTypographyProps={{ fontSize: 14, fontWeight: 600 }}
-                    secondaryTypographyProps={{ fontSize: 11 }}
+                    secondary=''
                   />
                 </ListItem>
+                <TextWithDynamicImage createdBy={(credential.getCreatedBy(issuerInfo, activeIdentity))[0]} dynamicImage={(credential.getCreatedBy(issuerInfo, activeIdentity))[1]} />
               </List>
             </motion.section>
           )}

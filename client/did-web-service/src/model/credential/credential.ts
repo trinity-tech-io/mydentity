@@ -373,18 +373,21 @@ export abstract class Credential {
     return this.verifiableCredential.getIssuer().toString();
   }
 
-  public getCreatedBy = (issuerInfo: IssuerInfo, activeIdentity: Identity): string => {
+  /**
+   * return [Created by name、 Created by Avatar]
+   */
+  public getCreatedBy = (issuerInfo: IssuerInfo, activeIdentity: Identity): string[] => {
     const issuer = this.getIssuer();
     const activeDid = activeIdentity?.did.toString();
     const isMe = issuer === activeDid;
     const hasIssuerInfo = issuerInfo?.name || issuerInfo?.avatarIcon;
 
     if (isMe) {
-      return 'Created by myself';
+      return ['Created by myself', null];
     } else if (hasIssuerInfo) {
-      return '👤 Created by an anonymous entity';
+      return [issuerInfo?.name || '', issuerInfo?.avatarIcon];
     } else {
-      return issuerInfo?.name || '';
+      return ['👤 Created by an anonymous entity', null];
     }
   };
 
