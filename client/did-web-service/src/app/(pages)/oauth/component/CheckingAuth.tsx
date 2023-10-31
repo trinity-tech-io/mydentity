@@ -12,13 +12,6 @@ const CheckingAuth: FC = () => {
           width="90%"
           height="100%"
         />
-
-        // <ChipIcon
-        //   className="main-icon"
-        //   width="90%"
-        //   height="100%"
-        //   viewBox="0 0 50 38"
-        // />
       }
       preparingText="Checking authentication, Please wait for a moment..."
     />

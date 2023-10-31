@@ -3,7 +3,6 @@
 import { FC } from "react";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next13-progressbar"
-import { LinearProgress } from "@mui/material";
 import { ExistingEmailException } from "@model/exceptions/existing-email-exception";
 import { InexistingEmailException } from "@model/exceptions/inexisting-email-exception";
 import {
