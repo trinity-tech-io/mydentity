@@ -27,6 +27,7 @@ const LoadingRing = styled(Box)(({ theme }) => ({
     // border: "3px solid transparent",
     borderTop: "3px solid #f3f",
     borderRight: "3px solid #f3f",
+    borderBottom: "3px solid transparent",
     borderRadius: "50%",
     animation: "rotate 3s linear infinite",
     transition: "all 1s ease-in",

@@ -8,13 +8,13 @@ function pxToRem(value: number): string {
 
 function responsiveFontSizes({ sm, md, lg }: { sm: number, md: number, lg: number }): {[key: string]: object} {
   return {
-    '@media (min-width:600px)': {
+    '@media (min-width:640px)': {
       fontSize: pxToRem(sm)
     },
-    '@media (min-width:900px)': {
+    '@media (min-width:768px)': {
       fontSize: pxToRem(md)
     },
-    '@media (min-width:1200px)': {
+    '@media (min-width:1024px)': {
       fontSize: pxToRem(lg)
     }
   };
@@ -91,8 +91,8 @@ export const generateTheme = (mode: PaletteMode): Theme => createTheme({
     h4: {
       fontWeight: 600,
       lineHeight: 1.4,
-      fontSize: pxToRem(20),
-      ...responsiveFontSizes({ sm: 20, md: 24, lg: 24 })
+      fontSize: pxToRem(22),
+      ...responsiveFontSizes({ sm: 23, md: 26, lg: 26 })
     },
     h5: {
       fontWeight: 600,
@@ -121,7 +121,8 @@ export const generateTheme = (mode: PaletteMode): Theme => createTheme({
       ...responsiveFontSizes({ sm: 16, md: 16, lg: 16 })
     },
     body2: {
-      fontSize: pxToRem(14)
+      fontSize: pxToRem(13),
+      ...responsiveFontSizes({ sm: 14, md: 14, lg: 14 })
     },
     caption: {
       fontSize: pxToRem(12)

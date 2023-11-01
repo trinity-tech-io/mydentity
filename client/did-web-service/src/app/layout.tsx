@@ -1,18 +1,18 @@
 "use client";
+import React, { FC, ReactNode, useEffect } from "react";
+import { Next13ProgressBar, useRouter } from "next13-progressbar";
+import { usePathname } from "next/navigation";
 // import { Inter } from 'next/font/google';
 import { authRoutes, publicRoutes } from "@/router/routes";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { usePostSignInFlow } from "@services/flow.service";
 import { authUser$, authUserReady$ } from "@services/user/user.events";
 import { checkIfStringEqualsWith as checkIfStringIsEqualTo, checkIfStringStartsWith } from "@utils/strings";
-import { usePathname } from "next/navigation";
-import { Next13ProgressBar, useRouter } from "next13-progressbar";
-import React, { FC, useEffect } from "react";
 import "./globals.scss";
 
 // const inter = Inter({ subsets: ['latin'] })
 
-const Providers = ({ children }: { children: React.ReactNode }) => {
+const Providers = ({ children }: { children: React.ReactNode }): ReactNode => {
   return (
     <>
       {children}

@@ -60,7 +60,7 @@ export const DetailTable: FC<{ headCells: ReactNode; bodyRows: ReactNode }> = ({
           "th:last-child": { textAlign: "right" },
         },
         tbody: {
-          td: { px: 1, py: 0 },
+          td: { px: 1, py: 0, wordBreak: "break-all" },
           "td:first-child": { border: 0, pl: 0, pr: 1 },
           "td:last-child": { textAlign: "right", pr: 0 },
           "tr:last-child": {

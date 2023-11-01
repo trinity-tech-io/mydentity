@@ -3,12 +3,12 @@ import { FC, MouseEventHandler, useCallback } from "react";
 import { useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 // import { useRouter } from "next/navigation";
-import { useRouter } from 'next13-progressbar';
+import { useRouter } from "next13-progressbar";
 import { LandingCard } from "@components/card";
 import TextBarcode from "@components/text-barcode/TextBarcode";
 import { BlackButton } from "@components/button";
 import TrinityLogo from "@assets/images/TrinityLogo.svg";
-import { authUser$, getActiveUser } from "@services/user/user.events";
+import { authUser$ } from "@services/user/user.events";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 
 const WelcomeCard: FC = () => (
@@ -36,9 +36,9 @@ const Home: FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [authUser] = useBehaviorSubject(authUser$);
-  const user = getActiveUser();
   const launchApp: MouseEventHandler<HTMLButtonElement> = useCallback(() => {
-    router.push(user ? "dashboard" : "entry");
+    router.push(authUser ? "dashboard" : "entry");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authUser]);
 
   return isMobile ? (

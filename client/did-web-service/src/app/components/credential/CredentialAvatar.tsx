@@ -1,9 +1,10 @@
-import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
-import { Credential } from "@model/credential/credential";
-import { Avatar } from "@mui/material";
+import { FC } from "react";
 import clsx from "clsx";
 import Image from "next/image";
-import { FC } from "react";
+import { Avatar, useMediaQuery } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
+import { Credential } from "@model/credential/credential";
 
 /**
  * Enhanced "avatar" component that displays either the representative picture of a credential,
@@ -18,16 +19,20 @@ export const CredentialAvatar: FC<{
   const [representativeIconPath] = useBehaviorSubject(
     credential?.representativeIcon$
   );
+  const theme = useTheme();
+  const smallToMid = useMediaQuery(theme.breakpoints.between("sm", "md"));
+  const lessThanSmall = useMediaQuery(theme.breakpoints.down("sm"));
+  const widthRate = (lessThanSmall && 0.75) || (smallToMid && 0.9) || 1;
 
   return (
     <Avatar
       sx={{
-        width,
-        height,
+        width: width * widthRate,
+        height: height * widthRate,
         padding:
           typeof representativeIconPath === "string"
             ? 0
-            : `${Math.floor(width / 8) * 0.125}rem`,
+            : `${Math.floor(width * widthRate / 8) * 0.125}rem`,
         backgroundColor: "#7575754d",
       }}
       className={clsx(className)}
@@ -36,8 +41,8 @@ export const CredentialAvatar: FC<{
         <Image
           src={representativeIconPath}
           alt=""
-          width={width}
-          height={height}
+          width={width * widthRate}
+          height={height * widthRate}
         />
       ) : (
         representativeIconPath

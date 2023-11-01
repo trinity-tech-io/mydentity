@@ -1,7 +1,5 @@
 "use client";
 import { FC } from "react";
-import { EditableCredentialAvatar } from "@components/credential/EditableCredentialAvatar";
-import { MainButton } from "@components/generic/MainButton";
 import Headline from "@components/layout/Headline";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { authUser$ } from "@services/user/user.events";

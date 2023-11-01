@@ -9,6 +9,7 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  reactStrictMode: false,
   output: 'export',
   webpack(config, { webpack }) {
     config.module.rules.push({

@@ -54,7 +54,10 @@ const DetailContainer: FC<{
 }) => {
   return (
     <CardStyled className={className} elevation={0} sx={sx}>
-      <Box className="py-4 px-6 flex card-header">
+      <Box
+        className="flex card-header"
+        sx={{ px: { xs: 1.5, sm: 3 }, py: { xs: 1.5, sm: 2 } }}
+      >
         <Typography className="flex-1" variant="h6" fontWeight={600}>
           {title}
         </Typography>
@@ -70,9 +73,16 @@ const DetailContainer: FC<{
           topRightSection
         )}
       </Box>
-      <CardContent className="relative z-10" sx={{ px: 3, pt: 1 }}>
+      <Box
+        className="relative z-10"
+        sx={{
+          px: { xs: 1.5, sm: 3 },
+          pt: { xs: 0.5, sm: 1 },
+          pb: { xs: 1.5, sm: 2 },
+        }}
+      >
         {children}
-      </CardContent>
+      </Box>
     </CardStyled>
   );
 };

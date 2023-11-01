@@ -33,6 +33,7 @@ import {
   MenuItem,
   Popover,
   Stack,
+  SxProps,
   TableCell,
   TableRow,
   Typography,
@@ -58,6 +59,16 @@ const CREDENTIAL_LIST_HEAD = [
 
 type ComparatorMethod = (a: ProfileCredential, b: ProfileCredential) => number;
 
+const DIDTextBox: FC<{ did: string; sx?: SxProps }> = ({ did, sx }) => {
+  return (
+    <Stack direction="row" alignItems="center" sx={sx}>
+      <Typography variant="body2" className="break-all">
+        {did}
+      </Typography>
+      <CopyButton text={did} />
+    </Stack>
+  );
+};
 const Profile: FC = () => {
   const TAG = "ProfilePage";
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
@@ -327,45 +338,64 @@ const Profile: FC = () => {
         autoComplete="off"
         className="mb-4"
       >
-        <Stack direction="row">
-          <div className="flex flex-1 items-center">
-            {!unlockerIsIdle || (mounted && identities) ? (
-              <>
-                {activeIdentity && (
-                  <>
-                    <EditableCredentialAvatar
-                      credential={avatarCredential}
-                      width={80}
-                      height={80}
-                      onFileUpload={handleAvatarFileChanged}
-                      updating={uploadingAvatar}
-                      disabled={!credentials}
-                    />
-                    <div className="flex flex-col ml-4">
-                      <div className="flex pb-2">
-                        <Box className="rounded-md bg-[#9291A5] text-[8pt] px-3 py-0.5 inline-block">
-                          ACTIVE IDENTITY
-                        </Box>
-                      </div>
-                      <Typography variant="h4">
-                        {name || "Unnamed identity"}
-                      </Typography>
-                      <div className="inline-flex items-center">
-                        <Typography variant="body2">
+        <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
+          <div className="flex-1">
+            <div className="flex items-center">
+              {!unlockerIsIdle || (mounted && identities) ? (
+                <>
+                  {activeIdentity && (
+                    <>
+                      <EditableCredentialAvatar
+                        credential={avatarCredential}
+                        width={80}
+                        height={80}
+                        onFileUpload={handleAvatarFileChanged}
+                        updating={uploadingAvatar}
+                        disabled={!credentials}
+                      />
+                      <div className="flex flex-col ml-4">
+                        <div className="flex pb-2">
+                          <Box
+                            className="rounded-sm bg-[#9291A5] flex"
+                            sx={{ px: 1.5, py: 0.25 }}
+                          >
+                            <Typography variant="caption" fontSize="7pt">
+                              ACTIVE IDENTITY
+                            </Typography>
+                          </Box>
+                        </div>
+                        <Typography variant="h4">
+                          {name || "Unnamed identity"}
+                        </Typography>
+                        <DIDTextBox
+                          did={activeIdentity?.did?.toString()}
+                          sx={{ display: { xs: "none", sm: "flex" } }}
+                        />
+                        {/* <Stack direction="row" alignItems="center">
+                        <Typography variant="body2" className="break-all">
                           {activeIdentity?.did?.toString()}
                         </Typography>
                         <CopyButton text={activeIdentity?.did?.toString()} />
+                      </Stack> */}
                       </div>
-                    </div>
-                  </>
-                )}
-              </>
-            ) : (
-              <LoadingProfileInfo />
-            )}
+                    </>
+                  )}
+                </>
+              ) : (
+                <LoadingProfileInfo />
+              )}
+            </div>
+            <DIDTextBox
+              did={activeIdentity?.did?.toString()}
+              sx={{ display: { xs: "flex", sm: "none" } }}
+            />
           </div>
-          <div className="ml-4 flex flex-col justify-center items-end gap-1">
-            <div className="flex">
+          <div className="flex flex-col justify-center items-end gap-1">
+            <Stack
+              className="w-full"
+              direction={{ xs: "column", sm: "row" }}
+              spacing={{ xs: 1, sm: 2 }}
+            >
               <OutlinedInputStyled
                 id="credential-search"
                 size="small"
@@ -380,7 +410,7 @@ const Profile: FC = () => {
                 }
               />
               <AddProfileItem identity={activeIdentity} />
-            </div>
+            </Stack>
             <div className="flex flex-1 gap-1 items-end">
               <div className="inline-flex">
                 <NormalButton
@@ -416,63 +446,62 @@ const Profile: FC = () => {
         }
         showAllAction={handleShowAllCredentials}
       >
-        <div className="mb-1">
-          <DetailTable
-            headCells={
+        <DetailTable
+          headCells={
+            <>
+              <TableCell>PROFILE ITEM</TableCell>
+              <TableCell align="center">DETAIL</TableCell>
+              <TableCell align="center">ISSUED BY</TableCell>
+              <TableCell sx={{ width: 0 }}></TableCell>
+            </>
+          }
+          bodyRows={
+            mounted &&
+            identities &&
+            (!activeIdentity || filteredCredentials) ? (
               <>
-                <TableCell>PROFILE ITEM</TableCell>
-                <TableCell align="center">DETAIL</TableCell>
-                <TableCell align="center">ISSUED BY</TableCell>
-                <TableCell sx={{ width: 0 }}></TableCell>
+                {!activeIdentity || !filteredCredentials.length ? (
+                  <>
+                    <TableRow>
+                      <TableCell component="th" colSpan={6} align="center">
+                        {isNotFound ? (
+                          <Typography variant="body1">
+                            No results found for &nbsp;
+                            <strong>&quot;{filterName}&quot;</strong>.
+                            <br /> Try checking for typos or using complete
+                            words.
+                          </Typography>
+                        ) : (
+                          <Typography variant="body1">
+                            No profile credential found. View all your
+                            credentials from "All credentials".
+                          </Typography>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  </>
+                ) : (
+                  filteredCredentials
+                    ?.slice(
+                      page * rowsPerPage,
+                      page * rowsPerPage + rowsPerPage
+                    )
+                    .map((credential: ProfileCredential) => (
+                      <CredentialTableRow
+                        key={credential.id}
+                        credential={credential}
+                        handleOpenMenu={handleOpenMenu}
+                      />
+                    ))
+                )}
               </>
-            }
-            bodyRows={
-              mounted && identities && (!activeIdentity || filteredCredentials) ? (
-                <>
-                  {!activeIdentity || !filteredCredentials.length ? (
-                    <>
-                      <TableRow>
-                        <TableCell component="th" colSpan={6} align="center">
-                          {isNotFound ? (
-                            <Typography variant="body1">
-                              No results found for &nbsp;
-                              <strong>&quot;{filterName}&quot;</strong>.
-                              <br /> Try checking for typos or using complete
-                              words.
-                            </Typography>
-                          ) : (
-                            <Typography variant="body1">
-                              No profile credential found. View all your credentials from "All credentials".
-                            </Typography>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    </>
-                  ) : (
-                    filteredCredentials
-                      ?.slice(
-                        page * rowsPerPage,
-                        page * rowsPerPage + rowsPerPage
-                      )
-                      .map((credential: ProfileCredential) => (
-                        <CredentialTableRow
-                          key={credential.id}
-                          credential={credential}
-                          handleOpenMenu={handleOpenMenu}
-                        />
-                      ))
-                  )}
-                </>
-              ) : (
-                Array(3)
-                  .fill(0)
-                  .map((_, _i) => (
-                    <LoadingTableAvatarRow key={_i} colSpan={4} />
-                  ))
-              )
-            }
-          />
-        </div>
+            ) : (
+              Array(3)
+                .fill(0)
+                .map((_, _i) => <LoadingTableAvatarRow key={_i} colSpan={4} />)
+            )
+          }
+        />
       </DetailContainer>
 
       <Container>
