@@ -109,7 +109,7 @@ export const EmailFormBox: FC<EmailFormType> = (props) => {
         </form>
       ) : (
         <div className="text-sm text-center text-white">
-          Magic link sent, please check your mailbox and use the following PIN code when asked: {pinCode}.
+          Magic link sent, please check your mailbox and use the following PIN code when asked: {pinCode}
         </div>
       )}
       {errorMsg && (

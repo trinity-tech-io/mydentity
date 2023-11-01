@@ -1,4 +1,5 @@
 "use client";
+import { DarkButton } from "@components/button";
 import { MainButton } from "@components/generic/MainButton";
 import Headline from "@components/layout/Headline";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
@@ -37,7 +38,6 @@ const ImportPage: FC = () => {
   const { showSuccessToast, showErrorToast } = useToast();
   const [importing, setImporting] = useState(false);
   const [mnemonic, setMnemonic] = useState<string>(null);
-  const [phrases, setPhrases] = useState<string[]>([]);
   const [error, setError] = useState<string>(null);
   const phraseRef = useRef([]);
   const router = useRouter();
@@ -102,6 +102,7 @@ const ImportPage: FC = () => {
     splitPhrases.slice(0, MnemonicLength - index).forEach((phrase, _id) => {
       if (phraseRef.current[_id]) phraseRef.current[_id + index].value = phrase;
     });
+    checkPhrases();
   };
 
   const handleKeyPhrase = (
@@ -112,7 +113,14 @@ const ImportPage: FC = () => {
       phraseRef.current[index - 1].focus();
   };
 
-  const handleChangePhrase: ChangeEventHandler = (e) => {};
+  const checkPhrases = (): void => {
+    const phraseValues = phraseRef.current.map((current) => current.value);
+    if (phraseValues.some((value) => !value)) {
+      setMnemonic("");
+    } else {
+      setMnemonic(phraseValues.join(" "));
+    }
+  };
 
   if (!mounted) return null;
 
@@ -132,7 +140,7 @@ const ImportPage: FC = () => {
               .fill(0)
               .map((_, _id) => {
                 const getRef = (element: MutableRefObject<any>): void => {
-                  phraseRef.current.push(element);
+                  phraseRef.current[_id] = element;
                 };
                 return (
                   <Grid item xs={4} sm={3} md={2} key={_id}>
@@ -147,12 +155,22 @@ const ImportPage: FC = () => {
                       onKeyDown={(e): void => {
                         handleKeyPhrase(e, _id);
                       }}
-                      onChange={handleChangePhrase}
+                      onChange={checkPhrases}
                     />
                   </Grid>
                 );
               })}
           </Grid>
+        </div>
+        <div className="px-2 sm:px-12 max-w-xl w-full mt-8">
+          <DarkButton
+            loading={importing}
+            disabled={!mnemonic}
+            className="w-full"
+            onClick={handleImportMnemonic}
+          >
+            IMPORT
+          </DarkButton>
         </div>
       </Stack>
 
