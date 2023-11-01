@@ -1,5 +1,5 @@
 "use client";
-import { ChangeEvent, FC, useState } from "react";
+import { FC, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import ReactPinField from "react-pin-field";
 import { Box, Stack, Typography } from "@mui/material";
