@@ -5,6 +5,7 @@ import {
   List,
   ListItem,
   ListItemText,
+  MenuItem,
   Stack,
   Typography,
 } from "@mui/material";
@@ -18,7 +19,9 @@ import SharedCountLabel, {
   ConformBadge,
 } from "@components/credential/SharedCountLabel";
 import { activeIdentity$ } from "@services/identity/identity.events";
-import TextWithDynamicImage from './TextWithDynamicImage';
+import TextWithDynamicImage from "./TextWithDynamicImage";
+import PopupMenu from "@components/popup/PopupMenu";
+import { ProfileCredential } from "@model/credential/profile-credential";
 
 const CredentialBox: FC<{
   id: string;
@@ -26,28 +29,75 @@ const CredentialBox: FC<{
   expanded: boolean;
   setExpanded: any;
   onClick: (c: Credential) => void;
-}> = ({ id, credential, expanded, setExpanded, onClick }) => {
+  onOpenMenu: (credential: ProfileCredential) => void;
+  onMenuClickAway: () => void;
+  onClickEdit: () => void;
+  onClickDelete: () => void;
+}> = ({
+  id,
+  credential,
+  expanded,
+  setExpanded,
+  onClick,
+  onOpenMenu,
+  onMenuClickAway,
+  onClickEdit,
+  onClickDelete,
+}) => {
   const [requestingApplications] = useBehaviorSubject(
     credential?.requestingApplications$
   );
   const [isConform] = useBehaviorSubject(credential?.isConform$);
   const [issuerInfo] = useBehaviorSubject(credential?.issuerInfo$);
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
+  const [popupMenuEl, setPopupMenuEl] = useState(null);
 
-  const handleExpanding: MouseEventHandler<HTMLButtonElement> = (e): void => {
-    e.stopPropagation();
-    setExpanded((prevIDs: string[]) => {
-      let tempIDs = [...prevIDs];
-      const thisIndex = tempIDs.findIndex((_id) => _id === id);
-      if (thisIndex < 0) {
-        tempIDs.length != 1 ? tempIDs.push(id) : (tempIDs = [id]);
-      } else tempIDs.splice(thisIndex, 1);
-      return tempIDs;
-    });
-  };
+  // const handleExpanding: MouseEventHandler<HTMLButtonElement> = (e): void => {
+  //   e.stopPropagation();
+  //   setExpanded((prevIDs: string[]) => {
+  //     let tempIDs = [...prevIDs];
+  //     const thisIndex = tempIDs.findIndex((_id) => _id === id);
+  //     if (thisIndex < 0) {
+  //       tempIDs.length != 1 ? tempIDs.push(id) : (tempIDs = [id]);
+  //     } else tempIDs.splice(thisIndex, 1);
+  //     return tempIDs;
+  //   });
+  // };
 
   const handleClick = (): void => {
     onClick(credential);
+  };
+
+  const handleClickMore: MouseEventHandler<HTMLButtonElement> = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setPopupMenuEl(e.currentTarget);
+    onOpenMenu(credential as ProfileCredential);
+  };
+
+  const handleClickMenu: MouseEventHandler = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    handleCloseMenu();
+    switch (e.currentTarget?.getAttribute("value")) {
+      case "edit":
+        onClickEdit();
+        break;
+      case "delete":
+        onClickDelete();
+        break;
+      default:
+        break;
+    }
+  };
+
+  const handleCloseMenu = (): void => {
+    setPopupMenuEl(null);
+  };
+
+  const handleMenuClickAway = (): void => {
+    onMenuClickAway();
+    handleCloseMenu();
   };
 
   return (
@@ -98,9 +148,28 @@ const CredentialBox: FC<{
             </Stack>
           </Stack>
           <div>
-            <IconButton size="small" color="inherit" onClick={handleExpanding}>
+            <IconButton size="small" color="inherit" onClick={handleClickMore}>
               <MoreVertIcon fontSize="small" />
             </IconButton>
+            <PopupMenu
+              popperProps={{
+                open: Boolean(popupMenuEl),
+                anchorEl: popupMenuEl,
+                placement: "bottom-end",
+              }}
+              handleClickAway={handleMenuClickAway}
+            >
+              <MenuItem value="edit" onClick={handleClickMenu}>
+                Edit
+              </MenuItem>
+              <MenuItem
+                value="delete"
+                sx={{ color: "error.main" }}
+                onClick={handleClickMenu}
+              >
+                Delete
+              </MenuItem>
+            </PopupMenu>
           </div>
         </Stack>
         <AnimatePresence initial={false}>
@@ -134,12 +203,16 @@ const CredentialBox: FC<{
                   />
                 </ListItem>
                 <ListItem>
-                  <ListItemText
-                    primary="CREATED BY"
-                    secondary=''
-                  />
+                  <ListItemText primary="CREATED BY" secondary="" />
                 </ListItem>
-                <TextWithDynamicImage createdBy={(credential.getCreatedBy(issuerInfo, activeIdentity))[0]} dynamicImage={(credential.getCreatedBy(issuerInfo, activeIdentity))[1]} />
+                <TextWithDynamicImage
+                  createdBy={
+                    credential.getCreatedBy(issuerInfo, activeIdentity)[0]
+                  }
+                  dynamicImage={
+                    credential.getCreatedBy(issuerInfo, activeIdentity)[1]
+                  }
+                />
               </List>
             </motion.section>
           )}

@@ -7,12 +7,20 @@ import "react-grid-layout/css/styles.css";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useMounted } from "@hooks/useMounted";
 import { Credential } from "@model/credential/credential";
-import { activeIdentity$ } from "@services/identity/identity.events";
 import { filterCredentials } from "./FilterConditions";
 import CredentialBox from "./CredentialBox";
 import CredentialModal from "./CredentialModal";
 import { LoadingCredentialBox } from "@components/loading-skeleton";
 import { RegularIdentity } from "@model/regular-identity/regular-identity";
+import ConfirmDialog from "@components/generic/ConfirmDialog";
+import EditCredentialDialog, {
+  EditionMode,
+} from "@components/identity-profile/EditCredentialDialog";
+import { useToast } from "@services/feedback.service";
+import { logger } from "@services/logger";
+import { ProfileCredential } from "@model/credential/profile-credential";
+import { ProfileCredentialInfo } from "@services/identity-profile-info/profile-credential-info";
+import { findProfileInfoByTypes } from "@services/identity-profile-info/identity-profile-info.service";
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
@@ -36,6 +44,18 @@ export const CredentialListWidget: FC<{
     useState<Credential[]>(credentials);
   const [expandedIDs, setExpandedIDs] = useState<string[]>([]);
   const [openCredentialModal, setOpenCredentialModal] = useState(false);
+  const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
+  const [originCredential, setOriginCredential] =
+    useState<ProfileCredential>(null);
+  const [preEditCredentialInfo, setPreEditCredentialInfo] =
+    useState<ProfileCredentialInfo>(null);
+  const [preEditCredentialValue, setPreEditCredentialValue] =
+    useState<string>("");
+  const [openEditCredentialDialog, setOpenEditCredentialDialog] =
+    useState(false);
+  const credentialsFeature = identity?.credentials();
+  const { showSuccessToast, showErrorToast } = useToast();
+
   const GRID_COLS: { [key: string]: number } = {
     lg: 12,
     md: 10,
@@ -53,7 +73,7 @@ export const CredentialListWidget: FC<{
     if (credentials && !activeCredential) {
       identityProfileFeature.setActiveCredential(credentials[0]);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeCredential, credentials]);
 
   useEffect(() => {
@@ -72,7 +92,7 @@ export const CredentialListWidget: FC<{
       identityProfileFeature.setActiveCredential(filtered[0] || null);
       setFilteredCredentials(filtered);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [credentials, selectedFilter, stringFilter, identity]);
 
   useEffect(() => {
@@ -100,8 +120,94 @@ export const CredentialListWidget: FC<{
       }));
     });
     return layouts;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [expandedIDs, filteredCredentials, mounted]);
+
+  const showFeedbackToast = (
+    isSuccess: boolean,
+    successMessage: string,
+    errorMessage: string
+  ): void => {
+    if (isSuccess) {
+      showSuccessToast(successMessage);
+    } else {
+      showErrorToast(errorMessage);
+    }
+  };
+
+  const onOpenMenu = (credential: ProfileCredential): void => {
+    setOriginCredential(credential);
+  };
+
+  const onMenuClickAway = (): void => {
+    setOriginCredential(null);
+  };
+
+  const onClickDeleteCredential = (): void => {
+    setOpenConfirmDialog(true);
+  };
+
+  const onClickEditCredential = (): void => {
+    setOpenEditCredentialDialog(true);
+    const entry = findProfileInfoByTypes(
+      originCredential.verifiableCredential.getType()
+    );
+    setPreEditCredentialInfo(entry);
+    // TODO: DONT GET THE PROPERTY LIKE THIS: ASK THE PROFILE FEATURE TO RETURN THE VALUE
+    setPreEditCredentialValue(
+      originCredential.verifiableCredential.getSubject().getProperty(entry.key)
+    );
+  };
+
+  const handleEditCredentialDialogClose = async (editCredentialValue: {
+    info: ProfileCredentialInfo;
+    value: any;
+    type: EditionMode;
+    originCredential: ProfileCredential;
+  }): Promise<void> => {
+    setOpenEditCredentialDialog(false);
+    if (!editCredentialValue) return;
+
+    if (!editCredentialValue.value) return;
+
+    if (
+      editCredentialValue.type == EditionMode.EDIT &&
+      editCredentialValue.originCredential
+    ) {
+      let isSuccess = false;
+      try {
+        isSuccess = !!(await identityProfileFeature.updateProfileCredential(
+          editCredentialValue.originCredential,
+          editCredentialValue.value
+        ));
+      } catch (error) {
+        logger.error(TAG, "Update credential error", error);
+      }
+      showFeedbackToast(
+        isSuccess,
+        "Entry has been updated!",
+        "Failed to update the entry..."
+      );
+    }
+  };
+
+  const handleCloseDialog = async (isAgree: boolean): Promise<void> => {
+    setOpenConfirmDialog(false);
+    if (!isAgree) return;
+
+    let isSuccess = false;
+    try {
+      isSuccess = await credentialsFeature.deleteCredential(originCredential);
+    } catch (error) {
+      logger.error(TAG, error);
+    }
+    showFeedbackToast(
+      isSuccess,
+      "Entry has been deleted",
+      "Failed to delete the entry..."
+    );
+  };
+
   return (
     <div className="col-span-full">
       {mounted && filteredCredentials && !filteredCredentials.length && (
@@ -142,6 +248,10 @@ export const CredentialListWidget: FC<{
                   expanded={expandedIDs.includes(c.id)}
                   setExpanded={setExpandedIDs}
                   onClick={handleListItemClick}
+                  onOpenMenu={onOpenMenu}
+                  onMenuClickAway={onMenuClickAway}
+                  onClickEdit={onClickEditCredential}
+                  onClickDelete={onClickDeleteCredential}
                 />
               </Box>
             ))
@@ -153,6 +263,7 @@ export const CredentialListWidget: FC<{
                 </Box>
               ))}
       </ResponsiveReactGridLayout>
+
       <CredentialModal
         open={openCredentialModal}
         credentials={filteredCredentials}
@@ -160,6 +271,22 @@ export const CredentialListWidget: FC<{
         onClose={(): void => {
           setOpenCredentialModal(false);
         }}
+      />
+
+      <ConfirmDialog
+        title="Delete this Credential?"
+        content="Do you want to delete this Credential?"
+        open={openConfirmDialog}
+        onClose={handleCloseDialog}
+      />
+
+      <EditCredentialDialog
+        credentialInfo={preEditCredentialInfo}
+        defaultValue={preEditCredentialValue}
+        type={EditionMode.EDIT}
+        open={openEditCredentialDialog}
+        originCredential={originCredential}
+        onClose={handleEditCredentialDialogClose}
       />
     </div>
   );
