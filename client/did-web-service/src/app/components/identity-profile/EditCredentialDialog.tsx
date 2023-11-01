@@ -180,7 +180,7 @@ function EditCredentialDialog(props: EditCredentialDialogProps): JSX.Element {
           onClick={handleCancel}
           className="flex-1"
         >
-          Cancel
+          CANCEL
         </Button>
         <DarkButton onClick={handleOk} className="flex-1">
           {EditionMode.NEW ? "ADD" : "UPDATE"}

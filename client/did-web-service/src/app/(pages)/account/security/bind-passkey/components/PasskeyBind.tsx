@@ -53,7 +53,7 @@ export const PasskeyBind: FC = () => {
           startIcon={<ReactIcon icon="material-symbols:passkey" />}
           onClick={bindPasskeyConfirmation}
         >
-          bind passkey
+          Create passkey
         </DarkButton>
       </div>
       <span className="text-[11px] font-extralight text-center opacity-50">

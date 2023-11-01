@@ -5,7 +5,7 @@ const DarkButton = styled(LoadingButton)(({ theme, className }) => ({
   background: "#323B45 !important",
   borderRadius: className?.includes("rounded") ? 8 : 4,
   color: "white",
-  textTransform: "capitalize",
+  textTransform: "uppercase",
   paddingLeft: 12,
   paddingRight: 12,
   "&:disabled": {
