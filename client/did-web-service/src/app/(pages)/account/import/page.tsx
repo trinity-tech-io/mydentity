@@ -21,12 +21,15 @@ import {
   ClipboardEvent,
   ClipboardEventHandler,
   FC,
+  KeyboardEvent,
+  KeyboardEventHandler,
   MutableRefObject,
   useRef,
   useState,
 } from "react";
 
 const TAG = "import";
+const MnemonicLength = 12;
 
 const ImportPage: FC = () => {
   const { mounted } = useMounted();
@@ -96,9 +99,17 @@ const ImportPage: FC = () => {
       .split(" ")
       .filter((str) => str.length > 0)
       .map((str) => str.trim());
-    splitPhrases.slice(0, 12).forEach((phrase, _id) => {
-      if (phraseRef.current[_id]) phraseRef.current[_id].value = phrase;
+    splitPhrases.slice(0, MnemonicLength - index).forEach((phrase, _id) => {
+      if (phraseRef.current[_id]) phraseRef.current[_id + index].value = phrase;
     });
+  };
+
+  const handleKeyPhrase = (
+    e: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>,
+    index: number
+  ): void => {
+    if (e.keyCode === 8 && !e.currentTarget.value.length && index > 0)
+      phraseRef.current[index - 1].focus();
   };
 
   const handleChangePhrase: ChangeEventHandler = (e) => {};
@@ -132,6 +143,9 @@ const ImportPage: FC = () => {
                       }}
                       inputProps={{
                         ref: getRef,
+                      }}
+                      onKeyDown={(e): void => {
+                        handleKeyPhrase(e, _id);
                       }}
                       onChange={handleChangePhrase}
                     />
