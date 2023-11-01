@@ -50,6 +50,7 @@ import { useRouter } from "next13-progressbar";
 import { ChangeEvent, FC, MouseEvent, useState } from "react";
 import AddProfileItem from "./components/AddProfileItem";
 import { OrderBy } from "./order-by";
+import PopupMenu from "@components/popup/PopupMenu";
 
 const CREDENTIAL_LIST_HEAD = [
   { id: "name", label: "Profile item", alignRight: false },
@@ -100,7 +101,8 @@ const Profile: FC = () => {
     useState<string>("");
 
   const { showSuccessToast, showErrorToast } = useToast();
-  const [isOpenPopupMenu, setOpenPopupMenu] = useState(null);
+  const [popupMenuEl, setPopupMenuEl] = useState(null);
+  const [prevCredentialId, setPrevCredentialId] = useState(""); // this state is for handling popup menu
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState<"desc" | "asc">("asc");
   const [orderBy, setOrderBy] = useState<OrderBy>(OrderBy.NAME);
@@ -163,16 +165,16 @@ const Profile: FC = () => {
     }
   };
 
-  const handleOpenMenu = (
-    event: MouseEvent,
-    credential: ProfileCredential
-  ): void => {
-    setOpenPopupMenu(event.currentTarget);
+  const onOpenMenu = (credential: ProfileCredential): void => {
     setOriginCredential(credential);
   };
 
   const handleCloseMenu = (): void => {
-    setOpenPopupMenu(null);
+    setPopupMenuEl(null);
+  };
+
+  const onMenuClickAway = (): void => {
+    setOriginCredential(null);
   };
 
   const handleRequestSort = (event: MouseEvent, property: OrderBy): void => {
@@ -264,13 +266,11 @@ const Profile: FC = () => {
 
   const isNotFound = !filteredCredentials?.length && !!filterName;
 
-  const handleClickDeleteCredential = (): void => {
-    handleCloseMenu();
+  const onClickDeleteCredential = (): void => {
     setOpenConfirmDialog(true);
   };
 
-  const handleClickEditCredential = (): void => {
-    handleCloseMenu();
+  const onClickEditCredential = (): void => {
     setOpenEditCredentialDialog(true);
     const entry = findProfileInfoByTypes(
       originCredential.verifiableCredential.getType()
@@ -490,7 +490,10 @@ const Profile: FC = () => {
                       <CredentialTableRow
                         key={credential.id}
                         credential={credential}
-                        handleOpenMenu={handleOpenMenu}
+                        onOpenMenu={onOpenMenu}
+                        onMenuClickAway={onMenuClickAway}
+                        onClickEdit={onClickEditCredential}
+                        onClickDelete={onClickDeleteCredential}
                       />
                     ))
                 )}
@@ -527,34 +530,6 @@ const Profile: FC = () => {
           </Card>
         )} */}
       </Container>
-
-      <Popover
-        open={Boolean(isOpenPopupMenu)}
-        anchorEl={isOpenPopupMenu}
-        onClose={handleCloseMenu}
-        anchorOrigin={{ vertical: "top", horizontal: "left" }}
-        transformOrigin={{ vertical: "top", horizontal: "right" }}
-        PaperProps={{
-          sx: {
-            p: 1,
-            width: 140,
-            "& .MuiMenuItem-root": {
-              px: 1,
-              typography: "body2",
-              borderRadius: 0.75,
-            },
-          },
-        }}
-      >
-        <MenuItem onClick={handleClickEditCredential}>Edit</MenuItem>
-
-        <MenuItem
-          sx={{ color: "error.main" }}
-          onClick={handleClickDeleteCredential}
-        >
-          Delete
-        </MenuItem>
-      </Popover>
 
       <ConfirmDialog
         title="Delete this Credential?"
