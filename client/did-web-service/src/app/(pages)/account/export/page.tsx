@@ -86,7 +86,7 @@ const ExportMnemonicPage: FC = () => {
               {/* Get Mnemonic */}
               <button
                 className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded ${showMnemonic && clickedMnemonics[identityRoot.id] ? 'hidden' : ''}`}
-                onClick={() => {
+                onClick={(): void => {
                   handleExportMnemonic(identityRoot);
                 }}
               >
@@ -97,7 +97,7 @@ const ExportMnemonicPage: FC = () => {
               {showMnemonic && clickedMnemonics[identityRoot.id] && (
                 <Typography
                   variant="body2"
-                  onClick={() => {
+                  onClick={(): void => {
                     navigator.clipboard.writeText(clickedMnemonics[identityRoot.id]);
                     showSuccessToast('Mnemonic copied to clipboard.');
                   }}

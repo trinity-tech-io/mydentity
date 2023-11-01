@@ -57,9 +57,9 @@ const AccountProfile: FC = () => {
     setIsUpdating(false);
   };
 
-  const onUpdateEmail = () => {
+  const onUpdateEmail = (): void => {
     router.push("/account/security/bind-email");
-  }
+  };
   return (
     <div className="col-span-full">
       {/* <Breadcrumbs entries={["account-profile"]} /> */}

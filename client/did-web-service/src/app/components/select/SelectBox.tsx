@@ -1,4 +1,4 @@
-import { FC, MouseEventHandler, useRef, useState } from "react";
+import { FC, MouseEventHandler, ReactNode, useRef, useState } from "react";
 import {
   Button,
   ClickAwayListener,
@@ -18,7 +18,7 @@ const SelectBox: FC<{
   list,
   defaultValue = 0,
   valuePrefix = "",
-  onChange = (_: string) => {},
+  onChange = (_: string): void => {},
 }) => {
   const [openPopper, setOpenPopper] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(defaultValue);
@@ -38,8 +38,14 @@ const SelectBox: FC<{
         className="opacity-80"
         endIcon={openPopper ? <ExpandLess /> : <ExpandMore />}
         color="inherit"
-        sx={{ transition: "opacity .1s ease-out", "&:hover": { opacity: 1 }, borderRadius: 2 }}
-        onClick={() => setOpenPopper(!openPopper)}
+        sx={{
+          transition: "opacity .1s ease-out",
+          "&:hover": { opacity: 1 },
+          borderRadius: 2,
+        }}
+        onClick={(): void => {
+          setOpenPopper(!openPopper);
+        }}
       >
         {list[currentIndex]}
       </Button>
@@ -49,9 +55,9 @@ const SelectBox: FC<{
         placement="bottom-start"
         transition
       >
-        {({ TransitionProps, placement }) => (
+        {({ TransitionProps, placement }): ReactNode => (
           <ClickAwayListener
-            onClickAway={() => {
+            onClickAway={(): void => {
               setOpenPopper(false);
             }}
           >

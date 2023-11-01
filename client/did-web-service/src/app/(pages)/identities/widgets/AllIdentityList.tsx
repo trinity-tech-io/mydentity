@@ -29,7 +29,6 @@ export const AllIdentityList: FC = (_) => {
   );
   const router = useRouter();
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
-  const [showToast, setShowToast] = useState<boolean>(false);
   const [runTour, setRunTour] = useState<boolean>(false);
   const [filterName, setFilterName] = useState<string>("");
   const sortedIdentities =

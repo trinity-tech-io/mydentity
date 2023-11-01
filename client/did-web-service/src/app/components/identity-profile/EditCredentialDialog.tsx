@@ -58,7 +58,7 @@ function EditCredentialDialog(props: EditCredentialDialogProps): JSX.Element {
   } = props;
   const [editionType, setEditionType] =
     useState<ProfileCredentialInfoEditionType>(null);
-  const radioGroupRef = useRef<HTMLElement>(null);
+  const radioGroupRef = useRef(null);
   const [selectedDate, setSelectedDate] = useState<Date>(null);
   const [selectedCountry, setSelectedCountry] = useState<CountryType>(null);
   const [selectedGender, setSelectedGender] = useState<GenderType | null>(null);

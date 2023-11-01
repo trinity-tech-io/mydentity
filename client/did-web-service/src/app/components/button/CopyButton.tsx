@@ -20,7 +20,7 @@ const CopyButton: FC<CopyButtonTypes> = ({ text, iconWidth = "17px" }) => {
         type="button"
         sx={{ p: "5px" }}
         aria-label="link"
-        onClick={(e) => {
+        onClick={(e): void => {
           e.preventDefault();
           e.stopPropagation();
         }}

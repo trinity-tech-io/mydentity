@@ -80,7 +80,7 @@ const LandingCard: FC<{
           <div className="flex mb-4 sm:mb-6">
             <div className="w-[10%]">
               {chipClickable ? (
-                <BaseButton onClick={handleClickChip}>
+                <BaseButton className="chip-item" onClick={handleClickChip}>
                   <ChipIcon width="100%" height="100%" viewBox="0 0 50 38" />
                 </BaseButton>
               ) : (

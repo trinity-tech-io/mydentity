@@ -35,18 +35,18 @@ export class Sockette {
   private open(): void {
     this.ws = new WebSocket(this.url, this.opts.protocols || []);
 
-    this.ws.onmessage = (message) => {
+    this.ws.onmessage = (message): void => {
       this.opts.onmessage?.(message);
     }
 
-    this.ws.onopen = (e) => {
+    this.ws.onopen = (e): void => {
       this.opts.onopen?.(e);
       this.num = 0;
       this.isReady = true;
       this.flushMessages();
     };
 
-    this.ws.onclose = (e) => {
+    this.ws.onclose = (e): void => {
       this.isReady = false;
       if (e.code === 1000 || e.code === 1001 || e.code === 1005 || e.code === 1006) {
         this.reconnect(e);
@@ -54,11 +54,11 @@ export class Sockette {
       this.opts.onclose?.(e);
     };
 
-    this.ws.onerror = (e: any) => {
+    this.ws.onerror = (e: any): void => {
       if (e && e.code === 'ECONNREFUSED') {
         this.reconnect(e);
       } else {
-        (this.opts.onerror || (() => { }))(e);
+        (this.opts.onerror || ((): void => { }))(e);
       }
     };
   }
