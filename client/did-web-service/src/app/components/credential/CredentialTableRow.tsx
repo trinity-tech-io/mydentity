@@ -44,14 +44,20 @@ function CredentialTableRow(props: Props): JSX.Element {
     onOpenMenu(credential);
   };
 
-  const handleClickEditCredential = (): void => {
+  const handleClickMenu: MouseEventHandler = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
     handleCloseMenu();
-    onClickEdit();
-  };
-
-  const handleClickDeleteCredential = (): void => {
-    handleCloseMenu();
-    onClickDelete();
+    switch (e.currentTarget?.getAttribute("value")) {
+      case "edit":
+        onClickEdit();
+        break;
+      case "delete":
+        onClickDelete();
+        break;
+      default:
+        break;
+    }
   };
 
   const handleCloseMenu = (): void => {
@@ -92,10 +98,13 @@ function CredentialTableRow(props: Props): JSX.Element {
               }}
               handleClickAway={handleMenuClickAway}
             >
-              <MenuItem onClick={handleClickEditCredential}>Edit</MenuItem>
+              <MenuItem value="edit" onClick={handleClickMenu}>
+                Edit
+              </MenuItem>
               <MenuItem
+                value="delete"
                 sx={{ color: "error.main" }}
-                onClick={handleClickDeleteCredential}
+                onClick={handleClickMenu}
               >
                 Delete
               </MenuItem>

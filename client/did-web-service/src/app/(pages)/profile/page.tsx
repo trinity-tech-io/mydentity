@@ -101,8 +101,6 @@ const Profile: FC = () => {
     useState<string>("");
 
   const { showSuccessToast, showErrorToast } = useToast();
-  const [popupMenuEl, setPopupMenuEl] = useState(null);
-  const [prevCredentialId, setPrevCredentialId] = useState(""); // this state is for handling popup menu
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState<"desc" | "asc">("asc");
   const [orderBy, setOrderBy] = useState<OrderBy>(OrderBy.NAME);
@@ -167,10 +165,6 @@ const Profile: FC = () => {
 
   const onOpenMenu = (credential: ProfileCredential): void => {
     setOriginCredential(credential);
-  };
-
-  const handleCloseMenu = (): void => {
-    setPopupMenuEl(null);
   };
 
   const onMenuClickAway = (): void => {
