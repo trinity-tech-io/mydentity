@@ -2,7 +2,7 @@ import { OutlinedInput } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 const OutlinedInputStyled = styled(OutlinedInput)(({ theme, className }) => ({
-  borderRadius: className.includes("rounded") ? 8 : 8,
+  borderRadius: className?.includes("rounded") ? 8 : 4,
   input: {
     color: "white",
   },
