@@ -90,7 +90,7 @@ export class IdentityFeature implements UserFeature {
   public async listIdentityRoots(): Promise<IdentityRoot[]> {
     logger.log("identity", "list Root Identities identity");
 
-    const identityRoots = await identityService.listIdentityRoots();
+    const identityRoots = await identityService.refreshIdentityRoots();
     this.identityRoots$.next(this.identityRoots$.value.filter(i => i.id));
     return identityRoots
   }
@@ -100,9 +100,9 @@ export class IdentityFeature implements UserFeature {
     return identityService.listIdentities();
   }
 
-  private async fetchIdentityRoots(): Promise<IdentityRoot[]> {
+  public async fetchIdentityRoots(): Promise<IdentityRoot[]> {
     logger.log("identity", "Fetching root identities", this.user);
-    return identityService.listIdentityRoots();
+    return identityService.refreshIdentityRoots();
   }
 
   /**

@@ -1,5 +1,5 @@
 "use client";
-import { FC, useState } from "react";
+import { FC, useState, useEffect } from "react";
 import { Icon as ReactIcon } from "@iconify/react";
 import { Box, Grid, Stack, Typography } from "@mui/material";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
@@ -21,14 +21,26 @@ interface Mnemonics {
 const ExportMnemonicPage: FC = () => {
   const { mounted } = useMounted();
   const [activeUser] = useBehaviorSubject(authUser$);
-  const [identityRoots] = useBehaviorSubject(
-    activeUser?.get("identity").identityRoots$
-  );
   const [exporting, setExporting] = useState<{ [key: string]: boolean }>({});
   const [mnemonics, setMnemonics] = useState<Mnemonics>({});
   const [identities] = useBehaviorSubject(
     activeUser?.get("identity").regularIdentities$
   ); //TODO: Replace with Identities under the Identity root id
+
+  const [identityRoots, setIdentityRoots] = useState<IdentityRoot[] | null>(null);
+  const [hasFetchedIdentityRoots, setHasFetchedIdentityRoots] = useState(false);
+ 
+  useEffect(() => {
+    if (activeUser && !hasFetchedIdentityRoots) {
+      const fetchIdentityRoots = async (): Promise<void> => {
+        const roots = await activeUser.get("identity").fetchIdentityRoots();
+        setIdentityRoots(roots || null);
+      };
+ 
+      fetchIdentityRoots();
+      setHasFetchedIdentityRoots(true); // Set to have been refreshed
+    }
+  }, [activeUser, hasFetchedIdentityRoots]);
 
   const handleExportMnemonic: (identityRoot: IdentityRoot) => void = async (
     identityRoot

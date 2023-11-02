@@ -135,12 +135,12 @@ export class IdentityModule implements IdentityProviderIdentity {
     return null;
   }
 
-  async listIdentityRoots(): Promise<IdentityRoot[]> {
+  async refreshIdentityRoots(): Promise<IdentityRoot[]> {
     const result = await withCaughtAppException(async () => {
-      return (await getApolloClient()).query<{ listIdentityRoots: IdentityRootDTO[] }>({
+      return (await getApolloClient()).query<{ refreshIdentityRoots: IdentityRootDTO[] }>({
         query: gql`
-        query listIdentityRoots {
-          listIdentityRoots {
+        query refreshIdentityRoots {
+          refreshIdentityRoots {
             ${gqlIdentityRootFields}
           }
         }
@@ -148,8 +148,8 @@ export class IdentityModule implements IdentityProviderIdentity {
       });
     });
 
-    if (result?.data?.listIdentityRoots) {
-      const identityRoots = await Promise.all(result.data.listIdentityRoots.map(rootIdentity => IdentityRoot.fromJson(rootIdentity, this.provider)));
+    if (result?.data?.refreshIdentityRoots) {
+      const identityRoots = await Promise.all(result.data.refreshIdentityRoots.map(rootIdentity => IdentityRoot.fromJson(rootIdentity, this.provider)));
       logger.log("custodial-provider", "Fetched identity roots:", identityRoots);
       return identityRoots;
     }

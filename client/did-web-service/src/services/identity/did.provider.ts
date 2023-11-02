@@ -11,7 +11,7 @@ export interface IdentityProviderIdentity {
   importIdentity(identityType: IdentityType, mnemonic: string): Promise<Identity[]>;
   deleteIdentity(identityDid: string): Promise<boolean>;
   listIdentities(): Promise<Identity[]>;
-  listIdentityRoots(): Promise<IdentityRoot[]>;
+  refreshIdentityRoots(): Promise<IdentityRoot[]>;
 }
 
 export interface IdentityProviderCredentials {

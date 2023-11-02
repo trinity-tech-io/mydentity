@@ -16,7 +16,7 @@ export class IdentityRootResolver {
 
   @UseGuards(JwtAuthGuard)
   @Query(() => [IdentityRootEntity])
-  async listIdentityRoots(@CurrentUser() user: User) {
+  async refreshIdentityRoots(@CurrentUser() user: User) {
     return this.identityRootService.findAll(user.id);
   }
 

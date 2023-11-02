@@ -117,8 +117,8 @@ class IdentityService {
   /**
    * Returns the list of root identities
    */
-  public async listIdentityRoots(): Promise<IdentityRoot[]> {
-    return this.provider.identity.listIdentityRoots();
+  public async refreshIdentityRoots(): Promise<IdentityRoot[]> {
+    return this.provider.identity.refreshIdentityRoots();
   }
 
   /**
