@@ -22,6 +22,7 @@ import { authUser$ } from "@services/user/user.events";
 import { BrowserRow } from "./components/BrowserRow";
 import SecuritySection from "./components/SecuritySection";
 import LinkTextfield from "../../developers/components/DidTextfield";
+import { useToast } from "@services/feedback.service";
 
 const Security: FC = () => {
   const { mounted } = useMounted();
@@ -45,6 +46,7 @@ const Security: FC = () => {
   const [externalAuthUrl, setExternalAuthUrl] = useState<string>(null);
   const [externalAuthPinCode, setExternalAuthPinCode] = useState<string>(null);
   const [expireTime, setExpireTime] = useState<number>(Date.now());
+  const { showSuccessToast, showErrorToast } = useToast();
 
   useEffect(() => {
     if (error && error !== "") {
@@ -77,8 +79,8 @@ const Security: FC = () => {
 
   const unbindEmail = async (id: string): Promise<void> => {
     const success = await authUser.get("email").deleteUserEmail(id);
-    if (success) alert("Success to unbind email.");
-    else alert("Failed to unbind email.");
+    if (success) showSuccessToast("Success to unbind email.");
+    else showErrorToast("Failed to unbind email.");
   };
 
   const renderer: CountdownRendererFn = ({ minutes, seconds, completed }) => {
@@ -172,7 +174,11 @@ const Security: FC = () => {
                 using browser biometrics if it's set up.
               </Typography>
             )}
-            {errorMsg && <div className="text-red-500">{errorMsg}</div>}
+            {errorMsg && (
+              <Typography variant="caption" color="error">
+                {errorMsg}
+              </Typography>
+            )}
           </SecuritySection>
         </Grid>
 
