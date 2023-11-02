@@ -101,11 +101,6 @@ const groups: GroupConfig[] = [
     icon: <ExploreIcon />,
     title: "Discover",
     url: "/discover",
-    // links: [
-    //   { title: "Essentials identity wallet", url: "/discover/essentials" },
-    //   { title: "Elastos Web3 Tech", url: "/discover/elastos" },
-    //   { title: "Trinity Tech", url: "/discover/trinity-tech" },
-    // ],
   },
   {
     icon: <SupportIcon />,

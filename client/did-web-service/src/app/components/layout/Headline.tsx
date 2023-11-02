@@ -15,7 +15,7 @@ const Headline: FC<{
   showBg?: boolean;
 }> = ({ title, description, showBg = false }) => (
   <HeadlineBox showBg={showBg} className={showBg?"p-4 sm:p-6 rounded-lg":""}>
-    <Typography className="w-full pb-4 sm:pb-8" variant="h3" color="text.primary">{title}</Typography>
+    <Typography className="w-full pb-3 sm:pb-4 sm:pb-8" variant="h3" color="text.primary">{title}</Typography>
     <Typography className="mt-4" variant="body1" color="text.primary">{description}</Typography>
   </HeadlineBox>
 );

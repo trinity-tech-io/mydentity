@@ -9,12 +9,15 @@ import TrinityLogo from "@assets/shared/trinitytech.svg";
 
 const DiscoverProps = [
   {
-    logo: <EssentialsLogo width="100%" height="100%"/>,
+    logo: <EssentialsLogo width="100%" height="100%" />,
     label: "IDENTITY WALLET",
     title: "Essentials",
     description:
       "Essentials is a mobile app designed to manage Web3 identities, including cryptocurrencies. It's a non-custodial platform, which means no data about you is stored by the service. You, as the user, hold the responsibility for safeguarding your cryptographic keys. This offers full ownership but comes with additional responsibility, giving you the choice.",
     actionName: "GET ESSENTIALS",
+    handleAction: (): void => {
+      window.open("https://d.web3essentials.io", "_blank");
+    },
   },
   {
     logo: <ElastosLogo width="100%" height="100%" />,
@@ -23,6 +26,9 @@ const DiscoverProps = [
     description:
       "Elastos forms the essential technology infrastructure underpinning all these identities, offering a secure and versatile foundation for diverse online experiences.",
     actionName: "DISCOVER ELASTOS",
+    handleAction: (): void => {
+      window.open("https://elastos.org", "_blank");
+    },
   },
   {
     logo: <TrinityLogo width="100%" height="100%" />,
@@ -31,6 +37,9 @@ const DiscoverProps = [
     description:
       "Trinity Tech, the company behind this identity application, specializes in crafting innovative Elastos technologies and services. Their expertise is dedicated to enhancing and expanding the capabilities of this platform.",
     actionName: "VISIT WEBSITE",
+    handleAction: (): void => {
+      window.open("https://trinity-tech.io", "_blank");
+    },
   },
 ];
 const DiscoverPage: FC = () => {
@@ -42,7 +51,7 @@ const DiscoverPage: FC = () => {
         creative minds, and find the right resources for your needs."
         showBg={true}
       />
-      <Grid container spacing={{xs: 2, sm: 3}}>
+      <Grid container spacing={{ xs: 2, sm: 3 }}>
         {DiscoverProps.map((prop, _id) => (
           <Grid item xs={12} sm={6} key={_id}>
             <DiscoverSection {...prop} />

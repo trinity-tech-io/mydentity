@@ -85,7 +85,7 @@ export const generateTheme = (mode: PaletteMode): Theme => createTheme({
     h3: {
       fontWeight: 700,
       lineHeight: 1.5,
-      fontSize: pxToRem(24),
+      fontSize: pxToRem(26),
       ...responsiveFontSizes({ sm: 26, md: 30, lg: 36 })
     },
     h4: {
@@ -117,7 +117,7 @@ export const generateTheme = (mode: PaletteMode): Theme => createTheme({
       fontSize: pxToRem(14)
     },
     body1: {
-      fontSize: pxToRem(15),
+      fontSize: pxToRem(14),
       ...responsiveFontSizes({ sm: 16, md: 16, lg: 16 })
     },
     body2: {
@@ -125,7 +125,8 @@ export const generateTheme = (mode: PaletteMode): Theme => createTheme({
       ...responsiveFontSizes({ sm: 14, md: 14, lg: 14 })
     },
     caption: {
-      fontSize: pxToRem(12)
+      fontSize: pxToRem(11),
+      ...responsiveFontSizes({ sm: 12, md: 12, lg: 12 })
     },
   },
   palette: {

@@ -18,7 +18,7 @@ const DiscoverSection: FC<DiscoverSection> = ({
   title,
   description,
   actionName,
-  handleAction,
+  handleAction = (): void => {},
 }) => {
   return (
     <CardStyled elevation={0} className="h-full">
@@ -50,7 +50,7 @@ const DiscoverSection: FC<DiscoverSection> = ({
         >
           {description}
         </Typography>
-        <DarkButton className="w-full">{actionName}</DarkButton>
+        <DarkButton className="w-full" onClick={handleAction}>{actionName}</DarkButton>
       </Stack>
     </CardStyled>
   );
