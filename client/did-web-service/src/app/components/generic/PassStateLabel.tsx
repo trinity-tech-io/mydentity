@@ -15,7 +15,7 @@ const PassStateLabel: FC<{ isPassed: boolean; title: string; size?: StateTextSiz
   return (
     <Box
       className={clsx(
-        `rounded-md text-[${size}pt] px-3 py-0.5 inline-block text-white whitespace-nowrap`,
+        `rounded-md text-[${size}pt] px-3 py-0.5 inline-block text-white max-w-[50%]`,
         isPassed ? "bg-[#34A853]" : "bg-[#EA4335]"
       )}
     >

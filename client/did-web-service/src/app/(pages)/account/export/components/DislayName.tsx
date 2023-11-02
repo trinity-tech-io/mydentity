@@ -19,8 +19,8 @@ export const DislayName: FC<{
   }, [identity]);
 
   return (
-    <div>
+    <>
       {name}
-    </div>
+    </>
   );
 };
