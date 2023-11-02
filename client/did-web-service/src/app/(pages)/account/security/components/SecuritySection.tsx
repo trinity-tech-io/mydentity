@@ -3,7 +3,9 @@ import { styled } from "@mui/material/styles";
 import { Box, Card, CardContent, Typography } from "@mui/material";
 import { DarkButton } from "@components/button";
 import { IconAvatar } from "@components/feature/DetailLine";
-import PassStateLabel, { StateTextSize } from "@components/generic/PassStateLabel";
+import PassStateLabel, {
+  StateTextSize,
+} from "@components/generic/PassStateLabel";
 import { LoadingSecurityContent } from "@components/loading-skeleton";
 import { useMounted } from "@hooks/useMounted";
 
@@ -43,9 +45,9 @@ const SecuritySection: FC<{
   const initialLoaded = loaded !== null ? loaded : mounted;
   return (
     <CardStyled className={className} elevation={0}>
-      <CardContent
+      <Box
         className="relative z-10 flex flex-col h-full"
-        sx={{ px: 3, pt: 1 }}
+        sx={{ px: { xs: 1.5, sm: 3 }, pt: { xs: 1, sm: 1.5 }, pb: 1.5 }}
       >
         <Box className="pb-4 pt-2 flex items-center">
           <IconAvatar>{icon}</IconAvatar>
@@ -58,7 +60,11 @@ const SecuritySection: FC<{
             {title}
           </Typography>
           {mounted && isSet !== null && (
-            <PassStateLabel isPassed={isSet} title={statusTitle} size={StateTextSize.SMALL} />
+            <PassStateLabel
+              isPassed={isSet}
+              title={statusTitle}
+              size={StateTextSize.SMALL}
+            />
           )}
         </Box>
         {disabledSkel ? (
@@ -90,7 +96,7 @@ const SecuritySection: FC<{
             )}
           </>
         )}
-      </CardContent>
+      </Box>
     </CardStyled>
   );
 };
