@@ -19,8 +19,8 @@ export const IdentityRootDids: FC<{
               <Typography variant="body2" fontWeight={600}>
                 <DislayName identity={identity}/>
               </Typography>
-              <Typography variant="caption" fontStyle="italic" fontSize={9}>
-                {identity?.createdAt.toLocaleString()}
+              <Typography variant="caption" fontStyle="italic" fontSize={10}>
+                Created : {identity?.createdAt.toLocaleString()}
               </Typography>
             </Stack>
             {/* <div>

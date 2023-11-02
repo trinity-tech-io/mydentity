@@ -1,7 +1,7 @@
 "use client";
 import { FC, useState } from "react";
 import { Icon as ReactIcon } from "@iconify/react";
-import { Grid, Stack, Typography } from "@mui/material";
+import { Box, Grid, Stack, Typography } from "@mui/material";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useMounted } from "@hooks/useMounted";
 import { RegularIdentity } from "@model/regular-identity/regular-identity";
@@ -12,9 +12,10 @@ import { authUser$ } from "@services/user/user.events";
 import { IdentityRootDids } from "./components/IdentityRootDids";
 import Headline from "@components/layout/Headline";
 import SecuritySection from "../security/components/SecuritySection";
+import MnemonicBox from "./components/MnemonicBox";
 
 const TAG = "export-mnemonic";
-interface ClickedMnemonics {
+interface Mnemonics {
   [key: string]: string | undefined;
 }
 const ExportMnemonicPage: FC = () => {
@@ -23,30 +24,33 @@ const ExportMnemonicPage: FC = () => {
   const [identityRoots] = useBehaviorSubject(
     activeUser?.get("identity").identityRoots$
   );
-  const [clickedMnemonics, setClickedMnemonics] = useState<ClickedMnemonics>(
-    {}
-  );
-  const { showSuccessToast, showErrorToast } = useToast();
+  const [exporting, setExporting] = useState<{ [key: string]: boolean }>({});
+  const [mnemonics, setMnemonics] = useState<Mnemonics>({});
   const [identities] = useBehaviorSubject(
     activeUser?.get("identity").regularIdentities$
   ); //TODO: Replace with Identities under the Identity root id
-  const [showMnemonic, setShowMnemonic] = useState(false);
 
   const handleExportMnemonic: (identityRoot: IdentityRoot) => void = async (
     identityRoot
   ) => {
+    setExporting((prevState) => ({
+      ...prevState,
+      [identityRoot.id]: true,
+    }));
     const identityRootId = identityRoot.id;
     const mnemonic = await activeUser
       .get("identity")
       .exportMnemonic(identityRootId);
 
-    // Update clickedMnemonics and setShowMnemonic for the corresponding identityRootId
-    setClickedMnemonics((prevMnemonics) => ({
+    // Update mnemonics and setShowMnemonic for the corresponding identityRootId
+    setMnemonics((prevMnemonics) => ({
       ...prevMnemonics,
       [identityRoot.id]: mnemonic,
     }));
-
-    setShowMnemonic(true);
+    setExporting((prevState) => ({
+      ...prevState,
+      [identityRoot.id]: false,
+    }));
   };
 
   if (!mounted) return null;
@@ -112,41 +116,21 @@ const ExportMnemonicPage: FC = () => {
                 statusTitle={`EXPORT CREDENTIALS NOT SUPPORTED YET. COMING SOON`}
                 isSet={false}
                 actionTitle={"EXPORT MNEMONICS"}
-                disabledAction={
-                  showMnemonic && !!clickedMnemonics[identityRoot.id]
-                }
+                disabledAction={!!mnemonics[identityRoot.id]}
+                actionInProgress={exporting[identityRoot.id] || false}
                 handleAction={(): void => {
                   handleExportMnemonic(identityRoot);
                 }}
               >
-                <div>
-                  {/* show Mnemonic and copy Mnemonic */}
-                  {showMnemonic && clickedMnemonics[identityRoot.id] && (
-                    <Typography
-                      variant="body2"
-                      onClick={(): void => {
-                        navigator.clipboard.writeText(
-                          clickedMnemonics[identityRoot.id]
-                        );
-                        showSuccessToast("Mnemonic copied to clipboard.");
-                      }}
-                      sx={{
-                        textDecoration: "none",
-                        cursor: "pointer",
-                        "&:hover": {
-                          color: "blue",
-                        },
-                      }}
-                    >
-                      Mnemonic: {clickedMnemonics[identityRoot.id]}
-                      <FileCopyIcon style={{ fontSize: 16, marginLeft: 5 }} />
-                    </Typography>
+                <Stack spacing={2} sx={{ mt: 1 }}>
+                  {mnemonics[identityRoot.id] && (
+                    <MnemonicBox mnemonic={mnemonics[identityRoot.id]} />
                   )}
-                </div>
 
-                {/* Display all Identities under the Identity root id */}
-                <Stack spacing={2} sx={{mt: 1}}>
-                  <IdentityRootDids identities={correspondingIdentities} />
+                  {/* Display all Identities under the Identity root id */}
+                  <Stack spacing={2}>
+                    <IdentityRootDids identities={correspondingIdentities} />
+                  </Stack>
                 </Stack>
               </SecuritySection>
             </Grid>
