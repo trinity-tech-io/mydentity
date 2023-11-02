@@ -1,29 +1,19 @@
 "use client";
 import { DarkButton } from "@components/button";
-import { MainButton } from "@components/generic/MainButton";
 import Headline from "@components/layout/Headline";
+import LoadingSpinner from "@components/preparing/LoadingSpinner";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { useMounted } from "@hooks/useMounted";
 import { AppException } from "@model/exceptions/app-exception";
 import { DIDExceptionCode } from "@model/exceptions/exception-codes";
-import {
-  Grid,
-  OutlinedInput,
-  Stack,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Grid, OutlinedInput, Stack, Typography } from "@mui/material";
 import { useToast } from "@services/feedback.service";
 import { authUser$ } from "@services/user/user.events";
 import { useRouter } from "next/navigation";
 import {
-  ChangeEvent,
-  ChangeEventHandler,
   ClipboardEvent,
-  ClipboardEventHandler,
   FC,
   KeyboardEvent,
-  KeyboardEventHandler,
   MutableRefObject,
   useRef,
   useState,
@@ -85,10 +75,6 @@ const ImportPage: FC = () => {
     }
   };
 
-  const onMnemonicChange = (event: ChangeEvent<HTMLInputElement>): void => {
-    setMnemonic(event.currentTarget?.value);
-  };
-
   const handlePastePhrases = (e: ClipboardEvent, index: number): void => {
     e.stopPropagation();
     e.preventDefault();
@@ -122,8 +108,6 @@ const ImportPage: FC = () => {
     }
   };
 
-  if (!mounted) return null;
-
   return (
     <div>
       <Headline
@@ -132,73 +116,58 @@ const ImportPage: FC = () => {
         Please note that only published credentials will be included in the import process."
         showBg={true}
       />
-      <Stack alignItems="center" spacing={2} sx={{ pt: { xs: 2, sm: 4 } }}>
-        <Typography variant="h5">Enter 12 Words</Typography>
-        <div className="max-w-xl w-full">
-          <Grid container spacing={2}>
-            {Array(12)
-              .fill(0)
-              .map((_, _id) => {
-                const getRef = (element: MutableRefObject<any>): void => {
-                  phraseRef.current[_id] = element;
-                };
-                return (
-                  <Grid item xs={4} sm={3} md={2} key={_id}>
-                    <OutlinedInput
-                      size="small"
-                      onPaste={(e): void => {
-                        handlePastePhrases(e, _id);
-                      }}
-                      inputProps={{
-                        ref: getRef,
-                      }}
-                      onKeyDown={(e): void => {
-                        handleKeyPhrase(e, _id);
-                      }}
-                      onChange={checkPhrases}
-                    />
-                  </Grid>
-                );
-              })}
-          </Grid>
-        </div>
-        <div className="px-2 sm:px-12 max-w-xl w-full mt-8">
-          <DarkButton
-            loading={importing}
-            disabled={!mnemonic}
-            className="w-full"
-            onClick={handleImportMnemonic}
-          >
-            IMPORT
-          </DarkButton>
-        </div>
-      </Stack>
-
-      <div className="my-8">
-        <TextField
-          autoFocus
-          onChange={onMnemonicChange}
-          margin="dense"
-          label="Your 12 mnemonic words"
-          variant="outlined"
-          autoComplete="off"
-          disabled={importing}
-        />
-      </div>
-
-      <MainButton
-        onClick={handleImportMnemonic}
-        busy={importing}
-        disabled={!mnemonic}
-      >
-        Import my DID
-      </MainButton>
-      {importing && (
-        <Typography>
-          Importing identities, please wait. This takes several seconds.
-        </Typography>
+      {!mounted ? (
+        <LoadingSpinner />
+      ) : (
+        <Stack alignItems="center" spacing={2} sx={{ pt: { xs: 2, sm: 4 } }}>
+          <Typography variant="h5">Enter 12 Words</Typography>
+          <div className="max-w-xl w-full">
+            <Grid container spacing={2}>
+              {Array(MnemonicLength)
+                .fill(0)
+                .map((_, _id) => {
+                  const getRef = (element: MutableRefObject<any>): void => {
+                    phraseRef.current[_id] = element;
+                  };
+                  return (
+                    <Grid item xs={4} sm={3} md={2} key={_id}>
+                      <OutlinedInput
+                        size="small"
+                        autoFocus={_id == 0}
+                        readOnly={importing}
+                        onPaste={(e): void => {
+                          handlePastePhrases(e, _id);
+                        }}
+                        inputProps={{
+                          ref: getRef,
+                        }}
+                        onKeyDown={(e): void => {
+                          handleKeyPhrase(e, _id);
+                        }}
+                        onChange={checkPhrases}
+                      />
+                    </Grid>
+                  );
+                })}
+            </Grid>
+          </div>
+          <div className="px-2 sm:px-12 max-w-xl w-full pt-4 sm:pt-8">
+            <DarkButton
+              loading={importing}
+              disabled={!mnemonic}
+              className="w-full"
+              onClick={handleImportMnemonic}
+            >
+              {importing ? "IMPORTING IDENTITIES ..." : "IMPORT"}
+            </DarkButton>
+            {error && (
+              <Typography variant="body2" color="error" sx={{ pt: 1 }}>
+                {error}
+              </Typography>
+            )}
+          </div>
+        </Stack>
       )}
-      {error && <Typography color="red">{error}</Typography>}
     </div>
   );
 };
