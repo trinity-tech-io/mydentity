@@ -97,6 +97,10 @@ const ImportPage: FC = () => {
   ): void => {
     if (e.keyCode === 8 && !e.currentTarget.value.length && index > 0)
       phraseRef.current[index - 1].focus();
+    if (e.keyCode === 13 || e.keyCode === 32) {
+      e.preventDefault();
+      if (index < MnemonicLength - 1) phraseRef.current[index + 1].focus();
+    }
   };
 
   const checkPhrases = (): void => {

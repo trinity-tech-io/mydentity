@@ -145,7 +145,7 @@ const ExportMnemonicPage: FC = () => {
                 </div>
 
                 {/* Display all Identities under the Identity root id */}
-                <Stack spacing={2}>
+                <Stack spacing={2} sx={{mt: 1}}>
                   <IdentityRootDids identities={correspondingIdentities} />
                 </Stack>
               </SecuritySection>
