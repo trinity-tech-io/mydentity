@@ -1,4 +1,3 @@
-import { LoadingCircle } from "@components/loading-cards/loading-circle/LoadingCircle";
 import { Credential } from "@model/credential/credential";
 import clsx from "clsx";
 import { FC } from "react";

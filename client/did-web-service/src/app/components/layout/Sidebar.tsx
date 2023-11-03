@@ -123,7 +123,7 @@ const LinkElement: FC<{
   const isActive = link.url === pathname;
 
   return (
-    <li className="mb-1 last:mb-0">
+    <li>
       <Link
         href={link.url}
         className={clsx(
@@ -338,17 +338,37 @@ const MenuListItem = styled(ListItem)(({ theme }) => ({
   "--primary-color": theme.palette.mode == "dark" ? "#43464c80" : "#7a3cff",
   "--tran": "all 0.3s ease",
   transition: "var(--tran)",
-  a: {
+  "&>a": {
     filter: "opacity(0.7)",
     display: "flex",
     alignItems: "center",
     padding: "8px 12px",
     borderRadius: 6,
     color: theme.palette.mode == "dark" ? "#EEE" : "#121212",
+    "&:hover, &:active, &:focus": {
+      backgroundColor: "var(--primary-color)",
+      filter: "none",
+    }
   },
   "a:hover, a.active": {
-    backgroundColor: "var(--primary-color)",
     filter: "none",
+  },
+  "&.sub-menu": {
+    ul: {
+      position: "relative",
+      li: {
+        padding: "4px 12px",
+      },
+      "&:after": {
+        content: "''",
+        background: "#8080806B",
+        left: 24,
+        position: "absolute",
+        top: 8,
+        bottom: 8,
+        width: 1,
+      },
+    },
   },
   "&.sub-menu > a:after": {
     content: "''",
