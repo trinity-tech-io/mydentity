@@ -13,7 +13,7 @@ const ReaderBox = styled(Box)((theme) => ({
   ".surface": {
     perspective: "1000px",
     borderRadius: 20,
-    padding: "1.3rem",
+    padding: "1.3rem 1.3rem 0.8rem",
     backgroundColor: "#0A0A0A",
     "&.top": {
       clipPath: "polygon(0% 0%, 0% 100%, 87% 100%, 87% 0%)",
@@ -130,6 +130,9 @@ const ReaderBox = styled(Box)((theme) => ({
   },
   ".detail-paper": {
     width: "87%",
+    ".detail-body": {
+      maxHeight: "calc(100% - 0.5rem)",
+    },
     ".reveal": {
       zIndex: 1,
       transition: "background-color 0.8s 0.4s cubic-bezier(0.77, 0, 0.175, 1)",
@@ -232,18 +235,20 @@ const CardReader: FC<{ identityCard: ReactNode; detailPaper: ReactNode }> = ({
         <span className="entry" />
       </div>
       <div className="surface absolute w-full h-full overflow-hidden flex top flex-col">
-        <span className="light relative" />
         <div className="entry-left" />
         <span className="entry" />
-        <div className="detail-paper flex-1 pt-2">
-          <div
-            className={clsx(
-              "reveal relative inline-block overflow-hidden w-full h-full",
-              isInserted && "reveal--visible"
-            )}
-          >
-            <div className="detail-content p-4 h-full">
-              {isInserted && detailPaper}
+        <div className="flex flex-col detail-paper h-full">
+          <span className="light relative" />
+          <div className="flex-1 pt-2 detail-body">
+            <div
+              className={clsx(
+                "reveal relative inline-block overflow-hidden w-full h-full",
+                isInserted && "reveal--visible"
+              )}
+            >
+              <div className="detail-content p-4 h-full">
+                {isInserted && detailPaper}
+              </div>
             </div>
           </div>
         </div>

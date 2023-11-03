@@ -86,7 +86,14 @@ const AppPhrase: FC<{ appIdentity: ApplicationIdentity }> = ({
           {phrases}
         </Typography>
       </Box>
-      <Typography variant="caption" color="error.main" fontSize={10} align="center" className="pt-1">
+      <Typography
+        variant="inherit"
+        color="error.main"
+        fontSize={10}
+        align="center"
+        sx={{ pt: 0.6 }}
+        lineHeight={1}
+      >
         Reminder: Please store the mnemonics in a secure place
       </Typography>
     </Stack>

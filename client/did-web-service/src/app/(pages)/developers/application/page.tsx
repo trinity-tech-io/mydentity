@@ -51,6 +51,9 @@ const ApplicationDetailsPage: FC<{
   ); // Credentials of the app identity, local (maybe not published) - KEEP it unused to load the credentials
   const [localAppCredential, setLocalAppCredential] =
     useState<Credential>(null);
+  const [representativeIconPath] = useBehaviorSubject(
+    localAppCredential?.representativeIcon$
+  );
   const [appName, setAppName] = useState<string>(null); // UI model, possibly not yet saved to local VC/published VC
   const [appIconUrl, setAppIconUrl] = useState<string>(null); // UI model, possibly not yet saved to local VC/published VC
   const [appDIDDocumentStatusWasChecked, setAppDIDDocumentStatusWasChecked] =
@@ -195,8 +198,8 @@ const ApplicationDetailsPage: FC<{
   const updateAppIdentityNeedsToBePublished = (): void => {
     setAppIdentityNeedsToBePublished(
       !isAppIdentityPublished() ||
-      !chainAppNameMatchesLocalAppName() ||
-      !chainAppIconMatchesLocalAppIcon()
+        !chainAppNameMatchesLocalAppName() ||
+        !chainAppIconMatchesLocalAppIcon()
     );
   };
 
@@ -287,14 +290,13 @@ const ApplicationDetailsPage: FC<{
                     <Stack
                       direction="row"
                       alignItems="center"
-                      className="mt-2"
-                      spacing={1}
+                      sx={{ mt: 0.75 }}
                     >
                       <Typography
-                        variant="caption"
+                        variant="inherit"
                         className="break-all flex-1"
                         color="text.primary"
-                        fontSize={9}
+                        fontSize={10}
                       >
                         {appIdentity.did}
                       </Typography>
@@ -315,7 +317,7 @@ const ApplicationDetailsPage: FC<{
               {appIdentityNeedsToBePublished ? (
                 <SecurityStatus
                   state={SecurityState.Average}
-                  advice="The local application info has been modified. Please publish it for others to view your new app info."
+                  advice="The local application info has been modified. Please set an app icon, a title, and publish the DID again for others to view your new app info."
                 />
               ) : (
                 <SecurityStatus
@@ -327,7 +329,7 @@ const ApplicationDetailsPage: FC<{
             <DarkButton
               loading={publishingIdentity}
               onClick={publishAppIdentity}
-              disabled={!appIdentityNeedsToBePublished}
+              disabled={!appIdentityNeedsToBePublished || !representativeIconPath}
             >
               PUBLISH DID
             </DarkButton>

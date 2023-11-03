@@ -72,7 +72,7 @@ function getActivityRenderer(activity: Activity): ActivityRenderType {
     case ActivityType.IDENTITY_DELETED:
       renderer.icon = <ReactIcon icon="game-icons:burning-skull" />;
       renderer.action_name = "Identity has been deleted";
-      renderer.action_for = activity.identityDidStr;
+      renderer.action_for = <ActionForIdentity identity={activity.identity as  RegularIdentity} />;
       break;
     case ActivityType.BIND_EMAIL:
       renderer.icon = <ReactIcon icon="entypo:email" />;
