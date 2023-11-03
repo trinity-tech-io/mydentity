@@ -14,7 +14,8 @@ import { NormalButton } from "@components/button";
 
 export const IdentityRootDids: FC<{
   identities: RegularIdentity[];
-}> = ({ identities }) => {
+  disableCopyDID?: boolean;
+}> = ({ identities, disableCopyDID = false }) => {
   const [expanded, setExpanded] = useState(true);
 
   const handleExpanding = (): void => {
@@ -71,6 +72,7 @@ export const IdentityRootDids: FC<{
                   className: "opacity-80",
                   style: { fontSize: 12 },
                 }}
+                disableCopy={disableCopyDID}
               />
             </Box>
           </motion.section>

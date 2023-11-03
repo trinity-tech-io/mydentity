@@ -36,8 +36,14 @@ const DidTextfield: FC<{
   value: string;
   outerProps?: InputProps;
   inputProps?: InputBaseComponentProps;
+  disableCopy?: boolean;
 }> = (props) => {
-  const { value, outerProps = {}, inputProps = {} } = props;
+  const {
+    value,
+    outerProps = {},
+    inputProps = {},
+    disableCopy = false,
+  } = props;
 
   return (
     <FormControlStyled>
@@ -50,9 +56,11 @@ const DidTextfield: FC<{
           ...inputProps,
         }}
         endAdornment={
-          <InputAdornment position="end">
-            <CopyButton text={value} iconWidth={18} />
-          </InputAdornment>
+          !disableCopy && (
+            <InputAdornment position="end">
+              <CopyButton text={value} iconWidth={18} />
+            </InputAdornment>
+          )
         }
       />
     </FormControlStyled>

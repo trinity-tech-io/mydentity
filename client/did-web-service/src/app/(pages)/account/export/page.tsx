@@ -27,16 +27,18 @@ const ExportMnemonicPage: FC = () => {
     activeUser?.get("identity").regularIdentities$
   ); //TODO: Replace with Identities under the Identity root id
 
-  const [identityRoots, setIdentityRoots] = useState<IdentityRoot[] | null>(null);
+  const [identityRoots, setIdentityRoots] = useState<IdentityRoot[] | null>(
+    null
+  );
   const [hasFetchedIdentityRoots, setHasFetchedIdentityRoots] = useState(false);
- 
+
   useEffect(() => {
     if (activeUser && !hasFetchedIdentityRoots) {
       const fetchIdentityRoots = async (): Promise<void> => {
         const roots = await activeUser.get("identity").fetchIdentityRoots();
         setIdentityRoots(roots || null);
       };
- 
+
       fetchIdentityRoots();
       setHasFetchedIdentityRoots(true); // Set to have been refreshed
     }
@@ -135,13 +137,16 @@ const ExportMnemonicPage: FC = () => {
                 }}
               >
                 <Stack spacing={2} sx={{ mt: 1 }}>
-                  {mnemonics[identityRoot.id] && (
+                  {!!mnemonics[identityRoot.id] && (
                     <MnemonicBox mnemonic={mnemonics[identityRoot.id]} />
                   )}
 
                   {/* Display all Identities under the Identity root id */}
                   <Stack spacing={2}>
-                    <IdentityRootDids identities={correspondingIdentities} />
+                    <IdentityRootDids
+                      identities={correspondingIdentities}
+                      disableCopyDID={!!mnemonics[identityRoot.id]}
+                    />
                   </Stack>
                 </Stack>
               </SecuritySection>

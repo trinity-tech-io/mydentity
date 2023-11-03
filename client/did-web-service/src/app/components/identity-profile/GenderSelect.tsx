@@ -34,7 +34,7 @@ export default function GenderSelect({ onGenderSelect }: GenderSelectProps): Rea
       renderInput={(params: AutocompleteRenderInputParams): React.ReactElement => (
         <TextField
           {...params}
-          label="Choose a sex"
+          label="Choose sex"
           inputProps={{
             ...params.inputProps,
             autoComplete: "new-password" // disable autocomplete and autofill
@@ -46,8 +46,8 @@ export default function GenderSelect({ onGenderSelect }: GenderSelectProps): Rea
 }
 
 export enum GenderType {
-  male = 'male',
-  female = 'female'
+  male = 'Male',
+  female = 'Female'
 }
 
 const gender: readonly GenderType[] = [
