@@ -1,7 +1,6 @@
 import { FC, ReactNode } from "react";
 import { Box, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import ChipIcon from "@assets/images/card/chip.svg";
 
 const LoadingRing = styled(Box)(({ theme }) => ({
   position: "relative",

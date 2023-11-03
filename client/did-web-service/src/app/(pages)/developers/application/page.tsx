@@ -198,8 +198,8 @@ const ApplicationDetailsPage: FC<{
   const updateAppIdentityNeedsToBePublished = (): void => {
     setAppIdentityNeedsToBePublished(
       !isAppIdentityPublished() ||
-        !chainAppNameMatchesLocalAppName() ||
-        !chainAppIconMatchesLocalAppIcon()
+      !chainAppNameMatchesLocalAppName() ||
+      !chainAppIconMatchesLocalAppIcon()
     );
   };
 
@@ -329,7 +329,9 @@ const ApplicationDetailsPage: FC<{
             <DarkButton
               loading={publishingIdentity}
               onClick={publishAppIdentity}
-              disabled={!appIdentityNeedsToBePublished || !representativeIconPath}
+              disabled={
+                !appIdentityNeedsToBePublished || !representativeIconPath
+              }
             >
               PUBLISH DID
             </DarkButton>
