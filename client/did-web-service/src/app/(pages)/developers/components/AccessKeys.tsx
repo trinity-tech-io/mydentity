@@ -46,6 +46,7 @@ export const AccessKeys: FC = () => {
       actionInProgress={creatingKey}
       handleAction={newAccessKey}
       disabledSkel={true}
+      disabledAction={!!createdKey}
       loaded={mounted && !!accessKeys}
     >
       {createdKey ? (

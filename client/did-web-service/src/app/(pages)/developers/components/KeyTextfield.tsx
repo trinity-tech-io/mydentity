@@ -37,9 +37,9 @@ const FormControlStyled = styled(FormControl)(({ theme }) => ({
       borderColor: "white",
     },
   },
-  ".key-input.redacted": {
-    fontFamily: "Redacted Script",
-  },
+  // ".key-input.redacted": {
+  //   fontFamily: "Redacted Script",
+  // },
 }));
 
 const KeyTextfield: FC<{
@@ -48,12 +48,12 @@ const KeyTextfield: FC<{
   inputProps?: InputBaseComponentProps;
 }> = (props) => {
   const { value, outerProps = {}, inputProps = {} } = props;
-  const [showKey, setShowKey] = React.useState(false);
-  const handleClickShowKey: React.MouseEventHandler = () =>
-    setShowKey((show) => !show);
-  const handleMouseDownButton: React.MouseEventHandler = (event) => {
-    event.preventDefault();
-  };
+  // const [showKey, setShowKey] = React.useState(false);
+  // const handleClickShowKey: React.MouseEventHandler = () =>
+  //   setShowKey((show) => !show);
+  // const handleMouseDownButton: React.MouseEventHandler = (event) => {
+  //   event.preventDefault();
+  // };
 
   return (
     <FormControlStyled>
@@ -62,22 +62,22 @@ const KeyTextfield: FC<{
         value={value}
         size="small"
         type="input"
-        className={clsx("key-input", !showKey && "redacted")}
+        className={clsx("key-input")}
         inputProps={{
           ...inputProps,
         }}
         endAdornment={
           <InputAdornment position="end">
             <div className="flex gap-1">
-              <CopyButton text={value} iconWidth={18}/>
-              <IconButtonStyled
+              <CopyButton text={value} iconWidth={18} />
+              {/* <IconButtonStyled
                 size="small"
                 aria-label="toggle key visibility"
                 onClick={handleClickShowKey}
                 onMouseDown={handleMouseDownButton}
               >
                 {showKey ? <VisibilityOff sx={{fontSize: 18}} /> : <Visibility sx={{fontSize: 18}} />}
-              </IconButtonStyled>
+              </IconButtonStyled> */}
             </div>
           </InputAdornment>
         }
