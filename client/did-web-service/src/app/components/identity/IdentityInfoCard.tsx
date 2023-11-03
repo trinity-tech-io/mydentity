@@ -26,7 +26,7 @@ export const IdentityInfoCard: FC<{
         activeIdentity != identity ? "bg-[#675216]" : "bg-neutral-950"
       )}
       waveIconVisible={false}
-      footer={<Typography variant="caption" fontSize="7pt">{shortenDID(identity.did, 8)}</Typography>}
+      footer={<Typography variant="inherit" fontSize="7pt">{shortenDID(identity.did, 8)}</Typography>}
     >
       <GradientTypography variant="body2" fontWeight={600} className="pb-2">
         {name || "Unnamed identity"}

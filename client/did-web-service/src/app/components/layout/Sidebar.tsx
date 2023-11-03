@@ -7,6 +7,8 @@ import { useRouter } from "next13-progressbar";
 import { usePathname } from "next/navigation";
 import { Swiper, SwiperClass, SwiperSlide } from "swiper/react";
 import { EffectCards, Pagination } from "swiper/modules";
+import { Box, Collapse, List, ListItem, Typography } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/effect-cards";
@@ -14,7 +16,7 @@ import "swiper/css/effect-cards";
 import AccountIcon from "@assets/images/account.svg";
 import CardIcon from "@assets/images/card.svg";
 import WidgetIcon from "@assets/images/widgets.svg";
-import DashboardIcon from "@assets/images/dashboard.svg";
+import ActivityIcon from "@assets/images/activity.svg";
 import ExploreIcon from "@assets/images/explore.svg";
 import SupportIcon from "@assets/images/contact-support.svg";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
@@ -23,7 +25,6 @@ import { activeIdentity$ } from "@services/identity/identity.events";
 import { authUser$ } from "@services/user/user.events";
 import ThemeToggle from "../generic/ThemeToggle";
 import { LandingCard } from "@components/card";
-import { Box, Typography } from "@mui/material";
 import { IdentityInfoCard } from "@components/identity/IdentityInfoCard";
 import { identityService } from "@services/identity/identity.service";
 import { RegularIdentity } from "@model/regular-identity/regular-identity";
@@ -70,7 +71,7 @@ const groups: GroupConfig[] = [
     openByDefault: true,
   },
   {
-    icon: <DashboardIcon />,
+    icon: <ActivityIcon />,
     title: "Recent activity",
     url: "/recent-activity",
     requiresAuth: true,
@@ -175,74 +176,52 @@ const GroupElement: FC<{
   if (requiresActiveIdentity && (!activeIdentity || !mounted)) return null;
 
   return (
-    <div>
-      <ul className="">
-        <li
-          className={`px-3 py-2 rounded-sm mb-0.5 last:mb-0 ${
-            isActive && "bg-stone-900"
-          }`}
-        >
-          <Link
-            href={group.url || ""}
-            className={`block text-[#ddd] truncate transition duration-150 ${
-              isActive ? "hover:text-slate-200" : "hover:text-white"
-            }`}
-            onClick={(e) => {
-              if (!group.url) e.preventDefault();
-              else closeSidebar();
-              setOpen(!open);
-              onGroupHeaderClicked();
-            }}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <div className="p-1 h-6 w-6">{icon}</div>
-                <span
-                  className={clsx(
-                    "text-base font-medium ml-3 lg:opacity-0 2xl:opacity-100 duration-200",
-                    sidebarExpanded && "lg:!opacity-100"
-                  )}
-                >
-                  {title}
-                </span>
-              </div>
-              {links && (
-                <div className="flex shrink-0 ml-2">
-                  <svg
-                    className={`w-3 h-3 shrink-0 ml-1 fill-current text-slate-400 ${
-                      open && "rotate-180"
-                    }`}
-                    viewBox="0 0 12 12"
-                  >
-                    <path d="M5.9 11.4L.5 6l1.4-1.4 4 4 4-4L11.3 6z" />
-                  </svg>
-                </div>
-              )}
-            </div>
-          </Link>
-          {/* Inner links */}
-          {links && (
-            <div
-              className={clsx(
-                "lg:hidden 2xl:block",
-                sidebarExpanded && "lg:!block"
-              )}
-            >
-              <ul className={`pl-9 mt-1 ${!open && "hidden"}`}>
-                {links.map((link) => (
-                  <LinkElement
-                    key={link.title}
-                    link={link}
-                    closeSidebar={closeSidebar}
-                    sidebarExpanded={sidebarExpanded}
-                  />
-                ))}
-              </ul>
-            </div>
+    <MenuListItem
+      className={clsx("rounded-md", links && "sub-menu", open && "open")}
+    >
+      <Link
+        href={group.url || ""}
+        className={clsx("truncate", isActive && "active")}
+        onClick={(e) => {
+          if (!group.url) e.preventDefault();
+          else closeSidebar();
+          setOpen(!open);
+          onGroupHeaderClicked();
+        }}
+      >
+        <div className="p-1 h-6 w-6">{icon}</div>
+        <span
+          className={clsx(
+            "flex-1 text-base font-medium ml-3 lg:opacity-0 2xl:opacity-100",
+            sidebarExpanded && "lg:!opacity-100"
           )}
-        </li>
-      </ul>
-    </div>
+        >
+          {title}
+        </span>
+      </Link>
+      {/* Inner links */}
+      {links && (
+        <Collapse in={open} timeout="auto">
+          <div
+            className={clsx(
+              "lg:hidden 2xl:block",
+              sidebarExpanded && "lg:!block"
+            )}
+          >
+            <ul className="pl-9 mt-1">
+              {links.map((link) => (
+                <LinkElement
+                  key={link.title}
+                  link={link}
+                  closeSidebar={closeSidebar}
+                  sidebarExpanded={sidebarExpanded}
+                />
+              ))}
+            </ul>
+          </div>
+        </Collapse>
+      )}
+    </MenuListItem>
   );
 };
 
@@ -335,6 +314,59 @@ const IdentityCardGroup: FC = () => {
   );
 };
 
+const MenuList = styled(List)(({ theme }) => ({
+  "&.collapsed > li.sub-menu > a:after": {
+    content: "''",
+    width: 5,
+    height: 5,
+    backgroundColor: "currentcolor",
+    borderRadius: "50%",
+    display: "inline-block",
+    position: "absolute",
+    right: 10,
+    top: "50%",
+    border: "none",
+    transform: "translateY(-50%)",
+  },
+  li: {},
+}));
+
+const MenuListItem = styled(ListItem)(({ theme }) => ({
+  padding: 0,
+  display: "block",
+  marginTop: 4,
+  "--primary-color": theme.palette.mode == "dark" ? "#43464c80" : "#7a3cff",
+  "--tran": "all 0.3s ease",
+  transition: "var(--tran)",
+  a: {
+    filter: "opacity(0.7)",
+    display: "flex",
+    alignItems: "center",
+    padding: "8px 12px",
+    borderRadius: 6,
+    color: theme.palette.mode == "dark" ? "#EEE" : "#121212",
+  },
+  "a:hover, a.active": {
+    backgroundColor: "var(--primary-color)",
+    filter: "none",
+  },
+  "&.sub-menu > a:after": {
+    content: "''",
+    transition: "transform 0.3s",
+    borderRight: "2px solid currentcolor",
+    borderBottom: "2px solid currentcolor",
+    width: 8,
+    height: 8,
+    transform: "rotate(-45deg)",
+  },
+  "&.sub-menu.open > a": {
+    filter: "none",
+    "&:after": {
+      transform: "rotate(45deg)",
+    },
+  },
+}));
+
 const Sidebar: FC<{
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
@@ -412,15 +444,8 @@ const Sidebar: FC<{
           </button>
         </div>
 
-        {/* <button className="btn bg-indigo-500 hover:bg-indigo-600 text-white mb-4" onClick={createDIDTest}>
-          <svg className="w-4 h-4 fill-current opacity-50 shrink-0" viewBox="0 0 16 16">
-            <path d="M15 7H9V1c0-.6-.4-1-1-1S7 .4 7 1v6H1c-.6 0-1 .4-1 1s.4 1 1 1h6v6c0 .6.4 1 1 1s1-.4 1-1V9h6c.6 0 1-.4 1-1s-.4-1-1-1z" />
-          </svg>
-          <span className="hidden xs:block ml-2">Test New DID</span>
-        </button> */}
-
         {/* Links */}
-        <div /* className="space-y-8" */>
+        <MenuList>
           {/* Link groups */}
           {groups.map((group) => (
             <GroupElement
@@ -433,7 +458,7 @@ const Sidebar: FC<{
               }}
             />
           ))}
-        </div>
+        </MenuList>
         {/* Expand / collapse button */}
         <div className="pt-3 hidden lg:inline-flex 2xl:hidden justify-end mt-auto">
           <div className="px-3 py-2">

@@ -1,15 +1,5 @@
 "use client";
-import { FC, useState, useEffect, ReactNode, useRef } from "react";
-import {
-  ClickAwayListener,
-  Grow,
-  ListItemIcon,
-  MenuItem,
-  MenuList,
-  Paper,
-  Popper,
-} from "@mui/material";
-import { styled } from "@mui/material/styles";
+import { FC, useState, useEffect, useRef } from "react";
 import { DarkButton } from "@components/button";
 import { callWithUnlock } from "@components/security/unlock-key-prompt/call-with-unlock";
 import { Icon as ReactIcon } from "@iconify/react";
@@ -19,39 +9,8 @@ import {
   authenticateWithPasskey,
   getPasskeyAllUsers,
 } from "@services/user/user.service";
-import { UserSelectionModal } from "./UserSelectionModal";
+import UserSelectionMenu from "./UserSelectionMenu";
 
-const PopperStyled = styled(Popper)(({ theme }) => ({
-  zIndex: 100,
-  ".paper": {
-    "&:before": {
-      content: '""',
-      display: "block",
-      position: "absolute",
-      width: 10,
-      height: 10,
-      backgroundColor: "inherit",
-      backgroundImage: "inherit",
-      transform: "rotate(45deg)",
-      transformOrigin: "left bottom",
-      boxShadow: "2px 2px 3px 0px rgba(0,0,0,0.1)",
-    },
-  },
-  "&[data-popper-placement*='top'] .paper": {
-    "&:before": {
-      bottom: 0,
-      left: 10,
-    },
-  },
-  "&[data-popper-placement*='bottom'] .paper": {
-    "&:before": {
-      top: 0,
-      left: 10,
-      transformOrigin: "right top",
-      boxShadow: "-2px -2px 3px 0px rgba(0,0,0,0.1)",
-    },
-  },
-}));
 const PasskeySignIn: FC = () => {
   const { showSuccessToast } = useToast();
   const { navigateToPostSignInLandingPage } = usePostSignInFlow();
@@ -64,7 +23,6 @@ const PasskeySignIn: FC = () => {
     boolean | null
   >(null);
   const signButtonRef = useRef(null);
-  const passkeyUsers = getPasskeyAllUsers();
 
   useEffect(() => {
     async function isPasskeySupported(): Promise<void> {
@@ -127,51 +85,12 @@ const PasskeySignIn: FC = () => {
       >
         Sign in with Passkey
       </DarkButton>
-      <PopperStyled
-        open={showUserSelection}
-        anchorEl={signButtonRef?.current}
-        transition
-        placement="top-start"
-      >
-        {({ TransitionProps, placement }): ReactNode => (
-          <ClickAwayListener onClickAway={handleCloseUserSelection}>
-            <Grow
-              {...TransitionProps}
-              style={{
-                transformOrigin:
-                  placement === "bottom-end" ? "right top" : "right bottom",
-              }}
-            >
-              <Paper className="paper">
-                <MenuList>
-                  {passkeyUsers.map((user, _id) => (
-                    <MenuItem
-                      key={_id}
-                      onClick={(): void => {
-                        handleUserSelection(user);
-                      }}
-                    >
-                      <ListItemIcon>
-                        <ReactIcon icon="simple-icons:authelia" />
-                      </ListItemIcon>
-                      {user.name}
-                    </MenuItem>
-                  ))}
-                </MenuList>
-              </Paper>
-            </Grow>
-          </ClickAwayListener>
-        )}
-      </PopperStyled>
-
-      {/* {showUserSelection && (
-        <UserSelectionModal
-          users={getPasskeyAllUsers()}
-          onSelectUser={handleUserSelection}
-          onClose={handleCloseUserSelection} // Pass the closing function.
-          showCloseButton={false} // You can set it to true or false based on your requirements
-        />
-      )} */}
+      <UserSelectionMenu
+        showSelection={showUserSelection}
+        buttonRef={signButtonRef}
+        onCloseSelection={handleCloseUserSelection}
+        handleUserSelection={handleUserSelection}
+      />
     </>
   );
 };
