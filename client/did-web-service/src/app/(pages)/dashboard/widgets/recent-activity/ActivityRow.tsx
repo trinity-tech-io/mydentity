@@ -15,7 +15,9 @@ import {
   MenuList,
   Paper,
   Popper,
+  Stack,
   TableCell,
+  Typography,
 } from "@mui/material";
 import {
   MoreVert as MoreVertIcon,
@@ -24,7 +26,23 @@ import {
 import { styled } from "@mui/material/styles";
 import { logger } from "@services/logger";
 import { getDateDistance } from "@utils/date";
+import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
+import { RegularIdentity } from "@model/regular-identity/regular-identity";
+import { CredentialAvatar } from "@components/credential/CredentialAvatar";
 
+const ActionForIdentity: FC<{ identity: RegularIdentity }> = ({ identity }) => {
+  const identityProfileFeature = identity?.profile();
+  const [name] = useBehaviorSubject(identityProfileFeature?.name$);
+  const [avatarCredential] = useBehaviorSubject(
+    identityProfileFeature?.avatarCredential$
+  );
+  return (
+    <Stack direction="row" alignItems="center" spacing={0.5}>
+      <CredentialAvatar credential={avatarCredential} width={16} height={16} />
+      <Typography variant="caption" lineHeight={1}>{name || "Unnamed identity"}</Typography>
+    </Stack>
+  );
+};
 interface ActivityRenderType {
   icon: ReactNode;
   action_name: string;
@@ -49,7 +67,7 @@ function getActivityRenderer(activity: Activity): ActivityRenderType {
     case ActivityType.IDENTITY_CREATED:
       renderer.icon = <ReactIcon icon="material-symbols:credit-card" />;
       renderer.action_name = "New identity has been created";
-      renderer.action_for = activity.identityDidStr;
+      renderer.action_for = <ActionForIdentity identity={activity.identity as  RegularIdentity} />;
       break;
     case ActivityType.IDENTITY_DELETED:
       renderer.icon = <ReactIcon icon="game-icons:burning-skull" />;

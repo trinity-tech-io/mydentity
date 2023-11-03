@@ -14,7 +14,7 @@ export class Activity {
     private userEmail?: UserEmail;
     public userEmailProvider?: string;
     private userEmailAddress?: string;
-    private identity?: Identity;
+    public identity?: Identity;
     private identityDid?: string;
     public credentialsCount?: number;
     public appDid?: string;

@@ -52,19 +52,19 @@ const groups: GroupConfig[] = [
   },
   {
     icon: <CardIcon />,
-    title: "My identities",
+    title: "My Identities",
     url: "/identities",
     requiresAuth: true,
   },
   {
     icon: <AccountIcon />,
-    title: "Active identity",
+    title: "Identity",
     links: [
-      { title: "My profile", url: "/profile" },
-      { title: "All credentials", url: "/credentials/list" },
+      { title: "My Profile", url: "/profile" },
+      { title: "All Credentials", url: "/credentials/list" },
       { title: "Storage", url: "/storage" },
       { title: "Applications", url: "/applications" },
-      { title: "Delete identity", url: "/delete-identity" },
+      { title: "Delete Identity", url: "/delete-identity" },
     ],
     requiresAuth: true,
     requiresActiveIdentity: true,
@@ -72,7 +72,7 @@ const groups: GroupConfig[] = [
   },
   {
     icon: <ActivityIcon />,
-    title: "Recent activity",
+    title: "Recent Activity",
     url: "/recent-activity",
     requiresAuth: true,
   },
