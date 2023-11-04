@@ -12,7 +12,7 @@ model StoreMetadata {
   path                 String  @id @unique
   version              Int     @default(4)
   fingerprint          String?
-  defaultRootIndentity String?
+  defaultRootIdentity  String?
 }
 
 model RootIdentity {
@@ -29,7 +29,7 @@ model RootIdentity {
 
 model VerifiableCredential {
   path       String
-  id         String
+  id         String // DID URL string.
   did        String
   credential String
   txid       String?
@@ -59,8 +59,8 @@ model DidDocument {
 model PrivateKey {
   path    String
   did     String
-  id      String
-  context String
+  id      String // DID URL string.
+  content String
 
   @@unique([path, id])
 }
