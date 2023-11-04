@@ -25,19 +25,19 @@ export class PrismaDIDStorage implements DIDStorage {
   }
 
   async storeMetadata(metadata: DIDStoreMetadata): Promise<void> {
-    if (metadata == null || metadata.isEmpty())
+    if (!metadata || metadata.isEmpty())
       await this.prisma.storeMetadata.deleteMany({});
     else {
       await this.prisma.storeMetadata.upsert({
-        where: { path: this.path, },
+        where: { path: this.path },
         update: {
           fingerprint: metadata.getFingerprint() || null,
-          defaultRootIndentity: metadata.getDefaultRootIdentity() || null
+          defaultRootIdentity: metadata.getDefaultRootIdentity() || null
         },
         create: {
           path: this.path,
           fingerprint: metadata.getFingerprint() || null,
-          defaultRootIndentity: metadata.getDefaultRootIdentity() || null
+          defaultRootIdentity: metadata.getDefaultRootIdentity() || null
         }
       });
     }
@@ -51,8 +51,8 @@ export class PrismaDIDStorage implements DIDStorage {
     const metadata = new DIDStoreMetadata();
     if (result.fingerprint)
       metadata.setFingerprint(result.fingerprint);
-    if (result.defaultRootIndentity)
-      metadata.setDefaultRootIdentity(result.defaultRootIndentity);
+    if (result.defaultRootIdentity)
+      metadata.setDefaultRootIdentity(result.defaultRootIdentity);
 
     return metadata;
   }
@@ -103,6 +103,18 @@ export class PrismaDIDStorage implements DIDStorage {
     });
   }
 
+  private createRootIdentity(rid: string, publicKey: string, index: number): RootIdentity {
+    if (!publicKey)
+      return null;
+
+    try {
+      return RootIdentity.createFromPreDerivedPublicKey(publicKey, index);
+    } catch (e) {
+      // DIDStorageException???
+      throw new Error(`Load public key for identity error: ${rid}, ${e}`);
+    }
+  }
+
   async loadRootIdentity(rid: string): Promise<RootIdentity> {
     const result = await this.prisma.rootIdentity.findUnique({
       where: {
@@ -117,7 +129,7 @@ export class PrismaDIDStorage implements DIDStorage {
       }
     });
 
-    return RootIdentity.createFromPreDerivedPublicKey(result.publicKey, result.index);
+    return this.createRootIdentity(rid, result.publicKey, result.index);
   }
 
   async containsRootIdentity(rid: string): Promise<boolean> {
@@ -197,23 +209,20 @@ export class PrismaDIDStorage implements DIDStorage {
     const result = await this.prisma.rootIdentity.findMany({
       where: { path: this.path, },
       select: {
+        id: true,
         publicKey: true,
         index: true,
       }
     });
 
-    const identities: RootIdentity[] = [];
-    for (const identity of result)
-      identities.push(RootIdentity.createFromPreDerivedPublicKey(identity.publicKey, identity.index));
-
-    return identities;
+    return result.map(d => this.createRootIdentity(d.id, d.publicKey, d.index));
   }
 
   async containsRootIdenities(): Promise<boolean> {
     const result = await this.prisma.rootIdentity.count({
       where: { path: this.path },
     });
-    return result != 0;
+    return result > 0;
   }
 
   async storeDidMetadata(did: DID, metadata: DIDMetadata): Promise<void> {
@@ -321,7 +330,7 @@ export class PrismaDIDStorage implements DIDStorage {
       select: { doc: true, },
     });
 
-    if (result && result.doc && result.doc != "")
+    if (result?.doc && result.doc != "")
       return await DIDDocument.parseAsync(result.doc);
 
     return null;
@@ -344,18 +353,17 @@ export class PrismaDIDStorage implements DIDStorage {
           did: did.toString(),
         }
       });
+
+      await this.prisma.verifiableCredential.deleteMany({
+        where: {
+          path: this.path,
+          did: did.toString(),
+        }
+      });
+      return true;
     } catch (e) {
       return false;
     }
-
-    await this.prisma.verifiableCredential.deleteMany({
-      where: {
-        path: this.path,
-        did: did.toString(),
-      }
-    });
-
-    return true;
   }
 
   async listDids(): Promise<DID[]> {
@@ -366,11 +374,7 @@ export class PrismaDIDStorage implements DIDStorage {
       }
     });
 
-    const dids: DID[] = [];
-    for (const d of result)
-      dids.push(DID.from(d.did));
-
-    return dids;
+    return result.map(d => DID.from(d.did));
   }
 
   async containsDid(did: DID): Promise<boolean> {
@@ -381,14 +385,14 @@ export class PrismaDIDStorage implements DIDStorage {
       },
     });
 
-    return result != 0;
+    return result > 0;
   }
 
   async containsDids(): Promise<boolean> {
     const result = await this.prisma.didDocument.count({
       where: { path: this.path, },
     });
-    return result != 0;
+    return result > 0;
   }
 
   async storeCredentialMetadata(id: DIDURL, metadata: CredentialMetadata): Promise<void> {
@@ -434,23 +438,33 @@ export class PrismaDIDStorage implements DIDStorage {
       metadata.setRevoked(result.revoked);
     if (result.alias)
       metadata.setAlias(result.alias);
+
     return metadata;
   }
 
-  async storeCredential(id: DIDURL, vc: Uint8Array, encrypted: boolean): Promise<void> {
-    let data;
-
+  private static encryptCredential(source: Uint8Array, encrypted: boolean): Buffer {
     if (encrypted) {
       const prefix = Buffer.alloc(4);
       prefix[0] = 0x0E;
       prefix[1] = 0x0C;
       prefix[2] = 0x56;
       prefix[3] = 0x43;
-      data = Buffer.concat([prefix, vc]);
+      return Buffer.concat([prefix, source]);
     } else {
-      data = Buffer.from(vc);
+      return Buffer.from(source);
     }
+  }
 
+  private static decryptCredential(target: string): [Uint8Array, boolean] {
+    const content = Buffer.from(target);
+    if (content && content[0] == 0x0E && content[1] == 0x0C && content[2] == 0x56 && content[3] == 0x43)
+      return [content.slice(4), true];
+    else
+      return [content, false];
+  }
+
+  async storeCredential(id: DIDURL, vc: Uint8Array, encrypted: boolean): Promise<void> {
+    const data = PrismaDIDStorage.encryptCredential(vc, encrypted);
     await this.prisma.verifiableCredential.upsert({
       where: {
         path_id: {
@@ -486,11 +500,7 @@ export class PrismaDIDStorage implements DIDStorage {
     if (!result)
       return [null, false];
 
-    const content = Buffer.from(result.credential);
-    if (content && content[0] == 0x0E && content[1] == 0x0C && content[2] == 0x56 && content[3] == 0x43)
-      return [content.slice(4), true];
-    else
-      return [content, false];
+    return PrismaDIDStorage.decryptCredential(result.credential);
   }
 
   async containsCredential(id: DIDURL): Promise<boolean> {
@@ -500,7 +510,7 @@ export class PrismaDIDStorage implements DIDStorage {
         id: id.toString(),
       }
     });
-    return result != 0;
+    return result > 0;
   }
 
   async containsCredentials(did: DID): Promise<boolean> {
@@ -510,7 +520,7 @@ export class PrismaDIDStorage implements DIDStorage {
         did: did.toString(),
       }
     });
-    return result != 0;
+    return result > 0;
   }
 
   async deleteCredential(id: DIDURL): Promise<boolean> {
@@ -538,11 +548,7 @@ export class PrismaDIDStorage implements DIDStorage {
       select: { id: true, }
     });
 
-    const didurls: DIDURL[] = [];
-    for (const vc of result)
-      didurls.push(DIDURL.from(vc.id));
-
-    return didurls;
+    return result.map(vc => DIDURL.from(vc.id));
   }
 
   async containsPrivateKey(id: DIDURL): Promise<boolean> {
@@ -552,6 +558,7 @@ export class PrismaDIDStorage implements DIDStorage {
           path: this.path,
           id: id.toString(),
         },
+        // Why add this ?
         did: id.getDid().toString(),
       },
     });
@@ -571,7 +578,7 @@ export class PrismaDIDStorage implements DIDStorage {
         id: id.toString(),
         path: this.path,
         did: id.getDid().toString(),
-        context: privateKey,
+        content: privateKey,
       },
       update: {
         // do nothing.
@@ -588,18 +595,21 @@ export class PrismaDIDStorage implements DIDStorage {
         }
       },
       select: {
-        context: true,
+        content: true,
       }
     });
-    return result.context;
+    return result.content;
   }
 
   async containsPrivateKeys(did: DID): Promise<boolean> {
     const result = await this.prisma.privateKey.count({
-      where: { path: this.path, did: did.toString(), },
+      where: {
+        path: this.path,
+        did: did.toString()
+      },
     });
 
-    return result != 0;
+    return result > 0;
   }
 
   async deletePrivateKey(id: DIDURL): Promise<boolean> {
@@ -620,95 +630,93 @@ export class PrismaDIDStorage implements DIDStorage {
 
   async listPrivateKeys(did: DID): Promise<DIDURL[]> {
     const result = await this.prisma.privateKey.findMany({
-      where: { did: did.toString(), },
+      where: {
+        path: this.path,
+        did: did.toString()
+      },
       select: {
-        id: true,
+        id: true
       }
     });
 
-    const didurls: DIDURL[] = [];
-    for (const sk of result)
-      didurls.push(DIDURL.from(sk.id));
-
-    return didurls;
+    return result.map(k => DIDURL.from(k.id));
   }
 
   async changePassword(reEncryptor: ReEncryptor): Promise<void> {
-    const mnemonicResult = await this.prisma.rootIdentity.findMany({
-      where: { path: this.path, },
-      select: {
-        id: true,
-        mnemonic: true,
-      }
-    });
-
-    for (const result of mnemonicResult) {
-      await this.prisma.rootIdentity.update({
-        where: {
-          path_id: {
-            path: this.path,
-            id: result.id
-          }
-        },
-        data: {
-          mnemonic: reEncryptor.reEncrypt(result.mnemonic),
+    // const tx = this.prisma;
+    return this.prisma.$transaction(async (tx) => {
+      const mnemonicResult = await tx.rootIdentity.findMany({
+        where: { path: this.path, },
+        select: {
+          id: true,
+          mnemonic: true,
         }
       });
-    }
 
-    const privateKeyResult = await this.prisma.privateKey.findMany({
-      where: { path: this.path },
-    });
-
-    for (const sk of privateKeyResult) {
-      await this.prisma.privateKey.update({
-        where: {
-          path_id: {
-            path: this.path,
-            id: sk.id
-          }
-        },
-        data: {
-          context: reEncryptor.reEncrypt(sk.context),
-        }
-      });
-    }
-
-    const credentials = await this.prisma.verifiableCredential.findMany({
-      where: { path: this.path },
-    });
-
-    for (const vc of credentials) {
-      const content = Buffer.from(vc.credential);
-      if (content && content[0] == 0x0E && content[1] == 0x0C && content[2] == 0x56 && content[3] == 0x43) {
-        const d = reEncryptor.reEncrypt(Buffer.from(content.slice(4)).toString());
-        let dataBuffer = Buffer.from(d, "utf-8");
-        const prefix = Buffer.alloc(4);
-        prefix[0] = 0x0E;
-        prefix[1] = 0x0C;
-        prefix[2] = 0x56;
-        prefix[3] = 0x43;
-        dataBuffer = Buffer.concat([prefix, dataBuffer]);
-
-        await this.prisma.verifiableCredential.update({
+      for (const result of mnemonicResult) {
+        await tx.rootIdentity.update({
           where: {
             path_id: {
               path: this.path,
-              id: vc.id,
+              id: result.id
             }
           },
           data: {
-            credential: dataBuffer.toString(),
+            mnemonic: reEncryptor.reEncrypt(result.mnemonic),
           }
         });
       }
-    }
+
+      const privateKeyResult = await tx.privateKey.findMany({
+        where: { path: this.path },
+      });
+
+      for (const sk of privateKeyResult) {
+        await tx.privateKey.update({
+          where: {
+            path_id: {
+              path: this.path,
+              id: sk.id
+            }
+          },
+          data: {
+            content: reEncryptor.reEncrypt(sk.content),
+          }
+        });
+      }
+
+      const credentials = await tx.verifiableCredential.findMany({
+        where: { path: this.path },
+      });
+
+      // Just handle encrypted credentials.
+      for (const vc of credentials) {
+        const [source, encrypted] = PrismaDIDStorage.decryptCredential(vc.credential);
+        if (encrypted) {
+          const reSource: string = reEncryptor.reEncrypt(Buffer.from(source).toString());
+          const reTarget = PrismaDIDStorage.encryptCredential(Buffer.from(reSource), encrypted);
+          await tx.verifiableCredential.update({
+            where: {
+              path_id: {
+                path: this.path,
+                id: vc.id,
+              }
+            },
+            data: {
+              credential: reTarget.toString()
+              // credential: Buffer.from(source).toString()
+            }
+          });
+        }
+      }
+    }, {
+      isolationLevel: Prisma.TransactionIsolationLevel.Serializable
+    });
   }
 
-  private static reEncrypt(secret: string, oldpass: string, newpass: string): string {
-    const plain = Aes256cbc.decryptFromBase64(secret, oldpass);
-    const newSecret = Aes256cbc.encryptToBase64(plain, newpass);
-    return newSecret;
+  private static reEncryptLocal(secret: string, oldPwd: string, newPwd: string): string {
+    const plain = Aes256cbc.decryptFromBase64(secret, oldPwd);
+    return Aes256cbc.encryptToBase64(plain, newPwd);
   }
 
   public static async transfer(src: string, srcPassword: string, dest: string, destPassword): Promise<void> {
@@ -734,8 +742,8 @@ export class PrismaDIDStorage implements DIDStorage {
           },
           data: {
             path: dest,
-            mnemonic: PrismaDIDStorage.reEncrypt(identityRoot.mnemonic, srcPassword, destPassword),
-            privateKey: PrismaDIDStorage.reEncrypt(identityRoot.privateKey, srcPassword, destPassword),
+            mnemonic: PrismaDIDStorage.reEncryptLocal(identityRoot.mnemonic, srcPassword, destPassword),
+            privateKey: PrismaDIDStorage.reEncryptLocal(identityRoot.privateKey, srcPassword, destPassword),
           }
         });
       }
@@ -754,7 +762,7 @@ export class PrismaDIDStorage implements DIDStorage {
           },
           data: {
             path: dest,
-            context: PrismaDIDStorage.reEncrypt(sk.context, srcPassword, destPassword),
+            content: PrismaDIDStorage.reEncryptLocal(sk.content, srcPassword, destPassword),
           }
         });
       }
@@ -764,17 +772,10 @@ export class PrismaDIDStorage implements DIDStorage {
       });
 
       for (const vc of credentials) {
-        const content = Buffer.from(vc.credential);
-        if (content && content[0] == 0x0E && content[1] == 0x0C && content[2] == 0x56 && content[3] == 0x43) {
-          const d = PrismaDIDStorage.reEncrypt(Buffer.from(content.slice(4)).toString(), srcPassword, destPassword);
-          let dataBuffer = Buffer.from(d, "utf-8");
-          const prefix = Buffer.alloc(4);
-          prefix[0] = 0x0E;
-          prefix[1] = 0x0C;
-          prefix[2] = 0x56;
-          prefix[3] = 0x43;
-          dataBuffer = Buffer.concat([prefix, dataBuffer]);
-
+        const [source, encrypted] = PrismaDIDStorage.decryptCredential(vc.credential);
+        if (encrypted) {
+          const reSource: string = PrismaDIDStorage.reEncryptLocal(Buffer.from(source).toString(), srcPassword, destPassword);
+          const reTarget = PrismaDIDStorage.encryptCredential(Buffer.from(reSource), encrypted);
           await tx.verifiableCredential.update({
             where: {
               path_id: {
@@ -784,7 +785,7 @@ export class PrismaDIDStorage implements DIDStorage {
             },
             data: {
               path: dest,
-              credential: dataBuffer.toString(),
+              credential: reTarget.toString() // Only handle encrypted credentials.
             }
           });
         } else {
