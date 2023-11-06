@@ -208,7 +208,11 @@ const Sidebar: FC<{
           ))}
         </MenuList> */}
         {/* Expand / collapse button */}
-        <div className="pt-3 hidden lg:inline-flex 2xl:hidden justify-end mt-auto">
+        <div className="flex flex-col sm:flex-row pt-3 hidden lg:inline-flex 2xl:hidden justify-end mt-auto">
+          {/*Toggle Theme: light/dark */}
+          <div>
+            <ThemeToggle />
+          </div>
           <div className="px-3 py-2">
             <button onClick={() => setSidebarExpanded(!sidebarExpanded)}>
               <span className="sr-only">Expand / collapse sidebar</span>
@@ -228,8 +232,6 @@ const Sidebar: FC<{
             </button>
           </div>
         </div>
-        {/*Toggle Theme: light/dark */}
-        {/* <div className='px-3 py-2'><ThemeToggle /></div> */}
       </div>
     </div>
   );
