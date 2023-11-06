@@ -6,10 +6,5 @@
   - Added the required column `content` to the `PrivateKey` table without a default value. This is not possible if the table is not empty.
 
 */
--- AlterTable
-ALTER TABLE "PrivateKey" DROP COLUMN "context",
-ADD COLUMN     "content" TEXT NOT NULL;
-
--- AlterTable
-ALTER TABLE "StoreMetadata" DROP COLUMN "defaultRootIndentity",
-ADD COLUMN     "defaultRootIdentity" TEXT;
+ALTER TABLE "PrivateKey" RENAME COLUMN "context" TO "content";
+ALTER TABLE "StoreMetadata" RENAME COLUMN "defaultRootIndentity" TO "defaultRootIdentity";
