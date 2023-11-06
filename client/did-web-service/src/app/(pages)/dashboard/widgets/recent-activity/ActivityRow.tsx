@@ -39,7 +39,9 @@ const ActionForIdentity: FC<{ identity: RegularIdentity }> = ({ identity }) => {
   return (
     <Stack direction="row" alignItems="center" spacing={0.5}>
       <CredentialAvatar credential={avatarCredential} width={16} height={16} />
-      <Typography variant="caption" lineHeight={1}>{name || "Unnamed identity"}</Typography>
+      <Typography variant="caption" lineHeight={1}>
+        {name || identity?.did || "Unnamed identity"}
+      </Typography>
     </Stack>
   );
 };
@@ -67,12 +69,16 @@ function getActivityRenderer(activity: Activity): ActivityRenderType {
     case ActivityType.IDENTITY_CREATED:
       renderer.icon = <ReactIcon icon="material-symbols:credit-card" />;
       renderer.action_name = "New identity has been created";
-      renderer.action_for = <ActionForIdentity identity={activity.identity as  RegularIdentity} />;
+      renderer.action_for = (
+        <ActionForIdentity identity={activity.identity as RegularIdentity} />
+      );
       break;
     case ActivityType.IDENTITY_DELETED:
       renderer.icon = <ReactIcon icon="game-icons:burning-skull" />;
       renderer.action_name = "Identity has been deleted";
-      renderer.action_for = <ActionForIdentity identity={activity.identity as  RegularIdentity} />;
+      renderer.action_for = (
+        <ActionForIdentity identity={activity.identity as RegularIdentity} />
+      );
       break;
     case ActivityType.BIND_EMAIL:
       renderer.icon = <ReactIcon icon="entypo:email" />;

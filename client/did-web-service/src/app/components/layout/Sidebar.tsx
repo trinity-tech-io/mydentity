@@ -1,13 +1,30 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 "use client";
-import { FC, ReactNode, useEffect, useRef, useState } from "react";
+import {
+  FC,
+  MouseEventHandler,
+  ReactNode,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import clsx from "clsx";
 import Link from "next/link";
 import { useRouter } from "next13-progressbar";
 import { usePathname } from "next/navigation";
 import { Swiper, SwiperClass, SwiperSlide } from "swiper/react";
 import { EffectCards, Pagination } from "swiper/modules";
-import { Box, Collapse, List, ListItem, Typography } from "@mui/material";
+import {
+  Box,
+  Collapse,
+  Fade,
+  List,
+  ListItem,
+  ListItemText,
+  MenuItem,
+  Paper,
+  Typography,
+} from "@mui/material";
 import { styled } from "@mui/material/styles";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -28,6 +45,7 @@ import { LandingCard } from "@components/card";
 import { IdentityInfoCard } from "@components/identity/IdentityInfoCard";
 import { identityService } from "@services/identity/identity.service";
 import { RegularIdentity } from "@model/regular-identity/regular-identity";
+import ArrowPopper from "@components/popup/ArrowPopper";
 
 type LinkConfig = {
   title: string;
@@ -61,7 +79,7 @@ const groups: GroupConfig[] = [
     title: "Identity",
     links: [
       { title: "My Profile", url: "/profile" },
-      { title: "All Credentials", url: "/credentials/list" },
+      { title: "Credentials", url: "/credentials/list" },
       { title: "Storage", url: "/storage" },
       { title: "Applications", url: "/applications" },
       { title: "Delete Identity", url: "/delete-identity" },
@@ -123,13 +141,10 @@ const LinkElement: FC<{
   const isActive = link.url === pathname;
 
   return (
-    <li>
+    <li className={clsx(isActive && "active")}>
       <Link
         href={link.url}
-        className={clsx(
-          "block transition duration-150 truncate",
-          isActive ? "text-indigo-500" : "text-slate-400 hover:text-slate-200"
-        )}
+        className={clsx("block transition duration-150 truncate")}
         onClick={() => {
           closeSidebar();
         }}
@@ -166,8 +181,25 @@ const GroupElement: FC<{
   const isActive =
     group.url === pathname || group.links?.some((l) => l.url === pathname);
   const [open, setOpen] = useState(openByDefault);
+  const [onSubmenu, setOnSubmenu] = useState(false);
+  const [openSubmenu, setOpenSubmenu] = useState(false);
   const [authUser] = useBehaviorSubject(authUser$);
   const { mounted } = useMounted();
+  const menuRef = useRef(null);
+
+  const handleEnter: MouseEventHandler = (e) => {
+    if (!sidebarExpanded && links) {
+      setOnSubmenu(true);
+      setOpenSubmenu(true);
+    }
+  };
+
+  const handleLeave: MouseEventHandler = () => {
+    if (!sidebarExpanded) {
+      setOnSubmenu(false);
+      setOpenSubmenu(false);
+    }
+  };
 
   if (requiresAuth && (!authUser || !mounted))
     // render server and client without this item until we know more about "authUser"
@@ -177,7 +209,10 @@ const GroupElement: FC<{
 
   return (
     <MenuListItem
+      ref={menuRef}
       className={clsx("rounded-md", links && "sub-menu", open && "open")}
+      onMouseEnter={handleEnter}
+      onMouseLeave={handleLeave}
     >
       <Link
         href={group.url || ""}
@@ -189,7 +224,7 @@ const GroupElement: FC<{
           onGroupHeaderClicked();
         }}
       >
-        <div className="p-1 h-6 w-6">{icon}</div>
+        <div className="p-1 h-6 w-6 flex">{icon}</div>
         <span
           className={clsx(
             "flex-1 text-base font-medium ml-3 lg:opacity-0 2xl:opacity-100",
@@ -221,6 +256,59 @@ const GroupElement: FC<{
           </div>
         </Collapse>
       )}
+      <ArrowPopper
+        open={openSubmenu}
+        anchorEl={menuRef?.current}
+        transition
+        placement="right-start"
+        onMouseEnter={(e): void => {
+          setOpenSubmenu(true);
+        }}
+        onMouseLeave={(e): void => {
+          if (!onSubmenu) setOpenSubmenu(false);
+        }}
+        sx={{
+          "&[data-popper-placement*='right'] .paper:before": {
+            top: 13,
+          },
+        }}
+      >
+        {({ TransitionProps, placement }): ReactNode => (
+          <Fade
+            {...TransitionProps}
+            style={{
+              transformOrigin:
+                placement === "bottom-start" ? "left top" : "left bottom",
+            }}
+          >
+            <Paper className="paper" sx={{ p: 1 }}>
+              <MenuList>
+                {links.map((link, _id) => (
+                  <Link
+                    href={link.url}
+                    onClick={() => {
+                      setOpenSubmenu(false);
+                    }}
+                    key={_id}
+                  >
+                    <MenuItem
+                      selected={link.url === pathname}
+                      sx={{
+                        "&.Mui-selected, &:hover": { filter: "none" },
+                        filter: "opacity(0.7)",
+                      }}
+                    >
+                      <Typography variant="body2" color="text.primary">
+                        {link.title}
+                      </Typography>
+                    </MenuItem>
+                  </Link>
+                ))}
+              </MenuList>
+            </Paper>
+          </Fade>
+        )}
+      </ArrowPopper>
     </MenuListItem>
   );
 };
@@ -335,29 +423,52 @@ const MenuListItem = styled(ListItem)(({ theme }) => ({
   padding: 0,
   display: "block",
   marginTop: 4,
-  "--primary-color": theme.palette.mode == "dark" ? "#43464c80" : "#7a3cff",
+  "--prim-color": theme.palette.mode == "dark" ? "#43464c80" : "#7a3cff",
   "--tran": "all 0.3s ease",
   transition: "var(--tran)",
+  a: {
+    filter: "opacity(0.65)",
+    color: theme.palette.primary.main,
+    "&:hover, &.active": {
+      filter: "none",
+    },
+  },
   "&>a": {
-    filter: "opacity(0.7)",
     display: "flex",
     alignItems: "center",
     padding: "8px 12px",
     borderRadius: 6,
-    color: theme.palette.mode == "dark" ? "#EEE" : "#121212",
-    "&:hover, &:active, &:focus": {
-      backgroundColor: "var(--primary-color)",
+    "&:hover, &.active, &:focus": {
+      backgroundColor: "var(--prim-color)",
       filter: "none",
-    }
-  },
-  "a:hover, a.active": {
-    filter: "none",
+    },
   },
   "&.sub-menu": {
     ul: {
       position: "relative",
       li: {
         padding: "4px 12px",
+        position: "relative",
+        "a:focus": {
+          filter: "none",
+        },
+        "&:hover, &.active, &:focus": {
+          a: {
+            filter: "none",
+          },
+          "&:after": {
+            content: "''",
+            background: "#808080",
+            left: -15,
+            transition: "all .2s ease-in-out",
+            width: 7,
+            height: 7,
+            position: "absolute",
+            top: "50%",
+            transform: "translateY(-50%)",
+            borderRadius: "50%",
+          },
+        },
       },
       "&:after": {
         content: "''",

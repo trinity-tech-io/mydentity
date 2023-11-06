@@ -38,8 +38,7 @@ export const Header: FC<{
         <div className="flex items-center justify-between h-[60px] -mb-px">
           {/* Header: Left side */}
           <div className="flex">
-            {/* Hamburger button */}
-            <button
+            {/* <button
               className="text-slate-500 hover:text-slate-600 lg:hidden"
               aria-controls="sidebar"
               aria-expanded={sidebarOpen}
@@ -54,7 +53,7 @@ export const Header: FC<{
                 <rect x="4" y="11" width="16" height="2" />
                 <rect x="4" y="17" width="16" height="2" />
               </svg>
-            </button>
+            </button> */}
           </div>
 
           {/* Header: Right side */}
