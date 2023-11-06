@@ -5,7 +5,7 @@ import clsx from "clsx";
 import { useRouter } from "next13-progressbar";
 import { Swiper, SwiperClass, SwiperSlide } from "swiper/react";
 import { EffectCards, Pagination } from "swiper/modules";
-import { Box } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/effect-cards";
@@ -13,7 +13,6 @@ import "swiper/css/effect-cards";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { activeIdentity$ } from "@services/identity/identity.events";
 import { authUser$ } from "@services/user/user.events";
-import ThemeToggle from "../generic/ThemeToggle";
 import { LandingCard } from "@components/card";
 import { IdentityInfoCard } from "@components/identity/IdentityInfoCard";
 import { identityService } from "@services/identity/identity.service";
@@ -162,14 +161,22 @@ const Sidebar: FC<{
       ></div>
 
       {/* Sidebar */}
-      <div
+      <Stack
         id="sidebar"
         ref={sidebar}
         className={clsx(
-          "flex flex-col absolute z-40 left-0 top-0 lg:static lg:left-auto lg:top-auto lg:translate-x-0 h-screen overflow-y-scroll lg:overflow-y-auto no-scrollbar w-64 lg:w-20 2xl:!w-64 shrink-0 bg-[#292B29] p-4 transition-all duration-200 ease-in-out",
+          "z-40 h-screen overflow-y-auto no-scrollbar w-64 lg:w-20 2xl:!w-64 shrink-0 bg-[#292B29] p-4 transition-all duration-200 ease-in-out",
           sidebarOpen ? "translate-x-0" : "-translate-x-64",
           sidebarExpanded && "lg:!w-64"
         )}
+        sx={{
+          position: { xs: "absolute", md: "static" },
+          left: { md: "auto" },
+          top: { md: "auto" },
+          transform: { md: "translateX(0)" },
+          background: (theme) =>
+            theme.palette.mode === "dark" ? "#292B29" : "#F1F1F1",
+        }}
       >
         {/* Sidebar header */}
         <IdentityCardGroup visiblePagination={sidebarExpanded} />
@@ -198,19 +205,7 @@ const Sidebar: FC<{
             if (!sidebarExpanded) setSidebarExpanded(true);
           }}
         />
-        {/* <MenuList>
-          {groups.map((group) => (
-            <GroupElement
-              key={group.title}
-              group={group}
-              sidebarExpanded={sidebarExpanded}
-              closeSidebar={closeSidebar}
-              onGroupHeaderClicked={() => {
-                if (!sidebarExpanded) setSidebarExpanded(true);
-              }}
-            />
-          ))}
-        </MenuList> */}
+
         {/* Expand / collapse button */}
         <div className="flex pt-3 hidden lg:inline-flex 2xl:hidden justify-end mt-auto">
           <div className="px-3 py-2">
@@ -232,7 +227,7 @@ const Sidebar: FC<{
             </button>
           </div>
         </div>
-      </div>
+      </Stack>
     </div>
   );
 };

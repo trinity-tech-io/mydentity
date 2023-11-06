@@ -315,7 +315,7 @@ const MenuListItem = styled(ListItem)(({ theme }) => ({
   padding: 0,
   display: "block",
   marginTop: 4,
-  "--prim-color": theme.palette.mode == "dark" ? "#43464c80" : "#7a3cff",
+  "--prim-color": theme.palette.mode === "dark" ? "#43464c80" : "#fff",
   "--tran": "all 0.3s ease",
   transition: "var(--tran)",
   a: {

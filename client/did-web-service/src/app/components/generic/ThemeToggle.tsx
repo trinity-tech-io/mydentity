@@ -56,33 +56,54 @@ const ButtonStyle = styled(IconButton)(({ theme }) => ({
   "--ease-elastic-s1": "cubic-bezier(.5,1.25,.75,1.25)",
   "--ease-elastic-s2:": "cubic-bezier(.5,1.5,.75,1.25)",
   "--ease-out-s1": "cubic-bezier(0,0,0,1)",
-  "--bg-color": "255 255 255",
-  backgroundColor: "rgb(var(--bg-color) / 90%)",
   "&:hover": {
     "--icon-fill": alpha(theme.palette.text.primary, 1),
-    backgroundColor: "rgb(var(--bg-color))",
     filter: "none",
   },
-  ".sun-and-moon > :is(.moon, .sun, .sun-beams)": {
-    transformOrigin: "center",
-  },
-  ".sun-and-moon > :is(.moon, .sun)": {
-    fill: "var(--icon-fill)",
-  },
-
-  ".sun-and-moon > .sun-beams": {
-    stroke: "var(--icon-fill)",
-    strokeWidth: "2px",
-    transition:
-      "transform .5s var(--ease-elastic-s2), opacity .5s var(--ease-s1)",
+  ".sun-and-moon": {
+    ".moon, .sun, .sun-beams": {
+      transformOrigin: "center center",
+    },
+    ".moon, .sun": {
+      fill: "var(--icon-fill)",
+    },
+    ".sun-beams": {
+      stroke: "var(--icon-fill)",
+      strokeWidth: "2px",
+      transition:
+        "transform .5s var(--ease-elastic-s2), opacity .5s var(--ease-s1)",
+    },
+    ".sun": {
+      transition: "transform .5s var(--ease-elastic-s1)",
+    },
+    ".moon > circle": {
+      transition: "transform .25s var(--ease-out-s1)",
+    },
   },
   "&.light": {
     "--bg-color": "18 18 18",
   },
+  "&.dark .sun-and-moon": {
+    ".sun": {
+      transform: "scale(1.75)",
+      transitionTimingFunction: "var(--ease-s1)",
+      transitionDuration: "0.25s",
+    },
+    ".sun-beams": {
+      opacity: 0,
+      transitionDuration: ".15s",
+      transform: "rotateZ(-25deg)",
+    },
+    ".moon > circle": {
+      transform: "translateX(-7px)",
+      transitionDuration: ".5s",
+      transitionDelay: ".25s",
+    },
+  },
   "&.dark .sun-and-moon > .sun": {
     transform: "scale(1.75)",
     transitionTimingFunction: "var(--ease-s1)",
-    transitionDuration: 0.25,
+    transitionDuration: "0.25s",
   },
 
   "&.dark .sun-and-moon > .sun-beams": {
@@ -97,15 +118,11 @@ const ButtonStyle = styled(IconButton)(({ theme }) => ({
     transitionDelay: ".25s",
   },
 
-  ".sun-and-moon > .sun": {
-    transition: "transform .5s var(--ease-elastic-s1)",
-  },
-
-  ".sun-and-moon .moon > circle": {
-    transition: "transform .25s var(--ease-out-s1)",
-  },
-
   "@supports (cx: 1)": {
+    "&.dark .sun-and-moon .moon > circle": {
+      cx: 17,
+      transform: "translateX(0)",
+    },
     ".sun-and-moon .moon > circle": {
       transition: "cx .25s var(--ease-out-s1)",
     },

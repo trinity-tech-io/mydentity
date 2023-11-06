@@ -10,10 +10,11 @@ import { styled } from "@mui/material/styles";
 import { authUser$ } from "@services/user/user.events";
 import { useRouter } from "next/navigation";
 import ThemeToggle from "@components/generic/ThemeToggle";
+import { Stack } from "@mui/material";
 // import SearchModal from '../components/ModalSearch';
 
 const HeaderStyled = styled("header")(({ theme }) => ({
-  background: theme.palette.mode === "dark" ? "#242424" : "white",
+  background: theme.palette.mode === "dark" ? "#242424" : "#E8E8E8",
 }));
 export const Header: FC<{
   sidebarOpen: boolean;
@@ -39,7 +40,7 @@ export const Header: FC<{
         <div className="flex items-center justify-between h-[60px] -mb-px">
           {/* Header: Left side */}
           <div className="flex">
-            {/* <button
+            <button
               className="text-slate-500 hover:text-slate-600 lg:hidden"
               aria-controls="sidebar"
               aria-expanded={sidebarOpen}
@@ -54,11 +55,11 @@ export const Header: FC<{
                 <rect x="4" y="11" width="16" height="2" />
                 <rect x="4" y="17" width="16" height="2" />
               </svg>
-            </button> */}
+            </button>
           </div>
 
           {/* Header: Right side */}
-          <div className="flex items-center space-x-3">
+          <Stack direction="row" alignItems="center" spacing={1}>
             {/*Toggle Theme: light/dark */}
             <div>
               <ThemeToggle />
@@ -80,7 +81,7 @@ export const Header: FC<{
                 <DropdownUserProfile align="right" />
               </>
             )}
-          </div>
+          </Stack>
         </div>
       </div>
     </HeaderStyled>
