@@ -60,11 +60,13 @@ const SecuritySection: FC<{
             {title}
           </Typography>
           {mounted && isSet !== null && (
-            <PassStateLabel
-              isPassed={isSet}
-              title={statusTitle}
-              size={StateTextSize.SMALL}
-            />
+            <div className="flex ml-2 max-w-[40%] md:max-w-[50%]">
+              <PassStateLabel
+                isPassed={isSet}
+                title={statusTitle}
+                size={StateTextSize.SMALL}
+              />
+            </div>
           )}
         </Box>
         {disabledSkel ? (
