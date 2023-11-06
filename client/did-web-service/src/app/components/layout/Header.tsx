@@ -1,36 +1,37 @@
 "use client";
-import { FC } from 'react';
+import { FC } from "react";
 // import Help from '../components/DropdownHelp';
 // import Notifications from '../components/DropdownNotifications';
-import { MainButton } from '@components/generic/MainButton';
-import { DropdownUserProfile } from '@components/layout/DropdownProfile';
-import { useBehaviorSubject } from '@hooks/useBehaviorSubject';
-import { useMounted } from '@hooks/useMounted';
-import { styled } from '@mui/material/styles';
-import { authUser$ } from '@services/user/user.events';
-import { useRouter } from 'next/navigation';
+import { MainButton } from "@components/generic/MainButton";
+import { DropdownUserProfile } from "@components/layout/DropdownProfile";
+import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
+import { useMounted } from "@hooks/useMounted";
+import { styled } from "@mui/material/styles";
+import { authUser$ } from "@services/user/user.events";
+import { useRouter } from "next/navigation";
+import ThemeToggle from "@components/generic/ThemeToggle";
 // import SearchModal from '../components/ModalSearch';
 
-const HeaderStyled = styled('header')(({ theme }) => ({
-  background: theme.palette.mode === 'dark' ? '#242424' : 'white'
-}))
+const HeaderStyled = styled("header")(({ theme }) => ({
+  background: theme.palette.mode === "dark" ? "#242424" : "white",
+}));
 export const Header: FC<{
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
 }> = ({ sidebarOpen, setSidebarOpen }) => {
   const { mounted } = useMounted();
   const [authUser] = useBehaviorSubject(authUser$);
-  const router = useRouter()
+  const router = useRouter();
 
   // const [searchModalOpen, setSearchModalOpen] = useState(false);
 
   const signUp = (): void => {
-    router.push("/signup")
-  }
+    router.push("/signup");
+  };
 
   const signIn = (): void => {
-    router.push("/signin")
-  }
+    router.push("/signin");
+  };
 
   return (
     <HeaderStyled className="sticky top-0 z-30">
@@ -58,27 +59,36 @@ export const Header: FC<{
 
           {/* Header: Right side */}
           <div className="flex items-center space-x-3">
+            {/*Toggle Theme: light/dark */}
+            <div>
+              <ThemeToggle />
+            </div>
+
             {/* User is not signed in */}
-            {mounted && !authUser && <>
-              <MainButton onClick={signUp} >Sign up</MainButton>
-              <MainButton onClick={signIn} >Sign in</MainButton>
-            </>}
+            {mounted && !authUser && (
+              <>
+                <MainButton onClick={signUp}>Sign up</MainButton>
+                <MainButton onClick={signIn}>Sign in</MainButton>
+              </>
+            )}
 
             {/* User is signed in */}
-            {mounted && authUser && <>
-              {/* <DropdownIdentity align="right" /> */}
-              {/* <hr className="w-px h-6 bg-slate-200 dark:bg-slate-700 border-none" /> */}
-              <DropdownUserProfile align="right" />
-            </>}
+            {mounted && authUser && (
+              <>
+                {/* <DropdownIdentity align="right" /> */}
+                {/* <hr className="w-px h-6 bg-slate-200 dark:bg-slate-700 border-none" /> */}
+                <DropdownUserProfile align="right" />
+              </>
+            )}
           </div>
         </div>
       </div>
     </HeaderStyled>
   );
-}
+};
 
-
-{/* <div>
+{
+  /* <div>
               <button
                 className={`w-8 h-8 flex items-center justify-center bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600/80 rounded-full ml-3 ${searchModalOpen && 'bg-slate-200'
                   }`}
@@ -101,8 +111,17 @@ export const Header: FC<{
                 </svg>
               </button>
               <SearchModal id="search-modal" searchId="search" modalOpen={searchModalOpen} setModalOpen={setSearchModalOpen} />
-            </div> */}
-{/* <Notifications align="right" /> */ }
-{/* <Help align="right" /> */ }
-{/* <ThemeToggle /> */ }
-{/*  Divider */ }
+            </div> */
+}
+{
+  /* <Notifications align="right" /> */
+}
+{
+  /* <Help align="right" /> */
+}
+{
+  /* <ThemeToggle /> */
+}
+{
+  /*  Divider */
+}

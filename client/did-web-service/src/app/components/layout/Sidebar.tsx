@@ -20,7 +20,9 @@ import { identityService } from "@services/identity/identity.service";
 import { RegularIdentity } from "@model/regular-identity/regular-identity";
 import SidebarMenu from "./components/SidebarMenu";
 
-const IdentityCardGroup: FC = () => {
+const IdentityCardGroup: FC<{ visiblePagination: boolean }> = ({
+  visiblePagination,
+}) => {
   const [authUser] = useBehaviorSubject(authUser$);
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const [identities] = useBehaviorSubject(
@@ -95,9 +97,11 @@ const IdentityCardGroup: FC = () => {
         onTransitionEnd={handleTransitionEnd}
         onClick={handleClick}
         onSwiper={setSwiper}
-        pagination={{
-          clickable: true,
-        }}
+        pagination={
+          visiblePagination && {
+            clickable: true,
+          }
+        }
       >
         {myIdentities.map((identity, _id) => (
           <SwiperSlide key={_id}>
@@ -168,7 +172,7 @@ const Sidebar: FC<{
         )}
       >
         {/* Sidebar header */}
-        <IdentityCardGroup />
+        <IdentityCardGroup visiblePagination={sidebarExpanded} />
         <div className="flex justify-between mb-10 pr-3 sm:px-2">
           {/* Close button */}
           <button
@@ -208,11 +212,7 @@ const Sidebar: FC<{
           ))}
         </MenuList> */}
         {/* Expand / collapse button */}
-        <div className="flex flex-col sm:flex-row pt-3 hidden lg:inline-flex 2xl:hidden justify-end mt-auto">
-          {/*Toggle Theme: light/dark */}
-          <div>
-            <ThemeToggle />
-          </div>
+        <div className="flex pt-3 hidden lg:inline-flex 2xl:hidden justify-end mt-auto">
           <div className="px-3 py-2">
             <button onClick={() => setSidebarExpanded(!sidebarExpanded)}>
               <span className="sr-only">Expand / collapse sidebar</span>
