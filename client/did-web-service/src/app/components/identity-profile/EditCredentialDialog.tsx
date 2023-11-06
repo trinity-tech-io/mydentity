@@ -130,7 +130,7 @@ function EditCredentialDialog(props: EditCredentialDialogProps): JSX.Element {
       sx={{
         ".MuiPaper-root": {
           background: (theme) =>
-            theme.palette.mode == "dark" ? "#1D1D1D" : "inherit",
+            theme.palette.mode == "dark" ? "#1D1D1D" : "#FAFAFA",
         },
       }}
     >

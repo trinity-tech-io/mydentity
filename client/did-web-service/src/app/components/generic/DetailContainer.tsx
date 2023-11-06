@@ -12,9 +12,9 @@ import { styled } from "@mui/material/styles";
 import { NormalButton } from "@components/button";
 
 const CardStyled = styled(Card)(({ theme }) => ({
-  border: "1px solid #FFFFFF55",
+  border: "1px solid #cacaca55",
   borderRadius: "0.5rem",
-  background: "#1D1D1D",
+  background: theme.palette.mode === "dark" ? "#1D1D1D" : "#FAFAFA",
   position: "relative",
   "&:before": {
     opacity: 0.1,
