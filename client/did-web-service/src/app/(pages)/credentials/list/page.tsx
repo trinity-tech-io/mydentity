@@ -65,7 +65,7 @@ const CredentialsList: FC = () => {
             </Typography>
           </div>
           <div className="flex items-center gap-4">
-            <div className="w-4 h-4 inline-flex justify-center items-center p-2 text-[7pt] rounded-[4px] bg-[#9291A5]">
+            <div className="w-4 h-4 inline-flex justify-center items-center p-2 text-[7pt] text-white rounded-[4px] bg-[#9291A5]">
               N
             </div>
             <Typography variant="body2" fontWeight={600} className="flex-1">

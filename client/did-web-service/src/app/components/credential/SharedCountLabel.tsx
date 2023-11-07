@@ -12,7 +12,7 @@ const SharedCountLabel: FC<{ count: number; isConform?: boolean }> = ({
   return (
     <div
       className={clsx(
-        "w-4 h-4 inline-flex justify-center items-center p-2 text-[7pt] rounded-[4px]",
+        "w-4 h-4 inline-flex justify-center items-center p-2 text-[7pt] text-white rounded-[4px]",
         isConform ? "bg-[#34A853]" : "bg-[#9291A5]"
       )}
     >

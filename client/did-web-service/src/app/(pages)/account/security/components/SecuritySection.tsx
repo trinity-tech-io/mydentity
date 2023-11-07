@@ -10,7 +10,7 @@ import { LoadingSecurityContent } from "@components/loading-skeleton";
 import { useMounted } from "@hooks/useMounted";
 
 export const CardStyled = styled(Card)(({ theme }) => ({
-  border: "1px solid #FFFFFF55",
+  border: `1px solid ${theme.palette.mode === "dark" ? "#FFFFFF55" : "#DDD"}`,
   borderRadius: "0.5rem",
   position: "relative",
 }));

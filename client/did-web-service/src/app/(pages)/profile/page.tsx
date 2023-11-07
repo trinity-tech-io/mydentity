@@ -350,12 +350,20 @@ const Profile: FC = () => {
                       <div className="flex flex-col ml-4">
                         <div className="flex pb-2">
                           <Box
-                            className="rounded-sm bg-[#9291A5] flex"
-                            sx={{ px: 1.5, py: 0.25 }}
+                            className="bg-[#9291A5] text-center"
+                            sx={{
+                              px: 1.5,
+                              pt: 0.375,
+                              pb: 0.25,
+                              borderRadius: 1.5,
+                              color: "white",
+                              fontSize: "8pt",
+                              fontWeight: 600,
+                            }}
                           >
-                            <Typography variant="caption" fontSize="7pt">
-                              ACTIVE IDENTITY
-                            </Typography>
+                            ACTIVE IDENTITY
+                            {/* <Typography variant="caption" fontSize="7pt" color="white">
+                            </Typography> */}
                           </Box>
                         </div>
                         <Typography variant="h4">
