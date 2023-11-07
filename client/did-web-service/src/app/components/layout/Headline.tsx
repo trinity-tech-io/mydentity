@@ -24,11 +24,15 @@ const Headline: FC<{
     <Typography
       className="w-full pb-3 sm:pb-4 sm:pb-8"
       variant="h3"
-      color="inherit"
+      color={showBg ? "inherit" : "text.primary"}
     >
       {title}
     </Typography>
-    <Typography className="mt-4" variant="body1" color="inherit">
+    <Typography
+      className="mt-4"
+      variant="body1"
+      color={showBg ? "inherit" : "text.primary"}
+    >
       {description}
     </Typography>
   </HeadlineBox>

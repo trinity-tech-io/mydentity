@@ -1,6 +1,7 @@
 import { FC, ReactNode } from "react";
-import { Avatar, Typography } from "@mui/material";
+import { Avatar, Box, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { ColorMap } from "@/app/theming/palette";
 
 export const IconAvatar = styled(Avatar)(({ theme }) => ({
   backgroundColor: "#9D3E3E",
@@ -27,7 +28,7 @@ const DetailLine: FC<DetailLineType> = ({
   description,
   className = "",
 }) => (
-  <div className={`text-[#DDD] ${className}`}>
+  <Box className={className} sx={{color: (theme) => ColorMap[theme.palette.mode].GREY2}}>
     <div className="inline-flex pb-1">
       <IconAvatar>{icon}</IconAvatar>
     </div>
@@ -35,6 +36,6 @@ const DetailLine: FC<DetailLineType> = ({
       {title}
     </Typography>
     <Typography variant="body2">{description}</Typography>
-  </div>
+  </Box>
 );
 export default DetailLine;

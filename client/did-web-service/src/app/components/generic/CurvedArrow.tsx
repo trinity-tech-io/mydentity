@@ -2,7 +2,7 @@ import { FC } from "react";
 import { styled } from "@mui/material/styles";
 
 const CurvedArrowBox = styled("div")(({ theme }) => ({
-  color: "white",
+  color: theme.palette.text.primary,
   ".path": {
     strokeWidth: 6,
     fill: "none",
