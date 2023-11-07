@@ -12,9 +12,15 @@ import { FAQGroup } from "./faq-types";
 import { IconAvatar } from "@components/feature/DetailLine";
 
 const AccordionWrapper = styled("div")(({ theme }) => ({
-  "&:first-child": {
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8,
+  ".MuiAccordion-root": {
+    "&:first-child": {
+      borderTopLeftRadius: 8,
+      borderTopRightRadius: 8,
+    },
+    "&:last-child": {
+      borderBottomLeftRadius: 8,
+      borderBottomRightRadius: 8,
+    },
   },
 }));
 const Accordion = styled((props: AccordionProps) => (
@@ -35,10 +41,10 @@ const AccordionSummary = styled((props: AccordionSummaryProps) => (
     {...props}
   />
 ))(({ theme }) => ({
-  backgroundColor:
-    theme.palette.mode === "dark"
-      ? "rgba(255, 255, 255, .05)"
-      : "rgba(0, 0, 0, .03)",
+  // backgroundColor:
+  //   theme.palette.mode === "dark"
+  //     ? "rgba(255, 255, 255, .05)"
+  //     : "rgba(0, 0, 0, .03)",
   flexDirection: "row-reverse",
   "& .MuiAccordionSummary-expandIconWrapper.Mui-expanded": {
     transform: "rotate(90deg)",
@@ -51,6 +57,7 @@ const AccordionSummary = styled((props: AccordionSummaryProps) => (
 const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
   padding: theme.spacing(2),
   borderTop: "1px solid rgba(0, 0, 0, .125)",
+  background: "#9b9b9b2b",
 }));
 
 export const FAQ: FC<{
@@ -64,7 +71,7 @@ export const FAQ: FC<{
     };
 
   return (
-    <AccordionWrapper>
+    <div>
       <div className="inline-flex items-center mb-4">
         <IconAvatar>
           <div className="w-4 h-4 flex justify-center">
@@ -75,19 +82,23 @@ export const FAQ: FC<{
           {group.title}
         </Typography>
       </div>
-      {group.items.map((item, i) => (
-        <Accordion
-          className="pp"
-          key={i}
-          expanded={expanded === item.title}
-          onChange={handleChange(item.title)}
-        >
-          <AccordionSummary aria-controls="panel1d-content" id="panel1d-header">
-            <Typography>{item.title}</Typography>
-          </AccordionSummary>
-          <AccordionDetails>{item.content}</AccordionDetails>
-        </Accordion>
-      ))}
-    </AccordionWrapper>
+      <AccordionWrapper>
+        {group.items.map((item, i) => (
+          <Accordion
+            key={i}
+            expanded={expanded === item.title}
+            onChange={handleChange(item.title)}
+          >
+            <AccordionSummary
+              aria-controls="panel1d-content"
+              id="panel1d-header"
+            >
+              <Typography>{item.title}</Typography>
+            </AccordionSummary>
+            <AccordionDetails>{item.content}</AccordionDetails>
+          </Accordion>
+        ))}
+      </AccordionWrapper>
+    </div>
   );
 };
