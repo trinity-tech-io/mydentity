@@ -64,10 +64,20 @@ export class IdentityService {
     let didDocument: DIDDocument = null;
     let identityDid: string = null;
 
+    let defaultIdentityRoot: {
+      id: string;
+      createdAt: Date;
+      didStoreRootIdentityId: string;
+      userId: string;
+    } = null;
     try {
       // Get the main root identity if existing, otherwise create one
-      const defaultIdentityRoot = await this.identityRootService.findOne(user.defaultRootIdentityId);
-      didStoreRootIdentity = await this.didService.getOrCreateDefaultRootIdentity(context, defaultIdentityRoot?.didStoreRootIdentityId, storePassword);
+      if (type === IdentityType.APPLICATION) {
+        didStoreRootIdentity = await this.didService.getOrCreateDefaultRootIdentity(context, null, storePassword);
+      } else {
+        defaultIdentityRoot = await this.identityRootService.findOne(user.defaultRootIdentityId);
+        didStoreRootIdentity = await this.didService.getOrCreateDefaultRootIdentity(context, defaultIdentityRoot?.didStoreRootIdentityId, storePassword);
+      }
 
       didDocument = await didStoreRootIdentity.newDid(storePassword);
 
@@ -92,9 +102,11 @@ export class IdentityService {
     const derivationIndex = didStoreRootIdentity.getIndex() - 1;
     this.logger.log('Creating DID at index ' + derivationIndex);
 
+    /* Comment out the following two lines：If no root identity id is provider, it means you need to create an application mnemonic
     // If no root identity id is provider but the user has a default root identity, then we user the default root identity
     if (!identityRootId && user.defaultRootIdentityId)
       identityRootId = user.defaultRootIdentityId;
+    */
 
     // If there is no known root identity, we create one and mark it as default for the user.
     if (!identityRootId) {
@@ -104,8 +116,17 @@ export class IdentityService {
           didStoreRootIdentityId: didStoreRootIdentity.getId()
         }
       });
+      if (!user.defaultRootIdentityId) {
+        await this.userService.updateUserDefaultRootIdentityId(user, identityRoot.id);
+      }
 
+      /* Comment out the following two lines:
+      * When type === IdentityType.APPLICATION: identityRootId should not be equal to user.defaultRootIdentityId. 
+      * When identityRootId is not null and user.defaultRootIdentityId is not empty, updateUserDefaultRootIdentityId needs to be updated:
+        *  because when identityRootId is empty, the applicaiton mnemonic is created.
+      identityRootId = user.defaultRootIdentityId;
       await this.userService.updateUserDefaultRootIdentityId(user, identityRoot.id);
+      */
 
       identityRootId = identityRoot.id;
     }
