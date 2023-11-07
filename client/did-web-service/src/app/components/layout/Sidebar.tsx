@@ -82,10 +82,11 @@ const IdentityCardGroup: FC<{ visiblePagination: boolean }> = ({
     <Box
       sx={{
         ".swiper-pagination": {
-          bottom: 0,
+          bottom: -5,
           transform: "translateY(60%)",
         },
-        "--swiper-pagination-color": "#C4C4C4",
+        "--swiper-pagination-color": (theme) =>
+          theme.palette.mode === "dark" ? "#C4C4C4" : "#202020",
       }}
     >
       <Swiper
@@ -103,7 +104,10 @@ const IdentityCardGroup: FC<{ visiblePagination: boolean }> = ({
         }
       >
         {myIdentities.map((identity, _id) => (
-          <SwiperSlide key={_id}>
+          <SwiperSlide
+            key={_id}
+            style={{ display: "flex", borderRadius: "6.329%/10%" }}
+          >
             <IdentityInfoCard identity={identity} />
           </SwiperSlide>
         ))}

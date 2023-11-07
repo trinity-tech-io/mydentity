@@ -1,11 +1,10 @@
 import { FC, ReactNode } from "react";
 import { Icon as ReactIcon } from "@iconify/react";
-import { DetailTableRow } from "@components/generic/DetailTable";
-import { Avatar, Box, ListItemText, TableCell } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import SecurityStatusIcon from "@components/security/SecurityIcon";
+import { Box, ListItemText, TableCell } from "@mui/material";
 import clsx from "clsx";
 import { useRouter } from "next13-progressbar";
+import { DetailTableRow } from "@components/generic/DetailTable";
+import SecurityStatusIcon from "@components/security/SecurityIcon";
 import IconAvatar from "../../components/IconAvatar";
 
 const TitleByMethod = {
@@ -48,7 +47,12 @@ export const EncryptAccessRow: FC<{
               className="flex-1"
               primary={
                 <div className="flex items-center gap-1">
-                  <span className="font-medium text-[11pt] text-[#9291A5]">
+                  <span
+                    className={clsx(
+                      "font-medium text-[11pt]",
+                      isSet ? "" : "text-[#9291A5]"
+                    )}
+                  >
                     {TitleByMethod[method].title}
                   </span>
                   <SecurityStatusIcon turnedOn={isSet} />

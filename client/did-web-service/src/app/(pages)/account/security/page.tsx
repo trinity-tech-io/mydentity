@@ -272,7 +272,10 @@ const Security: FC = () => {
                 <Card
                   variant="outlined"
                   className="p-8 flex justify-center"
-                  sx={{ background: "white" }}
+                  sx={{
+                    background: "white",
+                    display: { xs: "flex", md: "none" },
+                  }}
                 >
                   <QRCode value={externalAuthUrl} />
                 </Card>
