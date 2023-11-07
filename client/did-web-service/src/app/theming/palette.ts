@@ -103,7 +103,7 @@ const palette = {
       contrastText: "#fff",
     },
     text: { primary: GREY[800], secondary: GREY[600], disabled: GREY[500] },
-    background: { paper: "#fff", default: "#fff" },
+    background: { paper: "#fff", default: "#FDFDFD" },
     action: { active: GREY[600], ...COMMON.action },
   },
   dark: {
@@ -123,12 +123,16 @@ export const ColorMap = {
   dark: {
     GREY0: "#1D1D1D",
     GREY1: "#3A3A3A",
-    GREY2: "#DDD"
+    GREY2: "#DDD",
+    GREY3: "#3A3A3A",
+    GREY4: "#333333",
   },
   light: {
     GREY0: "#FAFAFA",
     GREY1: "#E3E3E3",
-    GREY2: "#2F2F2F"
+    GREY2: "#2F2F2F",
+    GREY3: "#E8E8E8",
+    GREY4: "#EEEEEE",
   },
 }
 

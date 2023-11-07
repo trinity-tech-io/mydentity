@@ -148,6 +148,7 @@ export const IdentityCard: FC<{
                   fontSize={10}
                   fontStyle="italic"
                   lineHeight={2.2}
+                  color="white"
                 >
                   Last used : {identity.lastUsedAt$.getValue().toLocaleString()}
                 </Typography>
@@ -157,8 +158,8 @@ export const IdentityCard: FC<{
               <IconButton
                 ref={moreButtonRef}
                 size="small"
-                color="inherit"
-                sx={{ p: 0.5 }}
+                // color="inherit"
+                sx={{ p: 0.5, color: "white" }}
                 onClick={(): void => {
                   setOpenMoreMenu(true);
                 }}
@@ -168,7 +169,7 @@ export const IdentityCard: FC<{
             </div>
           </div>
         }
-        footer={<Typography variant="caption">{identity.did}</Typography>}
+        footer={<Typography variant="caption" color="white">{identity.did}</Typography>}
       >
         <div className="flex flex-col mb-[5%]">
           <label htmlFor="holder-name" className="text-white text-[10px]">

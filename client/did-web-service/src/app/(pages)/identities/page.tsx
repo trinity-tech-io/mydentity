@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import { clearOnGoingFlowOperation } from "@services/flow.service";
 import { FC, useEffect } from "react";
 import { AllIdentityList } from "./widgets/AllIdentityList";
@@ -8,9 +8,7 @@ const Identities: FC = () => {
     clearOnGoingFlowOperation();
   }, []);
 
-  return (<>
-    <AllIdentityList />
-  </>)
-}
+  return <AllIdentityList />;
+};
 
 export default Identities;

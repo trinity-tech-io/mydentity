@@ -31,6 +31,7 @@ import {
   callWithUnlockRequestEvent$,
   unlockPromptState$,
 } from "./unlock.events";
+import { ColorMap } from "@/app/theming/palette";
 
 type OnUnlockKeyCallback = (authorization: AuthKeyInput) => void;
 
@@ -71,7 +72,7 @@ const Transition = React.forwardRef(function Transition(
 });
 
 const TitleBox = styled("div")(({ theme }) => ({
-  background: "linear-gradient(to right, #242424, #333 50%, transparent)",
+  background: `linear-gradient(to right, ${ColorMap[theme.palette.mode].GREY3}, ${ColorMap[theme.palette.mode].GREY4} 50%, transparent)`,
 }));
 
 const UnlockKeyPrompt: FC = () => {
