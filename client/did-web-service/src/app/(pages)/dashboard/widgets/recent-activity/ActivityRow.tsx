@@ -29,6 +29,7 @@ import { getDateDistance } from "@utils/date";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import { RegularIdentity } from "@model/regular-identity/regular-identity";
 import { CredentialAvatar } from "@components/credential/CredentialAvatar";
+import IconAvatar from "../../components/IconAvatar";
 
 const ActionForIdentity: FC<{ identity: RegularIdentity }> = ({ identity }) => {
   const identityProfileFeature = identity?.profile();
@@ -115,14 +116,6 @@ function getActivityRenderer(activity: Activity): ActivityRenderType {
   }
   return renderer;
 }
-
-const IconAvatar = styled(Avatar)(({ theme }) => ({
-  backgroundColor: "#3A3A3A",
-  color: "#DDD",
-  width: 36,
-  height: 36,
-  padding: 8,
-}));
 
 export const ActivityRow: FC<{
   activity: Activity;

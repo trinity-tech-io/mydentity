@@ -1,19 +1,11 @@
 import { FC, ReactNode } from "react";
+import { useRouter } from "next13-progressbar";
+import clsx from "clsx";
 import { Icon as ReactIcon } from "@iconify/react";
 import { DetailTableRow } from "@components/generic/DetailTable";
-import { Avatar, Box, ListItemText, TableCell } from "@mui/material";
-import { styled } from "@mui/material/styles";
+import { Box, ListItemText, TableCell } from "@mui/material";
 import SecurityStatusIcon from "@components/security/SecurityIcon";
-import clsx from "clsx";
-import { useRouter } from "next13-progressbar";
-
-const IconAvatar = styled(Avatar)(({ theme }) => ({
-  backgroundColor: "#3A3A3A",
-  color: "#DDD",
-  width: 36,
-  height: 36,
-  padding: 8,
-}));
+import IconAvatar from "../../components/IconAvatar";
 
 const TitleByMethod = {
   email: {

@@ -14,10 +14,11 @@ import { checkTemporaryAuthenticationKey } from "@services/user/user.service";
 import { decode } from "@utils/slugid";
 import { DarkButton } from "@components/button";
 import { useToast } from "@services/feedback.service";
+import { ColorMap } from "@/app/theming/palette";
 
 const PinInputWrapper = styled(Box)(({ theme }) => ({
   ".pin-field": {
-    backgroundColor: theme.palette.mode == "dark" ? "#1D1D1D" : "white",
+    backgroundColor: ColorMap[theme.palette.mode].GREY0,
     border: "1px solid #99999990",
     borderRadius: 4,
     fontSize: "2rem",

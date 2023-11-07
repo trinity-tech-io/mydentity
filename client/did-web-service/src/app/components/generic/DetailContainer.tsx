@@ -10,11 +10,12 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { NormalButton } from "@components/button";
+import { ColorMap } from "@/app/theming/palette";
 
 const CardStyled = styled(Card)(({ theme }) => ({
   border: "1px solid #cacaca55",
   borderRadius: "0.5rem",
-  background: theme.palette.mode === "dark" ? "#1D1D1D" : "#FAFAFA",
+  background: ColorMap[theme.palette.mode].GREY0,
   position: "relative",
   "&:before": {
     opacity: 0.1,

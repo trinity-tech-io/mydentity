@@ -119,4 +119,17 @@ const palette = {
   },
 };
 
+export const ColorMap = {
+  dark: {
+    GREY0: "#1D1D1D",
+    GREY1: "#3A3A3A",
+    GREY2: "#DDD"
+  },
+  light: {
+    GREY0: "#FAFAFA",
+    GREY1: "#E3E3E3",
+    GREY2: "#2F2F2F"
+  },
+}
+
 export default palette;

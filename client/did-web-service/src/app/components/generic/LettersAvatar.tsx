@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { FC } from "react";
 
@@ -10,17 +10,16 @@ export const LettersAvatar: FC<{
   const circleStyle = {
     width: `${width}px`,
     height: `${height}px`,
-    borderRadius: '50%',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    color: 'white',
-    fontSize: '16px',
-    lineHeight: 1
+    borderRadius: "50%",
+    color: "white",
+    fontSize: "16px",
   };
 
   return (
-    <div className="bg-indigo-400 p-2 rounded-sm overflow-hidden" style={circleStyle}>
+    <div
+      className="bg-indigo-400 p-2 rounded-sm overflow-hidden text-center"
+      style={circleStyle}
+    >
       {text}
     </div>
   );

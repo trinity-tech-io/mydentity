@@ -1,3 +1,4 @@
+import { ColorMap } from "@/app/theming/palette";
 import { DarkButton } from "@components/button";
 import NationalityCommon, {
   CountryType,
@@ -68,7 +69,7 @@ function EditCredentialDialog(props: EditCredentialDialogProps): JSX.Element {
       inputRef?.current?.focus();
       setEditionType(credentialInfo.getConverter().getEditionType());
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [credentialInfo, open]);
 
   const inputRef = createRef<HTMLInputElement>();
@@ -129,8 +130,7 @@ function EditCredentialDialog(props: EditCredentialDialogProps): JSX.Element {
       open={open}
       sx={{
         ".MuiPaper-root": {
-          background: (theme) =>
-            theme.palette.mode == "dark" ? "#1D1D1D" : "#FAFAFA",
+          background: (theme) => ColorMap[theme.palette.mode].GREY0,
         },
       }}
     >

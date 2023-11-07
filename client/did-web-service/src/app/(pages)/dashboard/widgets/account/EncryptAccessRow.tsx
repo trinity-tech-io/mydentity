@@ -6,14 +6,7 @@ import { styled } from "@mui/material/styles";
 import SecurityStatusIcon from "@components/security/SecurityIcon";
 import clsx from "clsx";
 import { useRouter } from "next13-progressbar";
-
-const IconAvatar = styled(Avatar)(({ theme }) => ({
-  backgroundColor: "#3A3A3A",
-  color: "#DDD",
-  width: 36,
-  height: 36,
-  padding: 8,
-}));
+import IconAvatar from "../../components/IconAvatar";
 
 const TitleByMethod = {
   password: {
