@@ -13,6 +13,7 @@ export const LettersAvatar: FC<{
     borderRadius: "50%",
     color: "white",
     fontSize: "16px",
+    lineHeight: 1,
   };
 
   return (

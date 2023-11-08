@@ -14,7 +14,7 @@ import { CopyButton } from "@components/button";
 
 const InputStyled = styled(OutlinedInput)(({ theme }) => ({
   input: {
-    color: "white",
+    color: theme.palette.text.primary,
   },
 }));
 
@@ -34,7 +34,7 @@ const FormControlStyled = styled(FormControl)(({ theme }) => ({
   ".MuiInputBase-root.Mui-focused": {
     fieldset: {
       opacity: 0.6,
-      borderColor: "white",
+      borderColor: theme.palette.text.primary,
     },
   },
   // ".key-input.redacted": {
