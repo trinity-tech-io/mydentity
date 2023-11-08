@@ -30,60 +30,45 @@ const ModalBody = styled(Card)((theme) => ({
 
 const ButtonBaseStyled = styled(ButtonBase)(({ theme }) => ({
   position: "relative",
-  overflow: "hidden",
-  borderRadius: 8,
-  boxShadow: "0 0 0 0 transparent",
-  WebkitTransition: "all 0.1s ease-in",
-  MozTransition: "all 0.1s ease-in",
-  transition: "all 0.1s ease-in",
+  WebkitTransition: "background 0.2s, color 0.2s",
+  MozTransition: "background 0.2s, color 0.2s",
+  transition: "background 0.2s, color 0.2s",
   padding: 4,
+  borderRadius: 3,
   "&:hover": {
-    background: "#77777745",
-    boxShadow: "0 0 30px 5px rgb(20 20 20 / 58%)",
-    WebkitTransition: "all 0.1s ease-out",
-    MozTransition: "all 0.1s ease-out",
-    transition: "all 0.1s ease-out",
-    "&:before": {
-      WebkitAnimation: "sh02 0.3s 0s linear",
-      MozAnimation: "sh02 0.3s 0s linear",
-      animation: "sh02 0.3s 0s linear",
-    },
-  },
-  "&:before": {
-    content: "''",
-    display: "block",
-    width: 0,
-    height: "86%",
-    position: "absolute",
-    top: "7%",
-    left: "0%",
-    opacity: 0,
-    background: "#fff",
-    boxShadow: "0 0 50px 30px #fff",
-    WebkitTransform: "skewX(-20deg)",
-    MozTransform: "skewX(-20deg)",
-    MsTransform: "skewX(-20deg)",
-    OTransform: "skewX(-20deg)",
-    transform: "skewX(-20deg)",
-  },
-  "&:active": {
-    boxShadow: "0 0 0 0 transparent",
-    WebkitTransition: "box-shadow 0.1s ease-in",
-    MozTransition: "box-shadow 0.1s ease-in",
-    transition: "box-shadow 0.1s ease-in",
-  },
-  "@keyframes sh02": {
-    from: {
-      opacity: 0,
-      left: "0%",
-    },
-    "50%": {
+    background: theme.palette.mode === "dark" ? "#1d1d1d" : "#e8e8e8",
+    "&:after": {
+      WebkitTransform: "scale(1)",
+      MozTransform: "scale(1)",
+      MsTransform: "scale(1)",
+      transform: "scale(1)",
       opacity: 1,
     },
-    to: {
-      opacity: 0,
-      left: "100%",
-    },
+  },
+  "&:after": {
+    pointerEvents: "none",
+    borderRadius: 4,
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+    content: "''",
+    WebkitBoxSizing: "content-box",
+    MozBoxSizing: "content-box",
+    boxSizing: "content-box",
+    top: -4,
+    left: -4,
+    padding: 4,
+    boxShadow: `0 0 0 2px ${
+      theme.palette.mode === "dark" ? "#1d1d1d" : "#e8e8e8"
+    }`,
+    WebkitTransition: "-webkit-transform 0.2s, opacity 0.2s",
+    MozTransition: "-moz-transform 0.2s, opacity 0.2s",
+    transition: "transform 0.2s, opacity 0.2s",
+    WebkitTransform: "scale(0.8)",
+    MozTransform: "scale(0.8)",
+    MsTransform: "scale(0.8)",
+    transform: "scale(0.8)",
+    opacity: 0,
   },
 }));
 
@@ -162,7 +147,7 @@ const CreateCredentialDialog: FC<CreateCredentialDialog> = ({
               container
               spacing={1}
               columns={{ xs: 8, sm: 10 }}
-              sx={{ maxHeight: "calc(100vh - 80px)" }}
+              sx={{ maxHeight: "calc(100vh - 80px)", p: .75 }}
             >
               {availableItemsForAddition?.map((addableItem, i) => (
                 <Grid item xs={2} key={i}>
