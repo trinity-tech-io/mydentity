@@ -9,6 +9,7 @@ import {
 import { MoreVert as MoreVertIcon } from "@mui/icons-material";
 import {
   Box,
+  ButtonBase,
   ClickAwayListener,
   Grow,
   IconButton,
@@ -19,7 +20,6 @@ import {
   TableCell,
   Typography,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
 import clsx from "clsx";
 import { NavigateNext as NavigateNextIcon } from "@mui/icons-material";
 import { useRouter } from "next13-progressbar";
@@ -119,67 +119,86 @@ export const IdentityCard: FC<{
     }
   };
 
+  const handleClickCard = (): void => {
+    if (activeIdentity != identity) identityService.setActiveIdentity(identity);
+    router.push("/profile");
+  };
+
   return (
     <>
-      <LandingCard
-        className={clsx(
-          "w-[26rem] h-auto",
-          activeIdentity != identity ? "bg-[#675216]" : "bg-neutral-950"
-        )}
-        waveIconVisible={false}
-        chipClickable={true}
-        handleClickChip={handleClickChip}
-        topRightSection={
-          <div
-            className={clsx(
-              "flex",
-              activeIdentity != identity ? "items-center" : ""
-            )}
-          >
-            <div className="flex">
-              <div className="flex flex-col items-end">
-                {activeIdentity == identity && (
-                  <Box className="rounded-[4px] text-[6pt] px-3 py-0.5 mt-1 inline-block text-white whitespace-nowrap bg-[#9291A5]">
-                    ACTIVE IDENTITY
-                  </Box>
-                )}
-                <Typography
-                  variant="caption"
-                  fontSize={10}
-                  fontStyle="italic"
-                  lineHeight={2.2}
-                  color="white"
+      <ButtonBase
+        sx={{ textAlign: "left", borderRadius: "6.329%/10%" }}
+        onClick={handleClickCard}
+      >
+        <LandingCard
+          className={clsx(
+            "w-[26rem] h-auto",
+            activeIdentity != identity ? "bg-[#675216]" : "bg-neutral-950"
+          )}
+          waveIconVisible={false}
+          chipClickable={true}
+          handleClickChip={handleClickChip}
+          topRightSection={
+            <div
+              className={clsx(
+                "flex",
+                activeIdentity != identity ? "items-center" : ""
+              )}
+            >
+              <div className="flex">
+                <div className="flex flex-col items-end">
+                  {activeIdentity == identity && (
+                    <Box className="rounded-[4px] text-[6pt] px-3 py-0.5 mt-1 inline-block text-white whitespace-nowrap bg-[#9291A5]">
+                      ACTIVE IDENTITY
+                    </Box>
+                  )}
+                  <Typography
+                    variant="caption"
+                    fontSize={10}
+                    fontStyle="italic"
+                    lineHeight={2.2}
+                    color="white"
+                  >
+                    Last used :{" "}
+                    {identity.lastUsedAt$.getValue().toLocaleString()}
+                  </Typography>
+                </div>
+              </div>
+              <div className="flex flex-col">
+                <IconButton
+                  ref={moreButtonRef}
+                  size="small"
+                  // color="inherit"
+                  sx={{ p: 0.5, color: "white" }}
+                  onClick={(): void => {
+                    setOpenMoreMenu(true);
+                  }}
+                  onMouseDown={(e): void => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
                 >
-                  Last used : {identity.lastUsedAt$.getValue().toLocaleString()}
-                </Typography>
+                  <MoreVertIcon sx={{ fontSize: 16 }} />
+                </IconButton>
               </div>
             </div>
-            <div className="flex flex-col">
-              <IconButton
-                ref={moreButtonRef}
-                size="small"
-                // color="inherit"
-                sx={{ p: 0.5, color: "white" }}
-                onClick={(): void => {
-                  setOpenMoreMenu(true);
-                }}
-              >
-                <MoreVertIcon sx={{ fontSize: 16 }} />
-              </IconButton>
-            </div>
+          }
+          footer={
+            <Typography variant="caption" color="white">
+              {identity.did}
+            </Typography>
+          }
+        >
+          <div className="flex flex-col mb-[5%]">
+            <label htmlFor="holder-name" className="text-white text-[10px]">
+              IDENTITY NAME
+            </label>
+            <GradientTypography variant="h5" fontSize={26} fontWeight={600}>
+              {name || "Unnamed identity"}
+            </GradientTypography>
           </div>
-        }
-        footer={<Typography variant="caption" color="white">{identity.did}</Typography>}
-      >
-        <div className="flex flex-col mb-[5%]">
-          <label htmlFor="holder-name" className="text-white text-[10px]">
-            IDENTITY NAME
-          </label>
-          <GradientTypography variant="h5" fontSize={26} fontWeight={600}>
-            {name || "Unnamed identity"}
-          </GradientTypography>
-        </div>
-      </LandingCard>
+        </LandingCard>
+      </ButtonBase>
       <Popper
         open={Boolean(menuAnchorEl)}
         anchorEl={menuAnchorEl}
