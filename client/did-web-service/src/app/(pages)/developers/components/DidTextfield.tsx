@@ -21,7 +21,7 @@ const FormControlStyled = styled(FormControl)(({ theme }) => ({
   ".MuiInputBase-root.Mui-focused": {
     fieldset: {
       opacity: 0.6,
-      borderColor: "white",
+      borderColor: theme.palette.text.primary,
     },
   },
 }));

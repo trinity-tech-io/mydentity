@@ -66,6 +66,7 @@ export const IdentityCard: FC<{
 
   const handleClickChip: MouseEventHandler<HTMLButtonElement> = useCallback(
     (e) => {
+      e.stopPropagation();
       identity?.credentials().credentials$?.subscribe({
         next: (val) => {
           if (val) {
@@ -170,7 +171,8 @@ export const IdentityCard: FC<{
                   size="small"
                   // color="inherit"
                   sx={{ p: 0.5, color: "white" }}
-                  onClick={(): void => {
+                  onClick={(e): void => {
+                    e.stopPropagation();
                     setOpenMoreMenu(true);
                   }}
                   onMouseDown={(e): void => {
