@@ -9,12 +9,6 @@ import {
 } from "@mui/material";
 import { CopyButton } from "@components/button";
 
-const InputStyled = styled(OutlinedInput)(({ theme }) => ({
-  input: {
-    color: "white",
-  },
-}));
-
 const FormControlStyled = styled(FormControl)(({ theme }) => ({
   ".MuiInputBase-root": {
     paddingRight: 8,
@@ -47,7 +41,7 @@ const DidTextfield: FC<{
 
   return (
     <FormControlStyled>
-      <InputStyled
+      <OutlinedInput
         {...outerProps}
         value={value}
         size="small"

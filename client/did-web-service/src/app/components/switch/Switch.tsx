@@ -14,17 +14,19 @@ const SwitchUI = styled(Switch)(({ theme }) => ({
     height: 24,
   },
   "& .Mui-checked .MuiSwitch-thumb": {
-    backgroundColor: theme.palette.mode === "dark" ? "#fff" : "#7a3cff",
+    backgroundColor: `${
+      theme.palette.mode === "dark" ? "#fff" : "#7a3cff"
+    } !important`,
   },
   "& .MuiSwitch-track": {
-    // opacity: 1,
     // backgroundColor: "#3A3A3A",
     borderRadius: 40 / 2,
     border: 0,
   },
   "& .Mui-checked+.MuiSwitch-track": {
-    background: theme.palette.mode === "dark" ? "#fff" : "#bb9bff",
-    // opacity: "1 !important",
+    backgroundColor: `${
+      theme.palette.mode === "dark" ? "#fff" : "#bb9bff"
+    } !important`,
   },
 }));
 

@@ -18,6 +18,7 @@ import { IdentityInfoCard } from "@components/identity/IdentityInfoCard";
 import { identityService } from "@services/identity/identity.service";
 import { RegularIdentity } from "@model/regular-identity/regular-identity";
 import SidebarMenu from "./components/SidebarMenu";
+import { ColorMap } from "@/app/theming/palette";
 
 const IdentityCardGroup: FC<{ visiblePagination: boolean }> = ({
   visiblePagination,
@@ -86,7 +87,7 @@ const IdentityCardGroup: FC<{ visiblePagination: boolean }> = ({
           transform: "translateY(60%)",
         },
         "--swiper-pagination-color": (theme) =>
-          theme.palette.mode === "dark" ? "#C4C4C4" : "#202020",
+          ColorMap[theme.palette.mode].GREY5,
       }}
     >
       <Swiper

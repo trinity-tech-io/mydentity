@@ -20,6 +20,7 @@ import { activeIdentity$ } from "@services/identity/identity.events";
 import { useBehaviorSubject } from "@hooks/useBehaviorSubject";
 import AddProfileItem from "../../profile/components/AddProfileItem";
 import { ConformBadge } from "@components/credential/SharedCountLabel";
+import { ColorMap } from "@/app/theming/palette";
 
 const CredentialsList: FC = () => {
   const theme = useTheme();
@@ -111,8 +112,7 @@ const CredentialsList: FC = () => {
                 <Typography
                   variant="body2"
                   sx={{
-                    color: (theme) =>
-                      theme.palette.mode === "dark" ? "#C4C4C4" : "#2F2F2F",
+                    color: (theme) => ColorMap[theme.palette.mode].GREY5,
                   }}
                 >
                   Show Details

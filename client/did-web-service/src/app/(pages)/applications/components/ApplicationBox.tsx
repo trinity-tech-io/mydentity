@@ -41,7 +41,7 @@ const ApplicationBox: FC<{
     <CardStyled elevation={0}>
       <Box className="relative z-10 flex flex-col h-full p-4">
         <Stack direction="row" spacing={1.5} pb={1} alignItems="center">
-          <Avatar sx={{ width: 32, height: 32 }}>
+          <Avatar sx={{ width: 32, height: 32, p: .5 }}>
             {appIcon && <Image src={appIcon} alt="" width={32} height={32} />}
           </Avatar>
           <Stack flexGrow={1}>

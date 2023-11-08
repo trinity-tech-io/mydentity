@@ -126,6 +126,7 @@ export const ColorMap = {
     GREY2: "#DDD",
     GREY3: "#3A3A3A",
     GREY4: "#333333",
+    GREY5: "#C4C4C4",
   },
   light: {
     GREY0: "#FAFAFA",
@@ -133,6 +134,7 @@ export const ColorMap = {
     GREY2: "#2F2F2F",
     GREY3: "#E8E8E8",
     GREY4: "#EEEEEE",
+    GREY5: "#2F2F2F",
   },
 }
 

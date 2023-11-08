@@ -31,9 +31,12 @@ const StyledTab = styled(Tab)(({ theme }) => ({
   minHeight: "unset",
   paddingTop: 8,
   paddingBottom: 8,
-  color: "rgba(255, 255, 255, 0.7)",
+  color:
+    theme.palette.mode === "dark"
+      ? "rgba(255, 255, 255, 0.7)"
+      : "rgba(32, 32, 32, 0.7)",
   "&.Mui-selected": {
-    color: "#fff",
+    color: theme.palette.text.primary,
   },
   "&.Mui-focusVisible": {
     backgroundColor: "rgba(100, 95, 228, 0.32)",

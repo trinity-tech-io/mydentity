@@ -23,6 +23,7 @@ import OutlinedInputStyled from "@components/input/OutlinedInputStyled";
 import SwitchUI from "@components/switch/Switch";
 import SelectBox from "@components/select/SelectBox";
 import { LoadingApplicationBox } from "@components/loading-skeleton";
+import { ColorMap } from "@/app/theming/palette";
 
 const Applications: FC = () => {
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
@@ -81,7 +82,10 @@ const Applications: FC = () => {
         />
         <Stack direction="row" spacing={2} sx={{ ml: "auto" }}>
           <Stack direction="row" spacing={1} alignItems="center">
-            <Typography variant="body2" className="text-[#C4C4C4]">
+            <Typography
+              variant="body2"
+              sx={{ color: (theme) => ColorMap[theme.palette.mode].GREY5 }}
+            >
               Show Details
             </Typography>
             <SwitchUI onChange={handleDetailSwitch} />
