@@ -9,19 +9,22 @@ const SwitchUI = styled(Switch)(({ theme }) => ({
     padding: 4,
   },
   "& .MuiSwitch-thumb": {
-    backgroundColor: `#fff !important`,
+    backgroundColor: theme.palette.mode === "dark" ? "#202020" : "currentColor",
     width: 24,
     height: 24,
   },
+  "& .Mui-checked .MuiSwitch-thumb": {
+    backgroundColor: theme.palette.mode === "dark" ? "#fff" : "#7a3cff",
+  },
   "& .MuiSwitch-track": {
-    opacity: 1,
-    backgroundColor: "#3A3A3A",
+    // opacity: 1,
+    // backgroundColor: "#3A3A3A",
     borderRadius: 40 / 2,
     border: 0,
   },
   "& .Mui-checked+.MuiSwitch-track": {
-    background: "linear-gradient(270deg, #089ecd 0%, #172232 100%)",
-    opacity: "1 !important",
+    background: theme.palette.mode === "dark" ? "#fff" : "#bb9bff",
+    // opacity: "1 !important",
   },
 }));
 

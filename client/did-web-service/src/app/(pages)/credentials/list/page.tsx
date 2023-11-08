@@ -108,7 +108,13 @@ const CredentialsList: FC = () => {
           <div className="flex flex-col flex-1 justify-end">
             <div className="inline-flex gap-2">
               <Stack direction="row" spacing={1} alignItems="center">
-                <Typography variant="body2" className="text-[#C4C4C4]">
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: (theme) =>
+                      theme.palette.mode === "dark" ? "#C4C4C4" : "#2F2F2F",
+                  }}
+                >
                   Show Details
                 </Typography>
                 <SwitchUI onChange={handleDetailSwitch} />

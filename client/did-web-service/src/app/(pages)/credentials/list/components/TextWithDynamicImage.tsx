@@ -1,11 +1,11 @@
 import React from 'react';
-import { ListItem } from '@mui/material';
+import { Stack } from '@mui/material';
 import Image from 'next/image';
 import ListItemTextStyled from "./ListItemText";
 
 const TextWithDynamicImage = ({ createdBy, dynamicImage }: { createdBy?: string; dynamicImage?: string }): React.JSX.Element => {
   return (
-    <ListItem>
+    <Stack direction="row">
       {dynamicImage && (
         <Image
           src={dynamicImage}
@@ -19,7 +19,7 @@ const TextWithDynamicImage = ({ createdBy, dynamicImage }: { createdBy?: string;
         primary=""
         secondary={createdBy}
       />
-    </ListItem>
+    </Stack>
   );
 }
 

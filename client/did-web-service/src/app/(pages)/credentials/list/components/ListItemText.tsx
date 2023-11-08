@@ -1,10 +1,10 @@
-import { FC } from "react";
+import { FC, ReactNode } from "react";
 import { ListItemText } from "@mui/material";
 
-const ListItemTextStyled: FC<{ primary: string; secondary: string }> = ({
-  primary,
-  secondary,
-}) => {
+const ListItemTextStyled: FC<{
+  primary: string;
+  secondary: string | ReactNode;
+}> = ({ primary, secondary }) => {
   return (
     <ListItemText
       primary={primary}

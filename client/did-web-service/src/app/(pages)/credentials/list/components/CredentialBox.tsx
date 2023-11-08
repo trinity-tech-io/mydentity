@@ -1,4 +1,4 @@
-import { FC, MouseEventHandler, useEffect, useState, useCallback } from "react";
+import { FC, MouseEventHandler, ReactNode, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   IconButton,
@@ -23,6 +23,17 @@ import TextWithDynamicImage from "./TextWithDynamicImage";
 import PopupMenu from "@components/popup/PopupMenu";
 import { ProfileCredential } from "@model/credential/profile-credential";
 
+const DetailItemText: FC<{ primary: string; secondary: ReactNode }> = ({
+  primary,
+  secondary,
+}) => (
+  <ListItemText
+    primary={primary}
+    secondary={secondary}
+    primaryTypographyProps={{ fontSize: 14, fontWeight: 600 }}
+    secondaryTypographyProps={{ fontSize: 10 }}
+  />
+);
 const CredentialBox: FC<{
   id: string;
   credential: Credential;
@@ -185,34 +196,40 @@ const CredentialBox: FC<{
               }}
               transition={{ duration: 0.8, ease: [0.04, 0.62, 0.23, 0.98] }}
             >
-              <List dense sx={{ ".MuiListItemText-root": { margin: 0 } }}>
+              <List
+                dense
+                sx={{
+                  ".MuiListItemText-root": { margin: 0 },
+                  ".MuiListItem-root": { paddingLeft: 1 },
+                }}
+              >
                 <ListItem>
-                  <ListItemText
+                  <DetailItemText
                     primary="ISSUANCE DATE"
                     secondary={credential.verifiableCredential.issuanceDate.toLocaleString()}
-                    primaryTypographyProps={{ fontSize: 14, fontWeight: 600 }}
-                    secondaryTypographyProps={{ fontSize: 11 }}
                   />
                 </ListItem>
                 <ListItem>
-                  <ListItemText
+                  <DetailItemText
                     primary="EXPIRATION DATE"
                     secondary={credential.verifiableCredential.expirationDate.toLocaleString()}
-                    primaryTypographyProps={{ fontSize: 14, fontWeight: 600 }}
-                    secondaryTypographyProps={{ fontSize: 11 }}
                   />
                 </ListItem>
                 <ListItem>
-                  <ListItemText primary="CREATED BY" secondary="" />
+                  <DetailItemText
+                    primary="CREATED BY"
+                    secondary={
+                      <TextWithDynamicImage
+                        createdBy={
+                          credential.getCreatedBy(issuerInfo, activeIdentity)[0]
+                        }
+                        dynamicImage={
+                          credential.getCreatedBy(issuerInfo, activeIdentity)[1]
+                        }
+                      />
+                    }
+                  />
                 </ListItem>
-                <TextWithDynamicImage
-                  createdBy={
-                    credential.getCreatedBy(issuerInfo, activeIdentity)[0]
-                  }
-                  dynamicImage={
-                    credential.getCreatedBy(issuerInfo, activeIdentity)[1]
-                  }
-                />
               </List>
             </motion.section>
           )}
