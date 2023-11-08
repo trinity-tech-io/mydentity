@@ -11,34 +11,34 @@ import { FC, FormEvent, MutableRefObject, useRef, useState } from "react";
 const FormControlStyled = styled(FormControl)(({ theme }) => ({
   paddingTop: "1.2rem",
   input: {
-    color: "white",
-    background: 'black'
+    color: theme.palette.text.primary,
+    background: theme.palette.background.default,
   },
   ".MuiOutlinedInput-root": {
     fieldset: {
       opacity: 0.6,
-      borderColor: "white",
+      borderColor: theme.palette.text.primary,
     },
   },
   ".MuiOutlinedInput-root.Mui-focused, .MuiOutlinedInput-root:hover:not(.Mui-disabled, .Mui-error)":
-  {
-    fieldset: {
-      opacity: 0.8,
-      borderColor: "white",
+    {
+      fieldset: {
+        opacity: 0.8,
+        borderColor: theme.palette.text.primary,
+      },
     },
-  },
   ".MuiOutlinedInput-root.Mui-disabled": {
     opacity: 0.5,
     input: {
-      WebkitTextFillColor: "white",
-      textFillColor: "white",
+      WebkitTextFillColor: theme.palette.text.primary,
+      textFillColor: theme.palette.text.primary,
     },
     fieldset: {
-      borderColor: "white",
+      borderColor: theme.palette.text.primary,
     },
   },
   ".MuiInputLabel-root, .MuiInputLabel-root.Mui-focused:not(.Mui-error)": {
-    color: "white",
+    // color: "white",
     fontSize: "10px",
     transform: "unset",
     WebkitTransform: "unset",
@@ -47,7 +47,10 @@ const FormControlStyled = styled(FormControl)(({ theme }) => ({
     // fontWeight: 600,
     fontSize: "13pt",
     caretColor: "white",
-    color: "rgb(255 255 255 / 65%)",
+    color:
+      theme.palette.mode === "dark"
+        ? "rgb(255 255 255 / 70%)"
+        : "rgb(32 32 32 / 70%)",
   },
 }));
 
@@ -66,7 +69,14 @@ interface EmailFormType {
   pinCode?: string;
 }
 export const EmailFormBox: FC<EmailFormType> = (props) => {
-  const { emailInputRef, reqState, doEmailAuth, actionName = "Send magic link to email", errorMsg = null, pinCode } = props
+  const {
+    emailInputRef,
+    reqState,
+    doEmailAuth,
+    actionName = "Send magic link to email",
+    errorMsg = null,
+    pinCode,
+  } = props;
   const emailForm = useRef(null);
 
   async function onEmailSubmit(ev?: FormEvent): Promise<void> {
@@ -109,7 +119,8 @@ export const EmailFormBox: FC<EmailFormType> = (props) => {
         </form>
       ) : (
         <div className="text-sm text-center text-white">
-          Magic link sent, please check your mailbox and use the following PIN code when asked: {pinCode}
+          Magic link sent, please check your mailbox and use the following PIN
+          code when asked: {pinCode}
         </div>
       )}
       {errorMsg && (
@@ -119,7 +130,7 @@ export const EmailFormBox: FC<EmailFormType> = (props) => {
       )}
     </>
   );
-}
+};
 export const EmailSignIn: FC = () => {
   const emailInputRef = useRef(null);
   const [reqState, setReqState] = useState<RequestActionState>(
@@ -140,7 +151,7 @@ export const EmailSignIn: FC = () => {
       setOnGoingFlowOperation(FlowOperation.EmailSignIn);
 
       try {
-        const result = (await authenticateWithEmailAddress(emailAddress));
+        const result = await authenticateWithEmailAddress(emailAddress);
         setPinCode(result.pinCode);
         setReqState(RequestActionState.RESULT);
       } catch (error) {
@@ -155,10 +166,8 @@ export const EmailSignIn: FC = () => {
     }
   };
 
-  const formBoxProps = { emailInputRef, reqState, doEmailAuth, errorMsg }
-  return (
-    <EmailFormBox {...formBoxProps} pinCode={pinCode} />
-  );
+  const formBoxProps = { emailInputRef, reqState, doEmailAuth, errorMsg };
+  return <EmailFormBox {...formBoxProps} pinCode={pinCode} />;
 };
 
 export default EmailSignIn;

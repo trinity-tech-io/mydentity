@@ -31,7 +31,7 @@ const EmailAuthComponent: FC = () => {
       <Container className="py-4">
         <BindEmailOnly />
       </Container>
-      <span className="text-[11px] font-extralight text-center opacity-50">
+      <span className="text-[11px] font-extralight text-center opacity-60">
         Binding an account means you agree to the<br />
         <Link href="#" color="inherit"><span className="font-medium">Privacy Policy</span></Link> and <Link href="#" color="inherit"><span className="font-medium">Terms of Service</span></Link>.
       </span>

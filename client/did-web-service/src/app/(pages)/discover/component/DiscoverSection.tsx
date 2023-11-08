@@ -37,7 +37,7 @@ const DiscoverSection: FC<DiscoverSection> = ({
           {logo}
         </Avatar>
         <Box className="rounded-[4px] inline-block bg-[#9291A5] flex px-2 py-0.5">
-          <Typography variant="caption" fontSize={9} color="text.primary">
+          <Typography variant="caption" fontSize={9} color="white">
             {label}
           </Typography>
         </Box>

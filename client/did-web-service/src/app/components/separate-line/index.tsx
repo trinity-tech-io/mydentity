@@ -18,7 +18,7 @@ const SeparateLineText: FC<{ text: string; textClassName?: string }> = ({
     <DividerStyled>
       <Typography
         variant="caption"
-        className={clsx("px-4 font-bold text-white", textClassName)}
+        className={clsx("px-4 font-bold", textClassName)}
       >
         {text}
       </Typography>
