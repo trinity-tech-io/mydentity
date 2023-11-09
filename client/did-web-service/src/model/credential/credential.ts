@@ -208,7 +208,7 @@ export abstract class Credential {
   public getContentTree = (): any => {
     const credProps = this.verifiableCredential.getSubject().getProperties();
     const displayable = this.parseContentTree(credProps)
-    if (!displayable) return null
+    if (!displayable) return credProps
     return displayable
   }
 
