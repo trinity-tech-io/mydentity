@@ -16,6 +16,7 @@ import { AdvancedBehaviorSubject } from '@utils/advanced-behavior-subject';
 import { evalObjectFieldPath } from "@utils/objects";
 import { capitalizeFirstLetter } from "@utils/strings";
 import type { IssuerInfo } from "./issuer-info";
+import { convertUtcToLocaleDateTime, isUtcTimeString } from "@utils/strings";
 
 type ValueItem = {
   name: string,
@@ -251,6 +252,10 @@ export abstract class Credential {
           value = subject[prop].toString() != ""
             ? subject[prop].toString()
             : "not set";
+        }
+        // If it is a timestamp converted to display format
+        if (typeof value == 'string' && isUtcTimeString(value)) {
+          value = convertUtcToLocaleDateTime(value)
         }
 
         return {
