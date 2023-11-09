@@ -4,7 +4,7 @@ import { styled } from "@mui/material/styles";
 import { useMounted } from "@hooks/useMounted";
 import clsx from "clsx";
 
-const ReaderBox = styled(Box)((theme) => ({
+const ReaderBox = styled(Box)(({ theme }) => ({
   width: 420,
   height: 350,
   display: "flex",
@@ -14,18 +14,20 @@ const ReaderBox = styled(Box)((theme) => ({
     perspective: "1000px",
     borderRadius: 20,
     padding: "1.3rem 1.3rem 0.8rem",
-    backgroundColor: "#0A0A0A",
+    backgroundColor: theme.palette.mode === "dark" ? "#0A0A0A" : "#fff",
     "&.top": {
       clipPath: "polygon(0% 0%, 0% 100%, 87% 100%, 87% 0%)",
       zIndex: 20,
       ".entry-left": {
         position: "absolute",
         top: "10%",
-        right: "calc(13% + 2px)",
+        right: "calc(13% + 1px)",
         width: "5%",
         height: "80%",
         background:
-          "linear-gradient(to right, rgb(0 0 0 / 0%), rgb(0 0 0 / 20%) 20%, rgb(0 0 0 / 34%))",
+          theme.palette.mode === "dark"
+            ? "linear-gradient(to right, rgb(0 0 0 / 0%), rgb(0 0 0 / 20%) 20%, rgb(0 0 0 / 34%))"
+            : "linear-gradient(to right, rgb(0 0 0 / 0%), rgb(230 230 230 / 20%) 20%, rgb(150 150 150 / 34%))",
       },
     },
     "&:before": {
@@ -44,7 +46,7 @@ const ReaderBox = styled(Box)((theme) => ({
       position: "absolute",
       rotate: "y 300deg",
       transformOrigin: "0 0",
-      left: "calc(87% - 2px)",
+      left: "calc(87% - 1px)",
       top: "10%",
       alignItems: "center",
       textAlign: "center",
@@ -53,9 +55,13 @@ const ReaderBox = styled(Box)((theme) => ({
       overflow: "hidden",
       padding: "1px",
       boxShadow:
-        "inset 2px 2px 1px 0 rgba(0, 0, 0, 0.2), inset -2px -2px 1px 0 rgba(80, 80, 80, 0.4)",
+        theme.palette.mode === "dark"
+          ? "inset 2px 2px 1px 0 rgba(0, 0, 0, 0.2), inset -2px -2px 1px 0 rgba(80, 80, 80, 0.4)"
+          : "inset 2px 2px 1px 0 rgb(150 150 150 / 20%), inset -2px -2px 1px 0 rgb(230 230 230 / 40%)",
       background:
-        "linear-gradient(to right, transparent, #2424245e 15%, #2e2e2e52 40%, #2424245e 45%, #000000)",
+        theme.palette.mode === "dark"
+          ? "linear-gradient(to right, transparent, #2424245e 15%, #2e2e2e52 40%, #2424245e 45%, #000000)"
+          : "linear-gradient(to right, transparent, #ededed5e 15%, #d7d7d75e 40%, #c1c1c15e 45%, #888)",
     },
   },
   ".surface-back": {
@@ -69,10 +75,12 @@ const ReaderBox = styled(Box)((theme) => ({
       width: "calc(100% + 4px)",
       height: "calc(100% + 4px)",
       borderRadius: 20,
-      boxShadow: "0 0 20px black",
+      boxShadow:
+        theme.palette.mode === "dark" ? "0 0 20px black" : "0 0 10px #999",
       zIndex: -1,
-      background:
-        "radial-gradient(farthest-corner at center, #fff 0%, #ffb3ff 4%, #f3f 12.25%, #800080 31.25%, #242424 50%) bottom right / 200% 200%",
+      background: `radial-gradient(farthest-corner at center, #fff 0%, #ffb3ff 4%, #f3f 12.25%, #800080 31.25%, ${
+        theme.palette.mode === "dark" ? "#242424" : "#fff"
+      } 50%) bottom right / 200% 200%`,
       animation: "colorChange 5s linear infinite",
       transition: "all 1s ease-in",
     },
@@ -150,6 +158,7 @@ const ReaderBox = styled(Box)((theme) => ({
         opacity: 0,
       },
       "&.reveal--visible:after": {
+        border: "1px solid #DDD",
         animation: "bloc-reval 1.8s cubic-bezier(0.77, 0, 0.175, 1) forwards",
       },
       "&.reveal--visible .detail-content": {

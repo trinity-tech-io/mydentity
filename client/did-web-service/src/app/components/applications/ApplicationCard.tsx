@@ -40,7 +40,7 @@ const ApplicationCard: FC<{
       <LandingCard
         className={clsx("w-[26rem] h-auto bg-neutral-950", wrapperClassName)}
         waveIconVisible={false}
-        footer={<Typography variant="caption">{identity?.did}</Typography>}
+        footer={<Typography variant="caption" color="white">{identity?.did}</Typography>}
       >
         <div className="flex flex-col mb-[5%]">
           <label htmlFor="holder-name" className="text-white text-[10px]">
