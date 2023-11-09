@@ -80,7 +80,7 @@ const DeleteIdentityPage: FC = () => {
                 </Stack>
               }
               footer={
-                <Typography variant="caption">{activeIdentity.did}</Typography>
+                <Typography variant="caption" color="white">{activeIdentity.did}</Typography>
               }
             >
               <Stack spacing={2} sx={{ mb: { xs: "3%", sm: "5%" }, mt: -12 }}>

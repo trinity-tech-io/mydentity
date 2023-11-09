@@ -22,7 +22,12 @@ const DiscoverSection: FC<DiscoverSection> = ({
 }) => {
   return (
     <CardStyled elevation={0} className="h-full">
-      <Stack className="h-full" spacing={1.5} alignItems="center" sx={{ p: { xs: 1.5, sm: 3 } }}>
+      <Stack
+        className="h-full"
+        spacing={1.5}
+        alignItems="center"
+        sx={{ p: { xs: 1.5, sm: 3 } }}
+      >
         <Avatar
           sx={{
             p: 2,
@@ -31,7 +36,7 @@ const DiscoverSection: FC<DiscoverSection> = ({
             background: (theme) =>
               theme.palette.mode == "dark"
                 ? theme.palette.background.default
-                : theme.palette.primary.light,
+                : "#202020",
           }}
         >
           {logo}
@@ -50,7 +55,9 @@ const DiscoverSection: FC<DiscoverSection> = ({
         >
           {description}
         </Typography>
-        <DarkButton className="w-full" onClick={handleAction}>{actionName}</DarkButton>
+        <DarkButton className="w-full" onClick={handleAction}>
+          {actionName}
+        </DarkButton>
       </Stack>
     </CardStyled>
   );
