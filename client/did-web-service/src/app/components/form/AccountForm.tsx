@@ -26,7 +26,6 @@ const AccountForm = styled(FormControl)(({ theme }) => ({
     },
   },
   ".MuiInputLabel-root, .MuiInputLabel-root.Mui-focused:not(.Mui-error)": {
-    color: "white",
     fontSize: "10px",
     transform: "unset",
     WebkitTransform: "unset",

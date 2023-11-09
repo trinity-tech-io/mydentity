@@ -1,6 +1,6 @@
 "use client";
 import { FC, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next13-progressbar";
 import AddIcon from "@mui/icons-material/Add";
 import { TableCell, TableRow } from "@mui/material";
 import { DarkButton } from "@components/button";

@@ -55,7 +55,7 @@ export const BrowserRow: FC<{
 
   return (
     <>
-      <CardStyled className="inline-block">
+      <CardStyled variant="outlined" className="inline-block">
         <div className="relative z-10 inline-flex gap-5 px-3 py-5">
           <div className="relative">
             <ReactIcon icon="ic:round-computer" fontSize={40} />

@@ -302,7 +302,12 @@ const NewIdentityPage: FC = () => {
         </Zoom>
         <div className="w-2/5 flex-1 flex justify-center">
           <div className="w-full max-w-md">
-            <CardCase className="relative w-full md:pb-2">
+            <CardCase
+              className={clsx(
+                "relative w-full md:pb-2",
+                visibleInputForm ? "fade-out" : ""
+              )}
+            >
               <div className="absolute inset-0 p-2">
                 <div
                   className={clsx(
@@ -317,7 +322,7 @@ const NewIdentityPage: FC = () => {
                     <IdentityForm className="basis-[89%] mt-2 relative">
                       <LandingCard
                         className={clsx(
-                          "min-w-full w-auto h-full bg-neutral-950",
+                          "min-w-full w-auto h-full bg-neutral-950 drop-shadow-none	",
                           visibleInputForm ? "take-out" : ""
                         )}
                         position="absolute"

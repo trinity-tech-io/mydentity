@@ -36,8 +36,8 @@ export const CaseWrapper = styled(Box)(({ theme }) => ({
 export const CardCase = styled(Card)(({ theme }) => ({
   minWidth: 180,
   cursor: "initial",
-  backgroundImage: "url('/dark-leather.png')",
-  backgroundColor: "black",
+  backgroundImage: `url('/${theme.palette.mode}-leather.png')`,
+  backgroundColor: theme.palette.mode === "dark" ? "black" : "unset",
   borderRadius: "1.5rem",
   overflow: "visible",
   "&:after": {
@@ -46,13 +46,15 @@ export const CardCase = styled(Card)(({ theme }) => ({
     content: "''",
   },
   ".dashed-body": {
-    border: "2px dashed rgb(50 38 38)",
+    borderWidth: 2,
+    borderStyle: "dashed",
+    borderColor: theme.palette.mode === "dark"? "#322626": "#858585",
     [theme.breakpoints.down("sm")]: {
       borderWidth: 1,
     },
   },
   ".compartment, .compartment-top": {
-    backgroundImage: "url('/dark-leather.png')",
+    backgroundImage: `url('/${theme.palette.mode}-leather.png')`,
     backgroundColor: "black",
     width: "100%",
   },
@@ -74,7 +76,7 @@ export const CardCase = styled(Card)(({ theme }) => ({
       visibility: "hidden",
     },
   },
-  ".fade-out": {
+  "&.fade-out, .fade-out": {
     animation: `fadeOut 1s ${theme.transitions.easing.easeInOut} forwards`,
     MsAnimation: `fadeOut 1s ${theme.transitions.easing.easeInOut} forwards`,
     WebkitAnimation: `fadeOut 1s ${theme.transitions.easing.easeInOut} forwards`,
