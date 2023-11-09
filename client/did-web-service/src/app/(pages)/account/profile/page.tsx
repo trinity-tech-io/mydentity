@@ -2,7 +2,7 @@
 
 import { FC, useEffect, useState } from "react";
 import { useRouter } from "next13-progressbar";
-import { Button, Grow, Input, InputAdornment } from "@mui/material";
+import { Button, Grow, Input, InputAdornment, InputLabel } from "@mui/material";
 import { Breadcrumbs } from "@components/breadcrumbs/Breadcrumbs";
 import { DarkButton } from "@components/button";
 import { CardCase, LandingCard } from "@components/card";
@@ -83,12 +83,13 @@ const AccountProfile: FC = () => {
                     <div className="compartment absolute bottom-0 h-[45%] flex items-center">
                       <div className="px-[10%] py-4 w-full">
                         <AccountForm fullWidth>
-                          <label
+                          <InputLabel
                             htmlFor="holder-name"
-                            className="text-white text-[10px] text-center"
+                            className="text-center w-full"
+                            sx={{ position: "relative", fontWeight: 600 }}
                           >
                             ACCOUNT NAME
-                          </label>
+                          </InputLabel>
                           {mounted && authUser ? (
                             <Input
                               id="holder-name"

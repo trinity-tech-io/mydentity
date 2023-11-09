@@ -52,7 +52,7 @@ const LandingCard: FC<{
   handleClickChip?: MouseEventHandler<HTMLButtonElement>;
 }> = ({
   className = "",
-  waveIconVisible = true,
+  waveIconVisible = false,
   position = "relative",
   dividerVisible = true,
   topRightSection = null,

@@ -66,7 +66,6 @@ const DeleteIdentityPage: FC = () => {
           <>
             <LandingCard
               className="w-full h-auto bg-neutral-950"
-              waveIconVisible={false}
               topRightSection={
                 <Stack alignItems="end" spacing={0.5}>
                   <Box className="rounded-md bg-[#9291A5] text-[7pt] px-3 py-0.5 inline-block">

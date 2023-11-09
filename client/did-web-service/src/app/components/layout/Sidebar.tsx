@@ -78,7 +78,7 @@ const IdentityCardGroup: FC<{ visiblePagination: boolean }> = ({
   };
 
   return !identities ? (
-    <LandingCard className="bg-black w-full" waveIconVisible={false} />
+    <LandingCard className="bg-black w-full" />
   ) : (
     <Box
       sx={{

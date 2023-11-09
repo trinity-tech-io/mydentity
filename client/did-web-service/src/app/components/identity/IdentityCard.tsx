@@ -136,7 +136,6 @@ export const IdentityCard: FC<{
             "w-[26rem] h-auto",
             activeIdentity != identity ? "bg-[#675216]" : "bg-neutral-950"
           )}
-          waveIconVisible={false}
           chipClickable={true}
           handleClickChip={handleClickChip}
           topRightSection={

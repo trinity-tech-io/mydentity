@@ -24,6 +24,12 @@ const AccountForm = styled(FormControl)(({ theme }) => ({
     "&:before, &:after": {
       opacity: 0.3,
     },
+    "#holder-name": {
+      color:
+        theme.palette.mode === "dark"
+          ? "rgb(255 255 255 / 80%)"
+          : "rgb(32 32 32 / 80%)",
+    },
   },
   ".MuiInputLabel-root, .MuiInputLabel-root.Mui-focused:not(.Mui-error)": {
     fontSize: "10px",
@@ -34,8 +40,11 @@ const AccountForm = styled(FormControl)(({ theme }) => ({
     fontWeight: 600,
     fontSize: "15pt",
     textAlign: "center",
-    caretColor: "white",
-    color: "rgb(255 255 255 / 65%)",
+    // caretColor: "white",
+    color:
+      theme.palette.mode === "dark"
+        ? "rgb(255 255 255 / 65%)"
+        : "rgb(32 32 32 / 65%)",
   },
   ".password-input.redacted": {
     fontFamily: "Redacted Script",

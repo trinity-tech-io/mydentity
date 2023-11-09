@@ -11,7 +11,6 @@ const Card: FC = () => {
     <SkelTheme>
       <LandingCard
         className={"w-full h-auto bg-neutral-950"}
-        waveIconVisible={false}
         topRightSection={
           <h5 className="w-[30%]"><Skeleton count={1} height={24} /></h5>
         }

@@ -232,7 +232,6 @@ const ClaimIdentityPage: FC = () => {
           <div className="max-w-md w-full m-auto pt-4">
             <LandingCard
               className="w-full h-auto bg-neutral-950"
-              waveIconVisible={false}
               footer={
                 <Typography variant="caption">{creatingAppDID}</Typography>
               }

@@ -25,7 +25,6 @@ export const IdentityInfoCard: FC<{
         "w-full",
         activeIdentity != identity ? "bg-[#675216]" : "bg-neutral-950"
       )}
-      waveIconVisible={false}
       footer={
         <Typography variant="inherit" fontSize="7pt" sx={{ color: "#fff" }}>
           {shortenDID(identity.did, 8)}

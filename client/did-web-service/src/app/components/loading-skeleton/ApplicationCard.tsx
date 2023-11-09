@@ -12,7 +12,6 @@ const ApplicationCard: FC = () => {
     <SkelTheme>
       <LandingCard
         className={"w-full h-auto bg-neutral-950"}
-        waveIconVisible={false}
         footer={<h5 className="w-full"><Skeleton count={1} /></h5>}
       >
         <div className="w-full mb-[5%]">
