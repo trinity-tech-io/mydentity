@@ -88,14 +88,17 @@ const ExportMnemonicPage: FC = () => {
    * application type = developers page app did
    */
   const groupIdentityName = (identityRoot: IdentityRoot): string => {
+    if (identityRoot.id === activeUser.defaultRootIdentityId)
+      return "Main identity group";
+
     let groupLabel = "";
 
     for (const identity of identityRoot.Identity) {
       if (identity.type === "REGULAR") {
         groupLabel =
           identity.creatingAppIdentity !== null
-            ? "Claimed Identity"
-            : "Main Identity group";
+            ? "Claimed identity group"
+            : "Secondary identity group";
         break; // Stop iterating once a regular identity is found
       }
       // else if (identity.type === 'APPLICATION') {
