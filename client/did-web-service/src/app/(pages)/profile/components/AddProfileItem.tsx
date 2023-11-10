@@ -49,10 +49,11 @@ const AddProfileItem: FC<AddProfileItemType> = ({ identity }) => {
       // - Be of kind "multipleInstancesAllowed"
       // - Or not be used by user's credentials yet
       return (
-        entry.options.multipleInstancesAllowed ||
-        !credentials?.find((c) =>
-          c.verifiableCredential.type.includes(entry.type?.getShortType())
-        )
+        entry.key.toLowerCase() !== "avatar" &&
+        (entry.options.multipleInstancesAllowed ||
+          !credentials?.find((c) =>
+            c.verifiableCredential.type.includes(entry.type?.getShortType())
+          ))
       );
     });
 
