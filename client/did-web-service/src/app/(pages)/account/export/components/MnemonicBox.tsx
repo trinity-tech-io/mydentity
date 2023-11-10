@@ -18,7 +18,7 @@ const MnemonicBox: FC<{ mnemonic: string }> = ({ mnemonic }) => {
         <Box className="p-4 pb-2">
           <Stack spacing={1}>
             <Stack direction="row" alignItems="center">
-              <Typography variant="subtitle1">MNEMONICS</Typography>
+              <Typography variant="subtitle1">MNEMONIC</Typography>
               <div className="inline-flex gap-1 ml-auto">
                 <IconButton
                   size="small"
@@ -48,7 +48,7 @@ const MnemonicBox: FC<{ mnemonic: string }> = ({ mnemonic }) => {
             </div>
           </Stack>
           <Typography variant="caption" color="error">
-            Reminder: Please store the mnemonics in a secure place
+            Reminder: Please store the mnemonic in a secure place
           </Typography>
         </Box>
       </Card>

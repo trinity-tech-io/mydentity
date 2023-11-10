@@ -3,6 +3,7 @@ import React, { FC, ReactNode, useEffect, useState } from "react";
 import { filter } from "rxjs";
 import { usePathname } from "next/navigation";
 import { SnackbarProvider } from "notistack";
+import { PaletteMode } from "@mui/material";
 import TrinityLogo from "@assets/images/TrinityLogo.svg";
 import { Header } from "@components/layout/Header";
 import Sidebar from "@components/layout/Sidebar";
@@ -91,12 +92,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }): React.JSX.Element {
   const pathname = usePathname(); // Get current route
-  const LayoutMain = checkIfStringStartsWith(pathname, EntryRoutes)
-    ? EntryLayout
-    : LayoutCore;
+  const isEntryRoute = checkIfStringStartsWith(pathname, EntryRoutes);
+  const LayoutMain = isEntryRoute ? EntryLayout : LayoutCore;
   return (
     <AppThemeProvider>
-      <ThemeRegistry>
+      <ThemeRegistry defaultTheme={isEntryRoute ? "dark" : null}>
         <SnackbarProvider>
           <UnlockKeyPromptContextProvider>
             <LayoutMain>{children}</LayoutMain>

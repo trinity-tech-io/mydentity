@@ -13,6 +13,7 @@ import { IdentityRootDids } from "./components/IdentityRootDids";
 import Headline from "@components/layout/Headline";
 import SecuritySection from "../security/components/SecuritySection";
 import MnemonicBox from "./components/MnemonicBox";
+import { activeIdentity$ } from "@services/identity/identity.events";
 
 const TAG = "export-mnemonic";
 interface Mnemonics {
@@ -23,6 +24,7 @@ const ExportMnemonicPage: FC = () => {
   const [activeUser] = useBehaviorSubject(authUser$);
   const [exporting, setExporting] = useState<{ [key: string]: boolean }>({});
   const [mnemonics, setMnemonics] = useState<Mnemonics>({});
+  const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const [identities] = useBehaviorSubject(
     activeUser?.get("identity").regularIdentities$
   ); //TODO: Replace with Identities under the Identity root id
@@ -129,7 +131,7 @@ const ExportMnemonicPage: FC = () => {
                 title={showGroupName}
                 statusTitle={`EXPORT CREDENTIALS NOT SUPPORTED YET. COMING SOON`}
                 isSet={false}
-                actionTitle={"EXPORT MNEMONICS"}
+                actionTitle={"EXPORT MNEMONIC"}
                 disabledAction={!!mnemonics[identityRoot.id]}
                 actionInProgress={exporting[identityRoot.id] || false}
                 handleAction={(): void => {
