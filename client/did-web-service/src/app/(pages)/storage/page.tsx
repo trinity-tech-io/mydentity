@@ -76,7 +76,10 @@ const StoragePage: FC = () => {
             width: 80,
             height: 80,
             p: 2,
-            background: (theme) => theme.palette.background.paper,
+            background: (theme) =>
+              theme.palette.mode === "dark"
+                ? theme.palette.background.paper
+                : "#fff1e6",
           }}
         />
         <div className="flex flex-col flex-1 justify-center">
@@ -164,7 +167,11 @@ const StoragePage: FC = () => {
               <StorageProgress
                 variant="determinate"
                 value={(100 * storageUsed) / (storageQuota || 1)}
-                sx={{ height: 24, background: "#5a5a5aa8" }}
+                sx={{
+                  height: 24,
+                  background: (theme) =>
+                    theme.palette.mode === "dark" ? "#5a5a5aa8" : "#cdcdcda8",
+                }}
               />
             ) : (
               <LoadingOneLineText height={24} />

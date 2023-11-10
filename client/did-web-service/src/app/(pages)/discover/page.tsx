@@ -6,6 +6,7 @@ import DiscoverSection from "./component/DiscoverSection";
 import EssentialsLogo from "@assets/shared/esentials.svg";
 import ElastosLogo from "@assets/shared/elastos.svg";
 import TrinityLogo from "@assets/shared/trinitytech.svg";
+import KYCLogo from "@assets/shared/kyc.svg";
 
 const DiscoverProps = [
   {
@@ -39,6 +40,17 @@ const DiscoverProps = [
     actionName: "VISIT WEBSITE",
     handleAction: (): void => {
       window.open("https://trinity-tech.io", "_blank");
+    },
+  },
+  {
+    logo: <KYCLogo width="100%" height="100%" />,
+    label: "KYC SERVICE",
+    title: "KYC-me",
+    description:
+      "KYC Service for W3C DID and Verifiable Credentials on the Elastos Platform. Users can also utilize prominent KYC providers like Alibaba Cloud and Tencent Cloud to issue credentials.",
+    actionName: "VISIT WEBSITE",
+    handleAction: (): void => {
+      window.open("https://kyc-me.io", "_blank");
     },
   },
 ];
