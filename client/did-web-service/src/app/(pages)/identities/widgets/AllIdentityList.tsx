@@ -62,7 +62,6 @@ export const AllIdentityList: FC = (_) => {
           tourState
             .checkTourState(TOUR_STATE_NAME)
             .then((isAlreadyViewed) => {
-              console.log(isAlreadyViewed, 999);
               if (isAlreadyViewed) return;
               setTimeout(() => setRunTour(true), 500);
               tourState.setTourState(TOUR_STATE_NAME);
