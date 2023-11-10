@@ -136,8 +136,8 @@ const CheckAuthKey: FC = () => {
   return (
     <div>
       <Headline
-        title="Sign in from another browser"
-        description="Kindly enter the 6-digit PIN that was provided when generating a sign-in link for another browser"
+        title="Alternate sign-in by PIN"
+        description="Kindly enter the 6-digit PIN that was provided to you."
         showBg={true}
       />
       <Stack

@@ -17,7 +17,10 @@ const TourTooltip: FC<TooltipRenderProps> = ({
       {...tooltipProps}
       // radius="sm"
       sx={{
-        background: "linear-gradient(to bottom, #5300bd, #380976)",
+        background: (theme) =>
+          theme.palette.mode === "dark"
+            ? "linear-gradient(to bottom, #333333, #242424)"
+            : "linear-gradient(to bottom, #fff, #eee)",
         px: 2,
         py: 1,
         maxWidth: 420,

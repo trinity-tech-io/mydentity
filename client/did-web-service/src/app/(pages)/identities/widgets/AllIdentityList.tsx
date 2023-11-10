@@ -18,11 +18,13 @@ import { IdentityCard } from "@components/identity/IdentityCard";
 import { LoadingCard } from "@components/loading-skeleton";
 import TourTooltip from "@components/tooltip/TourTooltip";
 import TourState from "@services/tour.service";
+import { useTheme } from "@mui/material/styles";
 
 const TAG = "IdentityListWidget";
 const TOUR_STATE_NAME = "identity-chip";
 
 export const AllIdentityList: FC = (_) => {
+  const theme = useTheme();
   const [authUser] = useBehaviorSubject(authUser$);
   const [identities] = useBehaviorSubject(
     authUser?.get("identity").regularIdentities$
@@ -60,6 +62,7 @@ export const AllIdentityList: FC = (_) => {
           tourState
             .checkTourState(TOUR_STATE_NAME)
             .then((isAlreadyViewed) => {
+              console.log(isAlreadyViewed, 999);
               if (isAlreadyViewed) return;
               setTimeout(() => setRunTour(true), 500);
               tourState.setTourState(TOUR_STATE_NAME);
@@ -139,7 +142,11 @@ export const AllIdentityList: FC = (_) => {
           stepIndex={tourStepIndex}
           steps={TourSteps}
           tooltipComponent={TourTooltip}
-          styles={{ options: { arrowColor: "#380976" } }}
+          styles={{
+            options: {
+              arrowColor: theme.palette.mode === "dark" ? "#242424" : "#eee",
+            },
+          }}
         />
       )}
       <div className="p-3">
