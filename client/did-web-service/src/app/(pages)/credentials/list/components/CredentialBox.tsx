@@ -22,6 +22,7 @@ import { activeIdentity$ } from "@services/identity/identity.events";
 import TextWithDynamicImage from "./TextWithDynamicImage";
 import PopupMenu from "@components/popup/PopupMenu";
 import { ProfileCredential } from "@model/credential/profile-credential";
+import { EditableCredentialAvatar } from "@components/credential/EditableCredentialAvatar";
 
 const DetailItemText: FC<{ primary: string; secondary: ReactNode }> = ({
   primary,
@@ -62,6 +63,8 @@ const CredentialBox: FC<{
   const [issuerInfo] = useBehaviorSubject(credential?.issuerInfo$);
   const [activeIdentity] = useBehaviorSubject(activeIdentity$);
   const [popupMenuEl, setPopupMenuEl] = useState(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const identityProfileFeature = activeIdentity?.profile();
 
   // const handleExpanding: MouseEventHandler<HTMLButtonElement> = (e): void => {
   //   e.stopPropagation();
@@ -111,6 +114,12 @@ const CredentialBox: FC<{
     handleCloseMenu();
   };
 
+  const handleAvatarFileChanged = async (file: File): Promise<void> => {
+    setUploadingAvatar(true);
+    await identityProfileFeature.upsertIdentityAvatar(file);
+    setUploadingAvatar(false);
+  };
+
   return (
     <div className="relative h-full cursor-pointer" onClick={handleClick}>
       <CardStyled
@@ -136,13 +145,30 @@ const CredentialBox: FC<{
             flexGrow={1}
             alignItems="center"
             overflow="hidden"
+            className="h-full"
           >
-            <div className="relative">
-              <CredentialAvatar
-                credential={credential}
-                width={32}
-                height={32}
-              />
+            <div
+              className="relative"
+              onClick={(e): void => {
+                e.stopPropagation();
+              }}
+            >
+              {credential.getDisplayableTitle().toLowerCase() === "avatar" ? (
+                <EditableCredentialAvatar
+                  credential={credential}
+                  width={32}
+                  height={32}
+                  onFileUpload={handleAvatarFileChanged}
+                  updating={uploadingAvatar}
+                  disabled={!credential}
+                />
+              ) : (
+                <CredentialAvatar
+                  credential={credential}
+                  width={32}
+                  height={32}
+                />
+              )}
               {isConform && (
                 <ConformBadge className="absolute right-0 bottom-0 translate-x-[10%] translate-y-[20%]" />
               )}
@@ -170,9 +196,11 @@ const CredentialBox: FC<{
               }}
               handleClickAway={handleMenuClickAway}
             >
-              <MenuItem value="edit" onClick={handleClickMenu}>
-                Edit
-              </MenuItem>
+              {credential.getDisplayableTitle().toLowerCase() !== "avatar" && (
+                <MenuItem value="edit" onClick={handleClickMenu}>
+                  Edit
+                </MenuItem>
+              )}
               <MenuItem
                 value="delete"
                 sx={{ color: "error.main" }}
