@@ -65,6 +65,7 @@ const CredentialBox: FC<{
   const [popupMenuEl, setPopupMenuEl] = useState(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const identityProfileFeature = activeIdentity?.profile();
+  const isProfileCredential = credential instanceof ProfileCredential;
 
   // const handleExpanding: MouseEventHandler<HTMLButtonElement> = (e): void => {
   //   e.stopPropagation();
@@ -196,11 +197,12 @@ const CredentialBox: FC<{
               }}
               handleClickAway={handleMenuClickAway}
             >
-              {credential.getDisplayableTitle().toLowerCase() !== "avatar" && (
-                <MenuItem value="edit" onClick={handleClickMenu}>
-                  Edit
-                </MenuItem>
-              )}
+              {credential.getDisplayableTitle().toLowerCase() !== "avatar" &&
+                isProfileCredential && (
+                  <MenuItem value="edit" onClick={handleClickMenu}>
+                    Edit
+                  </MenuItem>
+                )}
               <MenuItem
                 value="delete"
                 sx={{ color: "error.main" }}
