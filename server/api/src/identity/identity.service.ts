@@ -102,11 +102,9 @@ export class IdentityService {
     const derivationIndex = didStoreRootIdentity.getIndex() - 1;
     this.logger.log('Creating DID at index ' + derivationIndex);
 
-    /* Comment out the following two lines：If no root identity id is provider, it means you need to create an application mnemonic
-    // If no root identity id is provider but the user has a default root identity, then we user the default root identity
-    if (!identityRootId && user.defaultRootIdentityId)
+    // If IdentityType.REGULAR and no root identity id is provider but the user has a default root identity, then we user the default root identity
+    if (type === IdentityType.REGULAR && !identityRootId && user.defaultRootIdentityId)
       identityRootId = user.defaultRootIdentityId;
-    */
 
     // If there is no known root identity, we create one and mark it as default for the user.
     if (!identityRootId) {
