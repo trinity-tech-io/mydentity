@@ -87,3 +87,15 @@ Add the following .vscode/settings.json in order to:
   }
 }
 ```
+
+# Contribution
+
+We welcome contributions to the **Mydentity** Project.
+
+# Acknowledgments
+
+A sincere thank you to all teams and projects that we rely on directly or indirectly.
+
+# License
+
+This project is licensed under the terms of the [MIT license](https://github.com/trinity-tech-io/mydentity/blob/master/LICENSE).
